@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/providers.dart';
 import '../../../app/theme.dart';
 import '../../../shared/photo_picker.dart';
+import '../../identify/domain/identification.dart';
+import '../../identify/presentation/identify_sheet.dart';
 import '../../../shared/widgets.dart';
 import '../../care/domain/care_interval_calculator.dart';
 import '../../care/domain/care_type.dart';
@@ -29,6 +31,7 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
   PlantVisibility _visibility = PlantVisibility.followers;
   Uint8List? _photo;
   bool _saving = false;
+  bool _identifying = false;
 
   @override
   void dispose() {
@@ -41,13 +44,46 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
     if (jpeg != null) setState(() => _photo = jpeg);
   }
 
-  Future<void> _pickSpecies() async {
+  Future<void> _identify() async {
+    final identifier = ref.read(plantIdentifierProvider);
+    if (identifier == null || _photo == null) return;
+    setState(() => _identifying = true);
+    try {
+      final predictions = await identifier.identify(_photo!);
+      final knowledgeBase = await ref.read(gardenRepositoryProvider).popularSpecies();
+      final candidates = [for (final p in predictions) matchSpecies(p.label, p.score, knowledgeBase)];
+      if (!mounted) return;
+      setState(() => _identifying = false);
+      final chosen = await showIdentificationResults(context, candidates);
+      if (chosen == null || !mounted) return;
+      if (chosen.species != null && !chosen.genusOnly) {
+        setState(() {
+          _species = chosen.species;
+          if (_name.text.trim().isEmpty) _name.text = chosen.species!.name;
+        });
+      } else if (chosen.genusOnly) {
+        await _pickSpecies(initialQuery: chosen.latinName.split(' ').first);
+      } else {
+        setState(() {
+          _species = null;
+          if (_name.text.trim().isEmpty) _name.text = capitalizeLatin(chosen.latinName);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _identifying = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Распознавание не удалось: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickSpecies({String initialQuery = ''}) async {
     final picked = await showModalBottomSheet<Species>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       useSafeArea: true,
-      builder: (_) => const _SpeciesPicker(),
+      builder: (_) => _SpeciesPicker(initialQuery: initialQuery),
     );
     if (picked == null) return;
     setState(() {
@@ -130,6 +166,17 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
               label: Text(_photo == null ? 'Добавить фото' : 'Сменить фото'),
             ),
           ),
+          if (_photo != null && ref.watch(plantIdentifierProvider) != null)
+            Center(
+              child: FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                onPressed: _identifying ? null : _identify,
+                icon: _identifying
+                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.auto_awesome_rounded),
+                label: Text(_identifying ? 'Распознаём…' : 'Распознать растение'),
+              ),
+            ),
           const SizedBox(height: 16),
           _Label('Вид'),
           Card(
@@ -231,14 +278,16 @@ class _Label extends StatelessWidget {
 }
 
 class _SpeciesPicker extends ConsumerStatefulWidget {
-  const _SpeciesPicker();
+  const _SpeciesPicker({this.initialQuery = ''});
+
+  final String initialQuery;
 
   @override
   ConsumerState<_SpeciesPicker> createState() => _SpeciesPickerState();
 }
 
 class _SpeciesPickerState extends ConsumerState<_SpeciesPicker> {
-  String _query = '';
+  late String _query = widget.initialQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +298,7 @@ class _SpeciesPickerState extends ConsumerState<_SpeciesPicker> {
           padding: const EdgeInsets.symmetric(horizontal: GardenTheme.gutter),
           child: TextField(
             autofocus: true,
+            controller: TextEditingController(text: widget.initialQuery),
             decoration: const InputDecoration(prefixIcon: Icon(Icons.search_rounded), hintText: 'Название: монстера, фикус…'),
             onChanged: (v) => setState(() => _query = v),
           ),

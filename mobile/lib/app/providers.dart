@@ -8,6 +8,7 @@ import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
 import '../features/gamification/domain/gamification.dart';
+import '../features/identify/data/plant_identifier.dart';
 import '../features/knowledge_base/domain/species.dart';
 import '../features/social/domain/social.dart';
 
@@ -17,6 +18,9 @@ final gardenRepositoryProvider = Provider<GardenRepository>((ref) => throw Unimp
 final socialRepositoryProvider = Provider<SocialRepository>((ref) => throw UnimplementedError());
 
 final reminderServiceProvider = Provider<ReminderService>((ref) => const NoopReminderService());
+
+/// Распознавание по фото; null — недоступно (демо-режим без сервера).
+final plantIdentifierProvider = Provider<PlantIdentifier?>((ref) => null);
 
 /// Связь и очередь офлайн-изменений; в демо-режиме всегда «всё отправлено».
 final syncStateProvider = StreamProvider<SyncState>((ref) async* {

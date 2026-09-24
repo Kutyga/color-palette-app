@@ -14,6 +14,7 @@ import 'data/garden_repository.dart';
 import 'data/offline_garden_repository.dart';
 import 'data/social_repository.dart';
 import 'data/supabase_garden_repository.dart';
+import 'features/identify/data/plant_identifier.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +46,10 @@ Future<void> main() async {
       socialRepositoryProvider.overrideWithValue(social),
       reminderServiceProvider.overrideWithValue(reminders),
       demoModeProvider.overrideWithValue(!AppConfig.hasBackend),
+      if (AppConfig.hasBackend)
+        plantIdentifierProvider.overrideWithValue(
+          TflitePlantIdentifier(modelUrl: AppConfig.plantModelUrl, labelsUrl: AppConfig.plantLabelsUrl),
+        ),
     ],
     child: const GardenApp(),
   ));
