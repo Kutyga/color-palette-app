@@ -289,10 +289,24 @@ do $$ begin
          'поиск по русскому названию';
   assert (select slug from public.search_species('тёщин язык') limit 1) = 'dracaena-trifasciata',
          'поиск по народному названию';
-  assert (select slug from public.search_species('sansevieria') limit 1) = 'dracaena-trifasciata',
+  assert (select slug from public.search_species('sansevieria trifasciata') limit 1) = 'dracaena-trifasciata',
          'поиск по синониму';
+  assert 'dracaena-trifasciata' in (select slug from public.search_species('sansevieria')),
+         'поиск по роду-синониму';
+  assert (select slug from public.search_species('фиалка') limit 1) = 'streptocarpus-ionanthus',
+         'поиск по части народного названия';
   assert (select slug from public.search_species('fikus elastika') limit 1) = 'ficus-elastica',
          'поиск с опечатками';
+  assert (select count(*) from public.species) >= 67, 'расширенная база знаний';
+  assert (select count(*) from public.species s where not exists (
+            select 1 from public.care_profiles c where c.species_id = s.id)) = 0,
+         'у каждого вида есть карточка ухода';
+  assert (select slug from public.search_species('калатея') limit 1) like 'goeppertia-%',
+         'поиск по старому народному названию';
+  assert (select slug from public.search_species('calathea orbifolia') limit 1) = 'goeppertia-orbifolia',
+         'поиск по устаревшему латинскому названию';
+  assert (select slug from public.search_species('узамбарская фиалка') limit 1) = 'streptocarpus-ionanthus',
+         'сенполия под новым названием';
   assert (select count(*) from public.plants) = 0, 'гость не видит растения';
 end $$;
 
