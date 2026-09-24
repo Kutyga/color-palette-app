@@ -152,6 +152,14 @@ class _PlantBody extends ConsumerWidget {
                 },
               ),
             ListTile(
+              leading: const Icon(Icons.add_a_photo_outlined),
+              title: const Text('Поделиться в ленте'),
+              onTap: () {
+                Navigator.pop(sheet);
+                context.push('/post/new?plant=${details.plant.id}');
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.delete_outline_rounded, color: context.garden.alert),
               title: Text('Удалить из коллекции', style: TextStyle(color: context.garden.alert)),
               onTap: () async {
@@ -210,7 +218,7 @@ class _Facts extends StatelessWidget {
               icon: Icons.water_drop_rounded,
               color: plantStatus(next, now).color(c),
               value: relativeDay(next, now),
-              label: 'следующий полив',
+              label: next.isBefore(now) ? 'полив просрочен' : 'полив',
             ),
           if (care?.light != null) FactTile(icon: Icons.wb_sunny_rounded, color: c.soil, value: care!.light!.label, label: 'свет'),
           if (care?.humidityMinPct != null)
@@ -252,6 +260,7 @@ class _ScheduleRow extends ConsumerWidget {
         style: context.text.bodySmall,
       ),
       trailing: TextButton(
+        style: TextButton.styleFrom(foregroundColor: next == null ? null : plantStatus(next, now).color(context.garden)),
         onPressed: () => ref.logCare(plantId, schedule.type),
         child: Text(next == null ? 'Отметить' : relativeDay(next, now)),
       ),

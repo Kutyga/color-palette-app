@@ -187,6 +187,38 @@ begin
   assert (st ->> 'current_streak')::int = 3, format('текущая серия: %s', st);
 end $$;
 
+-- Новости: сборщик (service_role) вставляет статьи, дубликаты по URL пропускаются,
+-- упомянутые виды проставляются автоматически.
+reset role;
+do $$
+declare
+  src uuid := (select id from public.news_sources where name = 'Ботаничка');
+  n int;
+begin
+  n := public.ingest_news(src, '[
+    {"url": "https://example.org/a", "title": "Как спасти монстеру после перелива", "summary": "Monstera deliciosa не любит холодную воду", "published_at": "2026-09-20T10:00:00Z"},
+    {"url": "https://example.org/a", "title": "Дубликат", "summary": ""},
+    {"url": "javascript:alert(1)", "title": "Плохая ссылка"},
+    {"url": "https://example.org/b", "title": "Осенняя подкормка", "summary": "Что делать в октябре", "published_at": "2026-09-21T10:00:00Z"}
+  ]'::jsonb);
+  assert n = 2, format('вставлено %s', n);
+  assert (select species_ids from public.news_articles where url = 'https://example.org/a')
+         = array[(select id from public.species where slug = 'monstera-deliciosa')], 'распознан вид';
+end $$;
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  assert (select count(*) from public.news_feed()) = 2, 'лента новостей';
+  assert (select title from public.news_feed() limit 1) = 'Осенняя подкормка', 'свежие сверху';
+  assert (select count(*) from public.news_feed(only_my_species => true)) = 1, 'новости про мои растения';
+end $$;
+do $$ begin
+  perform public.ingest_news((select id from public.news_sources limit 1), '[]'::jsonb);
+  raise exception 'пользователь не должен вызывать ingest_news';
+exception when insufficient_privilege then null;
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

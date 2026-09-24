@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_garden/app/app.dart';
 import 'package:my_garden/app/providers.dart';
 import 'package:my_garden/data/demo_garden_repository.dart';
+import 'package:my_garden/data/demo_social_repository.dart';
 import 'package:my_garden/features/collection/domain/plant.dart';
 import 'package:my_garden/features/collection/presentation/add_plant_screen.dart';
 import 'package:my_garden/features/collection/presentation/plant_screen.dart';
@@ -22,7 +23,11 @@ void main() {
       ));
     }
     await tester.pumpWidget(ProviderScope(
-      overrides: [gardenRepositoryProvider.overrideWithValue(repo), demoModeProvider.overrideWithValue(true)],
+      overrides: [
+        gardenRepositoryProvider.overrideWithValue(repo),
+        socialRepositoryProvider.overrideWithValue(DemoSocialRepository(garden: repo)),
+        demoModeProvider.overrideWithValue(true),
+      ],
       child: const GardenApp(),
     ));
     await tester.pumpAndSettle();
@@ -55,6 +60,8 @@ void main() {
   testWidgets('добавление растения из базы знаний', (tester) async {
     final repo = await pumpApp(tester, withPlant: false);
     await tester.tap(find.bySemanticsLabel('Добавить растение'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Растение'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Выбрать из базы знаний'));

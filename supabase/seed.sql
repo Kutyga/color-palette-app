@@ -111,3 +111,12 @@ from (values
        repot, propagation, tips)
 join public.species sp on sp.slug = c.slug
 on conflict (species_id) do nothing;
+
+-- Источники новостей. Адреса лент проверяйте перед запуском: неработающая лента
+-- не ломает сбор, а пишет причину в news_sources.last_error.
+insert into public.news_sources (name, feed_url, site_url, language, filter_keywords) values
+  ('Ботаничка',        'https://www.botanichka.ru/feed/',                            'https://www.botanichka.ru',   'ru', false),
+  ('ScienceDaily: Botany', 'https://www.sciencedaily.com/rss/plants_animals/botany.xml', 'https://www.sciencedaily.com', 'en', false),
+  ('Phys.org: Plants & Animals', 'https://phys.org/rss-feed/biology-news/plants-animals/', 'https://phys.org', 'en', true),
+  ('Gardening Know How', 'https://www.gardeningknowhow.com/feed',                    'https://www.gardeningknowhow.com', 'en', false)
+on conflict (feed_url) do nothing;

@@ -171,11 +171,21 @@ class _PlantTile extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(plant.nickname, style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text(
-              plant.nextWaterAt == null ? (plant.speciesName ?? '') : 'Полив ${relativeDay(plant.nextWaterAt!, now)}',
-              style: context.text.labelMedium?.copyWith(color: status == PlantStatus.ok ? null : statusColor),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            Row(
+              children: [
+                if (plant.nextWaterAt != null) ...[
+                  Icon(Icons.water_drop_rounded, size: 13, color: status == PlantStatus.ok ? context.garden.secondaryLabel : statusColor),
+                  const SizedBox(width: 3),
+                ],
+                Expanded(
+                  child: Text(
+                    plant.nextWaterAt == null ? (plant.speciesName ?? '') : relativeDay(plant.nextWaterAt!, now),
+                    style: context.text.labelMedium?.copyWith(color: status == PlantStatus.ok ? null : statusColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

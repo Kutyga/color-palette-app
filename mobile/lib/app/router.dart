@@ -14,6 +14,7 @@ import '../features/gamification/presentation/achievements_screen.dart';
 import '../features/knowledge_base/presentation/knowledge_screen.dart';
 import '../features/knowledge_base/presentation/species_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/social/create_post_screen.dart';
 import '../features/social/feed_screen.dart';
 import '../features/today/today_screen.dart';
 import 'theme.dart';
@@ -47,11 +48,49 @@ GoRouter buildRouter({required bool requireAuth}) {
         path: '/add',
         pageBuilder: (_, _) => const MaterialPage(fullscreenDialog: true, child: AddPlantScreen()),
       ),
+      GoRoute(
+        path: '/post/new',
+        pageBuilder: (_, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: CreatePostScreen(plantId: state.uri.queryParameters['plant']),
+        ),
+      ),
       GoRoute(path: '/plant/:id', builder: (_, state) => PlantScreen(plantId: state.pathParameters['id']!)),
       GoRoute(path: '/species/:id', builder: (_, state) => SpeciesScreen(speciesId: state.pathParameters['id']!)),
       GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
       GoRoute(path: '/achievements', builder: (_, _) => const AchievementsScreen()),
     ],
+  );
+}
+
+/// Центральная «+»: растение в коллекцию или пост в ленту.
+void _showCreateSheet(BuildContext context) {
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) {
+      final c = sheet.garden;
+      Widget option(IconData icon, Color color, String title, String subtitle, String route) => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: GardenTheme.gutter, vertical: 4),
+            leading: CircleAvatar(radius: 24, backgroundColor: color.withValues(alpha: 0.14), child: Icon(icon, color: color)),
+            title: Text(title, style: sheet.text.titleMedium),
+            subtitle: Text(subtitle),
+            onTap: () {
+              Navigator.pop(sheet);
+              context.push(route);
+            },
+          );
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            option(Icons.local_florist_rounded, c.leaf, 'Растение', 'Добавить в коллекцию и настроить уход', '/add'),
+            option(Icons.add_a_photo_rounded, c.water, 'Пост', 'Поделиться фото с сообществом', '/post/new'),
+            const SizedBox(height: 12),
+          ],
+        ),
+      );
+    },
   );
 }
 
@@ -146,7 +185,7 @@ class _HomeShell extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () {
                               HapticFeedback.lightImpact();
-                              context.push('/add');
+                              _showCreateSheet(context);
                             },
                             child: Container(
                               width: 52,

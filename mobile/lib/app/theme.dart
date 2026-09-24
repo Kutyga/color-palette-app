@@ -114,7 +114,9 @@ abstract final class GardenTheme {
     );
 
     // Шкала в духе iOS: Large Title 34, Title 22, Headline 17, Body 17, Callout 15, Caption 13.
-    final text = TextTheme(
+    // База Typography даёт системный шрифт платформы (SF Pro / Roboto) и стилям компонентов.
+    final typography = Typography.material2021();
+    final text = (brightness == Brightness.light ? typography.black : typography.white).merge(TextTheme(
       displaySmall: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.4, height: 1.15, color: label),
       headlineSmall: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.3, color: label),
       titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.2, color: label),
@@ -124,7 +126,7 @@ abstract final class GardenTheme {
       labelLarge: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
       labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.secondaryLabel),
       bodySmall: TextStyle(fontSize: 13, color: colors.secondaryLabel),
-    );
+    ));
 
     return ThemeData(
       useMaterial3: true,

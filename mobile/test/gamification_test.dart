@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_garden/app/app.dart';
 import 'package:my_garden/app/providers.dart';
 import 'package:my_garden/data/demo_garden_repository.dart';
+import 'package:my_garden/data/demo_social_repository.dart';
 import 'package:my_garden/features/care/domain/care_type.dart';
 import 'package:my_garden/features/collection/domain/plant.dart';
 import 'package:my_garden/features/gamification/domain/gamification.dart';
@@ -75,7 +76,11 @@ void main() {
     final repo = DemoGardenRepository();
     await repo.addPlant(NewPlant(nickname: 'Мося', waterIntervalDays: 7, lastWateredAt: DateTime.now().subtract(const Duration(days: 10))));
     await tester.pumpWidget(ProviderScope(
-      overrides: [gardenRepositoryProvider.overrideWithValue(repo), demoModeProvider.overrideWithValue(true)],
+      overrides: [
+        gardenRepositoryProvider.overrideWithValue(repo),
+        socialRepositoryProvider.overrideWithValue(DemoSocialRepository(garden: repo)),
+        demoModeProvider.overrideWithValue(true),
+      ],
       child: const GardenApp(),
     ));
     await tester.pumpAndSettle();

@@ -18,6 +18,8 @@ class GardenStats {
     this.nightOwl = 0,
     this.currentStreak = 0,
     this.bestStreak = 0,
+    this.posts = 0,
+    this.likesReceived = 0,
   });
 
   final int plants;
@@ -34,6 +36,29 @@ class GardenStats {
   final int nightOwl;
   final int currentStreak;
   final int bestStreak;
+
+  /// Социальная активность — приходит из SocialRepository.myActivity().
+  final int posts;
+  final int likesReceived;
+
+  GardenStats withActivity({required int posts, required int likesReceived}) => GardenStats(
+        plants: plants,
+        species: species,
+        locations: locations,
+        petSafe: petSafe,
+        succulents: succulents,
+        careEvents: careEvents,
+        waterings: waterings,
+        fertilizings: fertilizings,
+        mistings: mistings,
+        repots: repots,
+        earlyBird: earlyBird,
+        nightOwl: nightOwl,
+        currentStreak: currentStreak,
+        bestStreak: bestStreak,
+        posts: posts,
+        likesReceived: likesReceived,
+      );
 
   factory GardenStats.fromJson(Map<String, dynamic> j) {
     int v(String k) => (j[k] as num?)?.toInt() ?? 0;
@@ -109,6 +134,7 @@ final achievements = <Achievement>[
   Achievement(id: 'first_sprout', title: 'Первый росток', description: 'Добавьте первое растение', tier: AchievementTier.sprout, icon: Icons.spa_rounded, target: 1, metric: (s) => s.plants),
   Achievement(id: 'wet_business', title: 'Мокрое дело', description: 'Отметьте первый полив', tier: AchievementTier.sprout, icon: Icons.water_drop_rounded, target: 1, metric: (s) => s.waterings),
   Achievement(id: 'big_move', title: 'Переезд века', description: 'Пересадите растение', tier: AchievementTier.sprout, icon: Icons.local_shipping_rounded, target: 1, metric: (s) => s.repots),
+  Achievement(id: 'windowsill_star', title: 'Звезда подоконника', description: 'Опубликуйте первый пост', tier: AchievementTier.sprout, icon: Icons.photo_camera_rounded, target: 1, metric: (s) => s.posts),
   Achievement(id: 'interior_designer', title: 'Дизайнер подоконников', description: 'Заведите 3 места для растений', tier: AchievementTier.sprout, icon: Icons.chair_rounded, target: 3, metric: (s) => s.locations),
 
   // Побег — нужна регулярность
@@ -122,7 +148,10 @@ final achievements = <Achievement>[
   Achievement(id: 'early_bird', title: 'Ранняя пташка', description: '5 раз поухаживать с 5 до 8 утра', tier: AchievementTier.shoot, icon: Icons.wb_twilight_rounded, target: 5, metric: (s) => s.earlyBird),
   Achievement(id: 'night_gardener', title: 'Ночной садовник', description: '5 раз поухаживать после 23:00', tier: AchievementTier.shoot, icon: Icons.nightlight_round, target: 5, metric: (s) => s.nightOwl, secret: true),
 
+  Achievement(id: 'green_blogger', title: 'Зелёный блогер', description: '10 постов в ленте', tier: AchievementTier.shoot, icon: Icons.auto_stories_rounded, target: 10, metric: (s) => s.posts),
+
   // Дерево — серьёзная коллекция и дисциплина
+  Achievement(id: 'ficus_influencer', title: 'Инфлюенсер фикусов', description: 'Соберите 100 лайков', tier: AchievementTier.tree, icon: Icons.favorite_rounded, target: 100, metric: (s) => s.likesReceived),
   Achievement(id: 'windowsill_garden', title: 'Ботсад на подоконнике', description: 'Соберите 15 растений', tier: AchievementTier.tree, icon: Icons.park_rounded, target: 15, metric: (s) => s.plants),
   Achievement(id: 'green_discipline', title: 'Месяц зелёной дисциплины', description: 'Ухаживайте 30 дней подряд', tier: AchievementTier.tree, icon: Icons.whatshot_rounded, target: 30, metric: (s) => s.bestStreak),
   Achievement(id: 'moisture_lord', title: 'Повелитель влаги', description: '250 поливов', tier: AchievementTier.tree, icon: Icons.waves_rounded, target: 250, metric: (s) => s.waterings),
@@ -131,6 +160,7 @@ final achievements = <Achievement>[
   // Баобаб — легенды
   Achievement(id: 'jungle_calls', title: 'Джунгли зовут', description: 'Соберите 30 растений', tier: AchievementTier.baobab, icon: Icons.forest_rounded, target: 30, metric: (s) => s.plants),
   Achievement(id: 'hundred_days', title: 'Сто дней фотосинтеза', description: 'Ухаживайте 100 дней подряд', tier: AchievementTier.baobab, icon: Icons.wb_sunny_rounded, target: 100, metric: (s) => s.bestStreak),
+  Achievement(id: 'botanical_celebrity', title: 'Ботаническая знаменитость', description: '1000 лайков на ваших постах', tier: AchievementTier.baobab, icon: Icons.star_rounded, target: 1000, metric: (s) => s.likesReceived, secret: true),
   Achievement(id: 'indoor_poseidon', title: 'Комнатный Посейдон', description: '1000 поливов', tier: AchievementTier.baobab, icon: Icons.tsunami_rounded, target: 1000, metric: (s) => s.waterings),
 ];
 

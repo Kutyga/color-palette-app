@@ -44,6 +44,8 @@ dependencies:
   flutter_timezone: ^5.1.0
   uuid: ^4.6.0
   intl: ^0.20.3
+  image_picker: ^1.2.3
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

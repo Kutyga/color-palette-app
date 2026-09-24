@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Чтобы прикрепить фото растения к посту или карточке.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Чтобы сфотографировать растение.</string>
 </dict>
 </plist>

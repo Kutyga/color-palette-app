@@ -1,17 +1,49 @@
-# my_garden
+# Мой сад — мобильное приложение (Flutter, iOS + Android)
 
-Коллекция растений, полив и база знаний
+Коллекция растений, напоминания о поливе, база знаний, лента постов и новостей, достижения.
+Архитектура и дизайн — в [docs/plant-app](../docs/plant-app/ARCHITECTURE.md).
 
-## Getting Started
+| Сегодня | Коллекция | Растение | Лента | Новости | Достижения |
+|---|---|---|---|---|---|
+| ![](../docs/plant-app/screens/1_today.png) | ![](../docs/plant-app/screens/3_collection.png) | ![](../docs/plant-app/screens/4_plant.png) | ![](../docs/plant-app/screens/5_feed.png) | ![](../docs/plant-app/screens/6_news.png) | ![](../docs/plant-app/screens/8_achievements.png) |
 
-This project is a starting point for a Flutter application.
+## Быстрый старт (демо-режим, без сервера)
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+cd mobile
+flutter pub get
+flutter run            # данные в памяти, заполнены примером
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Подключение к Supabase
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Примените миграции и стартовые данные к проекту (один раз, на чистой базе):
+   ```bash
+   DATABASE_URL='postgresql://postgres:<пароль>@db.<project-ref>.supabase.co:5432/postgres' \
+     scripts/apply-remote.sh --seed
+   ```
+   или через Supabase CLI: `supabase link --project-ref <ref> && supabase db push`, затем выполнить
+   `supabase/seed.sql` в SQL Editor.
+2. Создайте `mobile/config/dev.json` по образцу `config/example.json` (файл в `.gitignore`):
+   ```json
+   { "SUPABASE_URL": "https://<project-ref>.supabase.co", "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_..." }
+   ```
+3. Запуск: `flutter run --dart-define-from-file=config/dev.json`.
+
+Publishable-ключ предназначен для клиента — доступ к данным ограничивают RLS-политики.
+Секретный ключ (`service_role`) и пароль базы в приложение и репозиторий не попадают никогда.
+
+## Сбор новостей
+
+Edge Function `supabase/functions/news-ingest` раз в час читает RSS/Atom-ленты из таблицы
+`news_sources`, сохраняет заголовок, выдержку, картинку и ссылку (без полного текста) и отмечает
+упомянутые виды из базы знаний. Развёртывание и расписание описаны в начале `index.ts`.
+Источники добавляются строкой в `news_sources`; неработающая лента пишет ошибку в `last_error`.
+
+## Проверки
+
+```bash
+flutter analyze && flutter test                      # приложение
+../scripts/check-migrations.sh                       # миграции + дымовой тест на локальном Postgres
+node --experimental-strip-types --test ../supabase/functions/news-ingest/feed.test.ts
+```

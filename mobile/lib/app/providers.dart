@@ -2,14 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/notifications/reminder_service.dart';
 import '../data/garden_repository.dart';
+import '../data/social_repository.dart';
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
 import '../features/gamification/domain/gamification.dart';
 import '../features/knowledge_base/domain/species.dart';
+import '../features/social/domain/social.dart';
 
 /// Переопределяется в main() (Supabase или демо) и в тестах.
 final gardenRepositoryProvider = Provider<GardenRepository>((ref) => throw UnimplementedError());
+
+final socialRepositoryProvider = Provider<SocialRepository>((ref) => throw UnimplementedError());
 
 final reminderServiceProvider = Provider<ReminderService>((ref) => const NoopReminderService());
 
@@ -40,7 +44,22 @@ final speciesProvider = FutureProvider.family<Species?, String>(
   (ref, id) => ref.watch(gardenRepositoryProvider).species(id),
 );
 
-final gardenStatsProvider = FutureProvider<GardenStats>((ref) => ref.watch(gardenRepositoryProvider).stats());
+final gardenStatsProvider = FutureProvider<GardenStats>((ref) async {
+  final (stats, activity) = await (
+    ref.watch(gardenRepositoryProvider).stats(),
+    ref.watch(socialRepositoryProvider).myActivity(),
+  ).wait;
+  return stats.withActivity(posts: activity.posts, likesReceived: activity.likesReceived);
+});
+
+final feedProvider = FutureProvider.family<List<FeedPost>, FeedTab>(
+  (ref, tab) => ref.watch(socialRepositoryProvider).feed(tab),
+);
+
+/// Параметр — «только про мои растения».
+final newsProvider = FutureProvider.family<List<NewsArticle>, bool>(
+  (ref, onlyMine) => ref.watch(socialRepositoryProvider).news(onlyMySpecies: onlyMine),
+);
 
 /// Действия, после которых нужно обновить связанные экраны.
 extension GardenActions on WidgetRef {
