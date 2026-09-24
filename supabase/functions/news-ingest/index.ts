@@ -1,14 +1,10 @@
 // Edge Function: собирает новости о растениях из RSS/Atom-лент (таблица news_sources)
 // и складывает в news_articles через RPC ingest_news.
 //
-// Запуск по расписанию (pg_cron + pg_net), раз в час:
-//   select cron.schedule('news-ingest', '0 * * * *', $$
-//     select net.http_post(
-//       url := 'https://<project-ref>.supabase.co/functions/v1/news-ingest',
-//       headers := jsonb_build_object('x-cron-secret', '<NEWS_INGEST_SECRET>')
-//     ) $$);
+// Вызывается раз в час из pg_cron (миграция *_news_schedule.sql) с заголовком
+// x-cron-secret; секрет хранится в Vault и сверяется RPC verify_news_ingest_secret.
 // Деплой: supabase functions deploy news-ingest --no-verify-jwt
-//         supabase secrets set NEWS_INGEST_SECRET=<случайная строка>
+// (проверку делает сама функция; секретные ключи sb_secret_ не являются JWT).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { isAboutPlants, parseFeed } from "./feed.ts";
@@ -16,15 +12,23 @@ import { isAboutPlants, parseFeed } from "./feed.ts";
 const MAX_ITEMS_PER_SOURCE = 30;
 const FETCH_TIMEOUT_MS = 15_000;
 
+/** Секретный ключ проекта: новый формат (SUPABASE_SECRET_KEYS) или legacy service_role. */
+function adminKey(): string {
+  const keys = Deno.env.get("SUPABASE_SECRET_KEYS");
+  if (keys) {
+    const parsed = JSON.parse(keys) as Record<string, string>;
+    if (parsed.default) return parsed.default;
+  }
+  return Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+}
+
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("NEWS_INGEST_SECRET");
-  if (!secret || req.headers.get("x-cron-secret") !== secret) {
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, adminKey(), { auth: { persistSession: false } });
+
+  const { data: allowed } = await db.rpc("verify_news_ingest_secret", { p_secret: req.headers.get("x-cron-secret") });
+  if (allowed !== true) {
     return new Response("forbidden", { status: 403 });
   }
-
-  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
-    auth: { persistSession: false },
-  });
 
   const { data: sources, error } = await db
     .from("news_sources")

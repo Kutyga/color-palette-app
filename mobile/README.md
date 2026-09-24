@@ -37,10 +37,18 @@ Publishable-ключ предназначен для клиента — дост
 
 ## Сбор новостей
 
-Edge Function `supabase/functions/news-ingest` раз в час читает RSS/Atom-ленты из таблицы
-`news_sources`, сохраняет заголовок, выдержку, картинку и ссылку (без полного текста) и отмечает
-упомянутые виды из базы знаний. Развёртывание и расписание описаны в начале `index.ts`.
+Edge Function `supabase/functions/news-ingest` читает RSS/Atom-ленты из таблицы `news_sources`,
+сохраняет заголовок, выдержку, картинку и ссылку (без полного текста) и отмечает упомянутые
+виды из базы знаний. В проекте `intskfwuljzaaghoaqfx` функция развёрнута и запускается
+`pg_cron` каждый час в :17 (задача `news-ingest-hourly`).
+
+Для нового проекта:
+1. `supabase functions deploy news-ingest --no-verify-jwt`
+2. `select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');`
+3. Применить миграции — `*_news_schedule.sql` создаст секрет вызова в Vault и расписание.
+
 Источники добавляются строкой в `news_sources`; неработающая лента пишет ошибку в `last_error`.
+Ответы последних запусков: `select * from net._http_response order by created desc limit 5;`
 
 ## Проверки
 

@@ -219,6 +219,20 @@ do $$ begin
 exception when insufficient_privilege then null;
 end $$;
 
+-- Секрет вызова сборщика новостей проверяет только service_role.
+reset role;
+do $$ begin
+  assert public.verify_news_ingest_secret((select decrypted_secret from vault.decrypted_secrets where name = 'news_ingest_secret')), 'верный секрет';
+  assert not public.verify_news_ingest_secret('wrong'), 'неверный секрет';
+  assert not public.verify_news_ingest_secret(null), 'пустой секрет';
+end $$;
+set role authenticated;
+do $$ begin
+  perform public.verify_news_ingest_secret('x');
+  raise exception 'пользователь не должен проверять секрет';
+exception when insufficient_privilege then null;
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';
