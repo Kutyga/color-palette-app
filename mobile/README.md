@@ -17,7 +17,9 @@ flutter run            # данные в памяти, заполнены при
 
 ## Подключение к Supabase
 
-1. Примените миграции и стартовые данные к проекту (один раз, на чистой базе):
+1. Проект `intskfwuljzaaghoaqfx` уже развёрнут: применены все миграции из `supabase/migrations`
+   (имена файлов совпадают с версиями в истории миграций проекта) и `seed.sql`.
+   Для нового проекта примените миграции и стартовые данные (один раз, на чистой базе):
    ```bash
    DATABASE_URL='postgresql://postgres:<пароль>@db.<project-ref>.supabase.co:5432/postgres' \
      scripts/apply-remote.sh --seed

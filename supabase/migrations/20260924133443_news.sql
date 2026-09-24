@@ -43,6 +43,7 @@ create or replace function public.match_species(p_text text)
 returns uuid[]
 language sql
 stable
+set search_path = public, extensions
 as $$
   select coalesce(array_agg(distinct s.id), '{}')
     from public.species s
@@ -108,6 +109,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, extensions
 as $$
   select a.id, a.url, a.title, a.summary, a.image_url, a.published_at, s.name, a.species_ids
     from public.news_articles a

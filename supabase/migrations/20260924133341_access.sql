@@ -151,36 +151,36 @@ create policy kb_read on public.kb_articles        for select to anon, authentic
 -- ---------------------------------------------------------------------------
 
 create policy profiles_read on public.profiles for select to authenticated
-  using (id = auth.uid() or not public.is_blocked_by(id));
+  using (id = (select auth.uid()) or not public.is_blocked_by(id));
 create policy profiles_update_own on public.profiles for update to authenticated
-  using (id = auth.uid()) with check (id = auth.uid());
+  using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Коллекция
 -- ---------------------------------------------------------------------------
 
 create policy locations_own on public.locations for all to authenticated
-  using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
 
 create policy plants_own on public.plants for all to authenticated
-  using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
 create policy plants_read_shared on public.plants for select to authenticated
   using (public.can_view_plant(id));
 
 create policy plant_photos_read on public.plant_photos for select to authenticated
   using (public.can_view_plant(plant_id));
 create policy plant_photos_insert on public.plant_photos for insert to authenticated
-  with check (uploaded_by = auth.uid() and public.can_care_plant(plant_id));
+  with check (uploaded_by = (select auth.uid()) and public.can_care_plant(plant_id));
 create policy plant_photos_delete on public.plant_photos for delete to authenticated
-  using (uploaded_by = auth.uid() or public.owns_plant(plant_id));
+  using (uploaded_by = (select auth.uid()) or public.owns_plant(plant_id));
 
 create policy caretakers_read on public.plant_caretakers for select to authenticated
-  using (user_id = auth.uid() or public.owns_plant(plant_id));
+  using (user_id = (select auth.uid()) or public.owns_plant(plant_id));
 create policy caretakers_manage on public.plant_caretakers for all to authenticated
   using (public.owns_plant(plant_id)) with check (public.owns_plant(plant_id));
 -- Помощник может сам отказаться от ухода.
 create policy caretakers_leave on public.plant_caretakers for delete to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Уход
@@ -194,10 +194,10 @@ create policy schedules_write on public.care_schedules for all to authenticated
 create policy events_read on public.care_events for select to authenticated
   using (public.can_view_plant(plant_id));
 create policy events_insert on public.care_events for insert to authenticated
-  with check (performed_by = auth.uid() and public.can_care_plant(plant_id));
+  with check (performed_by = (select auth.uid()) and public.can_care_plant(plant_id));
 -- Журнал только на добавление; удалить ошибочную запись может автор.
 create policy events_delete_own on public.care_events for delete to authenticated
-  using (performed_by = auth.uid());
+  using (performed_by = (select auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Социальная часть
@@ -205,42 +205,42 @@ create policy events_delete_own on public.care_events for delete to authenticate
 
 create policy follows_read on public.follows for select to authenticated using (true);
 create policy follows_insert on public.follows for insert to authenticated
-  with check (follower_id = auth.uid() and not public.is_blocked_by(followee_id));
+  with check (follower_id = (select auth.uid()) and not public.is_blocked_by(followee_id));
 create policy follows_delete on public.follows for delete to authenticated
-  using (follower_id = auth.uid() or followee_id = auth.uid());  -- можно удалить подписчика
+  using (follower_id = (select auth.uid()) or followee_id = (select auth.uid()));  -- можно удалить подписчика
 
 create policy blocks_own on public.blocks for all to authenticated
-  using (blocker_id = auth.uid()) with check (blocker_id = auth.uid());
+  using (blocker_id = (select auth.uid())) with check (blocker_id = (select auth.uid()));
 
 create policy posts_read on public.posts for select to authenticated
   using (deleted_at is null and public.can_view(author_id, visibility));
 create policy posts_own on public.posts for all to authenticated
-  using (author_id = auth.uid()) with check (author_id = auth.uid());
+  using (author_id = (select auth.uid())) with check (author_id = (select auth.uid()));
 
 create policy likes_read on public.likes for select to authenticated
   using (public.can_view_post(post_id));
 create policy likes_insert on public.likes for insert to authenticated
-  with check (user_id = auth.uid() and public.can_view_post(post_id));
+  with check (user_id = (select auth.uid()) and public.can_view_post(post_id));
 create policy likes_delete on public.likes for delete to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy comments_read on public.comments for select to authenticated
   using (deleted_at is null and public.can_view_post(post_id));
 create policy comments_insert on public.comments for insert to authenticated
-  with check (author_id = auth.uid() and public.can_view_post(post_id));
+  with check (author_id = (select auth.uid()) and public.can_view_post(post_id));
 create policy comments_update_own on public.comments for update to authenticated
-  using (author_id = auth.uid()) with check (author_id = auth.uid());
+  using (author_id = (select auth.uid())) with check (author_id = (select auth.uid()));
 
 create policy reports_own on public.reports for all to authenticated
-  using (reporter_id = auth.uid()) with check (reporter_id = auth.uid());
+  using (reporter_id = (select auth.uid())) with check (reporter_id = (select auth.uid()));
 
 create policy wishlist_own on public.wishlist_items for all to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy wishlist_read_followers on public.wishlist_items for select to authenticated
   using (public.can_view(user_id, 'followers'));
 
 create policy devices_own on public.devices for all to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- Денормализованные счётчики и служебные поля меняют только триггеры.
 -- Колоночный revoke не отменяет табличный grant, поэтому отзываем UPDATE целиком

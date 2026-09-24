@@ -234,5 +234,16 @@ do $$ begin
   assert (select count(*) from public.plants) = 0, 'гость не видит растения';
 end $$;
 
+do $$ begin
+  perform private.can_view(gen_random_uuid(), 'public');
+  raise exception 'гость не должен вызывать служебные функции';
+exception when insufficient_privilege then null;
+end $$;
+do $$ begin
+  perform public.my_garden_stats();
+  raise exception 'гость не должен получать статистику';
+exception when insufficient_privilege then null;
+end $$;
+
 reset role;
 \echo 'smoke test: OK'

@@ -2,7 +2,7 @@
 -- Первичные ключи генерирует клиент (офлайн-создание + идемпотентная синхронизация),
 -- default gen_random_uuid() — для записей, созданных на сервере.
 
-create extension if not exists pg_trgm;
+create extension if not exists pg_trgm with schema extensions;
 
 -- ---------------------------------------------------------------------------
 -- Общие функции
@@ -11,6 +11,7 @@ create extension if not exists pg_trgm;
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, extensions
 as $$
 begin
   new.updated_at := now();
@@ -112,11 +113,12 @@ create table public.species (
 );
 
 create index species_search_tsv_idx on public.species using gin (search_tsv);
-create index species_search_trgm_idx on public.species using gin (search_text gin_trgm_ops);
+create index species_search_trgm_idx on public.species using gin (search_text extensions.gin_trgm_ops);
 
 create or replace function public.species_search_refresh()
 returns trigger
 language plpgsql
+set search_path = public, extensions
 as $$
 declare
   names text;

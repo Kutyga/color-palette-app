@@ -10,6 +10,7 @@ create or replace function public.season_factor(p_month int, p_hemisphere char)
 returns numeric
 language sql
 immutable
+set search_path = public, extensions
 as $$
   select case
     -- в южном полушарии сезоны сдвинуты на полгода
@@ -25,6 +26,7 @@ create or replace function public.pot_factor(p_material text)
 returns numeric
 language sql
 immutable
+set search_path = public, extensions
 as $$
   select case p_material
     when 'terracotta' then 0.85   -- пористая глина быстро отдаёт влагу
@@ -38,6 +40,7 @@ create or replace function public.light_factor(p_light text)
 returns numeric
 language sql
 immutable
+set search_path = public, extensions
 as $$
   select case p_light
     when 'low'    then 1.25
@@ -61,6 +64,7 @@ create or replace function public.effective_interval_days(
 returns numeric
 language sql
 immutable
+set search_path = public, extensions
 as $$
   select greatest(0.5, round(
     p_interval * p_user_factor *
@@ -101,6 +105,7 @@ $$;
 create or replace function public.care_schedules_compute_due()
 returns trigger
 language plpgsql
+set search_path = public, extensions
 as $$
 declare
   base timestamptz := coalesce(new.last_done_at, now());
@@ -256,6 +261,7 @@ create or replace function public.search_species(q text, lim int default 20)
 returns setof public.species
 language sql
 stable
+set search_path = public, extensions
 as $$
   select s.*
     from public.species s
@@ -281,6 +287,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, extensions
 as $$
   select cs.id, p.id, p.nickname, cs.type, cs.next_due_at, cs.last_done_at,
          cs.next_due_at < now()
@@ -303,6 +310,7 @@ create or replace function public.feed_following(
 returns setof public.posts
 language sql
 stable
+set search_path = public, extensions
 as $$
   select p.*
     from public.posts p
@@ -319,6 +327,7 @@ create or replace function public.feed_discover(lim int default 20, off int defa
 returns setof public.posts
 language sql
 stable
+set search_path = public, extensions
 as $$
   select p.*
     from public.posts p

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Статистика садовника. На сервере считается RPC `my_garden_stats`
-/// (supabase/migrations/20260924000005_gamification.sql), в демо-режиме — локально.
+/// (supabase/migrations/20260924133423_gamification.sql), в демо-режиме — локально.
 class GardenStats {
   const GardenStats({
     this.plants = 0,
