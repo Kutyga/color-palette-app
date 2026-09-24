@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets.dart';
 import '../care/domain/care_models.dart';
+import '../gamification/domain/gamification.dart';
 
 /// Главный экран: что сделать сегодня. Кольца как в Apple Fitness,
 /// «истории» как в Instagram, свайп-действия как в Mail.
@@ -81,6 +82,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     return [
       SliverToBoxAdapter(child: _SummaryCard(done: _doneToday, pending: pending)),
+      const SliverToBoxAdapter(child: _ProgressChips()),
       if (pending > 0) SliverToBoxAdapter(child: _Stories(tasks: [...overdue, ...today])),
       if (pending == 0)
         const SliverToBoxAdapter(
@@ -300,6 +302,46 @@ class _UpcomingRow extends StatelessWidget {
       subtitle: Text(task.type.label, style: context.text.bodySmall),
       trailing: Text(relativeDay(task.dueAt, now), style: context.text.labelMedium),
       onTap: () => context.push('/plant/${task.plantId}'),
+    );
+  }
+}
+
+/// Серия и уровень — мотивация возвращаться каждый день.
+class _ProgressChips extends ConsumerWidget {
+  const _ProgressChips();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(gardenStatsProvider).value;
+    if (stats == null) return const SizedBox.shrink();
+    final c = context.garden;
+    final lp = levelFor(stats);
+    final unlocked = evaluateAchievements(stats).where((p) => p.unlocked).length;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GardenTheme.gutter, 10, GardenTheme.gutter, 0),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          ActionChip(
+            avatar: Icon(Icons.local_fire_department_rounded, color: stats.currentStreak > 0 ? c.soil : c.secondaryLabel, size: 18),
+            label: Text(stats.currentStreak > 0
+                ? '${stats.currentStreak} ${plural(stats.currentStreak, 'день', 'дня', 'дней')} подряд'
+                : 'Начните серию'),
+            onPressed: () => context.push('/achievements'),
+          ),
+          ActionChip(
+            avatar: Icon(Icons.eco_rounded, color: c.leaf, size: 18),
+            label: Text('Ур. ${lp.level.number} · ${lp.level.title}'),
+            onPressed: () => context.push('/achievements'),
+          ),
+          ActionChip(
+            avatar: Icon(Icons.emoji_events_rounded, color: AchievementTier.tree.gradient.last, size: 18),
+            label: Text('$unlocked из ${achievements.length}'),
+            onPressed: () => context.push('/achievements'),
+          ),
+        ],
+      ),
     );
   }
 }

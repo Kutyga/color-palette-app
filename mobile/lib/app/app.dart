@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../features/gamification/presentation/achievements_screen.dart';
 import 'providers.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -20,6 +21,7 @@ class GardenApp extends ConsumerStatefulWidget {
 class _GardenAppState extends ConsumerState<GardenApp> {
   late final GoRouter _router = buildRouter(requireAuth: !ref.read(demoModeProvider));
   StreamSubscription<AuthState>? _authSub;
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _GardenAppState extends ConsumerState<GardenApp> {
         ref.invalidate(myPlantsProvider);
         ref.invalidate(myLocationsProvider);
         ref.invalidate(plantDetailsProvider);
+        ref.invalidate(gardenStatsProvider);
       });
     }
   }
@@ -53,6 +56,8 @@ class _GardenAppState extends ConsumerState<GardenApp> {
       supportedLocales: const [Locale('ru'), Locale('en')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: _router,
+      scaffoldMessengerKey: _messengerKey,
+      builder: (context, child) => AchievementCelebrations(messengerKey: _messengerKey, child: child!),
     );
   }
 }

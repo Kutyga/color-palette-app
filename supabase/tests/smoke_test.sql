@@ -160,6 +160,33 @@ do $$ begin
   assert (select count(*) from public.feed_discover()) = 0, 'и в «Интересном» тоже';
 end $$;
 
+-- Статистика для геймификации: у Боба два полива (3 и 7 июля) — серия прервалась,
+-- лучшая серия 1 день; растений нет.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$
+declare st jsonb := public.my_garden_stats();
+begin
+  assert (st ->> 'waterings')::int = 2, format('поливы Боба: %s', st);
+  assert (st ->> 'plants')::int = 0, 'у Боба нет своих растений';
+  assert (st ->> 'best_streak')::int = 1, format('лучшая серия: %s', st);
+  assert (st ->> 'current_streak')::int = 0, 'старые поливы не дают текущую серию';
+end $$;
+
+-- Алиса поливает три дня подряд до сегодня включительно → серия 3.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.care_events (plant_id, type, performed_at)
+select '20000000-0000-0000-0000-000000000001', 'mist', date_trunc('day', now()) - make_interval(days => n) + interval '6 hours'
+  from generate_series(0, 2) as n;
+do $$
+declare st jsonb := public.my_garden_stats();
+begin
+  assert (st ->> 'plants')::int = 1, 'растение Алисы';
+  assert (st ->> 'species')::int = 1, 'один вид';
+  assert (st ->> 'mistings')::int = 3, 'опрыскивания';
+  assert (st ->> 'early_bird')::int = 3, 'уход в 6 утра — ранняя пташка';
+  assert (st ->> 'current_streak')::int = 3, format('текущая серия: %s', st);
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

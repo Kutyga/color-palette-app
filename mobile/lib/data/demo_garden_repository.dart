@@ -4,6 +4,7 @@ import '../features/care/domain/care_interval_calculator.dart';
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
+import '../features/gamification/domain/gamification.dart';
 import '../features/knowledge_base/domain/species.dart';
 import 'demo_species.dart';
 import 'garden_repository.dart';
@@ -160,6 +161,40 @@ class DemoGardenRepository implements GardenRepository {
 
   @override
   Future<Species?> species(String id) async => _species.where((s) => s.id == id).firstOrNull;
+
+  /// Аналог RPC my_garden_stats.
+  @override
+  Future<GardenStats> stats() async {
+    final plantSpecies = [for (final p in _plants.values) if (p.speciesId != null) _species.where((s) => s.id == p.speciesId).firstOrNull];
+    int count(CareType t) => _events.where((e) => e.type == t).length;
+    final days = {for (final e in _events) DateTime(e.performedAt.year, e.performedAt.month, e.performedAt.day)}.toList()..sort();
+    var best = 0, run = 0;
+    DateTime? prev;
+    for (final d in days) {
+      run = prev != null && d.difference(prev).inHours.round() == 24 ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = d;
+    }
+    final now = _clock();
+    final today = DateTime(now.year, now.month, now.day);
+    final alive = prev != null && today.difference(prev).inHours.round() <= 24;
+    return GardenStats(
+      plants: _plants.length,
+      species: {for (final p in _plants.values) ?p.speciesId}.length,
+      locations: _locations.length,
+      petSafe: plantSpecies.where((s) => s?.toxicToPets == false).length,
+      succulents: plantSpecies.where((s) => s?.plantType == 'суккулент').length,
+      careEvents: _events.length,
+      waterings: count(CareType.water),
+      fertilizings: count(CareType.fertilize),
+      mistings: count(CareType.mist),
+      repots: count(CareType.repot),
+      earlyBird: _events.where((e) => e.performedAt.hour >= 5 && e.performedAt.hour < 8).length,
+      nightOwl: _events.where((e) => e.performedAt.hour >= 23 || e.performedAt.hour < 4).length,
+      currentStreak: alive ? run : 0,
+      bestStreak: best,
+    );
+  }
 
   /// Аналог триггера care_schedules_compute_due.
   CareSchedule _computeDue(CareSchedule s) {

@@ -1,6 +1,7 @@
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
+import '../features/gamification/domain/gamification.dart';
 import '../features/knowledge_base/domain/species.dart';
 
 /// Единая точка доступа к данным сада. Реализации:
@@ -22,4 +23,7 @@ abstract interface class GardenRepository {
   Future<List<Species>> searchSpecies(String query);
   Future<List<Species>> popularSpecies();
   Future<Species?> species(String id);
+
+  /// Статистика для уровней и достижений.
+  Future<GardenStats> stats();
 }

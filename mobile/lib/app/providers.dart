@@ -5,6 +5,7 @@ import '../data/garden_repository.dart';
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
+import '../features/gamification/domain/gamification.dart';
 import '../features/knowledge_base/domain/species.dart';
 
 /// Переопределяется в main() (Supabase или демо) и в тестах.
@@ -39,6 +40,8 @@ final speciesProvider = FutureProvider.family<Species?, String>(
   (ref, id) => ref.watch(gardenRepositoryProvider).species(id),
 );
 
+final gardenStatsProvider = FutureProvider<GardenStats>((ref) => ref.watch(gardenRepositoryProvider).stats());
+
 /// Действия, после которых нужно обновить связанные экраны.
 extension GardenActions on WidgetRef {
   Future<void> logCare(String plantId, CareType type) async {
@@ -46,11 +49,13 @@ extension GardenActions on WidgetRef {
     invalidate(dueTasksProvider);
     invalidate(myPlantsProvider);
     invalidate(plantDetailsProvider(plantId));
+    invalidate(gardenStatsProvider);
   }
 
   void refreshCollection() {
     invalidate(dueTasksProvider);
     invalidate(myPlantsProvider);
     invalidate(myLocationsProvider);
+    invalidate(gardenStatsProvider);
   }
 }

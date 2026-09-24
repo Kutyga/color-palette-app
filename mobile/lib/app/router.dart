@@ -10,6 +10,7 @@ import '../features/auth/sign_in_screen.dart';
 import '../features/collection/presentation/add_plant_screen.dart';
 import '../features/collection/presentation/collection_screen.dart';
 import '../features/collection/presentation/plant_screen.dart';
+import '../features/gamification/presentation/achievements_screen.dart';
 import '../features/knowledge_base/presentation/knowledge_screen.dart';
 import '../features/knowledge_base/presentation/species_screen.dart';
 import '../features/profile/profile_screen.dart';
@@ -49,6 +50,7 @@ GoRouter buildRouter({required bool requireAuth}) {
       GoRoute(path: '/plant/:id', builder: (_, state) => PlantScreen(plantId: state.pathParameters['id']!)),
       GoRoute(path: '/species/:id', builder: (_, state) => SpeciesScreen(speciesId: state.pathParameters['id']!)),
       GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
+      GoRoute(path: '/achievements', builder: (_, _) => const AchievementsScreen()),
     ],
   );
 }

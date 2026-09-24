@@ -5,6 +5,7 @@ import '../features/care/domain/care_interval_calculator.dart';
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
+import '../features/gamification/domain/gamification.dart';
 import '../features/knowledge_base/domain/species.dart';
 import 'garden_repository.dart';
 
@@ -121,6 +122,10 @@ class SupabaseGardenRepository implements GardenRepository {
     final rows = await _db.from('species').select('*, care_profiles(*)').order('latin_name').limit(50);
     return rows.map(Species.fromJson).toList();
   }
+
+  @override
+  Future<GardenStats> stats() async =>
+      GardenStats.fromJson(await _db.rpc<Map<String, dynamic>>('my_garden_stats'));
 
   @override
   Future<Species?> species(String id) async {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets.dart';
+import '../gamification/presentation/achievements_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -37,7 +39,19 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          if (ref.watch(gardenStatsProvider).value case final stats?)
+            GestureDetector(onTap: () => context.push('/achievements'), child: LevelCard(stats: stats, padding: EdgeInsets.zero)),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.emoji_events_rounded, color: c.soil),
+              title: const Text('Достижения'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/achievements'),
+            ),
+          ),
+          const SizedBox(height: 12),
           if (demo)
             Card(
               color: c.water.withValues(alpha: 0.1),
