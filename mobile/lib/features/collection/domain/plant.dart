@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../care/domain/care_type.dart';
 
 enum PlantVisibility {
@@ -42,6 +44,8 @@ class Plant {
     this.visibility = PlantVisibility.followers,
     this.notes,
     this.nextWaterAt,
+    this.photoUrl,
+    this.photoBytes,
   });
 
   final String id;
@@ -58,9 +62,17 @@ class Plant {
   /// Денормализовано из графика полива — для статуса в списке коллекции.
   final DateTime? nextWaterAt;
 
+  /// Обложка: подписанная ссылка из Storage или байты (демо-режим).
+  final String? photoUrl;
+  final Uint8List? photoBytes;
+
+  /// Путь обложки в бакете plant-photos — чтобы получить подписанную ссылку.
+  static String? coverPathOf(Map<String, dynamic> json) => (json['cover'] as Map?)?['storage_path'] as String?;
+
   /// Ожидает выборку вида
-  /// `*, species(latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at)`.
-  factory Plant.fromJson(Map<String, dynamic> json) {
+  /// `*, species(latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at),
+  /// cover:plant_photos!plants_cover_photo_fk(storage_path)`.
+  factory Plant.fromJson(Map<String, dynamic> json, {String? photoUrl}) {
     final species = json['species'] as Map<String, dynamic>?;
     final location = json['locations'] as Map<String, dynamic>?;
     final schedules = (json['care_schedules'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
@@ -77,6 +89,7 @@ class Plant {
       visibility: PlantVisibility.fromDb(json['visibility'] as String? ?? 'followers'),
       notes: json['notes'] as String?,
       nextWaterAt: water.isEmpty ? null : DateTime.parse(water.first['next_due_at'] as String).toLocal(),
+      photoUrl: photoUrl,
     );
   }
 }

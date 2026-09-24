@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:uuid/uuid.dart';
 
 import '../features/care/domain/care_interval_calculator.dart';
@@ -29,6 +31,7 @@ class DemoGardenRepository implements GardenRepository {
   final _locations = <String, Location>{};
   final _schedules = <String, CareSchedule>{};
   final _events = <CareEvent>[];
+  final _photos = <String, Uint8List>{};
 
   /// Пара растений, чтобы в демо-режиме экраны не были пустыми.
   Future<DemoGardenRepository> withSampleData() async {
@@ -100,9 +103,13 @@ class DemoGardenRepository implements GardenRepository {
   @override
   Future<void> deletePlant(String plantId) async {
     _plants.remove(plantId);
+    _photos.remove(plantId);
     _schedules.removeWhere((_, s) => s.plantId == plantId);
     _events.removeWhere((e) => e.plantId == plantId);
   }
+
+  @override
+  Future<void> setPlantPhoto(String plantId, Uint8List jpeg) async => _photos[plantId] = jpeg;
 
   @override
   Future<List<Location>> myLocations() async => _locations.values.toList();
@@ -231,6 +238,7 @@ class DemoGardenRepository implements GardenRepository {
       visibility: p.visibility,
       notes: p.notes,
       nextWaterAt: water?.nextDueAt,
+      photoBytes: _photos[p.id],
     );
   }
 }

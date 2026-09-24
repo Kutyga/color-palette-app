@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets.dart';
 import '../care/domain/care_models.dart';
+import '../collection/domain/plant.dart';
 import '../gamification/domain/gamification.dart';
 
 /// Главный экран: что сделать сегодня. Кольца как в Apple Fitness,
@@ -174,13 +175,17 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _Stories extends StatelessWidget {
+/// Фото растений по id — задачи ухода приходят без обложек.
+Map<String, Plant> _plantsById(WidgetRef ref) => {for (final p in ref.watch(myPlantsProvider).value ?? const <Plant>[]) p.id: p};
+
+class _Stories extends ConsumerWidget {
   const _Stories({required this.tasks});
 
   final List<CareTask> tasks;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plants = _plantsById(ref);
     final c = context.garden;
     final now = DateTime.now();
     final byPlant = <String, CareTask>{};
@@ -198,6 +203,8 @@ class _Stories extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: StoryAvatar(
                 seed: t.plantId,
+                photoUrl: plants[t.plantId]?.photoUrl,
+                photoBytes: plants[t.plantId]?.photoBytes,
                 label: t.plantName,
                 ringColors: t.isOverdue(now) ? [c.soil, c.alert] : [c.leaf, c.water],
                 onTap: () => context.push('/plant/${t.plantId}'),
@@ -209,7 +216,7 @@ class _Stories extends StatelessWidget {
   }
 }
 
-class _TaskCard extends StatelessWidget {
+class _TaskCard extends ConsumerWidget {
   const _TaskCard({super.key, required this.task, required this.now, required this.onDone});
 
   final CareTask task;
@@ -217,7 +224,8 @@ class _TaskCard extends StatelessWidget {
   final VoidCallback onDone;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plant = _plantsById(ref)[task.plantId];
     final c = context.garden;
     final color = c.forCare(task.type);
     final overdue = task.isOverdue(now);
@@ -245,7 +253,7 @@ class _TaskCard extends StatelessWidget {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    PlantThumb(seed: task.plantId, size: 56),
+                    PlantThumb(seed: task.plantId, size: 56, photoUrl: plant?.photoUrl, photoBytes: plant?.photoBytes),
                     Positioned(
                       right: -4,
                       bottom: -4,

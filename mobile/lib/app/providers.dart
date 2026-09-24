@@ -56,6 +56,10 @@ final feedProvider = FutureProvider.family<List<FeedPost>, FeedTab>(
   (ref, tab) => ref.watch(socialRepositoryProvider).feed(tab),
 );
 
+final commentsProvider = FutureProvider.autoDispose.family<List<PostComment>, String>(
+  (ref, postId) => ref.watch(socialRepositoryProvider).comments(postId),
+);
+
 /// Параметр — «только про мои растения».
 final newsProvider = FutureProvider.family<List<NewsArticle>, bool>(
   (ref, onlyMine) => ref.watch(socialRepositoryProvider).news(onlyMySpecies: onlyMine),

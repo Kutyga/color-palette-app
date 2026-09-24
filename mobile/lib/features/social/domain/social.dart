@@ -37,7 +37,7 @@ class FeedPost {
   final int commentCount;
   final bool likedByMe;
 
-  FeedPost copyWith({bool? likedByMe, int? likeCount}) => FeedPost(
+  FeedPost copyWith({bool? likedByMe, int? likeCount, int? commentCount}) => FeedPost(
         id: id,
         authorId: authorId,
         authorName: authorName,
@@ -48,7 +48,7 @@ class FeedPost {
         photoUrl: photoUrl,
         photoBytes: photoBytes,
         likeCount: likeCount ?? this.likeCount,
-        commentCount: commentCount,
+        commentCount: commentCount ?? this.commentCount,
         likedByMe: likedByMe ?? this.likedByMe,
       );
 
@@ -70,6 +70,34 @@ class FeedPost {
       likedByMe: likedByMe,
     );
   }
+}
+
+class PostComment {
+  const PostComment({
+    required this.id,
+    required this.postId,
+    required this.authorName,
+    required this.text,
+    required this.createdAt,
+    this.mine = false,
+  });
+
+  final String id;
+  final String postId;
+  final String authorName;
+  final String text;
+  final DateTime createdAt;
+  final bool mine;
+
+  /// Ожидает выборку `*, author:profiles!comments_author_id_fkey(username)`.
+  factory PostComment.fromJson(Map<String, dynamic> json, {String? myId}) => PostComment(
+        id: json['id'] as String,
+        postId: json['post_id'] as String,
+        authorName: ((json['author'] as Map?)?['username'] as String?) ?? 'садовник',
+        text: json['text'] as String,
+        createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
+        mine: myId != null && json['author_id'] == myId,
+      );
 }
 
 class NewPost {

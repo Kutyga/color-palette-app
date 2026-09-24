@@ -160,6 +160,36 @@ do $$ begin
   assert (select count(*) from public.feed_discover()) = 0, 'и в «Интересном» тоже';
 end $$;
 
+-- Комментарий удаляется мягко (deleted_at), счётчик уменьшается триггером.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+update public.comments set deleted_at = now()
+ where post_id = '40000000-0000-0000-0000-000000000001' and author_id = auth.uid();
+do $$ begin
+  assert (select comment_count from public.posts where id = '40000000-0000-0000-0000-000000000001') = 0,
+         'счётчик после удаления комментария';
+end $$;
+
+-- Фото растения: владелец загружает в свою папку и ставит обложку; посторонний — нет.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into storage.objects (bucket_id, name)
+values ('plant-photos', '00000000-0000-0000-0000-00000000000a/20000000-0000-0000-0000-000000000001/p1.jpg');
+insert into public.plant_photos (id, plant_id, storage_path)
+values ('50000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-00000000000a/20000000-0000-0000-0000-000000000001/p1.jpg');
+update public.plants set cover_photo_id = '50000000-0000-0000-0000-000000000001'
+ where id = '20000000-0000-0000-0000-000000000001';
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  insert into storage.objects (bucket_id, name)
+  values ('plant-photos', '00000000-0000-0000-0000-00000000000c/20000000-0000-0000-0000-000000000001/x.jpg');
+  raise exception 'посторонний не должен загружать фото чужого растения';
+exception when insufficient_privilege then null;
+end $$;
+do $$ begin
+  assert (select count(*) from storage.objects where bucket_id = 'plant-photos') = 0,
+         'заблокированный не видит фото растения';
+end $$;
+
 -- Статистика для геймификации: у Боба два полива (3 и 7 июля) — серия прервалась,
 -- лучшая серия 1 день; растений нет.
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';

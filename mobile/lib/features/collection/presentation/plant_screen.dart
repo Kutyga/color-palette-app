@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../app/providers.dart';
 import '../../../app/theme.dart';
+import '../../../shared/photo_picker.dart';
 import '../../../shared/widgets.dart';
 import '../../care/domain/care_models.dart';
 import '../../care/domain/care_type.dart';
@@ -54,6 +55,11 @@ class _PlantBody extends ConsumerWidget {
           leading: const _GlassButton(icon: Icons.arrow_back_ios_new_rounded, isBack: true),
           actions: [
             _GlassButton(
+              icon: Icons.photo_camera_outlined,
+              tooltip: 'Сменить фото',
+              onTap: () => _changePhoto(context, ref),
+            ),
+            _GlassButton(
               icon: Icons.more_horiz_rounded,
               onTap: () => _showMenu(context, ref),
             ),
@@ -61,7 +67,10 @@ class _PlantBody extends ConsumerWidget {
           ],
           flexibleSpace: FlexibleSpaceBar(
             stretchModes: const [StretchMode.zoomBackground],
-            background: Hero(tag: 'plant-${plant.id}', child: PlantThumb(seed: plant.id, radius: 0, iconSize: 120)),
+            background: Hero(
+              tag: 'plant-${plant.id}',
+              child: PlantThumb(seed: plant.id, radius: 0, iconSize: 120, photoUrl: plant.photoUrl, photoBytes: plant.photoBytes),
+            ),
           ),
         ),
         SliverToBoxAdapter(
@@ -134,6 +143,18 @@ class _PlantBody extends ConsumerWidget {
     );
   }
 
+  Future<void> _changePhoto(BuildContext context, WidgetRef ref) async {
+    final jpeg = await pickPlantPhoto(context);
+    if (jpeg == null) return;
+    try {
+      await ref.read(gardenRepositoryProvider).setPlantPhoto(details.plant.id, jpeg);
+      ref.invalidate(plantDetailsProvider(details.plant.id));
+      ref.invalidate(myPlantsProvider);
+    } catch (e) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Не удалось загрузить фото: $e')));
+    }
+  }
+
   void _showMenu(BuildContext context, WidgetRef ref) {
     showModalBottomSheet<void>(
       context: context,
@@ -177,9 +198,10 @@ class _PlantBody extends ConsumerWidget {
 }
 
 class _GlassButton extends StatelessWidget {
-  const _GlassButton({required this.icon, this.onTap, this.isBack = false});
+  const _GlassButton({required this.icon, this.onTap, this.isBack = false, this.tooltip});
 
   final IconData icon;
+  final String? tooltip;
   final VoidCallback? onTap;
   final bool isBack;
 
@@ -187,7 +209,7 @@ class _GlassButton extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.all(6),
         child: IconButton(
-          tooltip: isBack ? 'Назад' : 'Ещё',
+          tooltip: tooltip ?? (isBack ? 'Назад' : 'Ещё'),
           style: IconButton.styleFrom(backgroundColor: Colors.black.withValues(alpha: 0.25), foregroundColor: Colors.white),
           onPressed: onTap ?? () => context.pop(),
           icon: Icon(icon, size: 20),

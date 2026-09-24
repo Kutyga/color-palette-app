@@ -151,7 +151,10 @@ class _PlantTile extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Hero(tag: 'plant-${plant.id}', child: PlantThumb(seed: plant.id, radius: GardenTheme.radiusMd - 4)),
+                    child: Hero(
+                      tag: 'plant-${plant.id}',
+                      child: PlantThumb(seed: plant.id, radius: GardenTheme.radiusMd - 4, photoUrl: plant.photoUrl, photoBytes: plant.photoBytes),
+                    ),
                   ),
                   Positioned(
                     top: 8,

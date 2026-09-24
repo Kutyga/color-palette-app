@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets.dart';
+import 'comments_sheet.dart';
 import 'domain/social.dart';
 
 /// Лента: «Подписки» и «Интересное» — полноэкранные посты как в TikTok,
@@ -201,104 +202,115 @@ class _PostPageState extends State<_PostPage> with SingleTickerProviderStateMixi
   Widget build(BuildContext context) {
     final post = widget.post;
     final placeholder = PlantThumb(seed: post.id, radius: 0, iconSize: 160);
-    return GestureDetector(
-      onDoubleTap: () {
-        widget.onDoubleTap();
-        _heart.forward(from: 0);
-      },
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (post.photoBytes != null)
-            Image.memory(post.photoBytes!, fit: BoxFit.cover)
-          else if (post.photoUrl != null)
-            Image.network(post.photoUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder)
-          else
-            placeholder,
-          // Затемнение сверху и снизу — читаемость вкладок и подписи поверх фото.
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0.0, 0.2, 0.55, 1.0],
-                colors: [Colors.black45, Colors.transparent, Colors.transparent, Colors.black87],
-              ),
-            ),
-          ),
-          Center(
-            child: ScaleTransition(
-              scale: CurvedAnimation(parent: _heart, curve: Curves.elasticOut),
-              child: FadeTransition(
-                opacity: ReverseAnimation(CurvedAnimation(parent: _heart, curve: const Interval(0.6, 1))),
-                child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 110),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 12,
-            bottom: 110,
-            child: Column(
-              children: [
-                _Action(
-                  icon: widget.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: widget.liked ? context.garden.alert : Colors.white,
-                  label: _compact(widget.likes),
-                  onTap: widget.onLike,
-                  semantics: widget.liked ? 'Убрать лайк' : 'Нравится',
-                ),
-                _Action(icon: Icons.mode_comment_outlined, label: _compact(post.commentCount), onTap: () {}, semantics: 'Комментарии'),
-                _Action(icon: Icons.ios_share_rounded, label: 'Поделиться', onTap: () {}, semantics: 'Поделиться'),
-              ],
-            ),
-          ),
-          Positioned(
-            left: GardenTheme.gutter,
-            right: 88,
-            bottom: 110,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.white24,
-                      child: Text(post.authorName.characters.first.toUpperCase(), style: const TextStyle(color: Colors.white)),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        '@${post.authorName}',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('· ${_ago(post.createdAt)}', style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                  ],
-                ),
-                if (post.plantName != null) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    post.plantName!,
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+    // Двойной тап ловим только на фото: иначе кнопки справа ждали бы 300 мс второго тапа.
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        GestureDetector(
+          onDoubleTap: () {
+            widget.onDoubleTap();
+            _heart.forward(from: 0);
+          },
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (post.photoBytes != null)
+                Image.memory(post.photoBytes!, fit: BoxFit.cover)
+              else if (post.photoUrl != null)
+                Image.network(post.photoUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder)
+              else
+                placeholder,
+              // Затемнение сверху и снизу — читаемость вкладок и подписи поверх фото.
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.2, 0.55, 1.0],
+                    colors: [Colors.black45, Colors.transparent, Colors.transparent, Colors.black87],
                   ),
-                ],
-                if (post.text.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    post.text,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.35),
+                ),
+              ),
+              Center(
+                child: ScaleTransition(
+                  scale: CurvedAnimation(parent: _heart, curve: Curves.elasticOut),
+                  child: FadeTransition(
+                    opacity: ReverseAnimation(CurvedAnimation(parent: _heart, curve: const Interval(0.6, 1))),
+                    child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 110),
                   ),
-                ],
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          right: 12,
+          bottom: 110,
+          child: Column(
+            children: [
+              _Action(
+                icon: widget.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                color: widget.liked ? context.garden.alert : Colors.white,
+                label: _compact(widget.likes),
+                onTap: widget.onLike,
+                semantics: widget.liked ? 'Убрать лайк' : 'Нравится',
+              ),
+              _Action(
+                icon: Icons.mode_comment_outlined,
+                label: _compact(post.commentCount),
+                onTap: () => showCommentsSheet(context, post),
+                semantics: 'Комментарии',
+              ),
+              _Action(icon: Icons.ios_share_rounded, label: 'Поделиться', onTap: () {}, semantics: 'Поделиться'),
+            ],
+          ),
+        ),
+        Positioned(
+          left: GardenTheme.gutter,
+          right: 88,
+          bottom: 110,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white24,
+                    child: Text(post.authorName.characters.first.toUpperCase(), style: const TextStyle(color: Colors.white)),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '@${post.authorName}',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('· ${_ago(post.createdAt)}', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                ],
+              ),
+              if (post.plantName != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  post.plantName!,
+                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                ),
+              ],
+              if (post.text.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  post.text,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.35),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 

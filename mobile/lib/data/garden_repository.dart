@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
 import '../features/collection/domain/plant.dart';
@@ -12,6 +14,9 @@ abstract interface class GardenRepository {
   Future<PlantDetails> plantDetails(String plantId);
   Future<Plant> addPlant(NewPlant draft);
   Future<void> deletePlant(String plantId);
+
+  /// Загружает фото (JPEG) и делает его обложкой растения.
+  Future<void> setPlantPhoto(String plantId, Uint8List jpeg);
 
   Future<List<Location>> myLocations();
   Future<Location> addLocation(String name, LightLevel? light);

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -95,14 +96,24 @@ class SectionHeader extends StatelessWidget {
       );
 }
 
-/// Плейсхолдер фото растения: мягкий градиент, стабильный для каждого растения.
+/// Фото растения; без фото — мягкий градиент, стабильный для каждого растения.
 class PlantThumb extends StatelessWidget {
-  const PlantThumb({super.key, required this.seed, this.size, this.radius = GardenTheme.radiusSm, this.iconSize});
+  const PlantThumb({
+    super.key,
+    required this.seed,
+    this.size,
+    this.radius = GardenTheme.radiusSm,
+    this.iconSize,
+    this.photoUrl,
+    this.photoBytes,
+  });
 
   final String seed;
   final double? size;
   final double radius;
   final double? iconSize;
+  final String? photoUrl;
+  final Uint8List? photoBytes;
 
   static const _palettes = [
     [Color(0xFFB7E4C7), Color(0xFF40916C)],
@@ -115,6 +126,27 @@ class PlantThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final placeholder = _placeholder();
+    if (photoBytes == null && photoUrl == null) return placeholder;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: photoBytes != null
+            ? Image.memory(photoBytes!, fit: BoxFit.cover, gaplessPlayback: true)
+            : Image.network(
+                photoUrl!,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                errorBuilder: (_, _, _) => placeholder,
+                loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
+              ),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
     final colors = _palettes[seed.hashCode.abs() % _palettes.length];
     return Container(
       width: size,
@@ -136,9 +168,19 @@ class PlantThumb extends StatelessWidget {
 
 /// Аватар «истории» Instagram: кольцо-градиент показывает статус растения.
 class StoryAvatar extends StatelessWidget {
-  const StoryAvatar({super.key, required this.seed, required this.label, required this.ringColors, this.onTap});
+  const StoryAvatar({
+    super.key,
+    required this.seed,
+    required this.label,
+    required this.ringColors,
+    this.onTap,
+    this.photoUrl,
+    this.photoBytes,
+  });
 
   final String seed;
+  final String? photoUrl;
+  final Uint8List? photoBytes;
   final String label;
   final List<Color> ringColors;
   final VoidCallback? onTap;
@@ -160,7 +202,7 @@ class StoryAvatar extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(2.5),
                   decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).scaffoldBackgroundColor),
-                  child: ClipOval(child: PlantThumb(seed: seed, size: 60, radius: 30)),
+                  child: ClipOval(child: PlantThumb(seed: seed, size: 60, radius: 30, photoUrl: photoUrl, photoBytes: photoBytes)),
                 ),
               ),
               const SizedBox(height: 6),

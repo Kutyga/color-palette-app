@@ -10,6 +10,10 @@ abstract interface class SocialRepository {
   Future<FeedPost> createPost(NewPost post);
   Future<void> setLiked(String postId, bool liked);
 
+  Future<List<PostComment>> comments(String postId);
+  Future<PostComment> addComment(String postId, String text);
+  Future<void> deleteComment(String commentId);
+
   /// Для достижений: сколько постов опубликовано и лайков получено.
   Future<({int posts, int likesReceived})> myActivity();
 }
@@ -83,6 +87,35 @@ class SupabaseSocialRepository implements SocialRepository {
         .single();
     return (await _hydrate([row])).single;
   }
+
+  static const _commentSelect = '*, author:profiles!comments_author_id_fkey(username)';
+
+  @override
+  Future<List<PostComment>> comments(String postId) async {
+    final rows = await _db
+        .from('comments')
+        .select(_commentSelect)
+        .eq('post_id', postId)
+        .isFilter('deleted_at', null)
+        .order('created_at')
+        .limit(200);
+    return [for (final r in rows) PostComment.fromJson(r, myId: _uid)];
+  }
+
+  @override
+  Future<PostComment> addComment(String postId, String text) async {
+    final row = await _db
+        .from('comments')
+        .insert({'id': _uuid.v4(), 'post_id': postId, 'text': text})
+        .select(_commentSelect)
+        .single();
+    return PostComment.fromJson(row, myId: _uid);
+  }
+
+  /// Мягкое удаление: счётчик комментариев поправит триггер.
+  @override
+  Future<void> deleteComment(String commentId) =>
+      _db.from('comments').update({'deleted_at': DateTime.now().toUtc().toIso8601String()}).eq('id', commentId);
 
   @override
   Future<({int posts, int likesReceived})> myActivity() async {

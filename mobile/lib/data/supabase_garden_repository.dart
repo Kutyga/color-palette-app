@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,8 +19,9 @@ class SupabaseGardenRepository implements GardenRepository {
   final SupabaseClient _db;
   static const _uuid = Uuid();
 
-  static const _plantSelect =
-      '*, species(latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at)';
+  static const _plantSelect = '*, species(latin_name, common_names), locations(name, light_level), '
+      'care_schedules(type, next_due_at), cover:plant_photos!plants_cover_photo_fk(storage_path)';
+  static const _photoBucket = 'plant-photos';
 
   String get _uid => _db.auth.currentUser!.id;
 
@@ -30,7 +33,24 @@ class SupabaseGardenRepository implements GardenRepository {
         .eq('owner_id', _uid)
         .isFilter('deleted_at', null)
         .order('created_at');
-    return rows.map(Plant.fromJson).toList();
+    return _withPhotos(rows);
+  }
+
+  /// Подписанные ссылки на обложки одним запросом.
+  Future<List<Plant>> _withPhotos(List<Map<String, dynamic>> rows) async {
+    final paths = [for (final r in rows) ?Plant.coverPathOf(r)];
+    final signed = paths.isEmpty ? const <SignedUrlResult>[] : await _db.storage.from(_photoBucket).createSignedUrlsResult(paths, 3600);
+    final urls = {for (final s in signed.whereType<SignedUrlSuccess>()) s.path: s.signedUrl};
+    return [for (final r in rows) Plant.fromJson(r, photoUrl: urls[Plant.coverPathOf(r)])];
+  }
+
+  @override
+  Future<void> setPlantPhoto(String plantId, Uint8List jpeg) async {
+    final photoId = _uuid.v4();
+    final path = '$_uid/$plantId/$photoId.jpg';
+    await _db.storage.from(_photoBucket).uploadBinary(path, jpeg, fileOptions: const FileOptions(contentType: 'image/jpeg'));
+    await _db.from('plant_photos').insert({'id': photoId, 'plant_id': plantId, 'storage_path': path});
+    await _db.from('plants').update({'cover_photo_id': photoId}).eq('id', plantId);
   }
 
   @override
@@ -46,7 +66,7 @@ class SupabaseGardenRepository implements GardenRepository {
           .limit(50),
     ]);
     return PlantDetails(
-      plant: Plant.fromJson(results[0] as Map<String, dynamic>),
+      plant: (await _withPhotos([results[0] as Map<String, dynamic>])).single,
       schedules: (results[1] as List).cast<Map<String, dynamic>>().map(CareSchedule.fromJson).toList(),
       events: (results[2] as List).cast<Map<String, dynamic>>().map(CareEvent.fromJson).toList(),
     );

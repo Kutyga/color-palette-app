@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,7 @@ import 'package:my_garden/app/providers.dart';
 import 'package:my_garden/data/demo_garden_repository.dart';
 import 'package:my_garden/data/demo_social_repository.dart';
 import 'package:my_garden/features/collection/domain/plant.dart';
+import 'package:my_garden/features/social/comments_sheet.dart';
 import 'package:my_garden/features/social/create_post_screen.dart';
 import 'package:my_garden/features/social/domain/social.dart';
 
@@ -50,6 +52,31 @@ void main() {
     });
   });
 
+  group('комментарии', () {
+    test('добавление и удаление меняют счётчик поста', () async {
+      final social = DemoSocialRepository(garden: DemoGardenRepository());
+      final post = (await social.feed(FeedTab.discover)).first;
+      final before = (await social.comments(post.id)).length;
+
+      final mine = await social.addComment(post.id, 'Чем подкармливаете?');
+      expect(mine.mine, isTrue);
+      expect(await social.comments(post.id), hasLength(before + 1));
+      expect((await social.feed(FeedTab.discover)).firstWhere((p) => p.id == post.id).commentCount, post.commentCount + 1);
+
+      await social.deleteComment(mine.id);
+      expect(await social.comments(post.id), hasLength(before));
+      expect((await social.feed(FeedTab.discover)).firstWhere((p) => p.id == post.id).commentCount, post.commentCount);
+    });
+  });
+
+  test('фото растения становится обложкой', () async {
+    final garden = DemoGardenRepository();
+    final plant = await garden.addPlant(const NewPlant(nickname: 'Мося'));
+    await garden.setPlantPhoto(plant.id, Uint8List.fromList([1, 2, 3]));
+    expect((await garden.myPlants()).single.photoBytes, [1, 2, 3]);
+    expect((await garden.plantDetails(plant.id)).plant.photoBytes, isNotNull);
+  });
+
   Future<void> pumpApp(WidgetTester tester) async {
     final garden = DemoGardenRepository();
     await tester.pumpWidget(ProviderScope(
@@ -64,6 +91,20 @@ void main() {
     await tester.tap(find.text('Лента'));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('комментарий отправляется из ленты', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byIcon(Icons.mode_comment_outlined).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Какая красота! Чем подкармливаете?'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'Роскошный лист!');
+    await tester.pump();
+    await tester.tap(find.byTooltip('Отправить'));
+    await tester.pumpAndSettle();
+    expect(find.text('Роскошный лист!'), findsOneWidget);
+    expect(find.text('3 комментария'), findsOneWidget);
+  });
 
   testWidgets('вкладка «Новости» показывает подборку', (tester) async {
     await pumpApp(tester);

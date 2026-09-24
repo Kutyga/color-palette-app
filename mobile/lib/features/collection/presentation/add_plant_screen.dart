@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 import '../../../app/theme.dart';
+import '../../../shared/photo_picker.dart';
 import '../../../shared/widgets.dart';
 import '../../care/domain/care_interval_calculator.dart';
 import '../../care/domain/care_type.dart';
@@ -26,12 +27,18 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
   PotMaterial? _pot = PotMaterial.plastic;
   int _wateredDaysAgo = 0;
   PlantVisibility _visibility = PlantVisibility.followers;
+  Uint8List? _photo;
   bool _saving = false;
 
   @override
   void dispose() {
     _name.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPhoto() async {
+    final jpeg = await pickPlantPhoto(context);
+    if (jpeg != null) setState(() => _photo = jpeg);
   }
 
   Future<void> _pickSpecies() async {
@@ -70,6 +77,14 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
             visibility: _visibility,
             lastWateredAt: DateTime.now().subtract(Duration(days: _wateredDaysAgo)),
           ));
+      if (_photo != null) {
+        try {
+          await ref.read(gardenRepositoryProvider).setPlantPhoto(plant.id, _photo!);
+        } catch (e) {
+          // Растение уже создано — фото можно добавить позже из карточки.
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Растение добавлено, но фото не загрузилось: $e')));
+        }
+      }
       HapticFeedback.mediumImpact();
       ref.refreshCollection();
       if (mounted) context.pushReplacement('/plant/${plant.id}');
@@ -96,13 +111,23 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(GardenTheme.gutter, 8, GardenTheme.gutter, 32),
         children: [
-          Center(child: PlantThumb(seed: _name.text.isEmpty ? 'new' : _name.text, size: 120, radius: GardenTheme.radiusLg)),
+          Center(
+            child: GestureDetector(
+              onTap: _pickPhoto,
+              child: PlantThumb(
+                seed: _name.text.isEmpty ? 'new' : _name.text,
+                size: 120,
+                radius: GardenTheme.radiusLg,
+                photoBytes: _photo,
+              ),
+            ),
+          ),
           const SizedBox(height: 8),
           Center(
             child: TextButton.icon(
-              onPressed: null, // Съёмка и распознавание по фото — этап v1.2.
+              onPressed: _pickPhoto,
               icon: const Icon(Icons.photo_camera_outlined),
-              label: const Text('Фото и распознавание — скоро'),
+              label: Text(_photo == null ? 'Добавить фото' : 'Сменить фото'),
             ),
           ),
           const SizedBox(height: 16),

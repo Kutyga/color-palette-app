@@ -29,6 +29,7 @@ class DemoSocialRepository implements SocialRepository {
   static const _meId = 'me';
 
   final _posts = <FeedPost>[];
+  final _comments = <PostComment>[];
 
   static const _samplePosts = [
     ('anna.green', 'Монстера Бублик', 'Седьмой резной лист за лето 🌿 Секрет — опора из кокоса и терпение.', 1284),
@@ -60,6 +61,39 @@ class DemoSocialRepository implements SocialRepository {
     );
     _posts.add(created);
     return created;
+  }
+
+  @override
+  Future<List<PostComment>> comments(String postId) async {
+    final existing = _comments.where((c) => c.postId == postId).toList();
+    if (existing.isNotEmpty || !postId.startsWith('demo-post-')) return existing;
+    // У примеров постов есть пара комментариев, чтобы окно не было пустым.
+    final now = _clock();
+    return [
+      PostComment(id: '$postId-c1', postId: postId, authorName: 'fikus_papa', text: 'Какая красота! Чем подкармливаете?', createdAt: now.subtract(const Duration(hours: 2))),
+      PostComment(id: '$postId-c2', postId: postId, authorName: 'succulove', text: 'Сохранила себе в вишлист 🌿', createdAt: now.subtract(const Duration(minutes: 40))),
+    ];
+  }
+
+  @override
+  Future<PostComment> addComment(String postId, String text) async {
+    final comment = PostComment(id: _uuid.v4(), postId: postId, authorName: 'вы', text: text, createdAt: _clock(), mine: true);
+    if (!_comments.any((c) => c.postId == postId)) _comments.addAll(await comments(postId));
+    _comments.add(comment);
+    _updateCommentCount(postId, 1);
+    return comment;
+  }
+
+  @override
+  Future<void> deleteComment(String commentId) async {
+    final i = _comments.indexWhere((c) => c.id == commentId);
+    if (i < 0) return;
+    _updateCommentCount(_comments.removeAt(i).postId, -1);
+  }
+
+  void _updateCommentCount(String postId, int delta) {
+    final i = _posts.indexWhere((p) => p.id == postId);
+    if (i >= 0) _posts[i] = _posts[i].copyWith(commentCount: _posts[i].commentCount + delta);
   }
 
   @override
