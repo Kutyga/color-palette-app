@@ -48,7 +48,10 @@ Future<void> main() async {
       demoModeProvider.overrideWithValue(!AppConfig.hasBackend),
       if (AppConfig.hasBackend)
         plantIdentifierProvider.overrideWithValue(
-          TflitePlantIdentifier(modelUrl: AppConfig.plantModelUrl, labelsUrl: AppConfig.plantLabelsUrl),
+          FallbackPlantIdentifier(
+            PlantNetIdentifier(Supabase.instance.client),
+            TflitePlantIdentifier(modelUrl: AppConfig.plantModelUrl, labelsUrl: AppConfig.plantLabelsUrl),
+          ),
         ),
     ],
     child: const GardenApp(),

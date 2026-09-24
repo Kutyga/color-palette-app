@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:my_garden/features/collection/presentation/add_plant_screen.dart
 import 'package:my_garden/features/identify/data/plant_identifier.dart';
 import 'package:my_garden/features/identify/domain/identification.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show FunctionException;
 
 Uint8List jpeg(int width, int height, {img.Color? left, img.Color? right}) {
   final image = img.Image(width: width, height: height);
@@ -31,14 +33,23 @@ Uint8List jpeg(int width, int height, {img.Color? left, img.Color? right}) {
 class FakeIdentifier implements PlantIdentifier {
   FakeIdentifier(this.result);
 
-  final List<({String label, double score})> result;
+  final List<Prediction> result;
   int calls = 0;
 
   @override
-  Future<List<({String label, double score})>> identify(Uint8List jpeg) async {
+  Future<List<Prediction>> identify(Uint8List jpeg) async {
     calls++;
     return result;
   }
+}
+
+class FailingIdentifier implements PlantIdentifier {
+  FailingIdentifier(this.error);
+
+  final Object error;
+
+  @override
+  Future<List<Prediction>> identify(Uint8List jpeg) async => throw error;
 }
 
 class FakeImagePicker extends ImagePickerPlatform with MockPlatformInterfaceMixin {
@@ -80,33 +91,59 @@ void main() {
 
   group('сопоставление с базой знаний', () {
     test('точное название', () {
-      final m = matchSpecies('monstera deliciosa', 0.8, demoSpecies);
+      final m = matchSpecies(const Prediction('monstera deliciosa', 0.8), demoSpecies);
       expect(m.species?.slug, 'monstera-deliciosa');
       expect(m.genusOnly, isFalse);
       expect(m.percent, 80);
     });
 
     test('синоним', () {
-      expect(matchSpecies('Sansevieria trifasciata', 0.5, demoSpecies).species?.slug, 'dracaena-trifasciata');
+      expect(matchSpecies(const Prediction('Sansevieria trifasciata', 0.5), demoSpecies).species?.slug, 'dracaena-trifasciata');
     });
 
     test('только род', () {
-      final m = matchSpecies('ficus benjamina', 0.4, demoSpecies);
+      final m = matchSpecies(const Prediction('ficus benjamina', 0.4), demoSpecies);
       expect(m.species?.slug, 'ficus-elastica');
       expect(m.genusOnly, isTrue);
     });
 
     test('нет в базе', () {
-      final m = matchSpecies('urtica dioica', 0.3, demoSpecies);
+      final m = matchSpecies(const Prediction('urtica dioica', 0.3, commonName: 'Крапива двудомная', source: IdentificationSource.plantNet), demoSpecies);
       expect(m.species, isNull);
+      expect(m.commonName, 'Крапива двудомная');
+      expect(m.source, IdentificationSource.plantNet);
       expect(capitalizeLatin(m.latinName), 'Urtica dioica');
+    });
+  });
+
+  group('Pl@ntNet с запасным вариантом на телефоне', () {
+    final onDevice = FakeIdentifier([const Prediction('aloe vera', 0.4)]);
+
+    test('без сети — модель на телефоне', () async {
+      final id = FallbackPlantIdentifier(FailingIdentifier(const SocketException('Failed host lookup')), onDevice);
+      expect((await id.identify(Uint8List(1))).single.label, 'aloe vera');
+    });
+
+    test('квота исчерпана или сбой сервера — модель на телефоне', () async {
+      for (final status in [429, 502, 503]) {
+        final id = FallbackPlantIdentifier(FailingIdentifier(FunctionException(status: status)), onDevice);
+        expect((await id.identify(Uint8List(1))).single.label, 'aloe vera', reason: 'HTTP $status');
+      }
+    });
+
+    test('ошибка запроса (например, не вошёл) не маскируется', () async {
+      final id = FallbackPlantIdentifier(FailingIdentifier(FunctionException(status: 401)), onDevice);
+      await expectLater(id.identify(Uint8List(1)), throwsA(isA<FunctionException>()));
     });
   });
 
   testWidgets('фото → «Распознать» → вид подставлен из базы знаний', (tester) async {
     await initializeDateFormatting('ru');
     ImagePickerPlatform.instance = FakeImagePicker(jpeg(64, 64));
-    final identifier = FakeIdentifier([(label: 'monstera deliciosa', score: 0.82), (label: 'urtica dioica', score: 0.1)]);
+    final identifier = FakeIdentifier(const [
+      Prediction('Monstera deliciosa', 0.82, commonName: 'Монстера деликатесная', source: IdentificationSource.plantNet),
+      Prediction('Urtica dioica', 0.1, commonName: 'Крапива двудомная', source: IdentificationSource.plantNet),
+    ]);
     final garden = DemoGardenRepository();
 
     await tester.pumpWidget(ProviderScope(
@@ -135,7 +172,9 @@ void main() {
     expect(identifier.calls, 1);
     expect(find.text('Похоже на'), findsOneWidget);
     expect(find.text('82%'), findsOneWidget);
-    expect(find.text('Нет в базе знаний — добавим с этим названием'), findsOneWidget);
+    expect(find.text('По данным Pl@ntNet. Проверьте по фото в базе знаний.'), findsOneWidget);
+    expect(find.text('Крапива двудомная'), findsOneWidget);
+    expect(find.text('Urtica dioica · нет в базе знаний — добавим с этим названием'), findsOneWidget);
 
     await tester.tap(find.text('Монстера деликатесная'));
     await tester.pumpAndSettle();

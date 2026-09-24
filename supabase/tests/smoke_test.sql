@@ -263,6 +263,24 @@ do $$ begin
 exception when insufficient_privilege then null;
 end $$;
 
+-- Квоты распознавания: 2 в день на пользователя, общая больше.
+reset role;
+do $$
+declare u uuid := '00000000-0000-0000-0000-00000000000a';
+begin
+  assert public.consume_identify_quota(u, 2, 100), 'первое распознавание';
+  assert public.consume_identify_quota(u, 2, 100), 'второе распознавание';
+  assert not public.consume_identify_quota(u, 2, 100), 'лимит на пользователя';
+  assert public.consume_identify_quota('00000000-0000-0000-0000-00000000000b', 2, 100), 'другой пользователь';
+  assert not public.consume_identify_quota('00000000-0000-0000-0000-00000000000c', 2, 4), 'общий лимит';
+end $$;
+set role authenticated;
+do $$ begin
+  perform public.get_plantnet_key();
+  raise exception 'пользователь не должен получать ключ Pl@ntNet';
+exception when insufficient_privilege then null;
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

@@ -44,7 +44,9 @@ class _ResultsSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(GardenTheme.gutter, 0, GardenTheme.gutter, 8),
             child: Text(
-              'Распознавание работает на телефоне и бесплатно, но не всегда точно — проверьте по фото в базе знаний.',
+              candidates.first.source == IdentificationSource.plantNet
+                  ? 'По данным Pl@ntNet. Проверьте по фото в базе знаний.'
+                  : 'Распознано на телефоне без интернета — может быть неточно. Проверьте по фото в базе знаний.',
               style: context.text.bodySmall,
             ),
           ),
@@ -59,12 +61,12 @@ class _ResultsSheet extends StatelessWidget {
                 child: Text('${cand.percent}%', style: context.text.labelMedium?.copyWith(fontSize: 11)),
               ),
               title: Text(
-                cand.species != null && !cand.genusOnly ? cand.species!.name : capitalizeLatin(cand.latinName),
+                cand.species != null && !cand.genusOnly ? cand.species!.name : cand.commonName ?? capitalizeLatin(cand.latinName),
                 style: context.text.titleMedium,
               ),
               subtitle: Text(
                 cand.species == null
-                    ? 'Нет в базе знаний — добавим с этим названием'
+                    ? '${cand.commonName != null ? '${capitalizeLatin(cand.latinName)} · ' : ''}нет в базе знаний — добавим с этим названием'
                     : cand.genusOnly
                         ? 'Род ${cand.species!.latinName.split(' ').first} — уточните вид'
                         : capitalizeLatin(cand.latinName),

@@ -51,7 +51,7 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
     try {
       final predictions = await identifier.identify(_photo!);
       final knowledgeBase = await ref.read(gardenRepositoryProvider).popularSpecies();
-      final candidates = [for (final p in predictions) matchSpecies(p.label, p.score, knowledgeBase)];
+      final candidates = [for (final p in predictions) matchSpecies(p, knowledgeBase)];
       if (!mounted) return;
       setState(() => _identifying = false);
       final chosen = await showIdentificationResults(context, candidates);
@@ -66,7 +66,7 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
       } else {
         setState(() {
           _species = null;
-          if (_name.text.trim().isEmpty) _name.text = capitalizeLatin(chosen.latinName);
+          if (_name.text.trim().isEmpty) _name.text = chosen.commonName ?? capitalizeLatin(chosen.latinName);
         });
       }
     } catch (e) {
