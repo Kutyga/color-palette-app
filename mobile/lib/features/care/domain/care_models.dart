@@ -36,6 +36,18 @@ class CareSchedule {
         enabled: json['enabled'] as bool? ?? true,
       );
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'plant_id': plantId,
+        'type': type.dbName,
+        'interval_days': intervalDays,
+        'auto_adjust': autoAdjust,
+        'user_factor': userFactor,
+        'last_done_at': lastDoneAt?.toUtc().toIso8601String(),
+        'next_due_at': nextDueAt?.toUtc().toIso8601String(),
+        'enabled': enabled,
+      };
+
   CareSchedule copyWith({double? userFactor, DateTime? lastDoneAt, DateTime? nextDueAt}) =>
       CareSchedule(
         id: id,
@@ -72,6 +84,14 @@ class CareEvent {
         performedAt: DateTime.parse(json['performed_at'] as String).toLocal(),
         note: json['note'] as String?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'plant_id': plantId,
+        'type': type.dbName,
+        'performed_at': performedAt.toUtc().toIso8601String(),
+        'note': note,
+      };
 }
 
 /// Задача на экране «Сегодня»: что и какому растению нужно сделать.
@@ -100,6 +120,14 @@ class CareTask {
         type: CareType.fromDb(json['type'] as String),
         dueAt: DateTime.parse(json['next_due_at'] as String).toLocal(),
       );
+
+  Map<String, dynamic> toJson() => {
+        'schedule_id': scheduleId,
+        'plant_id': plantId,
+        'nickname': plantName,
+        'type': type.dbName,
+        'next_due_at': dueAt.toUtc().toIso8601String(),
+      };
 }
 
 /// Всё, что показывает карточка растения.
@@ -109,6 +137,18 @@ class PlantDetails {
   final Plant plant;
   final List<CareSchedule> schedules;
   final List<CareEvent> events;
+
+  Map<String, dynamic> toJson() => {
+        'plant': plant.toJson(),
+        'schedules': [for (final s in schedules) s.toJson()],
+        'events': [for (final e in events) e.toJson()],
+      };
+
+  factory PlantDetails.fromJson(Map<String, dynamic> json) => PlantDetails(
+        plant: Plant.fromCache(json['plant'] as Map<String, dynamic>),
+        schedules: [for (final s in json['schedules'] as List) CareSchedule.fromJson(s as Map<String, dynamic>)],
+        events: [for (final e in json['events'] as List) CareEvent.fromJson(e as Map<String, dynamic>)],
+      );
 
   CareSchedule? scheduleFor(CareType type) {
     for (final s in schedules) {

@@ -8,7 +8,6 @@ import 'package:my_garden/app/providers.dart';
 import 'package:my_garden/data/demo_garden_repository.dart';
 import 'package:my_garden/data/demo_social_repository.dart';
 import 'package:my_garden/features/collection/domain/plant.dart';
-import 'package:my_garden/features/social/comments_sheet.dart';
 import 'package:my_garden/features/social/create_post_screen.dart';
 import 'package:my_garden/features/social/domain/social.dart';
 

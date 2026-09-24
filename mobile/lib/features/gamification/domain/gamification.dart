@@ -60,6 +60,23 @@ class GardenStats {
         likesReceived: likesReceived,
       );
 
+  Map<String, dynamic> toJson() => {
+        'plants': plants,
+        'species': species,
+        'locations': locations,
+        'pet_safe': petSafe,
+        'succulents': succulents,
+        'care_events': careEvents,
+        'waterings': waterings,
+        'fertilizings': fertilizings,
+        'mistings': mistings,
+        'repots': repots,
+        'early_bird': earlyBird,
+        'night_owl': nightOwl,
+        'current_streak': currentStreak,
+        'best_streak': bestStreak,
+      };
+
   factory GardenStats.fromJson(Map<String, dynamic> j) {
     int v(String k) => (j[k] as num?)?.toInt() ?? 0;
     return GardenStats(

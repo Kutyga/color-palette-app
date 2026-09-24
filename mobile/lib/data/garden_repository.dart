@@ -23,7 +23,8 @@ abstract interface class GardenRepository {
 
   /// Задачи ухода со сроком до [until] (включая просроченные).
   Future<List<CareTask>> dueTasks(DateTime until);
-  Future<void> logCare(String plantId, CareType type, {DateTime? performedAt, String? note});
+  /// [id] задаёт клиент — повторная отправка той же отметки не создаёт дубль.
+  Future<void> logCare(String plantId, CareType type, {String? id, DateTime? performedAt, String? note});
 
   Future<List<Species>> searchSpecies(String query);
   Future<List<Species>> popularSpecies();

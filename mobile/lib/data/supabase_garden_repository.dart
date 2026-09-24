@@ -121,14 +121,20 @@ class SupabaseGardenRepository implements GardenRepository {
   }
 
   @override
-  Future<void> logCare(String plantId, CareType type, {DateTime? performedAt, String? note}) =>
-      _db.from('care_events').insert({
-        'id': _uuid.v4(),
+  Future<void> logCare(String plantId, CareType type, {String? id, DateTime? performedAt, String? note}) async {
+    try {
+      await _db.from('care_events').insert({
+        'id': id ?? _uuid.v4(),
         'plant_id': plantId,
         'type': type.dbName,
         'performed_at': (performedAt ?? DateTime.now()).toUtc().toIso8601String(),
         'note': note,
       });
+    } on PostgrestException catch (e) {
+      // Запись уже дошла при прошлой попытке (ответ потерялся) — считаем успехом.
+      if (e.code != '23505') rethrow;
+    }
+  }
 
   @override
   Future<List<Species>> searchSpecies(String query) async {

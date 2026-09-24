@@ -29,6 +29,21 @@ class Species {
   final bool? airPurifying;
   final CareProfile? care;
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'slug': slug,
+        'latin_name': latinName,
+        'common_names': {'ru': commonNamesRu},
+        'synonyms': synonyms,
+        'description': {'ru': descriptionRu},
+        'plant_type': plantType,
+        'difficulty': difficulty,
+        'toxic_to_pets': toxicToPets,
+        'toxic_to_humans': toxicToHumans,
+        'air_purifying': airPurifying,
+        'care_profiles': care?.toJson(),
+      };
+
   String get name => commonNamesRu.isNotEmpty ? commonNamesRu.first : latinName;
 
   bool matches(String query) {
@@ -89,6 +104,21 @@ class CareProfile {
   final int? repotEveryYears;
   final List<String> propagation;
   final List<String> tipsRu;
+
+  Map<String, dynamic> toJson() => {
+        'light': light?.dbName,
+        'water_interval_summer': waterIntervalSummer,
+        'water_interval_winter': waterIntervalWinter,
+        'soil_dryness_before_watering': {'ru': drynessRu},
+        'humidity_min_pct': humidityMinPct,
+        'temp_min_c': tempMinC,
+        'temp_max_c': tempMaxC,
+        'fertilize_interval_days': fertilizeIntervalDays,
+        'fertilize_months': fertilizeMonths,
+        'repot_every_years': repotEveryYears,
+        'propagation': propagation,
+        'tips': {'ru': tipsRu},
+      };
 
   factory CareProfile.fromJson(Map<String, dynamic> json) => CareProfile(
         light: LightLevel.fromDb(json['light'] as String?),

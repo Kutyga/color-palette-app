@@ -6,10 +6,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/app.dart';
 import 'app/providers.dart';
 import 'core/config.dart';
+import 'core/offline/local_store.dart';
 import 'core/notifications/reminder_service.dart';
 import 'data/demo_garden_repository.dart';
 import 'data/demo_social_repository.dart';
 import 'data/garden_repository.dart';
+import 'data/offline_garden_repository.dart';
 import 'data/social_repository.dart';
 import 'data/supabase_garden_repository.dart';
 
@@ -21,7 +23,9 @@ Future<void> main() async {
   final SocialRepository social;
   if (AppConfig.hasBackend) {
     await Supabase.initialize(url: AppConfig.supabaseUrl, publishableKey: AppConfig.supabaseKey);
-    repository = SupabaseGardenRepository(Supabase.instance.client);
+    final offline = OfflineGardenRepository(SupabaseGardenRepository(Supabase.instance.client), await SharedPrefsStore.create())
+      ..startAutoSync();
+    repository = offline;
     social = SupabaseSocialRepository(Supabase.instance.client);
   } else {
     repository = await DemoGardenRepository().withSampleData();

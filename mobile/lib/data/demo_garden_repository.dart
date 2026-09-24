@@ -139,9 +139,10 @@ class DemoGardenRepository implements GardenRepository {
 
   /// Аналог триггера care_events_apply.
   @override
-  Future<void> logCare(String plantId, CareType type, {DateTime? performedAt, String? note}) async {
+  Future<void> logCare(String plantId, CareType type, {String? id, DateTime? performedAt, String? note}) async {
+    if (id != null && _events.any((e) => e.id == id)) return;
     final at = performedAt ?? _clock();
-    _events.add(CareEvent(id: _uuid.v4(), plantId: plantId, type: type, performedAt: at, note: note));
+    _events.add(CareEvent(id: id ?? _uuid.v4(), plantId: plantId, type: type, performedAt: at, note: note));
 
     final schedule = _schedules.values.where((s) => s.plantId == plantId && s.type == type).firstOrNull;
     if (schedule == null) return;

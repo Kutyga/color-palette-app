@@ -29,6 +29,8 @@ class Location {
         lightLevel: LightLevel.fromDb(json['light_level'] as String?),
         isOutdoor: json['is_outdoor'] as bool? ?? false,
       );
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'light_level': lightLevel?.dbName, 'is_outdoor': isOutdoor};
 }
 
 class Plant {
@@ -72,6 +74,8 @@ class Plant {
   /// Ожидает выборку вида
   /// `*, species(latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at),
   /// cover:plant_photos!plants_cover_photo_fk(storage_path)`.
+  factory Plant.fromCache(Map<String, dynamic> json) => Plant.fromJson(json, photoUrl: json['photo_url'] as String?);
+
   factory Plant.fromJson(Map<String, dynamic> json, {String? photoUrl}) {
     final species = json['species'] as Map<String, dynamic>?;
     final location = json['locations'] as Map<String, dynamic>?;
@@ -92,6 +96,25 @@ class Plant {
       photoUrl: photoUrl,
     );
   }
+}
+
+extension PlantCache on Plant {
+  /// Та же форма, что у ответа сервера, плюс уже подписанная ссылка на фото.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nickname': nickname,
+        'species_id': speciesId,
+        'species': speciesName == null ? null : {'latin_name': speciesName, 'common_names': {'ru': [speciesName]}},
+        'location_id': locationId,
+        'locations': locationName == null ? null : {'name': locationName, 'light_level': lightLevel?.dbName},
+        'pot_material': potMaterial?.dbName,
+        'visibility': visibility.dbName,
+        'notes': notes,
+        'care_schedules': [
+          if (nextWaterAt != null) {'type': 'water', 'next_due_at': nextWaterAt!.toUtc().toIso8601String()},
+        ],
+        'photo_url': photoUrl,
+      };
 }
 
 /// Русское народное название, если есть, иначе латинское.

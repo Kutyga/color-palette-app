@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/notifications/reminder_service.dart';
 import '../data/garden_repository.dart';
+import '../data/offline_garden_repository.dart';
 import '../data/social_repository.dart';
 import '../features/care/domain/care_models.dart';
 import '../features/care/domain/care_type.dart';
@@ -16,6 +17,17 @@ final gardenRepositoryProvider = Provider<GardenRepository>((ref) => throw Unimp
 final socialRepositoryProvider = Provider<SocialRepository>((ref) => throw UnimplementedError());
 
 final reminderServiceProvider = Provider<ReminderService>((ref) => const NoopReminderService());
+
+/// Связь и очередь офлайн-изменений; в демо-режиме всегда «всё отправлено».
+final syncStateProvider = StreamProvider<SyncState>((ref) async* {
+  final repo = ref.watch(gardenRepositoryProvider);
+  if (repo is! OfflineGardenRepository) {
+    yield const SyncState();
+    return;
+  }
+  yield repo.state;
+  yield* repo.states;
+});
 
 /// true — работаем без сервера, данные только в памяти.
 final demoModeProvider = Provider<bool>((ref) => false);

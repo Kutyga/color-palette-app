@@ -82,6 +82,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final pending = overdue.length + today.length;
 
     return [
+      const SliverToBoxAdapter(child: _SyncBanner()),
       SliverToBoxAdapter(child: _SummaryCard(done: _doneToday, pending: pending)),
       const SliverToBoxAdapter(child: _ProgressChips()),
       if (pending > 0) SliverToBoxAdapter(child: _Stories(tasks: [...overdue, ...today])),
@@ -349,6 +350,43 @@ class _ProgressChips extends ConsumerWidget {
             onPressed: () => context.push('/achievements'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// «Нет сети» и очередь неотправленных отметок — спокойно, без тревожного красного.
+class _SyncBanner extends ConsumerWidget {
+  const _SyncBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(syncStateProvider).value;
+    if (state == null || state.isIdle) return const SizedBox.shrink();
+    final c = context.garden;
+    final pending = state.pending;
+    final text = state.syncing
+        ? 'Отправляем изменения…'
+        : state.offline
+            ? pending == 0
+                ? 'Нет сети — показываем сохранённые данные'
+                : 'Нет сети · $pending ${plural(pending, 'отметка ждёт', 'отметки ждут', 'отметок ждут')} отправки'
+            : '$pending ${plural(pending, 'отметка ждёт', 'отметки ждут', 'отметок ждут')} отправки';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GardenTheme.gutter, 0, GardenTheme.gutter, 12),
+      child: Material(
+        color: c.water.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(GardenTheme.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            children: [
+              Icon(state.offline ? Icons.cloud_off_rounded : Icons.cloud_upload_outlined, color: c.water, size: 20),
+              const SizedBox(width: 10),
+              Expanded(child: Text(text, style: context.text.bodyMedium)),
+            ],
+          ),
+        ),
       ),
     );
   }

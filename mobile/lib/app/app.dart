@@ -47,6 +47,17 @@ class _GardenAppState extends ConsumerState<GardenApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Очередь офлайн-изменений ушла на сервер — подтягиваем свежие данные.
+    ref.listen(syncStateProvider, (prev, next) {
+      final before = prev?.value?.pending ?? 0;
+      final after = next.value?.pending ?? 0;
+      if (before > 0 && after == 0) {
+        ref.invalidate(dueTasksProvider);
+        ref.invalidate(myPlantsProvider);
+        ref.invalidate(plantDetailsProvider);
+        ref.invalidate(gardenStatsProvider);
+      }
+    });
     return MaterialApp.router(
       title: 'Мой сад',
       debugShowCheckedModeBanner: false,
