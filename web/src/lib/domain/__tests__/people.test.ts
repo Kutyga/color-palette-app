@@ -14,7 +14,7 @@ describe("профиль садовода", () => {
   });
 
   it("нормализует и проверяет username", () => {
-    expect(normalizeUsername(" @Max.Kutyga ")).toBe("max_kutyga");
+    expect(normalizeUsername(" @Anna.Green ")).toBe("anna_green");
     expect(normalizeUsername("Мой сад 2")).toBe("_2");
     expect(validateProfile({ displayName: "Макс", username: "max_k", bio: "" })).toBeNull();
     expect(validateProfile({ displayName: " ", username: "max_k", bio: "" })?.field).toBe("displayName");
