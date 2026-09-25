@@ -242,6 +242,9 @@ do $$ begin
   assert (select count(*) from public.news_feed()) = 2, 'лента новостей';
   assert (select title from public.news_feed() limit 1) = 'Осенняя подкормка', 'свежие сверху';
   assert (select count(*) from public.news_feed(only_my_species => true)) = 1, 'новости про мои растения';
+  assert (select count(*) from public.news_feed(langs => array['ru'])) = 2, 'фильтр по языку';
+  assert (select count(*) from public.news_feed(langs => array['de'])) = 0, 'чужой язык отфильтрован';
+  assert (select articles from public.news_languages() where language = 'ru') = 2, 'список языков';
 end $$;
 do $$ begin
   perform public.ingest_news((select id from public.news_sources limit 1), '[]'::jsonb);
@@ -297,7 +300,7 @@ do $$ begin
          'поиск по части народного названия';
   assert (select slug from public.search_species('fikus elastika') limit 1) = 'ficus-elastica',
          'поиск с опечатками';
-  assert (select count(*) from public.species) >= 67, 'расширенная база знаний';
+  assert (select count(*) from public.species) >= 133, 'расширенная база знаний';
   assert (select count(*) from public.species s where not exists (
             select 1 from public.care_profiles c where c.species_id = s.id)) = 0,
          'у каждого вида есть карточка ухода';

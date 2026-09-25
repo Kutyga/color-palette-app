@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Мой сад — уход за комнатными растениями", template: "%s · Мой сад" },
   description:
-    "Коллекция растений с напоминаниями о поливе, база знаний по 67 комнатным растениям, лента садоводов и достижения.",
+    "Коллекция растений с напоминаниями о поливе, база знаний по 133 комнатным растениям, лента садоводов и достижения.",
   applicationName: "Мой сад",
   manifest: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/manifest.webmanifest`,
   icons: { icon: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/icon.svg` },

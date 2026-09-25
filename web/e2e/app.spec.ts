@@ -133,3 +133,27 @@ test("демо: достижения и выход из демо-режима", 
   await page.goto("/garden/");
   await page.waitForURL("**/login/**");
 });
+
+test("демо: новости — выбор языка и чтение статьи на сайте", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/feed/?tab=news");
+  await expect(page.getByText("База знаний «Мой сад»").first()).toBeVisible();
+
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page.getByText("Новостей пока нет")).toBeVisible();
+  await page.getByRole("button", { name: "Все языки" }).click();
+
+  await page.getByRole("button", { name: "Настройки новостей" }).click();
+  await expect(page.getByText("Переводить автоматически")).toBeVisible();
+  await page.getByRole("button", { name: "Закрыть" }).click();
+
+  // Выбор языка запоминается.
+  await page.getByRole("button", { name: "Русский" }).click();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Русский" })).toHaveAttribute("aria-pressed", "true");
+
+  await page.goto("/feed/article/?id=unknown");
+  await expect(page.getByText("Текст статьи здесь недоступен")).toBeVisible();
+  expect(errors).toEqual([]);
+});

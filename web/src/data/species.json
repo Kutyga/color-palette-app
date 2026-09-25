@@ -52,6 +52,167 @@
   }
  },
  {
+  "id": "adiantum-raddianum",
+  "slug": "adiantum-raddianum",
+  "latin_name": "Adiantum raddianum",
+  "common_names": {
+   "en": [
+    "Maidenhair fern"
+   ],
+   "ru": [
+    "Адиантум Радди",
+    "Венерин волос"
+   ]
+  },
+  "synonyms": [
+   "Adiantum cuneatum"
+  ],
+  "description": {
+   "ru": "Нежный папоротник с тонкими чёрными черешками и веерами мелких листочков."
+  },
+  "plant_type": "папоротник",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 3,
+   "water_interval_winter": 5,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 15,
+   "temp_max_c": 25,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Даже однократное пересыхание — сухие вайи",
+     "Держите подальше от батарей"
+    ]
+   }
+  }
+ },
+ {
+  "id": "aeonium-arboreum",
+  "slug": "aeonium-arboreum",
+  "latin_name": "Aeonium arboreum",
+  "common_names": {
+   "en": [
+    "Tree aeonium",
+    "Irish rose"
+   ],
+   "ru": [
+    "Эониум древовидный"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Розетки на ветвящихся стволиках; зимой растёт, летом может впадать в покой."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 10,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 8,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    10,
+    11,
+    12,
+    1,
+    2,
+    3
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Летом в жару полив сократите — это период покоя",
+     "Тёмные сорта ярче на солнце"
+    ]
+   }
+  }
+ },
+ {
+  "id": "aeschynanthus-radicans",
+  "slug": "aeschynanthus-radicans",
+  "latin_name": "Aeschynanthus radicans",
+  "common_names": {
+   "en": [
+    "Lipstick plant"
+   ],
+   "ru": [
+    "Эсхинантус"
+   ]
+  },
+  "synonyms": [
+   "Aeschynanthus lobbianus"
+  ],
+  "description": {
+   "ru": "Ампельное растение с красными трубчатыми цветками, выглядывающими из чашечек."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Для цветения нужна прохладная зимовка +16 °C"
+    ]
+   }
+  }
+ },
+ {
   "id": "aglaonema-commutatum",
   "slug": "aglaonema-commutatum",
   "latin_name": "Aglaonema commutatum",
@@ -164,6 +325,59 @@
   }
  },
  {
+  "id": "alocasia-zebrina",
+  "slug": "alocasia-zebrina",
+  "latin_name": "Alocasia zebrina",
+  "common_names": {
+   "en": [
+    "Zebra alocasia"
+   ],
+   "ru": [
+    "Алоказия зебрина"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Стреловидные листья на полосатых, как у зебры, черешках."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "клубеньки",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Не переливайте — клубень гниёт",
+     "Зимой может сбросить листья и отдыхать"
+    ]
+   }
+  }
+ },
+ {
   "id": "aloe-vera",
   "slug": "aloe-vera",
   "latin_name": "Aloe vera",
@@ -267,6 +481,167 @@
     "ru": [
      "Грунт — рыхлый, с корой и мхом",
      "Для цветения нужен яркий рассеянный свет"
+    ]
+   }
+  }
+ },
+ {
+  "id": "anthurium-clarinervium",
+  "slug": "anthurium-clarinervium",
+  "latin_name": "Anthurium clarinervium",
+  "common_names": {
+   "en": [
+    "Velvet cardboard anthurium"
+   ],
+   "ru": [
+    "Антуриум светложилковый"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Бархатные сердцевидные листья с белыми жилками."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 4,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Грунт — кора, мох и перлит",
+     "Высокая влажность обязательна"
+    ]
+   }
+  }
+ },
+ {
+  "id": "aphelandra-squarrosa",
+  "slug": "aphelandra-squarrosa",
+  "latin_name": "Aphelandra squarrosa",
+  "common_names": {
+   "en": [
+    "Zebra plant"
+   ],
+   "ru": [
+    "Афеландра оттопыренная",
+    "Афеландра"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Тёмные листья с белыми жилками и жёлтые колосья соцветий."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "верхушечные черенки"
+   ],
+   "tips": {
+    "ru": [
+     "После цветения обрежьте соцветие",
+     "Не пересушивайте — сбрасывает листья"
+    ]
+   }
+  }
+ },
+ {
+  "id": "aristaloe-aristata",
+  "slug": "aristaloe-aristata",
+  "latin_name": "Aristaloe aristata",
+  "common_names": {
+   "en": [
+    "Lace aloe",
+    "Guinea-fowl aloe"
+   ],
+   "ru": [
+    "Алоэ остистое",
+    "Аристалоэ"
+   ]
+  },
+  "synonyms": [
+   "Aloe aristata"
+  ],
+  "description": {
+   "ru": "Компактная розетка с белыми бугорками и мягкими остями на кончиках листьев."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 14,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Даёт много деток — рассаживайте весной",
+     "Зимой полив раз в месяц"
     ]
    }
   }
@@ -595,6 +970,113 @@
   }
  },
  {
+  "id": "caladium-bicolor",
+  "slug": "caladium-bicolor",
+  "latin_name": "Caladium bicolor",
+  "common_names": {
+   "en": [
+    "Heart of Jesus",
+    "Angel wings"
+   ],
+   "ru": [
+    "Каладиум двуцветный"
+   ]
+  },
+  "synonyms": [
+   "Caladium × hortulanum"
+  ],
+  "description": {
+   "ru": "Тонкие листья-сердца с розовыми, красными и белыми узорами; растёт из клубня."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 20,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "клубни"
+   ],
+   "tips": {
+    "ru": [
+     "Осенью листья отмирают — клубень хранят сухим при +18 °C",
+     "Весной высаживают снова"
+    ]
+   }
+  }
+ },
+ {
+  "id": "callisia-repens",
+  "slug": "callisia-repens",
+  "latin_name": "Callisia repens",
+  "common_names": {
+   "en": [
+    "Turtle vine",
+    "Creeping inch plant"
+   ],
+   "ru": [
+    "Каллизия ползучая"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Плотный ковёр мелких листьев; красиво в подвесном кашпо."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 14,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Прищипывайте для густоты",
+     "Перелив зимой — гниль стеблей"
+    ]
+   }
+  }
+ },
+ {
   "id": "ceropegia-woodii",
   "slug": "ceropegia-woodii",
   "latin_name": "Ceropegia woodii",
@@ -754,6 +1236,170 @@
   }
  },
  {
+  "id": "cissus-rhombifolia",
+  "slug": "cissus-rhombifolia",
+  "latin_name": "Cissus rhombifolia",
+  "common_names": {
+   "en": [
+    "Grape ivy"
+   ],
+   "ru": [
+    "Циссус ромболистный",
+    "Комнатный виноград"
+   ]
+  },
+  "synonyms": [
+   "Rhoicissus rhomboidea"
+  ],
+  "description": {
+   "ru": "Лиана с усиками и тройчатыми листьями; выносит тень."
+  },
+  "plant_type": "лиана",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 12,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Дайте опору — цепляется усиками"
+    ]
+   }
+  }
+ },
+ {
+  "id": "citrus-limon",
+  "slug": "citrus-limon",
+  "latin_name": "Citrus × limon",
+  "common_names": {
+   "en": [
+    "Lemon tree"
+   ],
+   "ru": [
+    "Лимон"
+   ]
+  },
+  "synonyms": [
+   "Citrus limon"
+  ],
+  "description": {
+   "ru": "Цитрусовое деревце, которое цветёт и плодоносит в квартире."
+  },
+  "plant_type": "дерево",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 4,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "прививка"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой нужен свет или прохлада +12–14 °C",
+     "Удобрения для цитрусовых с микроэлементами"
+    ]
+   }
+  }
+ },
+ {
+  "id": "clivia-miniata",
+  "slug": "clivia-miniata",
+  "latin_name": "Clivia miniata",
+  "common_names": {
+   "en": [
+    "Natal lily",
+    "Bush lily"
+   ],
+   "ru": [
+    "Кливия киноварная"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Тёмные ремневидные листья и зонтики оранжевых цветков в конце зимы."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 21,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 10,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "деление",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Для цветения нужна прохладная сухая зимовка 6–8 недель",
+     "Цветёт лучше в тесном горшке"
+    ]
+   }
+  }
+ },
+ {
   "id": "coffea-arabica",
   "slug": "coffea-arabica",
   "latin_name": "Coffea arabica",
@@ -809,6 +1455,65 @@
   }
  },
  {
+  "id": "coleus-scutellarioides",
+  "slug": "coleus-scutellarioides",
+  "latin_name": "Coleus scutellarioides",
+  "common_names": {
+   "en": [
+    "Coleus",
+    "Painted nettle"
+   ],
+   "ru": [
+    "Колеус",
+    "Колеус Блюме"
+   ]
+  },
+  "synonyms": [
+   "Plectranthus scutellarioides",
+   "Solenostemon scutellarioides"
+  ],
+  "description": {
+   "ru": "Листья невероятных расцветок — от лаймовых до почти чёрных."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 3,
+   "water_interval_winter": 6,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 14,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Удаляйте цветоносы — иначе листья мельчают",
+     "Прищипывайте для густоты"
+    ]
+   }
+  }
+ },
+ {
   "id": "crassula-ovata",
   "slug": "crassula-ovata",
   "latin_name": "Crassula ovata",
@@ -855,6 +1560,215 @@
    "tips": {
     "ru": [
      "Зимой держите в прохладе +10–15 °C"
+    ]
+   }
+  }
+ },
+ {
+  "id": "crassula-perforata",
+  "slug": "crassula-perforata",
+  "latin_name": "Crassula perforata",
+  "common_names": {
+   "en": [
+    "String of buttons"
+   ],
+   "ru": [
+    "Толстянка пронзённолистная"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Стебли словно нанизаны на треугольные листья с красной каймой."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 12,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Без солнца теряет красную кайму"
+    ]
+   }
+  }
+ },
+ {
+  "id": "ctenanthe-burle-marxii",
+  "slug": "ctenanthe-burle-marxii",
+  "latin_name": "Ctenanthe burle-marxii",
+  "common_names": {
+   "en": [
+    "Fishbone prayer plant",
+    "Never-never plant"
+   ],
+   "ru": [
+    "Ктенанта Бурле-Маркса",
+    "Ктенанта"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Серебристые листья с тёмными полосками «ёлочкой»; вечером листья приподнимаются."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 55,
+   "temp_min_c": 17,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Менее капризна, чем калатеи",
+     "Любит тёплую мягкую воду"
+    ]
+   }
+  }
+ },
+ {
+  "id": "curio-rowleyanus",
+  "slug": "curio-rowleyanus",
+  "latin_name": "Curio rowleyanus",
+  "common_names": {
+   "en": [
+    "String of pearls"
+   ],
+   "ru": [
+    "Крестовник Роули",
+    "Зелёный жемчуг"
+   ]
+  },
+  "synonyms": [
+   "Senecio rowleyanus"
+  ],
+  "description": {
+   "ru": "Ампельный суккулент с нитями листьев-горошин."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 10,
+   "water_interval_winter": 21,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 10,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Сморщенные «жемчужины» — пора поливать",
+     "Неглубокий горшок и лёгкий грунт"
+    ]
+   }
+  }
+ },
+ {
+  "id": "cycas-revoluta",
+  "slug": "cycas-revoluta",
+  "latin_name": "Cycas revoluta",
+  "common_names": {
+   "en": [
+    "Sago palm",
+    "King sago"
+   ],
+   "ru": [
+    "Саговник поникающий",
+    "Цикас"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Древнее растение с жёсткими перистыми листьями на толстом стволе; очень ядовит."
+  },
+  "plant_type": "дерево",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 10,
+   "water_interval_winter": 21,
+   "soil_dryness_before_watering": {
+    "ru": "верхняя половина горшка"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 10,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "семена",
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Все части очень ядовиты для животных и людей",
+     "Новые листья растут розеткой раз в год — не переставляйте в это время"
     ]
    }
   }
@@ -1019,6 +1933,54 @@
     "ru": [
      "Работайте в перчатках — сок едкий",
      "Поворачивайте горшок, чтобы ствол рос ровно"
+    ]
+   }
+  }
+ },
+ {
+  "id": "dionaea-muscipula",
+  "slug": "dionaea-muscipula",
+  "latin_name": "Dionaea muscipula",
+  "common_names": {
+   "en": [
+    "Venus flytrap"
+   ],
+   "ru": [
+    "Венерина мухоловка",
+    "Дионея"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Хищное растение, ловящее насекомых зубчатыми ловушками."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 5,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 2,
+   "water_interval_winter": 4,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 5,
+   "temp_max_c": 32,
+   "fertilize_interval_days": null,
+   "fertilize_months": [],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте только дистиллированной или дождевой водой",
+     "Зимой обязателен покой при +2–10 °C",
+     "Не кормите мясом и не удобряйте"
     ]
    }
   }
@@ -1408,6 +2370,59 @@
   }
  },
  {
+  "id": "epiphyllum-oxypetalum",
+  "slug": "epiphyllum-oxypetalum",
+  "latin_name": "Epiphyllum oxypetalum",
+  "common_names": {
+   "en": [
+    "Queen of the night",
+    "Dutchman's pipe cactus"
+   ],
+   "ru": [
+    "Эпифиллум остролепестный",
+    "Царица ночи"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Лесной кактус с плоскими стеблями; огромные душистые цветки раскрываются на одну ночь."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 10,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Для цветения нужна прохладная зимовка +10–15 °C"
+    ]
+   }
+  }
+ },
+ {
   "id": "epipremnum-aureum",
   "slug": "epipremnum-aureum",
   "latin_name": "Epipremnum aureum",
@@ -1514,6 +2529,58 @@
   }
  },
  {
+  "id": "episcia-cupreata",
+  "slug": "episcia-cupreata",
+  "latin_name": "Episcia cupreata",
+  "common_names": {
+   "en": [
+    "Flame violet"
+   ],
+   "ru": [
+    "Эписция медно-красная"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Бархатистые медные листья с узором и красные цветки; растёт усами, как клубника."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "усы",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Капли на листьях оставляют пятна — поливайте в поддон"
+    ]
+   }
+  }
+ },
+ {
   "id": "euphorbia-milii",
   "slug": "euphorbia-milii",
   "latin_name": "Euphorbia milii",
@@ -1613,6 +2680,62 @@
     "ru": [
      "Сквозняк и холод — листопад",
      "Для окрашивания прицветников 8 недель короткого дня осенью"
+    ]
+   }
+  }
+ },
+ {
+  "id": "fatsia-japonica",
+  "slug": "fatsia-japonica",
+  "latin_name": "Fatsia japonica",
+  "common_names": {
+   "en": [
+    "Japanese aralia",
+    "Paperplant"
+   ],
+   "ru": [
+    "Фатсия японская",
+    "Японская аралия"
+   ]
+  },
+  "synonyms": [
+   "Aralia japonica"
+  ],
+  "description": {
+   "ru": "Крупные глянцевые пальчато-лопастные листья; любит прохладу."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 8,
+   "temp_max_c": 22,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой в тепле страдает — оптимально +10–15 °C"
     ]
    }
   }
@@ -1776,6 +2899,63 @@
   }
  },
  {
+  "id": "ficus-microcarpa",
+  "slug": "ficus-microcarpa",
+  "latin_name": "Ficus microcarpa",
+  "common_names": {
+   "en": [
+    "Chinese banyan",
+    "Ginseng ficus"
+   ],
+   "ru": [
+    "Фикус микрокарпа",
+    "Фикус «Гинсенг»"
+   ]
+  },
+  "synonyms": [
+   "Ficus retusa"
+  ],
+  "description": {
+   "ru": "Фикус с утолщёнными корнями; популярен как бонсай."
+  },
+  "plant_type": "дерево",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "воздушные отводки"
+   ],
+   "tips": {
+    "ru": [
+     "Опрыскивайте в отопительный сезон",
+     "Обрезка весной для формы кроны"
+    ]
+   }
+  }
+ },
+ {
   "id": "ficus-pumila",
   "slug": "ficus-pumila",
   "latin_name": "Ficus pumila",
@@ -1822,6 +3002,227 @@
    "tips": {
     "ru": [
      "Не пересушивайте — листья быстро засыхают"
+    ]
+   }
+  }
+ },
+ {
+  "id": "fittonia-albivenis",
+  "slug": "fittonia-albivenis",
+  "latin_name": "Fittonia albivenis",
+  "common_names": {
+   "en": [
+    "Nerve plant",
+    "Mosaic plant"
+   ],
+   "ru": [
+    "Фиттония",
+    "Фиттония беложилковая"
+   ]
+  },
+  "synonyms": [
+   "Fittonia verschaffeltii"
+  ],
+  "description": {
+   "ru": "Невысокое растение с сеткой белых или розовых жилок; хорошо для флорариумов."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 3,
+   "water_interval_winter": 5,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 27,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "При пересыхании «падает в обморок» — после полива оживает",
+     "Отлично растёт во флорариуме"
+    ]
+   }
+  }
+ },
+ {
+  "id": "gardenia-jasminoides",
+  "slug": "gardenia-jasminoides",
+  "latin_name": "Gardenia jasminoides",
+  "common_names": {
+   "en": [
+    "Gardenia",
+    "Cape jasmine"
+   ],
+   "ru": [
+    "Гардения жасминовидная"
+   ]
+  },
+  "synonyms": [
+   "Gardenia augusta"
+  ],
+  "description": {
+   "ru": "Кустарник с глянцевыми листьями и белыми цветками с сильным ароматом."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 5,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 16,
+   "temp_max_c": 24,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Нужна кислая почва и мягкая вода",
+     "Бутоны опадают от холода, сквозняков и перемены места"
+    ]
+   }
+  }
+ },
+ {
+  "id": "gasteria-bicolor",
+  "slug": "gasteria-bicolor",
+  "latin_name": "Gasteria bicolor",
+  "common_names": {
+   "en": [
+    "Ox tongue",
+    "Lawyer's tongue"
+   ],
+   "ru": [
+    "Гастерия двуцветная",
+    "Гастерия"
+   ]
+  },
+  "synonyms": [
+   "Gasteria obliqua"
+  ],
+  "description": {
+   "ru": "Суккулент с языковидными пятнистыми листьями; мирится с полутенью."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 14,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки",
+    "листья"
+   ],
+   "tips": {
+    "ru": [
+     "В отличие от многих суккулентов, выносит полутень"
+    ]
+   }
+  }
+ },
+ {
+  "id": "goeppertia-lancifolia",
+  "slug": "goeppertia-lancifolia",
+  "latin_name": "Goeppertia lancifolia",
+  "common_names": {
+   "en": [
+    "Rattlesnake plant"
+   ],
+   "ru": [
+    "Калатея ланцетолистная",
+    "Калатея инсигнис"
+   ]
+  },
+  "synonyms": [
+   "Calathea lancifolia",
+   "Calathea insignis"
+  ],
+  "description": {
+   "ru": "Длинные волнистые листья с тёмными пятнами и бордовой изнанкой; одна из самых выносливых калатей."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 55,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте мягкой отстоянной водой",
+     "Скрученные листья — пересыхание или сухой воздух"
     ]
    }
   }
@@ -1936,6 +3337,113 @@
   }
  },
  {
+  "id": "goeppertia-roseopicta",
+  "slug": "goeppertia-roseopicta",
+  "latin_name": "Goeppertia roseopicta",
+  "common_names": {
+   "en": [
+    "Rose-painted calathea"
+   ],
+   "ru": [
+    "Калатея расписная",
+    "Калатея розеопикта"
+   ]
+  },
+  "synonyms": [
+   "Calathea roseopicta"
+  ],
+  "description": {
+   "ru": "Округлые листья с розовым или серебристым рисунком; цвет зависит от сорта."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Нужна высокая влажность и никаких сквозняков",
+     "Прямое солнце выжигает рисунок"
+    ]
+   }
+  }
+ },
+ {
+  "id": "graptopetalum-paraguayense",
+  "slug": "graptopetalum-paraguayense",
+  "latin_name": "Graptopetalum paraguayense",
+  "common_names": {
+   "en": [
+    "Ghost plant",
+    "Mother-of-pearl plant"
+   ],
+   "ru": [
+    "Граптопеталум парагвайский",
+    "Каменная роза"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Розетки перламутровых листьев на свисающих стеблях."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 12,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "листья",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Листья легко отламываются и сами укореняются"
+    ]
+   }
+  }
+ },
+ {
   "id": "guzmania-lingulata",
   "slug": "guzmania-lingulata",
   "latin_name": "Guzmania lingulata",
@@ -1984,6 +3492,59 @@
     "ru": [
      "Воду наливайте в розетку, раз в месяц меняйте",
      "Удобрения — половинная доза"
+    ]
+   }
+  }
+ },
+ {
+  "id": "gymnocalycium-mihanovichii",
+  "slug": "gymnocalycium-mihanovichii",
+  "latin_name": "Gymnocalycium mihanovichii",
+  "common_names": {
+   "en": [
+    "Moon cactus",
+    "Chin cactus"
+   ],
+   "ru": [
+    "Гимнокалициум Михановича",
+    "Лунный кактус"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Яркие красные и жёлтые формы без хлорофилла продают привитыми на другой кактус."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 14,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "прививка",
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Цветные формы живут только привитыми",
+     "Прямое полуденное солнце обжигает"
     ]
    }
   }
@@ -2090,6 +3651,116 @@
    "tips": {
     "ru": [
      "Зимой в тепле страдает от клеща — держите прохладнее"
+    ]
+   }
+  }
+ },
+ {
+  "id": "hibiscus-rosa-sinensis",
+  "slug": "hibiscus-rosa-sinensis",
+  "latin_name": "Hibiscus rosa-sinensis",
+  "common_names": {
+   "en": [
+    "Chinese hibiscus"
+   ],
+   "ru": [
+    "Гибискус китайский",
+    "Китайская роза"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Кустарник с крупными яркими цветками, каждый живёт день-два."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 3,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Весенняя обрезка — больше цветов",
+     "Сбрасывает бутоны при пересыхании и перестановке"
+    ]
+   }
+  }
+ },
+ {
+  "id": "hippeastrum-hybridum",
+  "slug": "hippeastrum-hybridum",
+  "latin_name": "Hippeastrum × hybridum",
+  "common_names": {
+   "en": [
+    "Amaryllis"
+   ],
+   "ru": [
+    "Гиппеаструм",
+    "Амариллис"
+   ]
+  },
+  "synonyms": [
+   "Hippeastrum hybridum"
+  ],
+  "description": {
+   "ru": "Луковичное растение с огромными цветками-граммофонами на высоком цветоносе."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 7,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "После цветения растите листья всё лето — они кормят луковицу",
+     "Осенью 2 месяца покоя без полива"
     ]
    }
   }
@@ -2202,6 +3873,114 @@
   }
  },
  {
+  "id": "hypoestes-phyllostachya",
+  "slug": "hypoestes-phyllostachya",
+  "latin_name": "Hypoestes phyllostachya",
+  "common_names": {
+   "en": [
+    "Polka dot plant",
+    "Freckle face"
+   ],
+   "ru": [
+    "Гипоэстес",
+    "Гипоэстес листоколосый"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Листья в розовых, красных или белых крапинках; быстро растёт."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 6,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 1–2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 16,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Прищипывайте, чтобы куст не вытягивался",
+     "Без света пятна бледнеют"
+    ]
+   }
+  }
+ },
+ {
+  "id": "jasminum-polyanthum",
+  "slug": "jasminum-polyanthum",
+  "latin_name": "Jasminum polyanthum",
+  "common_names": {
+   "en": [
+    "Pink jasmine",
+    "Winter jasmine"
+   ],
+   "ru": [
+    "Жасмин многоцветковый"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Вьющийся кустарник с облаками душистых белых цветков в конце зимы."
+  },
+  "plant_type": "лиана",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 8,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "отводки"
+   ],
+   "tips": {
+    "ru": [
+     "Для закладки бутонов осенью нужна прохлада +8–12 °C"
+    ]
+   }
+  }
+ },
+ {
   "id": "kalanchoe-blossfeldiana",
   "slug": "kalanchoe-blossfeldiana",
   "latin_name": "Kalanchoe blossfeldiana",
@@ -2250,6 +4029,310 @@
     "ru": [
      "Для повторного цветения — короткий день 6 недель осенью",
      "Отцветшие соцветия срезайте"
+    ]
+   }
+  }
+ },
+ {
+  "id": "kalanchoe-daigremontiana",
+  "slug": "kalanchoe-daigremontiana",
+  "latin_name": "Kalanchoe daigremontiana",
+  "common_names": {
+   "en": [
+    "Mother of thousands"
+   ],
+   "ru": [
+    "Каланхоэ Дегремона",
+    "Бриофиллум"
+   ]
+  },
+  "synonyms": [
+   "Bryophyllum daigremontianum"
+  ],
+  "description": {
+   "ru": "По краям листьев образует множество деток-«малышей»."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 10,
+   "water_interval_winter": 20,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 12,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Детки падают в соседние горшки и прорастают там",
+     "Ядовит для кошек и собак"
+    ]
+   }
+  }
+ },
+ {
+  "id": "kalanchoe-tomentosa",
+  "slug": "kalanchoe-tomentosa",
+  "latin_name": "Kalanchoe tomentosa",
+  "common_names": {
+   "en": [
+    "Panda plant",
+    "Pussy ears"
+   ],
+   "ru": [
+    "Каланхоэ войлочное",
+    "Кошачьи ушки"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Пушистые серебристые листья с коричневыми кончиками."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 12,
+   "water_interval_winter": 25,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 10,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "листья",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Не опрыскивайте опушённые листья"
+    ]
+   }
+  }
+ },
+ {
+  "id": "laurus-nobilis",
+  "slug": "laurus-nobilis",
+  "latin_name": "Laurus nobilis",
+  "common_names": {
+   "en": [
+    "Bay laurel",
+    "Sweet bay"
+   ],
+   "ru": [
+    "Лавр благородный"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Вечнозелёное деревце; листья — та самая лавровая приправа."
+  },
+  "plant_type": "дерево",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 5,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Хорошо переносит стрижку в форму шара",
+     "Зимой прохлада +5–12 °C"
+    ]
+   }
+  }
+ },
+ {
+  "id": "lithops-lesliei",
+  "slug": "lithops-lesliei",
+  "latin_name": "Lithops lesliei",
+  "common_names": {
+   "en": [
+    "Living stones"
+   ],
+   "ru": [
+    "Литопс Лесли",
+    "Живые камни"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Пара мясистых листьев, похожих на камешки; цветёт осенью."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 14,
+   "water_interval_winter": 60,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 8,
+   "temp_max_c": 32,
+   "fertilize_interval_days": null,
+   "fertilize_months": [],
+   "repot_every_years": 4,
+   "propagation": [
+    "семена",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Во время смены листьев (зима — весна) не поливайте совсем",
+     "Лучше недолить: перелив губителен"
+    ]
+   }
+  }
+ },
+ {
+  "id": "livistona-chinensis",
+  "slug": "livistona-chinensis",
+  "latin_name": "Livistona chinensis",
+  "common_names": {
+   "en": [
+    "Chinese fan palm"
+   ],
+   "ru": [
+    "Ливистона китайская"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Веерная пальма с поникающими кончиками листьев."
+  },
+  "plant_type": "пальма",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Не обрезайте сухие кончики до живой ткани"
+    ]
+   }
+  }
+ },
+ {
+  "id": "mammillaria-elongata",
+  "slug": "mammillaria-elongata",
+  "latin_name": "Mammillaria elongata",
+  "common_names": {
+   "en": [
+    "Ladyfinger cactus",
+    "Gold lace cactus"
+   ],
+   "ru": [
+    "Маммиллярия удлинённая"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Кактус из множества «пальчиков» в золотистых колючках."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 14,
+   "water_interval_winter": 40,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 5,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой прохлада и сухость — для весеннего цветения"
     ]
    }
   }
@@ -2419,6 +4502,159 @@
   }
  },
  {
+  "id": "musa-acuminata",
+  "slug": "musa-acuminata",
+  "latin_name": "Musa acuminata",
+  "common_names": {
+   "en": [
+    "Dwarf banana",
+    "Dwarf Cavendish"
+   ],
+   "ru": [
+    "Банан остроконечный",
+    "Комнатный банан"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Огромные листья-паруса; карликовые сорта растут в квартире."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 3,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 16,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 7,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "отпрыски"
+   ],
+   "tips": {
+    "ru": [
+     "Много воды и удобрений летом",
+     "Листья рвутся от сквозняка — это нормально"
+    ]
+   }
+  }
+ },
+ {
+  "id": "neoregelia-carolinae",
+  "slug": "neoregelia-carolinae",
+  "latin_name": "Neoregelia carolinae",
+  "common_names": {
+   "en": [
+    "Blushing bromeliad"
+   ],
+   "ru": [
+    "Неорегелия Каролины"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Бромелия, у которой перед цветением краснеет центр розетки."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 16,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "В центре розетки держите немного воды"
+    ]
+   }
+  }
+ },
+ {
+  "id": "nepenthes-ventrata",
+  "slug": "nepenthes-ventrata",
+  "latin_name": "Nepenthes × ventrata",
+  "common_names": {
+   "en": [
+    "Pitcher plant"
+   ],
+   "ru": [
+    "Непентес",
+    "Кувшиночник"
+   ]
+  },
+  "synonyms": [
+   "Nepenthes ventrata"
+  ],
+  "description": {
+   "ru": "Хищная лиана с кувшинчиками-ловушками на концах листьев."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 3,
+   "water_interval_winter": 5,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 16,
+   "temp_max_c": 30,
+   "fertilize_interval_days": null,
+   "fertilize_months": [],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Только мягкая вода и грунт из мха и коры",
+     "Без высокой влажности новые кувшины не образуются"
+    ]
+   }
+  }
+ },
+ {
   "id": "nephrolepis-exaltata",
   "slug": "nephrolepis-exaltata",
   "latin_name": "Nephrolepis exaltata",
@@ -2469,6 +4705,61 @@
     "ru": [
      "Не допускайте пересыхания кома",
      "Вдали от батарей"
+    ]
+   }
+  }
+ },
+ {
+  "id": "ocimum-basilicum",
+  "slug": "ocimum-basilicum",
+  "latin_name": "Ocimum basilicum",
+  "common_names": {
+   "en": [
+    "Basil",
+    "Sweet basil"
+   ],
+   "ru": [
+    "Базилик"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Пряная трава; на солнечном окне даёт урожай несколько месяцев."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 2,
+   "water_interval_winter": 4,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": null,
+   "propagation": [
+    "семена",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Срезайте верхушки над парой листьев — куст будет ветвиться",
+     "Удаляйте бутоны"
     ]
    }
   }
@@ -2575,6 +4866,62 @@
    "tips": {
     "ru": [
      "Если листья увяли — это период покоя: прекратите полив на месяц"
+    ]
+   }
+  }
+ },
+ {
+  "id": "pachira-aquatica",
+  "slug": "pachira-aquatica",
+  "latin_name": "Pachira aquatica",
+  "common_names": {
+   "en": [
+    "Money tree",
+    "Guiana chestnut"
+   ],
+   "ru": [
+    "Пахира водная",
+    "Денежное дерево"
+   ]
+  },
+  "synonyms": [
+   "Pachira glabra"
+  ],
+  "description": {
+   "ru": "Дерево с пальчатыми листьями; стволы часто переплетают косичкой."
+  },
+  "plant_type": "дерево",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3–5 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Запасает воду в стволе — не переливайте",
+     "Поворачивайте горшок для ровной кроны"
     ]
    }
   }
@@ -2692,6 +5039,57 @@
   }
  },
  {
+  "id": "peperomia-caperata",
+  "slug": "peperomia-caperata",
+  "latin_name": "Peperomia caperata",
+  "common_names": {
+   "en": [
+    "Emerald ripple peperomia"
+   ],
+   "ru": [
+    "Пеперомия морщинистая"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Компактная розетка гофрированных листьев и «хвостики» соцветий."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 8,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхняя половина горшка"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 16,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "листовые черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Перелив опаснее засухи"
+    ]
+   }
+  }
+ },
+ {
   "id": "peperomia-obtusifolia",
   "slug": "peperomia-obtusifolia",
   "latin_name": "Peperomia obtusifolia",
@@ -2739,6 +5137,58 @@
    "tips": {
     "ru": [
      "Перелив опаснее засухи"
+    ]
+   }
+  }
+ },
+ {
+  "id": "peperomia-prostrata",
+  "slug": "peperomia-prostrata",
+  "latin_name": "Peperomia prostrata",
+  "common_names": {
+   "en": [
+    "String of turtles"
+   ],
+   "ru": [
+    "Пеперомия распростёртая",
+    "Черепашки"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Ампельная пеперомия с круглыми листиками в узоре «черепаший панцирь»."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхняя половина горшка"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Мелкий горшок и рыхлый грунт"
     ]
    }
   }
@@ -2794,6 +5244,58 @@
     "ru": [
      "Поливайте погружением на 15 минут",
      "Не оставляйте воду в пазухах листьев"
+    ]
+   }
+  }
+ },
+ {
+  "id": "philodendron-erubescens",
+  "slug": "philodendron-erubescens",
+  "latin_name": "Philodendron erubescens",
+  "common_names": {
+   "en": [
+    "Blushing philodendron",
+    "Red-leaf philodendron"
+   ],
+   "ru": [
+    "Филодендрон краснеющий"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Лиана с глянцевыми стреловидными листьями и красноватыми черешками; популярны сорта «Pink Princess»."
+  },
+  "plant_type": "лиана",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 16,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Нужна опора из кокоса или мха"
     ]
    }
   }
@@ -2855,6 +5357,167 @@
   }
  },
  {
+  "id": "phlebodium-aureum",
+  "slug": "phlebodium-aureum",
+  "latin_name": "Phlebodium aureum",
+  "common_names": {
+   "en": [
+    "Blue star fern",
+    "Golden polypody"
+   ],
+   "ru": [
+    "Флебодиум золотистый",
+    "Голубой папоротник"
+   ]
+  },
+  "synonyms": [
+   "Polypodium aureum"
+  ],
+  "description": {
+   "ru": "Папоротник с сизо-голубыми рассечёнными вайями и мохнатыми корневищами."
+  },
+  "plant_type": "папоротник",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 5,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "споры"
+   ],
+   "tips": {
+    "ru": [
+     "Мохнатые корневища не засыпайте землёй",
+     "Выносливее большинства папоротников"
+    ]
+   }
+  }
+ },
+ {
+  "id": "phoenix-roebelenii",
+  "slug": "phoenix-roebelenii",
+  "latin_name": "Phoenix roebelenii",
+  "common_names": {
+   "en": [
+    "Pygmy date palm"
+   ],
+   "ru": [
+    "Финик Робелена",
+    "Карликовая финиковая пальма"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Невысокая изящная пальма с тонкими перистыми листьями."
+  },
+  "plant_type": "пальма",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "У основания листьев колючки — осторожнее при пересадке"
+    ]
+   }
+  }
+ },
+ {
+  "id": "pilea-cadierei",
+  "slug": "pilea-cadierei",
+  "latin_name": "Pilea cadierei",
+  "common_names": {
+   "en": [
+    "Aluminum plant"
+   ],
+   "ru": [
+    "Пилея Кадье",
+    "Алюминиевое растение"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Листья с серебристыми, будто металлическими пятнами."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Прищипывайте — быстро вытягивается"
+    ]
+   }
+  }
+ },
+ {
   "id": "pilea-peperomioides",
   "slug": "pilea-peperomioides",
   "latin_name": "Pilea peperomioides",
@@ -2908,6 +5571,268 @@
   }
  },
  {
+  "id": "platycerium-bifurcatum",
+  "slug": "platycerium-bifurcatum",
+  "latin_name": "Platycerium bifurcatum",
+  "common_names": {
+   "en": [
+    "Staghorn fern"
+   ],
+   "ru": [
+    "Платицериум двувильчатый",
+    "Олений рог"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Эпифитный папоротник с вайями, похожими на оленьи рога; часто растят на доске."
+  },
+  "plant_type": "папоротник",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "основание подсыхает"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "детки",
+    "споры"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте погружением основания",
+     "Не стирайте серебристый налёт с листьев"
+    ]
+   }
+  }
+ },
+ {
+  "id": "polyscias-fruticosa",
+  "slug": "polyscias-fruticosa",
+  "latin_name": "Polyscias fruticosa",
+  "common_names": {
+   "en": [
+    "Ming aralia"
+   ],
+   "ru": [
+    "Полисциас кустарниковый",
+    "Аралия Мин"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Кружевные перисто-рассечённые листья на ветвистом стволе."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 4,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Не переносит холодных подоконников и сквозняков"
+    ]
+   }
+  }
+ },
+ {
+  "id": "portulacaria-afra",
+  "slug": "portulacaria-afra",
+  "latin_name": "Portulacaria afra",
+  "common_names": {
+   "en": [
+    "Elephant bush",
+    "Dwarf jade"
+   ],
+   "ru": [
+    "Портулакария африканская",
+    "Слоновий куст"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Суккулентный кустарник с мелкими мясистыми листьями; хорош для бонсай."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 10,
+   "water_interval_winter": 25,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 20,
+   "temp_min_c": 10,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Легко формируется обрезкой",
+     "Зимой светлое прохладное место"
+    ]
+   }
+  }
+ },
+ {
+  "id": "radermachera-sinica",
+  "slug": "radermachera-sinica",
+  "latin_name": "Radermachera sinica",
+  "common_names": {
+   "en": [
+    "China doll"
+   ],
+   "ru": [
+    "Радермахера китайская"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Кустистое деревце с блестящими резными листьями."
+  },
+  "plant_type": "дерево",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Сбрасывает листья от сквозняков и пересыхания"
+    ]
+   }
+  }
+ },
+ {
+  "id": "rhaphidophora-tetrasperma",
+  "slug": "rhaphidophora-tetrasperma",
+  "latin_name": "Rhaphidophora tetrasperma",
+  "common_names": {
+   "en": [
+    "Mini monstera",
+    "Philodendron ginny"
+   ],
+   "ru": [
+    "Рафидофора четырёхсемянная",
+    "Мини-монстера"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Быстрорастущая лиана с резными листьями, похожими на маленькую монстеру."
+  },
+  "plant_type": "лиана",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 6,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 16,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Растёт быстро — давайте опору"
+    ]
+   }
+  }
+ },
+ {
   "id": "rhapis-excelsa",
   "slug": "rhapis-excelsa",
   "latin_name": "Rhapis excelsa",
@@ -2955,6 +5880,111 @@
    "tips": {
     "ru": [
      "Зимой выносит прохладу +10 °C"
+    ]
+   }
+  }
+ },
+ {
+  "id": "rhipsalis-baccifera",
+  "slug": "rhipsalis-baccifera",
+  "latin_name": "Rhipsalis baccifera",
+  "common_names": {
+   "en": [
+    "Mistletoe cactus"
+   ],
+   "ru": [
+    "Рипсалис ягодоносный",
+    "Прутовидник"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Лесной кактус без колючек с тонкими свисающими побегами."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 12,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Лучше смотрится в подвесном кашпо",
+     "Любит влажный воздух, в отличие от пустынных кактусов"
+    ]
+   }
+  }
+ },
+ {
+  "id": "salvia-rosmarinus",
+  "slug": "salvia-rosmarinus",
+  "latin_name": "Salvia rosmarinus",
+  "common_names": {
+   "en": [
+    "Rosemary"
+   ],
+   "ru": [
+    "Розмарин"
+   ]
+  },
+  "synonyms": [
+   "Rosmarinus officinalis"
+  ],
+  "description": {
+   "ru": "Ароматный полукустарник для кухни; на подоконнике нужен максимум света."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 5,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой прохлада +5–10 °C и много света",
+     "Пересыхание кома губительно, как и застой воды"
     ]
    }
   }
@@ -3177,6 +6207,115 @@
   }
  },
  {
+  "id": "selaginella-martensii",
+  "slug": "selaginella-martensii",
+  "latin_name": "Selaginella martensii",
+  "common_names": {
+   "en": [
+    "Spike moss",
+    "Frosty fern"
+   ],
+   "ru": [
+    "Селагинелла Мартенса"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Кружевное растение, похожее на мох; незаменимо во флорариумах."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 2,
+   "water_interval_winter": 4,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 70,
+   "temp_min_c": 16,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Без высокой влажности засыхает — лучше в закрытом флорариуме"
+    ]
+   }
+  }
+ },
+ {
+  "id": "soleirolia-soleirolii",
+  "slug": "soleirolia-soleirolii",
+  "latin_name": "Soleirolia soleirolii",
+  "common_names": {
+   "en": [
+    "Baby's tears",
+    "Mind-your-own-business"
+   ],
+   "ru": [
+    "Солейролия",
+    "Гельксина"
+   ]
+  },
+  "synonyms": [
+   "Helxine soleirolii"
+  ],
+  "description": {
+   "ru": "Густой ковёр из крошечных листочков."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 3,
+   "water_interval_winter": 5,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 10,
+   "temp_max_c": 24,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте в поддон, чтобы не раскрывался ковёр",
+     "Хорошая почвопокровная для флорариума"
+    ]
+   }
+  }
+ },
+ {
   "id": "spathiphyllum-wallisii",
   "slug": "spathiphyllum-wallisii",
   "latin_name": "Spathiphyllum wallisii",
@@ -3285,6 +6424,62 @@
   }
  },
  {
+  "id": "streptocarpus-hybridus",
+  "slug": "streptocarpus-hybridus",
+  "latin_name": "Streptocarpus × hybridus",
+  "common_names": {
+   "en": [
+    "Cape primrose"
+   ],
+   "ru": [
+    "Стрептокарпус гибридный"
+   ]
+  },
+  "synonyms": [
+   "Streptocarpus hybridus"
+  ],
+  "description": {
+   "ru": "Розетка морщинистых листьев и облако цветков-колокольчиков почти круглый год."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 16,
+   "temp_max_c": 25,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "листовые черенки",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Широкий неглубокий горшок",
+     "Отцветшие цветоносы срезайте у основания"
+    ]
+   }
+  }
+ },
+ {
   "id": "streptocarpus-ionanthus",
   "slug": "streptocarpus-ionanthus",
   "latin_name": "Streptocarpus ionanthus",
@@ -3339,6 +6534,61 @@
     "ru": [
      "Поливайте в поддон или по краю горшка",
      "Капли на листьях оставляют пятна"
+    ]
+   }
+  }
+ },
+ {
+  "id": "stromanthe-thalia",
+  "slug": "stromanthe-thalia",
+  "latin_name": "Stromanthe thalia",
+  "common_names": {
+   "en": [
+    "Triostar stromanthe"
+   ],
+   "ru": [
+    "Строманта",
+    "Строманта кровавая"
+   ]
+  },
+  "synonyms": [
+   "Stromanthe sanguinea"
+  ],
+  "description": {
+   "ru": "Пёстрые бело-розово-зелёные листья с малиновой изнанкой."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Для яркой окраски нужен хороший рассеянный свет",
+     "Сухие кончики — сухой воздух"
     ]
    }
   }
@@ -3454,6 +6704,171 @@
   }
  },
  {
+  "id": "tillandsia-ionantha",
+  "slug": "tillandsia-ionantha",
+  "latin_name": "Tillandsia ionantha",
+  "common_names": {
+   "en": [
+    "Air plant",
+    "Sky plant"
+   ],
+   "ru": [
+    "Тилландсия фиолетовоцветковая",
+    "Атмосферная тилландсия"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Атмосферная бромелия без грунта: влагу и питание берёт листьями."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "растение высохло после купания"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": null,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Раз в неделю купайте 20 минут в мягкой воде",
+     "После купания стряхните воду и просушите вверх ногами"
+    ]
+   }
+  }
+ },
+ {
+  "id": "tradescantia-fluminensis",
+  "slug": "tradescantia-fluminensis",
+  "latin_name": "Tradescantia fluminensis",
+  "common_names": {
+   "en": [
+    "Small-leaf spiderwort",
+    "Wandering Jew"
+   ],
+   "ru": [
+    "Традесканция приречная"
+   ]
+  },
+  "synonyms": [
+   "Tradescantia albiflora"
+  ],
+  "description": {
+   "ru": "Классическая ампельная традесканция с мелкими листьями; есть пёстрые сорта."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 12,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Легко укореняется в воде",
+     "Омолаживайте черенками раз в год"
+    ]
+   }
+  }
+ },
+ {
+  "id": "tradescantia-pallida",
+  "slug": "tradescantia-pallida",
+  "latin_name": "Tradescantia pallida",
+  "common_names": {
+   "en": [
+    "Purple heart"
+   ],
+   "ru": [
+    "Традесканция бледная",
+    "Сеткреазия пурпурная"
+   ]
+  },
+  "synonyms": [
+   "Setcreasea pallida",
+   "Setcreasea purpurea"
+  ],
+  "description": {
+   "ru": "Фиолетовые листья и стебли; на солнце окраска ярче."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 10,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Сок может раздражать кожу",
+     "Без солнца зеленеет и вытягивается"
+    ]
+   }
+  }
+ },
+ {
   "id": "tradescantia-zebrina",
   "slug": "tradescantia-zebrina",
   "latin_name": "Tradescantia zebrina",
@@ -3510,6 +6925,58 @@
   }
  },
  {
+  "id": "vriesea-splendens",
+  "slug": "vriesea-splendens",
+  "latin_name": "Vriesea splendens",
+  "common_names": {
+   "en": [
+    "Flaming sword"
+   ],
+   "ru": [
+    "Вриезия блестящая"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Бромелия с полосатыми листьями и ярким красным «мечом» прицветника."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Воду наливайте в розетку листьев",
+     "После цветения розетка отмирает — растите деток"
+    ]
+   }
+  }
+ },
+ {
   "id": "yucca-gigantea",
   "slug": "yucca-gigantea",
   "latin_name": "Yucca gigantea",
@@ -3559,6 +7026,57 @@
    "tips": {
     "ru": [
      "Зимой держите в светлом прохладном месте"
+    ]
+   }
+  }
+ },
+ {
+  "id": "zamia-furfuracea",
+  "slug": "zamia-furfuracea",
+  "latin_name": "Zamia furfuracea",
+  "common_names": {
+   "en": [
+    "Cardboard palm"
+   ],
+   "ru": [
+    "Замия чешуйчатая",
+    "Замия"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Плотные «картонные» листья на коротком стволе; все части ядовиты."
+  },
+  "plant_type": "дерево",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 10,
+   "water_interval_winter": 21,
+   "soil_dryness_before_watering": {
+    "ru": "верхняя половина горшка"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 12,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Ядовита для питомцев",
+     "Перелив — главная причина гибели"
     ]
    }
   }

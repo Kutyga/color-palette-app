@@ -64,3 +64,7 @@ jobs:
         with:
           node-version: 22
       - run: node --experimental-strip-types --no-warnings --test supabase/functions/news-ingest/feed.test.ts supabase/functions/identify-plant/plantnet.test.ts
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test supabase/functions/news-reader/extract.test.ts

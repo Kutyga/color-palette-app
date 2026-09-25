@@ -397,7 +397,12 @@ export class DemoSocial implements SocialRepository {
   }
 
   /** В демо-режиме — подборка советов из базы знаний вместо настоящих новостей. */
-  async news(): Promise<NewsArticle[]> {
+  async readArticle(): Promise<null> {
+    return null;
+  }
+
+  async news(...[, langs = []]: [boolean?, string[]?]): Promise<NewsArticle[]> {
+    if (langs.length && !langs.includes("ru")) return [];
     const now = this.clock().getTime();
     const picks = ["goeppertia-orbifolia", "schlumbergera-truncata", "ficus-lyrata", "dypsis-lutescens", "hoya-carnosa"];
     return picks
@@ -412,6 +417,7 @@ export class DemoSocial implements SocialRepository {
         summary: s.descriptionRu,
         imageUrl: null,
         speciesIds: [s.id],
+        language: "ru",
       }));
   }
 }
