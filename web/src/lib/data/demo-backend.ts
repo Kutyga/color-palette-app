@@ -412,7 +412,7 @@ export class DemoSocial implements SocialRepository {
         id: `demo-news-${s.slug}`,
         url: `/plants/${s.slug}/`,
         title: `${speciesName(s)}: ${s.care?.tipsRu[0] ?? "как ухаживать"}`,
-        sourceName: "База знаний «Мой сад»",
+        sourceName: "База знаний «Подоконника»",
         publishedAt: new Date(now - (i + 1) * 5 * 3_600_000),
         summary: s.descriptionRu,
         imageUrl: null,

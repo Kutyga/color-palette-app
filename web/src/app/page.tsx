@@ -37,7 +37,7 @@ export default function Home() {
       </header>
 
       <section className="mx-auto max-w-5xl px-5 pt-16 pb-12 text-center sm:pt-24">
-        <p className="text-[17px] font-semibold text-leaf">Мой сад</p>
+        <p className="text-[17px] font-semibold text-leaf">Подоконник</p>
         <h1 className="mx-auto mt-3 max-w-3xl text-[44px] leading-[1.05] font-bold tracking-tight sm:text-[64px]">
           Растения, которые живут долго.
         </h1>
@@ -77,7 +77,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-separator py-8 text-center text-[13px] text-secondary">
-        Мой сад · данные о растениях — открытые источники, распознавание — Pl@ntNet
+        Подоконник · данные о растениях — открытые источники, распознавание — Pl@ntNet
       </footer>
     </div>
   );

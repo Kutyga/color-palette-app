@@ -58,7 +58,7 @@ class _SignInScreenState extends State<SignInScreen> {
             const SizedBox(height: 48),
             Icon(Icons.local_florist_rounded, size: 64, color: c.leaf),
             const SizedBox(height: 16),
-            Text('Мой сад', style: context.text.displaySmall, textAlign: TextAlign.center),
+            Text('Подоконник', style: context.text.displaySmall, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               'Напомним о поливе, подскажем, как ухаживать,\nи покажем, что растёт у других.',
