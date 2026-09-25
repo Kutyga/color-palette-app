@@ -1,0 +1,72 @@
+# Мой сад — сайт (веб-приложение)
+
+Коллекция растений с графиком полива, база знаний по 67 комнатным растениям, лента садоводов
+с подписками, лайками и комментариями, новости, распознавание по фото и достижения.
+Работает в браузере на телефоне и компьютере; можно «установить» на главный экран (PWA).
+
+Сайт статический (Next.js, `output: "export"`): собирается в `out/` и размещается на любом
+хостинге — GitHub Pages, Vercel, Netlify. Данные пользователя браузер берёт напрямую из
+Supabase (тот же проект и те же RLS-политики, что у мобильного приложения); страницы видов
+базы знаний собираются заранее, чтобы их находили поисковики.
+
+## Запуск на компьютере
+
+```bash
+cd web
+npm install
+npm run dev            # http://localhost:3000
+```
+
+Без настроек сайт работает в **демо-режиме**: данные хранятся в браузере, сервер не нужен.
+Для работы с настоящей базой создайте `web/.env.local` по образцу `.env.example`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```
+
+Publishable-ключ предназначен для браузера — доступ к данным ограничивают RLS-политики.
+Секретный ключ и пароль базы в сайт не попадают.
+
+## Публикация на GitHub Pages
+
+Workflow `.github/workflows/web-deploy.yml` собирает и публикует сайт при каждом изменении
+`web/` в `main`. Один раз нужно:
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. **Settings → Secrets and variables → Actions → Variables**: `SUPABASE_URL` и
+   `SUPABASE_PUBLISHABLE_KEY`.
+3. В Supabase: **Authentication → URL Configuration** — `Site URL` =
+   `https://<пользователь>.github.io/<репозиторий>/`, в `Redirect URLs` добавить
+   `https://<пользователь>.github.io/<репозиторий>/**` и `http://localhost:3000/**`
+   (ссылка из письма подтверждения ведёт обратно на сайт).
+
+При сборке `scripts/sync-species.mjs` обновляет снимок базы знаний `src/data/species.json`
+из Supabase; без переменных используется сохранённый снимок.
+
+## Устройство
+
+```
+src/
+  app/                    страницы (App Router)
+    page.tsx              главная для гостей
+    login/                вход и регистрация
+    (app)/today/          «Сегодня»: кольца дня, истории, задачи
+    (app)/garden/         коллекция, карточка растения (?id=), добавление с распознаванием
+    (app)/feed/           лента: подписки, «Интересное», новости, комментарии, новый пост
+    (app)/plants/         база знаний и страницы видов /plants/<slug>/
+    (app)/achievements/   уровни и 24 достижения
+  components/             каркас, сессия, общие элементы интерфейса
+  lib/domain/             бизнес-логика: расчёт интервалов (как SQL-функции), модели, геймификация
+  lib/data/               SupabaseGarden/SupabaseSocial и демо-режим с тем же интерфейсом
+  data/species.json       снимок базы знаний
+```
+
+## Проверки
+
+```bash
+npm run lint && npm run typecheck
+npm test               # логика: интервалы полива, достижения, демо-режим (vitest)
+npm run build          # статический сайт в out/
+npm run e2e            # сквозные сценарии в браузере на компьютере и телефоне (Playwright)
+```
