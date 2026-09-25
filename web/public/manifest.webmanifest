@@ -1,0 +1,12 @@
+{
+  "name": "Мой сад",
+  "short_name": "Мой сад",
+  "description": "Уход за комнатными растениями: напоминания о поливе, база знаний, лента садоводов.",
+  "start_url": "./today/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fafaf7",
+  "theme_color": "#2e7d4f",
+  "lang": "ru",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
