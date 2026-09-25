@@ -163,7 +163,7 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
             child: TextButton.icon(
               onPressed: _pickPhoto,
               icon: const Icon(Icons.photo_camera_outlined),
-              label: Text(_photo == null ? 'Добавить фото' : 'Сменить фото'),
+              label: Text(_photo == null ? 'Сфотографировать' : 'Переснять'),
             ),
           ),
           if (_photo != null && ref.watch(plantIdentifierProvider) != null)
@@ -256,7 +256,8 @@ class _AddPlantScreenState extends ConsumerState<AddPlantScreen> {
           ),
           const SizedBox(height: 32),
           FilledButton(
-            onPressed: _saving || _name.text.trim().isEmpty ? null : _save,
+            // Фото обязательно: в коллекции только свои растения, снятые дома.
+            onPressed: _saving || _name.text.trim().isEmpty || _photo == null ? null : _save,
             child: _saving ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5)) : const Text('Добавить в коллекцию'),
           ),
         ],

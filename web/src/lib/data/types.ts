@@ -2,7 +2,7 @@ import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { GardenStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
-import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment } from "../domain/social";
+import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
 export type PlantDraft = Omit<NewPlant, "speciesId"> & { speciesSlug?: string | null };
@@ -31,7 +31,10 @@ export interface GardenRepository {
 
 export interface SocialRepository {
   feed(tab: FeedTab): Promise<FeedPost[]>;
-  news(onlyMySpecies?: boolean): Promise<NewsArticle[]>;
+  /** langs — языки новостей; пустой список = все. */
+  news(onlyMySpecies?: boolean, langs?: string[]): Promise<NewsArticle[]>;
+  /** Текст статьи для чтения на сайте; null — недоступно (демо-режим). */
+  readArticle(id: string): Promise<ReaderArticle | null>;
   createPost(post: NewPost): Promise<FeedPost>;
   setLiked(postId: string, liked: boolean): Promise<void>;
   setFollowing(authorId: string, follow: boolean): Promise<void>;

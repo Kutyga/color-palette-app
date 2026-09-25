@@ -4,7 +4,7 @@ import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../do
 import { statsFromRow } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
-import { commentFromRow, newsFromRow, postFromRow, type FeedTab, type NewPost } from "../domain/social";
+import { commentFromRow, newsFromRow, postFromRow, type FeedTab, type NewPost, type ReaderArticle } from "../domain/social";
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
@@ -199,9 +199,17 @@ export class SupabaseSocial implements SocialRepository {
     return this.hydrate(rows);
   }
 
-  async news(onlyMySpecies = false) {
-    const rows = check(await this.db.rpc("news_feed", { lim: 40, only_my_species: onlyMySpecies })) as Row[];
+  async news(onlyMySpecies = false, langs: string[] = []) {
+    const rows = check(
+      await this.db.rpc("news_feed", { lim: 50, only_my_species: onlyMySpecies, langs: langs.length ? langs : null }),
+    ) as Row[];
     return rows.map(newsFromRow);
+  }
+
+  async readArticle(id: string): Promise<ReaderArticle | null> {
+    const { data, error } = await this.db.functions.invoke("news-reader", { body: { id } });
+    if (error) throw new Error("Не удалось загрузить текст статьи");
+    return data as ReaderArticle;
   }
 
   async createPost(post: NewPost) {

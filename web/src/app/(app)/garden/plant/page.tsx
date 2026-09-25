@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, Share2, Sun, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { useBackend } from "@/components/session";
 import { Button, CARE_COLORS, CARE_ICONS, ErrorNote, PlantPhoto, SectionTitle, Sheet, Spinner, useToast } from "@/components/ui";
@@ -19,8 +19,9 @@ import {
 } from "@/lib/domain/care";
 import type { Plant } from "@/lib/domain/plant";
 import { everyDays, formatShortDate, relativeDay } from "@/lib/format";
-import { toJpeg } from "@/lib/image";
-import { speciesBySlug } from "@/lib/knowledge";
+import { soilMixFor, speciesBySlug } from "@/lib/knowledge";
+import { CameraCapture } from "@/components/camera";
+import { SoilSummary } from "@/components/soil-schematic";
 import { useLogCare, usePlantDetails } from "@/lib/queries";
 
 function effectiveDays(s: CareSchedule, plant: Plant, now: Date) {
@@ -42,13 +43,13 @@ function PlantView({ id }: { id: string }) {
   const qc = useQueryClient();
   const toast = useToast();
   const router = useRouter();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const now = useMemo(() => new Date(), []);
 
   const photo = useMutation({
-    mutationFn: async (file: File) => backend.garden.setPlantPhoto(id, await toJpeg(file)),
+    mutationFn: async (blob: Blob) => backend.garden.setPlantPhoto(id, blob),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plant", id] });
       qc.invalidateQueries({ queryKey: ["plants"] });
@@ -69,6 +70,7 @@ function PlantView({ id }: { id: string }) {
   if (details.error) return <ErrorNote error={details.error} onRetry={() => details.refetch()} />;
   const { plant, schedules, events } = details.data;
   const species = speciesBySlug(plant.speciesSlug);
+  const soil = soilMixFor(species);
   const water = schedules.find((s) => s.type === "water");
 
   async function mark(type: CareType) {
@@ -96,21 +98,19 @@ function PlantView({ id }: { id: string }) {
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         <div className="relative">
-          <PlantPhoto src={plant.photoUrl} seed={plant.id} alt={plant.nickname} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+          <PlantPhoto src={plant.photoUrl ?? species?.image?.url} seed={plant.id} alt={plant.nickname} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+          {!plant.photoUrl && species?.image && (
+            <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>
+          )}
           <button
-            onClick={() => fileRef.current?.click()}
+            onClick={() => setCameraOpen(true)}
             className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold"
             disabled={photo.isPending}
           >
-            <Camera className="size-4" aria-hidden /> {photo.isPending ? "Загружаем…" : plant.photoUrl ? "Сменить фото" : "Добавить фото"}
+            <Camera className="size-4" aria-hidden /> {photo.isPending ? "Загружаем…" : plant.photoUrl ? "Переснять" : "Сфотографировать"}
           </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && photo.mutate(e.target.files[0])}
-          />
+          {/* Только съёмка камерой: фото из галереи и интернета в коллекцию не загружаются. */}
+          <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(blob) => photo.mutate(blob)} />
         </div>
 
         <div>
@@ -199,6 +199,13 @@ function PlantView({ id }: { id: string }) {
             );
           })}
         </ul>
+      )}
+
+      {soil && species && (
+        <>
+          <SectionTitle>Грунт для пересадки</SectionTitle>
+          <SoilSummary mix={soil} href={`/plants/${species.slug}/#soil`} />
+        </>
       )}
 
       {species?.care && species.care.tipsRu.length > 0 && (

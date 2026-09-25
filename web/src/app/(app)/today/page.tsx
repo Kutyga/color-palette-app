@@ -24,6 +24,7 @@ import { evaluateAchievements, levelFor } from "@/lib/domain/gamification";
 import type { Plant } from "@/lib/domain/plant";
 import { formatDate, plural, relativeDay } from "@/lib/format";
 import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
+import { plantPhotoUrl } from "@/lib/knowledge";
 
 const SECTIONS: { bucket: TaskBucket; title: string }[] = [
   { bucket: "overdue", title: "Просрочено" },
@@ -60,7 +61,7 @@ function TaskRow({ task, bucket, plant, now }: { task: CareTask; bucket: TaskBuc
     <li className={cx("flex items-center gap-3 rounded-[20px] bg-surface p-3 pr-4 transition", done && "opacity-50")}>
       <Link href={`/garden/plant/?id=${task.plantId}`} className="flex min-w-0 flex-1 items-center gap-3">
         <div className="relative shrink-0">
-          <PlantPhoto src={plant?.photoUrl} seed={task.plantId} alt="" className="size-14 rounded-2xl" iconSize={22} />
+          <PlantPhoto src={plantPhotoUrl(plant)} seed={task.plantId} alt="" className="size-14 rounded-2xl" iconSize={22} />
           <span className="absolute -right-1 -bottom-1 grid size-6 place-items-center rounded-full bg-surface" style={{ color }}>
             <Icon className="size-4" aria-hidden />
           </span>
@@ -110,7 +111,7 @@ function Stories({ plants, tasks, now }: { plants: Plant[]; tasks: CareTask[]; n
           <Link key={p.id} href={`/garden/plant/?id=${p.id}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
             <span className="rounded-full p-[3px]" style={{ background: ring }}>
               <span className="block rounded-full bg-bg p-[2px]">
-                <PlantPhoto src={p.photoUrl} seed={p.id} alt={p.nickname} className="size-16 rounded-full" iconSize={24} />
+                <PlantPhoto src={plantPhotoUrl(p)} seed={p.id} alt={p.nickname} className="size-16 rounded-full" iconSize={24} />
               </span>
             </span>
             <span className="w-full truncate text-center text-[12px]">{p.nickname}</span>

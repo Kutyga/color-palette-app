@@ -43,7 +43,35 @@ export interface NewsArticle {
   summary: string | null;
   imageUrl: string | null;
   speciesIds: string[];
+  /** Код языка статьи: ru, en, de… */
+  language: string;
 }
+
+/** Текст статьи для чтения на сайте (Edge Function news-reader). */
+export type ReaderBlock =
+  | { type: "p" | "h" | "li" | "quote"; text: string }
+  | { type: "img"; src: string; alt: string };
+
+export interface ReaderArticle {
+  url: string;
+  title: string;
+  byline: string | null;
+  siteName: string | null;
+  lang: string | null;
+  blocks: ReaderBlock[];
+}
+
+export const NEWS_LANGUAGES: Record<string, string> = {
+  ru: "Русский",
+  en: "English",
+  de: "Deutsch",
+  fr: "Français",
+  es: "Español",
+};
+
+/** Перевод страницы через Google Переводчик — открывается в браузере, ключи не нужны. */
+export const translatedUrl = (url: string, target = "ru") =>
+  `https://translate.google.com/translate?sl=auto&tl=${target}&u=${encodeURIComponent(url)}`;
 
 type Row = Record<string, unknown>;
 
@@ -92,5 +120,6 @@ export function newsFromRow(r: Row): NewsArticle {
     summary: (r.summary as string | null) ?? null,
     imageUrl: (r.image_url as string | null) ?? null,
     speciesIds: (r.species_ids as string[] | null) ?? [],
+    language: (r.language as string | null) ?? "ru",
   };
 }

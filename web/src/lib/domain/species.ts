@@ -13,6 +13,18 @@ export interface CareProfile {
   repotEveryYears: number | null;
   propagation: string[];
   tipsRu: string[];
+  /** Состав грунта — slug из справочника soil_mixes (см. domain/soil.ts). */
+  soilMixSlug: string | null;
+  /** Поправка к составу именно для этого вида. */
+  soilNoteRu: string | null;
+}
+
+/** Фото вида с Wikimedia Commons; автора и лицензию обязательно показываем рядом. */
+export interface SpeciesImage {
+  url: string;
+  credit: string | null;
+  license: string | null;
+  sourceUrl: string | null;
 }
 
 export interface Species {
@@ -28,6 +40,7 @@ export interface Species {
   toxicToPets: boolean | null;
   toxicToHumans: boolean | null;
   airPurifying: boolean | null;
+  image: SpeciesImage | null;
   care: CareProfile | null;
 }
 
@@ -52,6 +65,8 @@ export function careFromRow(r: Row): CareProfile {
     repotEveryYears: (r.repot_every_years as number | null) ?? null,
     propagation: (r.propagation as string[] | null) ?? [],
     tipsRu: ru(r.tips) ?? [],
+    soilMixSlug: (r.soil_mix_slug as string | null) ?? null,
+    soilNoteRu: ru(r.soil_note),
   };
 }
 
@@ -73,6 +88,14 @@ export function speciesFromRow(r: Row): Species {
     toxicToPets: (r.toxic_to_pets as boolean | null) ?? null,
     toxicToHumans: (r.toxic_to_humans as boolean | null) ?? null,
     airPurifying: (r.air_purifying as boolean | null) ?? null,
+    image: r.image_url
+      ? {
+          url: r.image_url as string,
+          credit: (r.image_credit as string | null) ?? null,
+          license: (r.image_license as string | null) ?? null,
+          sourceUrl: (r.image_source_url as string | null) ?? null,
+        }
+      : null,
     care: careRaw ? careFromRow(careRaw as Row) : null,
   };
 }

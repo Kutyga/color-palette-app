@@ -1,15 +1,14 @@
 "use client";
 
-import { Newspaper, Plus, Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { CommentsSheet, FullPost, PostCard } from "@/components/feed";
 import { EmptyState, ErrorNote, PageHeader, Spinner, cx } from "@/components/ui";
-import type { NewsArticle } from "@/lib/domain/social";
-import { timeAgo } from "@/lib/format";
-import { useFeed, useNews } from "@/lib/queries";
+import { News } from "@/components/news";
+import { useFeed } from "@/lib/queries";
 
 const TABS = [
   { id: "following", label: "Подписки" },
@@ -52,61 +51,6 @@ function Discover({ onComments }: { onComments: (id: string) => void }) {
           <FullPost post={p} onComments={() => onComments(p.id)} />
         </div>
       ))}
-    </div>
-  );
-}
-
-function NewsItem({ a }: { a: NewsArticle }) {
-  const internal = a.url.startsWith("/");
-  const body = (
-    <>
-      <div className="min-w-0 flex-1">
-        <p className="text-[13px] text-secondary">
-          {a.sourceName} · {timeAgo(a.publishedAt)}
-        </p>
-        <h3 className="mt-1 text-[17px] leading-snug font-semibold">{a.title}</h3>
-        {a.summary && <p className="mt-1 line-clamp-2 text-[15px] text-secondary">{a.summary}</p>}
-      </div>
-      {a.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element -- картинки с сайтов-источников
-        <img src={a.imageUrl} alt="" className="size-24 shrink-0 rounded-2xl object-cover" loading="lazy" referrerPolicy="no-referrer" />
-      )}
-    </>
-  );
-  const cls = "flex gap-4 rounded-[20px] bg-surface p-4 transition hover:brightness-[0.98]";
-  return internal ? (
-    <Link href={a.url} className={cls}>
-      {body}
-    </Link>
-  ) : (
-    <a href={a.url} target="_blank" rel="noopener noreferrer" className={cls}>
-      {body}
-    </a>
-  );
-}
-
-function News() {
-  const [onlyMine, setOnlyMine] = useState(false);
-  const news = useNews(onlyMine);
-  return (
-    <div className="mx-auto max-w-2xl">
-      <label className="mb-4 flex items-center justify-between rounded-[20px] bg-surface px-4 py-3">
-        <span className="font-medium">Только про мои растения</span>
-        <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} className="size-5 accent-[var(--leaf)]" />
-      </label>
-      {news.isPending ? (
-        <Spinner />
-      ) : news.error ? (
-        <ErrorNote error={news.error} onRetry={() => news.refetch()} />
-      ) : news.data.length === 0 ? (
-        <EmptyState icon={Newspaper} title="Новостей пока нет" message="Сбор новостей идёт каждый час — загляните позже." />
-      ) : (
-        <div className="space-y-3">
-          {news.data.map((a) => (
-            <NewsItem key={a.id} a={a} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

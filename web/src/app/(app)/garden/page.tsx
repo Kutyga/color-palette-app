@@ -8,6 +8,7 @@ import { Chip, EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner, cx } from
 import { plantStatus, type PlantStatus } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
 import { useLocations, usePlants, useStats } from "@/lib/queries";
+import { plantPhotoUrl } from "@/lib/knowledge";
 
 const STATUS: Record<PlantStatus, { color: string; label: string }> = {
   ok: { color: "var(--leaf)", label: "всё хорошо" },
@@ -80,7 +81,7 @@ function Collection() {
           return (
             <li key={p.id}>
               <Link href={`/garden/plant/?id=${p.id}`} className="group relative block aspect-square overflow-hidden">
-                <PlantPhoto src={p.photoUrl} seed={p.id} alt={p.nickname} className="size-full transition group-hover:scale-105" iconSize={40} />
+                <PlantPhoto src={plantPhotoUrl(p)} seed={p.id} alt={p.nickname} className="size-full transition group-hover:scale-105" iconSize={40} />
                 <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pt-8 pb-2.5 text-white">
                   <span className="block truncate text-[15px] font-semibold">{p.nickname}</span>
                   {p.speciesName && <span className="block truncate text-[12px] opacity-80">{p.speciesName}</span>}

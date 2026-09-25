@@ -1,4 +1,6 @@
+import soilRows from "@/data/soil-mixes.json";
 import rows from "@/data/species.json";
+import { soilMixFromRow, type SoilMix } from "./domain/soil";
 import { searchLocal, speciesFromRow, speciesMatches, type Species } from "./domain/species";
 
 /**
@@ -10,6 +12,18 @@ export const ALL_SPECIES: Species[] = (rows as Record<string, unknown>[]).map(sp
 
 const bySlug = new Map(ALL_SPECIES.map((s) => [s.slug, s]));
 export const speciesBySlug = (slug: string | null | undefined) => (slug ? bySlug.get(slug) ?? null : null);
+
+/** Своё фото растения, а если его нет — фото вида из базы знаний. */
+export const plantPhotoUrl = (p: { photoUrl: string | null; speciesSlug: string | null } | null | undefined) =>
+  p ? p.photoUrl ?? speciesBySlug(p.speciesSlug)?.image?.url ?? null : null;
+
+/** Справочник грунтов из снимка src/data/soil-mixes.json. */
+export const ALL_SOIL_MIXES: SoilMix[] = (soilRows as Record<string, unknown>[]).map(soilMixFromRow);
+const mixBySlug = new Map(ALL_SOIL_MIXES.map((m) => [m.slug, m]));
+export const soilMixBySlug = (slug: string | null | undefined) => (slug ? mixBySlug.get(slug) ?? null : null);
+export const soilMixFor = (s: Species | null | undefined) => soilMixBySlug(s?.care?.soilMixSlug);
+/** Виды, которым подходит этот грунт. */
+export const speciesForMix = (slug: string) => ALL_SPECIES.filter((s) => s.care?.soilMixSlug === slug);
 
 function trigrams(s: string): Set<string> {
   const padded = `  ${s} `;

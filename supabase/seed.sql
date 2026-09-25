@@ -112,6 +112,26 @@ from (values
 join public.species sp on sp.slug = c.slug
 on conflict (species_id) do nothing;
 
+-- Состав грунта (справочник public.soil_mixes — миграция 20260925130000_soil_mixes.sql).
+update public.care_profiles c
+   set soil_mix_slug = v.mix,
+       soil_note = v.note::jsonb
+  from (values
+  ('monstera-deliciosa', 'aroid_chunky', '{"ru": "Для крупных экземпляров добавьте 10% крупной коры и тяжёлый горшок под опору."}'),
+  ('ficus-elastica', 'ficus', null),
+  ('dracaena-trifasciata', 'cactus_succulent', '{"ru": "Широкий неглубокий тяжёлый горшок: корни поверхностные, а высокие листья валят лёгкий пластик."}'),
+  ('spathiphyllum-wallisii', 'aroid_moist', null),
+  ('zamioculcas-zamiifolia', 'caudex', '{"ru": "Замиокулькасу — 10% листовой земли и тяжёлый горшок: клубни распирают пластик."}'),
+  ('phalaenopsis-hybrid', 'orchid_bark', null),
+  ('aloe-vera', 'cactus_succulent', null),
+  ('epipremnum-aureum', 'aroid_chunky', null),
+  ('chlorophytum-comosum', 'universal', null),
+  ('crassula-ovata', 'cactus_succulent', null)
+) v(slug, mix, note)
+  join public.species s on s.slug = v.slug
+ where c.species_id = s.id
+   and c.soil_mix_slug is null;
+
 -- Источники новостей. Адреса лент проверяйте перед запуском: неработающая лента
 -- не ломает сбор, а пишет причину в news_sources.last_error.
 insert into public.news_sources (name, feed_url, site_url, language, filter_keywords) values

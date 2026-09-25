@@ -67,9 +67,20 @@ export function useFeed(tab: FeedTab) {
   return useQuery({ queryKey: ["feed", tab], queryFn: () => b.social.feed(tab) });
 }
 
-export function useNews(onlyMine: boolean) {
+export function useNews(onlyMine: boolean, langs: string[] = []) {
   const b = useBackend();
-  return useQuery({ queryKey: ["news", onlyMine], queryFn: () => b.social.news(onlyMine) });
+  return useQuery({ queryKey: ["news", onlyMine, langs], queryFn: () => b.social.news(onlyMine, langs) });
+}
+
+export function useReader(id: string | null) {
+  const b = useBackend();
+  return useQuery({
+    queryKey: ["reader", id],
+    queryFn: () => b.social.readArticle(id!),
+    enabled: !!id,
+    staleTime: Infinity,
+    retry: false,
+  });
 }
 
 export function useComments(postId: string | null) {
