@@ -25,7 +25,7 @@ export function Logo({ className }: { className?: string }) {
       <span className="grid size-8 place-items-center rounded-[10px] bg-leaf text-white">
         <Sprout className="size-5" aria-hidden />
       </span>
-      Мой сад
+      Подоконник
     </Link>
   );
 }

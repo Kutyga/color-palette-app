@@ -78,7 +78,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
             href={`/garden/new/?species=${s.slug}`}
             className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-leaf px-6 text-[17px] font-semibold text-white hover:brightness-110"
           >
-            <Plus className="size-5" aria-hidden /> Добавить в мой сад
+            <Plus className="size-5" aria-hidden /> Добавить в коллекцию
           </Link>
         </div>
       </div>

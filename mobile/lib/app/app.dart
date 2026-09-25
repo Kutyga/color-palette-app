@@ -59,7 +59,7 @@ class _GardenAppState extends ConsumerState<GardenApp> {
       }
     });
     return MaterialApp.router(
-      title: 'Мой сад',
+      title: 'Подоконник',
       debugShowCheckedModeBanner: false,
       theme: GardenTheme.light(),
       darkTheme: GardenTheme.dark(),

@@ -58,7 +58,7 @@ test("демо: добавить растение из базы знаний, п
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/plants/hoya-carnosa/");
-  await page.getByRole("link", { name: "Добавить в мой сад" }).click();
+  await page.getByRole("link", { name: "Добавить в коллекцию" }).click();
   await page.waitForURL("**/garden/new/**");
   await expect(page.getByText("Хойя мясистая").first()).toBeVisible();
   await page.getByLabel("Имя").fill("Хойя Звёздочка");
@@ -145,7 +145,7 @@ test("демо: новости — выбор языка и чтение ста�
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/feed/?tab=news");
-  await expect(page.getByText("База знаний «Мой сад»").first()).toBeVisible();
+  await expect(page.getByText("База знаний «Подоконника»").first()).toBeVisible();
 
   await page.getByRole("button", { name: "English" }).click();
   await expect(page.getByText("Новостей пока нет")).toBeVisible();

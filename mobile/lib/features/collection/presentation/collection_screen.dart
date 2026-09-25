@@ -41,7 +41,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
 
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(child: LargeTitle(overline: 'Мой сад', title: 'Коллекция')),
+        const SliverToBoxAdapter(child: LargeTitle(overline: 'Подоконник', title: 'Коллекция')),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: GardenTheme.gutter),
