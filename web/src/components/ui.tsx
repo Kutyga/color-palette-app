@@ -182,15 +182,29 @@ export function PlantPhoto({
   className?: string;
   iconSize?: number;
 }) {
-  if (src) {
-    // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage и data URL
-    return <img src={src} alt={alt} className={cx("object-cover", className)} loading="lazy" />;
+  // Не загрузилось (нет сети, ссылка устарела) — показываем заглушку вместо «битой» картинки.
+  const [failed, setFailed] = useState<string | null>(null);
+  if (src && failed !== src) {
+    // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons
+    return <img src={src} alt={alt} className={cx("object-cover", className)} loading="lazy" onError={() => setFailed(src)} />;
   }
   const [a, b] = GRADIENTS[hash(seed) % GRADIENTS.length];
   return (
     <div className={cx("grid place-items-center", className)} style={{ background: `linear-gradient(135deg, ${a}, ${b})` }} role="img" aria-label={alt}>
       <Leaf size={iconSize} className="text-white/85" strokeWidth={1.6} aria-hidden />
     </div>
+  );
+}
+
+/** Подпись к фото с Wikimedia Commons — CC BY / CC BY-SA требуют указать автора и лицензию. */
+export function PhotoCredit({ image, className }: { image: { credit: string | null; license: string | null; sourceUrl: string | null }; className?: string }) {
+  const text = [image.credit ? `Фото: ${image.credit}` : "Фото", image.license, "Wikimedia Commons"].filter(Boolean).join(" · ");
+  return image.sourceUrl ? (
+    <a href={image.sourceUrl} target="_blank" rel="noopener noreferrer" className={cx("text-[12px] text-secondary hover:text-label", className)}>
+      {text}
+    </a>
+  ) : (
+    <span className={cx("text-[12px] text-secondary", className)}>{text}</span>
   );
 }
 

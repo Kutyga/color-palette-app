@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SpeciesCard } from "@/components/knowledge-browser";
-import { PlantPhoto } from "@/components/ui";
+import { SoilSchematic } from "@/components/soil-schematic";
+import { PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
 import { DIFFICULTY_LABELS, speciesName } from "@/lib/domain/species";
 import { MONTHS_SHORT, plural } from "@/lib/format";
-import { ALL_SPECIES, speciesBySlug } from "@/lib/knowledge";
+import { ALL_SPECIES, soilMixFor, speciesBySlug } from "@/lib/knowledge";
 
 export function generateStaticParams() {
   return ALL_SPECIES.map((s) => ({ slug: s.slug }));
@@ -39,6 +40,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
   if (!s) notFound();
   const name = speciesName(s);
   const care = s.care;
+  const soil = soilMixFor(s);
   const similar = ALL_SPECIES.filter((x) => x.slug !== s.slug && x.latinName.split(" ")[0] === s.latinName.split(" ")[0])
     .concat(ALL_SPECIES.filter((x) => x.slug !== s.slug && x.plantType === s.plantType))
     .filter((x, i, arr) => arr.indexOf(x) === i)
@@ -54,7 +56,14 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
       </nav>
 
       <div className="mt-4 grid gap-8 md:grid-cols-[1fr_1.1fr] md:items-center">
-        <PlantPhoto src={null} seed={s.slug} alt={name} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+        <figure>
+          <PlantPhoto src={s.image?.url} seed={s.slug} alt={name} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+          {s.image && (
+            <figcaption className="mt-2 px-1">
+              <PhotoCredit image={s.image} />
+            </figcaption>
+          )}
+        </figure>
         <div>
           <p className="text-[17px] text-secondary italic">{s.latinName}</p>
           <h1 className="mt-1 text-[40px] leading-[1.05] font-bold tracking-tight sm:text-[48px]">{name}</h1>
@@ -125,6 +134,12 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
               </p>
             </section>
           </div>
+
+          {soil && (
+            <div id="soil" className="mt-6 scroll-mt-24">
+              <SoilSchematic mix={soil} noteRu={care.soilNoteRu} />
+            </div>
+          )}
 
           {care.tipsRu.length > 0 && (
             <section className="mt-6 rounded-[20px] bg-surface p-5">

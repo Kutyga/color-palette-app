@@ -10,7 +10,9 @@ import { Chip, EmptyState, PlantPhoto } from "./ui";
 export function SpeciesCard({ s }: { s: Species }) {
   return (
     <Link href={`/plants/${s.slug}/`} className="group block overflow-hidden rounded-[20px] bg-surface">
-      <PlantPhoto src={null} seed={s.slug} alt="" className="aspect-[4/3] w-full transition group-hover:scale-[1.02]" iconSize={36} />
+      <div className="overflow-hidden">
+        <PlantPhoto src={s.image?.url} seed={s.slug} alt="" className="aspect-[4/3] w-full transition group-hover:scale-[1.03]" iconSize={36} />
+      </div>
       <div className="p-4">
         <p className="font-semibold leading-snug">{speciesName(s)}</p>
         <p className="truncate text-[13px] text-secondary italic">{s.latinName}</p>

@@ -63,6 +63,13 @@ test("демо: добавить растение из базы знаний, п
   await expect(page.getByText("Хойя мясистая").first()).toBeVisible();
   await page.getByLabel("Имя").fill("Хойя Звёздочка");
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
+  // Без снимка добавить нельзя, а выбрать файл из галереи негде — только камера.
+  await expect(page.getByRole("button", { name: "Добавить в коллекцию" })).toBeDisabled();
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
+  await expect(page.getByRole("dialog", { name: "Камера" })).toBeVisible();
+  await page.getByRole("button", { name: "Снять" }).click();
+  await expect(page.getByRole("img", { name: "Фото растения" })).toHaveAttribute("src", /^blob:/);
   await page.getByRole("button", { name: "Добавить в коллекцию" }).click();
 
   await page.waitForURL("**/garden/plant/**");
@@ -155,5 +162,29 @@ test("демо: новости — выбор языка и чтение ста�
 
   await page.goto("/feed/article/?id=unknown");
   await expect(page.getByText("Текст статьи здесь недоступен")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("гость: фото вида, состав грунта со схемой и справочник грунтов", async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto("/plants/monstera-deliciosa/");
+  await expect(page.getByRole("img", { name: "Монстера деликатесная" })).toHaveAttribute("src", /wikimedia\.org/);
+  await expect(page.getByRole("link", { name: /Wikimedia Commons/ })).toHaveAttribute("href", /commons\.wikimedia\.org\/wiki\/File:/);
+
+  const soil = page.locator("#soil");
+  await expect(soil.getByRole("heading", { name: "Ароидный рыхлый" })).toBeVisible();
+  await expect(soil.getByText("Для этого растения:")).toBeVisible();
+  await expect(soil.getByRole("img", { name: /Разрез горшка: смесь, дренаж 2 см/ })).toBeVisible();
+  // Калькулятор: 30% торфа в горшке на 5 л — 1,5 л.
+  await soil.getByRole("button", { name: "5 л", exact: true }).click();
+  await expect(soil.getByRole("button", { name: "5 л", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(soil.getByText(/1,5 л\s+торф/)).toBeVisible();
+
+  await soil.getByRole("link", { name: "Все составы грунта →" }).click();
+  await page.waitForURL("**/plants/soil/**");
+  await expect(page.getByRole("heading", { level: 1, name: "Грунты" })).toBeVisible();
+  const cactus = page.locator("#cactus_succulent");
+  await expect(cactus.getByRole("img", { name: /мульча/ })).toBeVisible();
+  await expect(cactus.getByRole("link", { name: "Алоэ вера" })).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -1,10 +1,11 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, ChevronRight, ScanSearch, Search, X } from "lucide-react";
+import { ChevronRight, ScanSearch, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { CameraField } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { Button, Field, PageHeader, PlantPhoto, ProgressRing, Sheet, Spinner, inputClass, useToast } from "@/components/ui";
 import { LIGHT_LEVELS, POT_MATERIALS, type LightLevel, type PotMaterial } from "@/lib/domain/care";
@@ -28,7 +29,7 @@ function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (
   if (value) {
     return (
       <div className="flex items-center gap-3 rounded-2xl bg-muted p-3">
-        <PlantPhoto src={null} seed={value.slug} alt="" className="size-12 rounded-xl" iconSize={20} />
+        <PlantPhoto src={value.image?.url} seed={value.slug} alt="" className="size-12 rounded-xl" iconSize={20} />
         <div className="min-w-0 flex-1">
           <p className="font-semibold">{speciesName(value)}</p>
           <p className="truncate text-[13px] text-secondary italic">{value.latinName}</p>
@@ -125,7 +126,7 @@ function NewPlantForm() {
   const [pot, setPot] = useState<PotMaterial | "">("");
   const [visibility, setVisibility] = useState<Visibility>("followers");
   const [lastWatered, setLastWatered] = useState<number | null>(3);
-  const [photo, setPhoto] = useState<{ file: File; url: string } | null>(null);
+  const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
   const [candidates, setCandidates] = useState<IdentificationCandidate[] | null>(null);
   const [identifying, setIdentifying] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -140,7 +141,7 @@ function NewPlantForm() {
     if (!photo || !backend.identifier) return;
     setIdentifying(true);
     try {
-      const predictions = await backend.identifier.identify(await toJpeg(photo.file, 1280));
+      const predictions = await backend.identifier.identify(await toJpeg(photo.blob, 1280));
       setCandidates(predictions.slice(0, 5).map((p) => matchSpecies(p, ALL_SPECIES)));
     } catch (e) {
       toast(e instanceof Error ? e.message : "Распознавание не удалось");
@@ -162,6 +163,11 @@ function NewPlantForm() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    // Фото обязательно: в коллекции только свои растения, снятые дома.
+    if (!photo) {
+      toast("Сначала сфотографируйте растение");
+      return;
+    }
     setSaving(true);
     try {
       let location = locationId || null;
@@ -175,12 +181,10 @@ function NewPlantForm() {
         visibility,
         lastWateredAt: lastWatered == null ? null : new Date(today.getFullYear(), today.getMonth(), today.getDate() - lastWatered, 10),
       });
-      if (photo) {
-        try {
-          await backend.garden.setPlantPhoto(plant.id, await toJpeg(photo.file));
-        } catch (err) {
-          toast(`Растение добавлено, но фото не загрузилось: ${err instanceof Error ? err.message : err}`);
-        }
+      try {
+        await backend.garden.setPlantPhoto(plant.id, photo.blob);
+      } catch (err) {
+        toast(`Растение добавлено, но фото не загрузилось: ${err instanceof Error ? err.message : err}`);
       }
       for (const key of ["plants", "tasks", "stats", "locations"]) qc.invalidateQueries({ queryKey: [key] });
       toast(`${plant.nickname} теперь в вашем саду`);
@@ -194,29 +198,14 @@ function NewPlantForm() {
   return (
     <form onSubmit={submit} className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
       <div>
-        <label className="relative block cursor-pointer overflow-hidden rounded-[28px]">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element -- локальный предпросмотр
-            <img src={photo.url} alt="Фото растения" className="aspect-square w-full object-cover" />
-          ) : (
-            <span className="grid aspect-square w-full place-items-center bg-muted text-secondary">
-              <span className="flex flex-col items-center gap-2">
-                <Camera className="size-10" strokeWidth={1.5} aria-hidden />
-                <span className="font-medium">Добавить фото</span>
-              </span>
-            </span>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setPhoto({ file, url: URL.createObjectURL(file) });
-            }}
-          />
-        </label>
+        <CameraField
+          photoUrl={photo?.url ?? null}
+          onCapture={(blob) => {
+            if (photo) URL.revokeObjectURL(photo.url);
+            setPhoto({ blob, url: URL.createObjectURL(blob) });
+            setCandidates(null);
+          }}
+        />
         {photo && backend.identifier && (
           <Button type="button" variant="secondary" className="mt-3 w-full" onClick={identify} loading={identifying}>
             <ScanSearch className="size-5 text-leaf" aria-hidden /> {identifying ? "Распознаём…" : "Распознать растение"}
@@ -312,9 +301,10 @@ function NewPlantForm() {
             ))}
           </div>
         </Field>
-        <Button type="submit" className="w-full min-h-12 text-[17px]" loading={saving} disabled={!nickname.trim()}>
+        <Button type="submit" className="w-full min-h-12 text-[17px]" loading={saving} disabled={!nickname.trim() || !photo}>
           Добавить в коллекцию
         </Button>
+        {!photo && <p className="text-center text-[13px] text-secondary">Чтобы добавить растение, сфотографируйте его у себя дома.</p>}
       </div>
 
       <Sheet open={candidates !== null} onClose={() => setCandidates(null)} title="Похоже на">

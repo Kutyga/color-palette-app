@@ -68,7 +68,7 @@ export default function Home() {
         <div className="no-scrollbar mt-5 flex snap-x gap-4 overflow-x-auto pb-2">
           {showcase.map((s) => (
             <Link key={s.slug} href={`/plants/${s.slug}/`} className="w-44 shrink-0 snap-start">
-              <PlantPhoto src={null} seed={s.slug} alt="" className="aspect-[4/5] w-full rounded-[20px]" iconSize={40} />
+              <PlantPhoto src={s.image?.url} seed={s.slug} alt="" className="aspect-[4/5] w-full rounded-[20px]" iconSize={40} />
               <p className="mt-2 font-semibold">{speciesName(s)}</p>
               <p className="text-[13px] text-secondary italic">{s.latinName}</p>
             </Link>

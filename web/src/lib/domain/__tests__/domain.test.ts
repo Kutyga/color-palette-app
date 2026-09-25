@@ -86,7 +86,7 @@ describe("геймификация", () => {
 
 const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = []): Species => ({
   id: slug, slug, latinName, commonNamesRu: ru, commonNamesEn: [], synonyms, descriptionRu: null, plantType: null,
-  difficulty: null, toxicToPets: null, toxicToHumans: null, airPurifying: null, care: null,
+  difficulty: null, toxicToPets: null, toxicToHumans: null, airPurifying: null, image: null, care: null,
 });
 const kb = [
   sp("monstera-deliciosa", "Monstera deliciosa", ["Монстера деликатесная", "Монстера"]),
