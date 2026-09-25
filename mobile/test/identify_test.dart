@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_garden/app/app.dart';
@@ -15,20 +14,9 @@ import 'package:my_garden/data/demo_species.dart';
 import 'package:my_garden/features/collection/presentation/add_plant_screen.dart';
 import 'package:my_garden/features/identify/data/plant_identifier.dart';
 import 'package:my_garden/features/identify/domain/identification.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show FunctionException;
 
-Uint8List jpeg(int width, int height, {img.Color? left, img.Color? right}) {
-  final image = img.Image(width: width, height: height);
-  for (final p in image) {
-    final c = p.x < width / 2 ? (left ?? img.ColorRgb8(200, 0, 0)) : (right ?? img.ColorRgb8(0, 0, 200));
-    p
-      ..r = c.r
-      ..g = c.g
-      ..b = c.b;
-  }
-  return img.encodeJpg(image, quality: 95);
-}
+import 'fakes.dart';
 
 class FakeIdentifier implements PlantIdentifier {
   FakeIdentifier(this.result);
@@ -50,16 +38,6 @@ class FailingIdentifier implements PlantIdentifier {
 
   @override
   Future<List<Prediction>> identify(Uint8List jpeg) async => throw error;
-}
-
-class FakeImagePicker extends ImagePickerPlatform with MockPlatformInterfaceMixin {
-  FakeImagePicker(this.bytes);
-
-  final Uint8List bytes;
-
-  @override
-  Future<XFile?> getImageFromSource({required ImageSource source, ImagePickerOptions options = const ImagePickerOptions()}) async =>
-      XFile.fromData(bytes, name: 'plant.jpg', mimeType: 'image/jpeg');
 }
 
 void main() {
@@ -139,7 +117,8 @@ void main() {
 
   testWidgets('фото → «Распознать» → вид подставлен из базы знаний', (tester) async {
     await initializeDateFormatting('ru');
-    ImagePickerPlatform.instance = FakeImagePicker(jpeg(64, 64));
+    final picker = FakeImagePicker(jpeg(64, 64));
+    ImagePickerPlatform.instance = picker;
     final identifier = FakeIdentifier(const [
       Prediction('Monstera deliciosa', 0.82, commonName: 'Монстера деликатесная', source: IdentificationSource.plantNet),
       Prediction('Urtica dioica', 0.1, commonName: 'Крапива двудомная', source: IdentificationSource.plantNet),
@@ -162,10 +141,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Распознать растение'), findsNothing, reason: 'без фото кнопки нет');
-    await tester.tap(find.text('Добавить фото'));
+    await tester.tap(find.text('Сфотографировать'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Выбрать из галереи'));
-    await tester.pumpAndSettle();
+    expect(picker.sources, [ImageSource.camera], reason: 'только камера, без галереи');
 
     await tester.tap(find.text('Распознать растение'));
     await tester.pumpAndSettle();

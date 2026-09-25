@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_garden/app/app.dart';
 import 'package:my_garden/app/providers.dart';
@@ -9,6 +10,8 @@ import 'package:my_garden/data/demo_social_repository.dart';
 import 'package:my_garden/features/collection/domain/plant.dart';
 import 'package:my_garden/features/collection/presentation/add_plant_screen.dart';
 import 'package:my_garden/features/collection/presentation/plant_screen.dart';
+
+import 'fakes.dart';
 
 void main() {
   setUpAll(() => initializeDateFormatting('ru'));
@@ -58,10 +61,15 @@ void main() {
   });
 
   testWidgets('добавление растения из базы знаний', (tester) async {
+    ImagePickerPlatform.instance = FakeImagePicker(jpeg(64, 64));
     final repo = await pumpApp(tester, withPlant: false);
     await tester.tap(find.bySemanticsLabel('Добавить растение'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Растение'));
+    await tester.pumpAndSettle();
+
+    // Без снимка растение не добавить.
+    await tester.tap(find.text('Сфотографировать'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Выбрать из базы знаний'));
