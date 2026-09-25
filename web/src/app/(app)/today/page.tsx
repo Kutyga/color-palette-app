@@ -162,9 +162,10 @@ function TodayContent() {
   return (
     <>
       <Card className="flex items-center gap-5 p-5">
-        <div className="relative grid place-items-center">
+        {/* Кольца «Полив» и «Другой уход» — одно в другом, центры совпадают. */}
+        <div className="relative size-[88px] shrink-0">
           <ProgressRing progress={waterDone + waterPending ? waterDone / (waterDone + waterPending) : 1} color="var(--water)" size={88} stroke={10} label="Полив" />
-          <div className="absolute">
+          <div className="absolute inset-0 grid place-items-center">
             <ProgressRing progress={otherDone + otherPending ? otherDone / (otherDone + otherPending) : 1} color="var(--leaf)" size={60} stroke={10} label="Другой уход" />
           </div>
         </div>

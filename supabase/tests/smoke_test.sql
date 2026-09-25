@@ -284,6 +284,46 @@ do $$ begin
 exception when insufficient_privilege then null;
 end $$;
 
+-- Люди: поиск, карточки, подписчики, редактирование профиля.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$
+declare
+  alice constant uuid := '00000000-0000-0000-0000-00000000000a';
+begin
+  assert (select display_name from public.profiles where id = alice) = 'Alice', 'имя по умолчанию из email';
+  assert (select count(*) from public.search_people('ALI')) = 1, 'поиск по имени без учёта регистра';
+  assert (select count(*) from public.search_people('%')) = 0, 'спецсимволы LIKE экранируются';
+  assert (select is_following from public.search_people('alice')), 'Боб подписан на Алису';
+  assert (select followers from public.profile_cards where id = alice)
+         = (select count(*) from public.follows where followee_id = alice), 'счётчик подписчиков';
+  assert (select plants from public.profile_cards where id = alice)
+         = (select count(*) from public.plants where owner_id = alice and deleted_at is null),
+         'в карточке — растения, видимые Бобу';
+  assert (select count(*) from public.people_following(auth.uid())) >= 1, 'подписки Боба';
+  assert auth.uid() in (select id from public.people_followers(alice)), 'Боб среди подписчиков Алисы';
+  assert not exists (select 1 from public.search_people('') where is_me), 'в рекомендациях нет себя';
+end $$;
+update public.profiles set display_name = 'Боб', username = 'bob_garden' where id = auth.uid();
+do $$ begin
+  assert (select display_name || '/' || username from public.profiles where id = auth.uid()) = 'Боб/bob_garden',
+         'своё имя и username меняются';
+end $$;
+do $$ begin
+  update public.profiles set created_at = now() where id = auth.uid();
+  raise exception 'дату регистрации менять нельзя';
+exception when insufficient_privilege then null;
+end $$;
+do $$ begin
+  update public.profiles set display_name = 'Чужое имя' where id = '00000000-0000-0000-0000-00000000000a';
+  assert (select display_name from public.profiles where id = '00000000-0000-0000-0000-00000000000a') = 'Alice',
+         'чужой профиль не меняется';
+end $$;
+-- Кэрол заблокирована Алисой — не находит её.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.search_people('alice')) = 0, 'заблокированный не видит профиль';
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

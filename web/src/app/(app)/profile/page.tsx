@@ -1,14 +1,16 @@
 "use client";
 
-import { ChevronRight, LogOut, Trophy } from "lucide-react";
+import { ChevronRight, LogOut, Pencil, Search, Trophy } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RequireSession } from "@/components/app-shell";
 import { useSession } from "@/components/session";
-import { Avatar, Button, Card, PageHeader } from "@/components/ui";
+import { EditProfileSheet, ProfileHeader } from "@/components/people";
+import { Button, Card, PageHeader, Spinner } from "@/components/ui";
 import { levelFor } from "@/lib/domain/gamification";
 import { plural } from "@/lib/format";
-import { useProfile, useStats } from "@/lib/queries";
+import { usePerson, useProfile, useStats } from "@/lib/queries";
 
 function Profile() {
   const { session, signOut } = useSession();
@@ -16,20 +18,39 @@ function Profile() {
   const stats = useStats();
   const router = useRouter();
   const isDemo = session.status === "ready" && session.backend.mode === "demo";
-  const name = profile.data?.displayName ?? profile.data?.username ?? "…";
+  const me = usePerson(profile.data?.username ?? null);
+  const [editing, setEditing] = useState(false);
   const lp = stats.data ? levelFor(stats.data) : null;
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <Card className="flex items-center gap-4 p-5">
-        <Avatar name={name} size={64} />
-        <div className="min-w-0">
-          <p className="truncate text-[22px] font-semibold">{name}</p>
-          <p className="truncate text-secondary">
-            {isDemo ? "Демо-режим" : `@${profile.data?.username ?? "…"}${session.status === "ready" && session.email ? ` · ${session.email}` : ""}`}
-          </p>
-        </div>
-      </Card>
+      {me.data ? (
+        <ProfileHeader
+          person={me.data}
+          action={
+            <>
+              <Button variant="secondary" onClick={() => setEditing(true)}>
+                <Pencil className="size-4" aria-hidden /> Редактировать профиль
+              </Button>
+              <Link href="/people/" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-muted px-5 font-semibold">
+                <Search className="size-4" aria-hidden /> Найти садоводов
+              </Link>
+            </>
+          }
+        />
+      ) : (
+        <Spinner />
+      )}
+      {session.status === "ready" && (isDemo || session.email) && (
+        <p className="px-1 text-[13px] text-secondary">{isDemo ? "Демо-режим" : `Вход: ${session.email}`}</p>
+      )}
+      {profile.data && (
+        <EditProfileSheet
+          open={editing}
+          onClose={() => setEditing(false)}
+          initial={{ displayName: profile.data.displayName ?? "", username: profile.data.username, bio: profile.data.bio ?? "" }}
+        />
+      )}
 
       {stats.data && lp && (
         <Link href="/achievements/" className="flex items-center gap-4 rounded-[20px] bg-surface p-5">

@@ -188,3 +188,43 @@ test("гость: фото вида, состав грунта со схемой
   await expect(cactus.getByRole("link", { name: "Алоэ вера" })).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("демо: редактирование профиля, подписчики, поиск садоводов и их растения", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/profile/");
+  await expect(page.getByRole("heading", { level: 1, name: "Гость" })).toBeVisible();
+  await expect(page.getByText("@gost")).toBeVisible();
+
+  await page.getByRole("button", { name: "Редактировать профиль" }).click();
+  await page.getByLabel("Имя", { exact: true }).fill("Макс Садовод");
+  await page.getByLabel("Имя пользователя").fill("Max.Sad");
+  await expect(page.getByLabel("Имя пользователя")).toHaveValue("max_sad");
+  await page.getByLabel("О себе").fill("Фикусы и кактусы");
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByText("Профиль сохранён")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Макс Садовод" })).toBeVisible();
+  await expect(page.getByText("@max_sad")).toBeVisible();
+  await expect(page.getByText("Фикусы и кактусы")).toBeVisible();
+
+  // Подписчики открываются списком.
+  await page.getByRole("button", { name: /2\s+подписчика/ }).click();
+  const followers = page.getByRole("dialog", { name: "Подписчики" });
+  await expect(followers.getByText("Фикус Папа")).toBeVisible();
+  await followers.getByRole("button", { name: "Закрыть" }).click();
+
+  // Поиск садоводов → профиль → растения → подписка.
+  await page.getByRole("link", { name: "Найти садоводов" }).click();
+  await page.waitForURL("**/people/");
+  await expect(page.getByText("Популярные садоводы")).toBeVisible();
+  await page.getByRole("searchbox", { name: "Поиск садоводов" }).fill("свет");
+  await page.getByRole("link", { name: /Света \| суккуленты/ }).click();
+  await page.waitForURL("**/people/view/**");
+  await expect(page.getByRole("heading", { level: 1, name: "Света | суккуленты" })).toBeVisible();
+  await expect(page.getByText("Камешки")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Литопс/ })).toBeVisible();
+  await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
+  await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
+  await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();
+  expect(errors).toEqual([]);
+});

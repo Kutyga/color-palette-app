@@ -132,8 +132,8 @@ export function ProgressRing({
   const c = 2 * Math.PI * r;
   const p = Math.max(0, Math.min(1, progress));
   return (
-    <div className="relative inline-grid place-items-center" style={{ width: size, height: size }} role="img" aria-label={label}>
-      <svg width={size} height={size} className="-rotate-90">
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} role="img" aria-label={label}>
+      <svg width={size} height={size} className="block -rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeOpacity={0.18} strokeWidth={stroke} />
         <circle
           cx={size / 2}

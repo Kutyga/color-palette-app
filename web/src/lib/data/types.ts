@@ -2,6 +2,7 @@ import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { GardenStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
+import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
 import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
@@ -53,12 +54,27 @@ export interface PlantIdentifier {
 export interface Profile {
   username: string;
   displayName: string | null;
+  bio: string | null;
+}
+
+/** Садоводы: поиск, профили, подписчики и их растения. Подписка — SocialRepository.setFollowing. */
+export interface PeopleRepository {
+  /** Пустой запрос — рекомендации (популярные садоводы). */
+  search(query: string): Promise<PersonCard[]>;
+  byUsername(username: string): Promise<PersonCard | null>;
+  followers(userId: string): Promise<PersonCard[]>;
+  following(userId: string): Promise<PersonCard[]>;
+  /** Растения садовода, которые разрешено видеть текущему пользователю. */
+  plantsOf(userId: string): Promise<PublicPlant[]>;
+  /** Меняет свой профиль; занятый username — ошибка с понятным текстом. */
+  updateProfile(update: ProfileUpdate): Promise<Profile>;
 }
 
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
   social: SocialRepository;
+  people: PeopleRepository;
   identifier: PlantIdentifier | null;
   profile(): Promise<Profile>;
 }

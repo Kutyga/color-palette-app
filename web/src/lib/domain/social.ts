@@ -1,9 +1,14 @@
+import { prettyUsername } from "./people";
+
 export type FeedTab = "following" | "discover";
 
 export interface FeedPost {
   id: string;
   authorId: string;
+  /** username автора (без @) — для ссылки на профиль. */
   authorName: string;
+  /** Имя, которое автор указал в профиле. */
+  authorDisplayName: string;
   text: string;
   createdAt: Date;
   plantId: string | null;
@@ -80,12 +85,13 @@ export function postFromRow(
   r: Row,
   opts: { photoUrl?: string | null; likedByMe?: boolean; following?: boolean; myId?: string | null },
 ): FeedPost {
-  const author = r.author as { username?: string } | null;
+  const author = r.author as { username?: string; display_name?: string | null } | null;
   const plant = r.plant as { nickname?: string } | null;
   return {
     id: r.id as string,
     authorId: r.author_id as string,
     authorName: author?.username ?? "садовник",
+    authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),
     text: (r.text as string | null) ?? "",
     createdAt: new Date(r.created_at as string),
     plantId: (r.plant_id as string | null) ?? null,

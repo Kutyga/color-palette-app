@@ -100,3 +100,44 @@ export function useLogCare() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Люди
+// ---------------------------------------------------------------------------
+
+export function usePeopleSearch(query: string) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "search", query.trim()], queryFn: () => b.people.search(query), placeholderData: (prev) => prev });
+}
+
+export function usePerson(username: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "card", username], queryFn: () => b.people.byUsername(username!), enabled: !!username });
+}
+
+export function usePeopleList(kind: "followers" | "following", userId: string | null) {
+  const b = useBackend();
+  return useQuery({
+    queryKey: ["people", kind, userId],
+    queryFn: () => (kind === "followers" ? b.people.followers(userId!) : b.people.following(userId!)),
+    enabled: !!userId,
+  });
+}
+
+export function usePlantsOf(userId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "plants", userId], queryFn: () => b.people.plantsOf(userId!), enabled: !!userId });
+}
+
+/** Подписка на садовода: сбрасывает карточки людей и ленту. */
+export function useFollow() {
+  const b = useBackend();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, follow }: { userId: string; follow: boolean }) => b.social.setFollowing(userId, follow),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["people"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Users } from "lucide-react";
+import { Plus, UserSearch, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -26,7 +26,12 @@ function Following({ onComments }: { onComments: (id: string) => void }) {
       <EmptyState
         icon={Users}
         title="Здесь появятся посты"
-        message="Подпишитесь на садоводов во вкладке «Интересное» или поделитесь своим растением."
+        message="Найдите садоводов через поиск или во вкладке «Интересное» — или поделитесь своим растением."
+        action={
+          <Link href="/people/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+            Найти садоводов
+          </Link>
+        }
       />
     );
   }
@@ -92,7 +97,14 @@ function FeedInner() {
 export default function FeedPage() {
   return (
     <>
-      <PageHeader title="Лента" />
+      <PageHeader
+        title="Лента"
+        actions={
+          <Link href="/people/" className="flex items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-[15px] font-semibold">
+            <UserSearch className="size-4" aria-hidden /> Садоводы
+          </Link>
+        }
+      />
       <RequireSession>
         <Suspense fallback={<Spinner />}>
           <FeedInner />

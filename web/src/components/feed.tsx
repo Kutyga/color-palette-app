@@ -2,7 +2,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Heart, Leaf, MessageCircle, Plus, Send, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { personHref } from "./people";
 import { useBackend } from "./session";
 import { Avatar, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
 import type { FeedPost } from "@/lib/domain/social";
@@ -105,17 +107,22 @@ function Counter({ icon: Icon, count, active, label, onClick, light }: {
   );
 }
 
+/** Профиль автора: свой — страница профиля, чужой — страница садовода. */
+const authorHref = (post: FeedPost) => (post.mine ? "/profile/" : personHref(post.authorName));
+
 /** Карточка ленты «Подписки», как в Instagram. */
 export function PostCard({ post, onComments }: { post: FeedPost; onComments: () => void }) {
   const like = useLike(post);
   return (
     <article className="overflow-hidden rounded-[20px] bg-surface">
       <header className="flex items-center gap-3 px-4 py-3">
-        <Avatar name={post.authorName} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{post.authorName}</p>
-          {post.plantName && <p className="truncate text-[13px] text-secondary">{post.plantName}</p>}
-        </div>
+        <Link href={authorHref(post)} className="flex min-w-0 flex-1 items-center gap-3" aria-label={`Профиль: ${post.authorDisplayName}`}>
+          <Avatar name={post.authorDisplayName} />
+          <span className="min-w-0">
+            <span className="block truncate font-semibold">{post.authorDisplayName}</span>
+            {post.plantName && <span className="block truncate text-[13px] text-secondary">{post.plantName}</span>}
+          </span>
+        </Link>
         <FollowButton post={post} />
         <time className="text-[13px] text-secondary" dateTime={post.createdAt.toISOString()}>
           {timeAgo(post.createdAt)}
@@ -129,7 +136,7 @@ export function PostCard({ post, onComments }: { post: FeedPost; onComments: () 
         </div>
         {post.text && (
           <p className="mt-2 text-[15px] leading-relaxed">
-            <b className="mr-1.5">{post.authorName}</b>
+            <b className="mr-1.5">{post.authorDisplayName}</b>
             {post.text}
           </p>
         )}
@@ -150,7 +157,9 @@ export function FullPost({ post, onComments }: { post: FeedPost; onComments: () 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
       <div className="absolute right-3 bottom-24 flex flex-col items-center gap-5">
         <div className="relative">
-          <Avatar name={post.authorName} size={44} />
+          <Link href={authorHref(post)} aria-label={`Профиль: ${post.authorDisplayName}`}>
+            <Avatar name={post.authorDisplayName} size={44} />
+          </Link>
           {!post.mine && (
             <button
               onClick={follow.toggle}
@@ -168,7 +177,11 @@ export function FullPost({ post, onComments }: { post: FeedPost; onComments: () 
         <Counter light icon={MessageCircle} count={post.commentCount} label="Комментарии" onClick={onComments} />
       </div>
       <div className="absolute inset-x-0 bottom-0 p-5 pr-20 text-white">
-        <p className="font-semibold">@{post.authorName} · <span className="font-normal opacity-80">{timeAgo(post.createdAt)}</span></p>
+        <p className="font-semibold">
+          <Link href={authorHref(post)} className="hover:underline">
+            {post.authorDisplayName}
+          </Link>{" "}
+          · <span className="font-normal opacity-80">{timeAgo(post.createdAt)}</span></p>
         {post.text && <p className="mt-1 text-[15px] leading-relaxed">{post.text}</p>}
         {post.plantName && (
           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-[13px] backdrop-blur">
