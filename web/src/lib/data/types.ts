@@ -2,7 +2,8 @@ import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { GardenStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
-import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
+import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
+import type { DiaryScope, FeedPost, HelpFilter, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
 export type PlantDraft = Omit<NewPlant, "speciesId"> & { speciesSlug?: string | null };
@@ -30,7 +31,15 @@ export interface GardenRepository {
 }
 
 export interface SocialRepository {
-  feed(tab: FeedTab): Promise<FeedPost[]>;
+  /** Лента «Дневники». */
+  diaries(scope: DiaryScope): Promise<FeedPost[]>;
+  /** Дневник одного растения — от первой записи к последней. */
+  plantDiary(plantId: string): Promise<FeedPost[]>;
+  /** Вопросы раздела «Помощь». */
+  questions(filter: HelpFilter): Promise<FeedPost[]>;
+  post(id: string): Promise<FeedPost | null>;
+  /** Автор вопроса отмечает лучший ответ (null — снять отметку). */
+  markSolved(postId: string, commentId: string | null): Promise<void>;
   /** langs — языки новостей; пустой список = все. */
   news(onlyMySpecies?: boolean, langs?: string[]): Promise<NewsArticle[]>;
   /** Текст статьи для чтения на сайте; null — недоступно (демо-режим). */
@@ -53,12 +62,27 @@ export interface PlantIdentifier {
 export interface Profile {
   username: string;
   displayName: string | null;
+  bio: string | null;
+}
+
+/** Садоводы: поиск, профили, подписчики и их растения. Подписка — SocialRepository.setFollowing. */
+export interface PeopleRepository {
+  /** Пустой запрос — рекомендации (популярные садоводы). */
+  search(query: string): Promise<PersonCard[]>;
+  byUsername(username: string): Promise<PersonCard | null>;
+  followers(userId: string): Promise<PersonCard[]>;
+  following(userId: string): Promise<PersonCard[]>;
+  /** Растения садовода, которые разрешено видеть текущему пользователю. */
+  plantsOf(userId: string): Promise<PublicPlant[]>;
+  /** Меняет свой профиль; занятый username — ошибка с понятным текстом. */
+  updateProfile(update: ProfileUpdate): Promise<Profile>;
 }
 
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
   social: SocialRepository;
+  people: PeopleRepository;
   identifier: PlantIdentifier | null;
   profile(): Promise<Profile>;
 }

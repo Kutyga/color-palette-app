@@ -49,14 +49,36 @@ describe("демо-режим", () => {
     expect((await second.garden.myPlants()).some((p) => p.nickname === "Новое")).toBe(true);
   });
 
-  it("лента: пост, лайк, комментарий", async () => {
+  it("дневники: запись, поддержка, комментарий", async () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
-    expect(await b.social.feed("following")).toHaveLength(2);
-    const post = await b.social.createPost({ text: "Привет" });
+    expect(await b.social.diaries("following")).toHaveLength(2);
+    expect(await b.social.diaries("all")).toHaveLength(4);
+    const plant = (await b.garden.myPlants())[0];
+    const post = await b.social.createPost({ kind: "diary", event: "bloom", text: "Зацвела", plantId: plant.id });
     await b.social.setLiked(post.id, true);
     await b.social.addComment(post.id, "Мой комментарий");
-    const mine = (await b.social.feed("following")).find((p) => p.id === post.id)!;
-    expect(mine).toMatchObject({ likeCount: 1, commentCount: 1, likedByMe: true, mine: true });
+    const mine = (await b.social.diaries("following")).find((p) => p.id === post.id)!;
+    expect(mine).toMatchObject({ kind: "diary", event: "bloom", likeCount: 1, commentCount: 1, likedByMe: true, mine: true });
+    expect(mine.speciesId).not.toBeNull();
+    expect((await b.social.plantDiary(plant.id)).map((p) => p.id)).toEqual([post.id]);
     expect(await b.social.myActivity()).toEqual({ posts: 1, likesReceived: 1 });
+  });
+
+  it("помощь: вопрос, ответ, лучший ответ", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const open = await b.social.questions("open");
+    expect(open.every((q) => !q.solvedCommentId)).toBe(true);
+    expect(open[0].commentCount).toBe(0); // без ответов — первыми
+    expect((await b.social.questions("my_species")).length).toBeGreaterThan(0);
+    const q = await b.social.createPost({ kind: "question", text: "Почему сохнут кончики листьев?" });
+    expect(q).toMatchObject({ kind: "question", event: null });
+    const answer = await b.social.addComment(q.id, "Сухой воздух");
+    await b.social.markSolved(q.id, answer.id);
+    expect((await b.social.post(q.id))!.solvedCommentId).toBe(answer.id);
+    expect((await b.social.questions("open")).some((p) => p.id === q.id)).toBe(false);
+    expect((await b.social.questions("mine")).map((p) => p.id)).toEqual([q.id]);
+    await expect(b.social.markSolved(q.id, "demo-question-0-a0")).rejects.toThrow();
+    await b.social.deleteComment(answer.id);
+    expect((await b.social.post(q.id))!.solvedCommentId).toBeNull();
   });
 });

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
-import type { FeedTab } from "./domain/social";
+import type { DiaryScope, HelpFilter } from "./domain/social";
 
 /** Все запросы данных сайта. Кэш сбрасывается при входе, выходе и смене демо-режима. */
 
@@ -62,9 +62,24 @@ export function useProfile() {
   return useQuery({ queryKey: ["profile"], queryFn: () => b.profile(), staleTime: Infinity });
 }
 
-export function useFeed(tab: FeedTab) {
+export function useDiaries(scope: DiaryScope) {
   const b = useBackend();
-  return useQuery({ queryKey: ["feed", tab], queryFn: () => b.social.feed(tab) });
+  return useQuery({ queryKey: ["feed", "diaries", scope], queryFn: () => b.social.diaries(scope) });
+}
+
+export function usePlantDiary(plantId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "plant", plantId], queryFn: () => b.social.plantDiary(plantId!), enabled: !!plantId });
+}
+
+export function useQuestions(filter: HelpFilter) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "questions", filter], queryFn: () => b.social.questions(filter) });
+}
+
+export function usePost(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "post", id], queryFn: () => b.social.post(id!), enabled: !!id });
 }
 
 export function useNews(onlyMine: boolean, langs: string[] = []) {
@@ -97,6 +112,47 @@ export function useLogCare() {
       b.garden.logCare(plantId, type, { id: crypto.randomUUID() }),
     onSuccess: (_d, { plantId }) => {
       for (const key of [["tasks"], ["done-today"], ["plants"], ["plant", plantId], ["stats"]]) qc.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Люди
+// ---------------------------------------------------------------------------
+
+export function usePeopleSearch(query: string) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "search", query.trim()], queryFn: () => b.people.search(query), placeholderData: (prev) => prev });
+}
+
+export function usePerson(username: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "card", username], queryFn: () => b.people.byUsername(username!), enabled: !!username });
+}
+
+export function usePeopleList(kind: "followers" | "following", userId: string | null) {
+  const b = useBackend();
+  return useQuery({
+    queryKey: ["people", kind, userId],
+    queryFn: () => (kind === "followers" ? b.people.followers(userId!) : b.people.following(userId!)),
+    enabled: !!userId,
+  });
+}
+
+export function usePlantsOf(userId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "plants", userId], queryFn: () => b.people.plantsOf(userId!), enabled: !!userId });
+}
+
+/** Подписка на садовода: сбрасывает карточки людей и ленту. */
+export function useFollow() {
+  const b = useBackend();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, follow }: { userId: string; follow: boolean }) => b.social.setFollowing(userId, follow),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["people"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
     },
   });
 }

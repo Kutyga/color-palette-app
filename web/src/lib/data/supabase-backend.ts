@@ -3,12 +3,13 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../domain/care";
 import { statsFromRow } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
+import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
-import { commentFromRow, newsFromRow, postFromRow, type FeedTab, type NewPost, type ReaderArticle } from "../domain/social";
+import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFilter, type NewPost, type ReaderArticle } from "../domain/social";
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
-import type { Backend, GardenRepository, PlantDraft, PlantIdentifier, SocialRepository } from "./types";
+import type { Backend, GardenRepository, PeopleRepository, PlantDraft, PlantIdentifier, Profile, SocialRepository } from "./types";
 
 const PLANT_SELECT =
   "*, species(slug, latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at), " +
@@ -16,7 +17,7 @@ const PLANT_SELECT =
 const PLANT_BUCKET = "plant-photos";
 const POST_BUCKET = "post-photos";
 const POST_SELECT = "*, author:profiles!posts_author_id_fkey(username, display_name), plant:plants(nickname)";
-const COMMENT_SELECT = "*, author:profiles!comments_author_id_fkey(username)";
+const COMMENT_SELECT = "*, author:profiles!comments_author_id_fkey(username, display_name)";
 
 type Row = Record<string, unknown>;
 
@@ -192,11 +193,37 @@ export class SupabaseSocial implements SocialRepository {
     );
   }
 
-  async feed(tab: FeedTab) {
+  async diaries(scope: DiaryScope) {
+    const rows = check(await this.db.rpc("feed_diaries", { scope, lim: 30 }).select(POST_SELECT)) as Row[];
+    return this.hydrate(rows);
+  }
+
+  async plantDiary(plantId: string) {
     const rows = check(
-      await this.db.rpc(tab === "following" ? "feed_following" : "feed_discover", { lim: 30 }).select(POST_SELECT),
+      await this.db
+        .from("posts")
+        .select(POST_SELECT)
+        .eq("plant_id", plantId)
+        .in("kind", ["milestone", "photo"])
+        .is("deleted_at", null)
+        .order("created_at")
+        .limit(100),
     ) as Row[];
     return this.hydrate(rows);
+  }
+
+  async questions(filter: HelpFilter) {
+    const rows = check(await this.db.rpc("help_questions", { filter, lim: 40 }).select(POST_SELECT)) as Row[];
+    return this.hydrate(rows);
+  }
+
+  async post(id: string) {
+    const row = check(await this.db.from("posts").select(POST_SELECT).eq("id", id).is("deleted_at", null).maybeSingle()) as Row | null;
+    return row ? (await this.hydrate([row]))[0] : null;
+  }
+
+  async markSolved(postId: string, commentId: string | null) {
+    check(await this.db.from("posts").update({ solved_comment_id: commentId }).eq("id", postId).eq("author_id", this.uid));
   }
 
   async news(onlyMySpecies = false, langs: string[] = []) {
@@ -229,7 +256,8 @@ export class SupabaseSocial implements SocialRepository {
           plant_id: post.plantId ?? null,
           photo_paths: paths,
           visibility: post.visibility ?? "public",
-          kind: "photo",
+          kind: post.kind === "question" ? "question" : "milestone",
+          event: post.kind === "diary" ? (post.event ?? "progress") : null,
         })
         .select(POST_SELECT)
         .single(),
@@ -287,6 +315,62 @@ export class SupabaseSocial implements SocialRepository {
 }
 
 /** Pl@ntNet через Edge Function identify-plant (квота 20 в день на пользователя). */
+export class SupabasePeople implements PeopleRepository {
+  constructor(private db: SupabaseClient, private uid: string) {}
+
+  async search(query: string) {
+    const rows = check(await this.db.rpc("search_people", { q: query.trim(), lim: 30 })) as Row[];
+    return rows.map(personFromRow);
+  }
+
+  async byUsername(username: string) {
+    const row = check(await this.db.from("profile_cards").select().eq("username", username.toLowerCase()).maybeSingle());
+    return row ? personFromRow(row as Row) : null;
+  }
+
+  async followers(userId: string) {
+    return (check(await this.db.rpc("people_followers", { p_user: userId })) as Row[]).map(personFromRow);
+  }
+
+  async following(userId: string) {
+    return (check(await this.db.rpc("people_following", { p_user: userId })) as Row[]).map(personFromRow);
+  }
+
+  async plantsOf(userId: string) {
+    // RLS отдаёт только растения, которые разрешено видеть (публичные и «для подписчиков»).
+    const rows = check(
+      await this.db
+        .from("plants")
+        .select("id, nickname, species(slug), cover:plant_photos!plants_cover_photo_fk(storage_path)")
+        .eq("owner_id", userId)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false }),
+    ) as Row[];
+    const urls = await signedUrls(this.db, PLANT_BUCKET, rows.map(coverPathOf).filter((p): p is string => !!p));
+    return rows.map((r) => ({
+      id: r.id as string,
+      nickname: r.nickname as string,
+      speciesSlug: (r.species as { slug?: string } | null)?.slug ?? null,
+      photoUrl: urls.get(coverPathOf(r) ?? "") ?? null,
+    }));
+  }
+
+  async updateProfile(update: ProfileUpdate): Promise<Profile> {
+    const invalid = validateProfile(update);
+    if (invalid) throw new Error(invalid.message);
+    const { data, error } = await this.db
+      .from("profiles")
+      .update({ display_name: update.displayName.trim(), username: update.username, bio: update.bio.trim() || null })
+      .eq("id", this.uid)
+      .select("username, display_name, bio")
+      .single();
+    if (error?.code === "23505") throw new Error(`Имя @${update.username} уже занято — выберите другое`);
+    if (error) throw new Error(error.message);
+    const r = data as Row;
+    return { username: r.username as string, displayName: (r.display_name as string | null) ?? null, bio: (r.bio as string | null) ?? null };
+  }
+}
+
 export class PlantNetIdentifier implements PlantIdentifier {
   constructor(private db: SupabaseClient) {}
 
@@ -314,10 +398,11 @@ export function supabaseBackend(db: SupabaseClient, uid: string): Backend {
     mode: "live",
     garden: new SupabaseGarden(db, uid),
     social: new SupabaseSocial(db, uid),
+    people: new SupabasePeople(db, uid),
     identifier: new PlantNetIdentifier(db),
     async profile() {
-      const r = check(await db.from("profiles").select("username, display_name").eq("id", uid).single()) as Row;
-      return { username: r.username as string, displayName: (r.display_name as string | null) ?? null };
+      const r = check(await db.from("profiles").select("username, display_name, bio").eq("id", uid).single()) as Row;
+      return { username: r.username as string, displayName: (r.display_name as string | null) ?? null, bio: (r.bio as string | null) ?? null };
     },
   };
 }

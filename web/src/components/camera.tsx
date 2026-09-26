@@ -129,7 +129,16 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
 }
 
 /** Кнопка «Сфотографировать» с предпросмотром снимка. */
-export function CameraField({ photoUrl, onCapture }: { photoUrl: string | null; onCapture: (photo: Blob) => void }) {
+export function CameraField({
+  photoUrl,
+  onCapture,
+  aspect = "aspect-square",
+}: {
+  photoUrl: string | null;
+  onCapture: (photo: Blob) => void;
+  /** Пропорции кадра-предпросмотра. */
+  aspect?: string;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -137,13 +146,13 @@ export function CameraField({ photoUrl, onCapture }: { photoUrl: string | null; 
         {photoUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- локальный предпросмотр снимка */}
-            <img src={photoUrl} alt="Фото растения" className="aspect-square w-full object-cover" />
+            <img src={photoUrl} alt="Фото растения" className={`${aspect} w-full object-cover`} />
             <span className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold text-label">
               <Camera className="size-4" aria-hidden /> Переснять
             </span>
           </>
         ) : (
-          <span className="grid aspect-square w-full place-items-center bg-muted text-secondary">
+          <span className={`grid ${aspect} w-full place-items-center bg-muted text-secondary`}>
             <span className="flex flex-col items-center gap-2 px-6 text-center">
               <Camera className="size-10" strokeWidth={1.5} aria-hidden />
               <span className="font-medium text-label">Сфотографировать растение</span>

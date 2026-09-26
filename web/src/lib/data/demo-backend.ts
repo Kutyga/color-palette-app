@@ -12,12 +12,13 @@ import {
 } from "../domain/care";
 import type { GardenStats } from "../domain/gamification";
 import type { Location, Plant, Visibility } from "../domain/plant";
-import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment } from "../domain/social";
+import type { DiaryEvent, DiaryScope, FeedPost, HelpFilter, NewPost, NewsArticle, PostComment } from "../domain/social";
 import { speciesName, type Species } from "../domain/species";
 import { blobToDataUrl } from "../image";
 import { ALL_SPECIES } from "../knowledge";
 import { initialSchedules } from "./schedules";
-import type { Backend, GardenRepository, PlantDraft, SocialRepository } from "./types";
+import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../domain/people";
+import type { Backend, GardenRepository, PeopleRepository, PlantDraft, Profile, SocialRepository } from "./types";
 
 interface PlantRec {
   id: string;
@@ -32,8 +33,10 @@ interface PlantRec {
 type Dated<T, K extends keyof T> = Omit<T, K> & { [P in K]: string | null };
 type ScheduleRec = Dated<CareSchedule, "lastDoneAt" | "nextDueAt">;
 type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string };
-type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following"> & { createdAt: string };
-type CommentRec = Omit<PostComment, "createdAt"> & { createdAt: string };
+// Поля дневника и вопросов необязательны: в сохранённых раньше демо-данных их нет.
+type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId"> &
+  Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & { createdAt: string; authorDisplayName?: string };
+type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName"> & { createdAt: string; authorDisplayName?: string };
 
 export interface DemoState {
   version: 1;
@@ -47,6 +50,8 @@ export interface DemoState {
   comments: CommentRec[];
   /** id авторов, на которых подписан пользователь. */
   following: string[];
+  /** Свой профиль в демо-режиме (по умолчанию — «Гость»). */
+  profile?: Profile;
 }
 
 const ME = "me";
@@ -299,11 +304,72 @@ export class DemoGarden implements GardenRepository {
   }
 }
 
-const SAMPLE_POSTS: [string, string, string, number][] = [
-  ["anna.green", "Монстера Бублик", "Седьмой резной лист за лето 🌿 Секрет — опора из кокоса и терпение.", 1284],
-  ["fikus_papa", "Роберт", "Год назад был черенком в стакане. Теперь выше кота.", 932],
-  ["succulove", "Денежка", "Зимую на прохладном подоконнике, поливаю раз в месяц — и никаких проблем.", 457],
-  ["orchid.mood", "Луна", "Третье цветение подряд! Полив погружением раз в неделю.", 2110],
+/** Вымышленные садоводы демо-режима: их можно найти, открыть профиль и растения, подписаться. */
+const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followers: number; followsMe: boolean; plants: [string, string][] }[] = [
+  {
+    username: "anna.green",
+    displayName: "Анна",
+    bio: "Ароидные и калатеи. Подоконники на север — и всё растёт.",
+    followers: 1840,
+    followsMe: false,
+    plants: [["Монстера Бублик", "monstera-deliciosa"], ["Калатея Ося", "goeppertia-orbifolia"], ["Сингониум", "syngonium-podophyllum"], ["Филодендрон Пинк", "philodendron-erubescens"]],
+  },
+  {
+    username: "fikus_papa",
+    displayName: "Фикус Папа",
+    bio: "Фикусы всех мастей. Роберт — мой первый.",
+    followers: 932,
+    followsMe: true,
+    plants: [["Роберт", "ficus-elastica"], ["Лира", "ficus-lyrata"], ["Бенджи", "ficus-benjamina"]],
+  },
+  {
+    username: "succulove",
+    displayName: "Света | суккуленты",
+    bio: "Кактусы, литопсы и немного терпения.",
+    followers: 457,
+    followsMe: true,
+    plants: [["Денежка", "crassula-ovata"], ["Камешки", "lithops-lesliei"], ["Алоэ", "aloe-vera"], ["Эхеверия", "echeveria-elegans"]],
+  },
+  {
+    username: "orchid.mood",
+    displayName: "Оля и орхидеи",
+    bio: "Фаленопсисы цветут третий раз подряд.",
+    followers: 2110,
+    followsMe: false,
+    plants: [["Луна", "phalaenopsis-hybrid"], ["Дендробиум", "dendrobium-nobile"]],
+  },
+];
+const demoId = (username: string) => `demo-${username}`;
+const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null };
+
+/** Записи дневников: автор, растение, вид, событие, текст, «поддержали». */
+const SAMPLE_DIARIES: [string, string, string, DiaryEvent, string, number][] = [
+  ["anna.green", "Монстера Бублик", "monstera-deliciosa", "new_leaf", "Седьмой резной лист за лето. Секрет — опора из кокоса и терпение.", 128],
+  ["fikus_papa", "Роберт", "ficus-elastica", "progress", "Год назад был черенком в стакане. Теперь выше кота.", 93],
+  ["succulove", "Денежка", "crassula-ovata", "repot", "Пересадила в терракоту на смесь для суккулентов с пемзой. Корни здоровые!", 45],
+  ["orchid.mood", "Луна", "phalaenopsis-hybrid", "bloom", "Третье цветение подряд! Полив погружением раз в неделю.", 211],
+];
+
+/** Вопросы «Помощи»: автор, вид, текст, ответы [автор, текст], индекс лучшего ответа. */
+const SAMPLE_QUESTIONS: [string, string, string, [string, string][], number | null][] = [
+  [
+    "fikus_papa",
+    "monstera-deliciosa",
+    "У монстеры желтеют нижние листья, новые растут нормально. Поливаю раз в неделю. Что не так?",
+    [
+      ["anna.green", "Проверьте землю пальцем на 3–4 см: если там сыро — это перелив. Поливайте только после просыхания."],
+      ["orchid.mood", "Ещё бывает, что старые листья просто отмирают — если желтеет 1 лист в месяц, это нормально."],
+    ],
+    0,
+  ],
+  ["succulove", "goeppertia-orbifolia", "Калатея сворачивает листья днём. Стоит в метре от окна на восток. Это от света или от воздуха?", [], null],
+  [
+    "orchid.mood",
+    "phalaenopsis-hybrid",
+    "После пересадки у фаленопсиса сморщились листья. Сколько ждать, пока отойдёт?",
+    [["succulove", "Обычно 2–3 недели. Поставьте в тень и опрыскивайте воздух рядом, а не листья."]],
+    null,
+  ],
 ];
 
 export class DemoSocial implements SocialRepository {
@@ -313,26 +379,75 @@ export class DemoSocial implements SocialRepository {
     private clock: () => Date = () => new Date(),
   ) {}
 
-  private post(p: PostRec): FeedPost {
+  private toPost(p: PostRec): FeedPost {
+    const me = this.state.profile ?? DEFAULT_PROFILE;
+    const kind = p.kind ?? "diary";
     return {
       ...p,
+      kind,
+      event: kind === "diary" ? (p.event ?? "progress") : null,
+      speciesId: p.speciesId ?? null,
+      solvedCommentId: p.solvedCommentId ?? null,
+      authorDisplayName:
+        p.authorId === ME
+          ? (me.displayName ?? "Вы")
+          : (p.authorDisplayName ?? DEMO_PEOPLE.find((d) => demoId(d.username) === p.authorId)?.displayName ?? p.authorName),
       createdAt: new Date(p.createdAt),
       mine: p.authorId === ME,
       following: (this.state.following ?? []).includes(p.authorId),
     };
   }
 
-  async feed(tab: FeedTab) {
-    return this.state.posts
-      .filter((p) => tab === "discover" || p.authorId === ME || (this.state.following ?? []).includes(p.authorId))
-      .map((p) => this.post(p))
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  private get all() {
+    return this.state.posts.map((p) => this.toPost(p)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async diaries(scope: DiaryScope) {
+    const following = this.state.following ?? [];
+    return this.all.filter((p) => p.kind === "diary" && (scope === "all" || p.mine || following.includes(p.authorId)));
+  }
+
+  async plantDiary(plantId: string) {
+    return this.all.filter((p) => p.kind === "diary" && p.plantId === plantId).reverse();
+  }
+
+  async questions(filter: HelpFilter) {
+    const mySpecies = new Set(this.state.plants.map((p) => ALL_SPECIES.find((s) => s.slug === p.speciesSlug)?.id).filter(Boolean));
+    const list = this.all.filter(
+      (p) =>
+        p.kind === "question" &&
+        (filter === "all" ||
+          (filter === "open" && !p.solvedCommentId) ||
+          (filter === "mine" && p.mine) ||
+          (filter === "my_species" && p.speciesId != null && mySpecies.has(p.speciesId))),
+    );
+    // Без ответа — выше всех, как в базе.
+    return filter === "open" ? [...list].sort((a, b) => Number(a.commentCount > 0) - Number(b.commentCount > 0)) : list;
+  }
+
+  async post(id: string) {
+    const p = this.state.posts.find((x) => x.id === id);
+    return p ? this.toPost(p) : null;
+  }
+
+  async markSolved(postId: string, commentId: string | null) {
+    const p = this.state.posts.find((x) => x.id === postId);
+    if (!p || p.authorId !== ME || p.kind !== "question") return;
+    if (commentId && !this.state.comments.some((c) => c.id === commentId && c.postId === postId)) {
+      throw new Error("Лучшим ответом можно отметить только ответ на этот вопрос");
+    }
+    p.solvedCommentId = commentId;
+    this.persist();
   }
 
   async createPost(post: NewPost) {
     const plant = this.state.plants.find((p) => p.id === post.plantId);
     const rec: PostRec = {
       id: crypto.randomUUID(),
+      kind: post.kind,
+      event: post.kind === "diary" ? (post.event ?? "progress") : null,
+      speciesId: ALL_SPECIES.find((s) => s.slug === plant?.speciesSlug)?.id ?? null,
+      solvedCommentId: null,
       authorId: ME,
       authorName: "вы",
       text: post.text,
@@ -346,7 +461,7 @@ export class DemoSocial implements SocialRepository {
     };
     this.state.posts.push(rec);
     this.persist();
-    return this.post(rec);
+    return this.toPost(rec);
   }
 
   async setLiked(postId: string, liked: boolean) {
@@ -366,22 +481,34 @@ export class DemoSocial implements SocialRepository {
   async comments(postId: string) {
     return this.state.comments
       .filter((c) => c.postId === postId)
-      .map((c) => ({ ...c, createdAt: new Date(c.createdAt) }))
+      .map((c) => this.comment(c))
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
   async addComment(postId: string, text: string) {
-    const c: CommentRec = { id: crypto.randomUUID(), postId, authorName: "вы", text, createdAt: this.clock().toISOString(), mine: true };
+    const c: CommentRec = { id: crypto.randomUUID(), postId, authorName: (this.state.profile ?? DEFAULT_PROFILE).username, text, createdAt: this.clock().toISOString(), mine: true };
     this.state.comments.push(c);
     this.bump(postId, 1);
     this.persist();
-    return { ...c, createdAt: new Date(c.createdAt) };
+    return this.comment(c);
+  }
+
+  private comment(c: CommentRec): PostComment {
+    const me = this.state.profile ?? DEFAULT_PROFILE;
+    const person = DEMO_PEOPLE.find((d) => d.username === c.authorName);
+    return {
+      ...c,
+      authorDisplayName: c.mine ? (me.displayName ?? "Вы") : (c.authorDisplayName ?? person?.displayName ?? c.authorName),
+      createdAt: new Date(c.createdAt),
+    };
   }
 
   async deleteComment(commentId: string) {
     const c = this.state.comments.find((x) => x.id === commentId);
     if (!c) return;
     this.state.comments = this.state.comments.filter((x) => x.id !== commentId);
+    const post = this.state.posts.find((x) => x.id === c.postId);
+    if (post?.solvedCommentId === commentId) post.solvedCommentId = null;
     this.bump(c.postId, -1);
     this.persist();
   }
@@ -422,6 +549,95 @@ export class DemoSocial implements SocialRepository {
   }
 }
 
+export class DemoPeople implements PeopleRepository {
+  constructor(
+    private state: DemoState,
+    private persist: () => void,
+  ) {}
+
+  private get me() {
+    return this.state.profile ?? DEFAULT_PROFILE;
+  }
+
+  private isFollowing(id: string) {
+    return (this.state.following ?? []).includes(id);
+  }
+
+  private myCard(): PersonCard {
+    return {
+      id: ME,
+      username: this.me.username,
+      displayName: this.me.displayName ?? this.me.username,
+      bio: this.me.bio,
+      followers: DEMO_PEOPLE.filter((d) => d.followsMe).length,
+      following: (this.state.following ?? []).length,
+      plants: this.state.plants.length,
+      isFollowing: false,
+      followsMe: false,
+      isMe: true,
+    };
+  }
+
+  private card(d: (typeof DEMO_PEOPLE)[number]): PersonCard {
+    const id = demoId(d.username);
+    return {
+      id,
+      username: d.username,
+      displayName: d.displayName,
+      bio: d.bio,
+      followers: d.followers + (this.isFollowing(id) ? 1 : 0),
+      following: DEMO_PEOPLE.length - 1 + (d.followsMe ? 1 : 0),
+      plants: d.plants.length,
+      isFollowing: this.isFollowing(id),
+      followsMe: d.followsMe,
+      isMe: false,
+    };
+  }
+
+  private all() {
+    return [this.myCard(), ...DEMO_PEOPLE.map((d) => this.card(d))];
+  }
+
+  async search(query: string) {
+    const q = query.trim().toLowerCase().replace(/^@/, "");
+    if (!q) return DEMO_PEOPLE.map((d) => this.card(d)).sort((a, b) => b.followers - a.followers);
+    return this.all().filter((p) => p.username.toLowerCase().includes(q) || p.displayName.toLowerCase().includes(q));
+  }
+
+  async byUsername(username: string) {
+    return this.all().find((p) => p.username === username) ?? null;
+  }
+
+  async followers(userId: string) {
+    if (userId === ME) return DEMO_PEOPLE.filter((d) => d.followsMe).map((d) => this.card(d));
+    const others = DEMO_PEOPLE.filter((d) => demoId(d.username) !== userId).map((d) => this.card(d));
+    return this.isFollowing(userId) ? [this.myCard(), ...others] : others;
+  }
+
+  async following(userId: string) {
+    if (userId === ME) return DEMO_PEOPLE.filter((d) => this.isFollowing(demoId(d.username))).map((d) => this.card(d));
+    const person = DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
+    const others = DEMO_PEOPLE.filter((d) => demoId(d.username) !== userId).map((d) => this.card(d));
+    return person?.followsMe ? [this.myCard(), ...others] : others;
+  }
+
+  async plantsOf(userId: string): Promise<PublicPlant[]> {
+    if (userId === ME)
+      return this.state.plants.map((p) => ({ id: p.id, nickname: p.nickname, speciesSlug: p.speciesSlug, photoUrl: this.state.photos[p.id] ?? null }));
+    const person = DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
+    return (person?.plants ?? []).map(([nickname, slug], i) => ({ id: `${userId}-plant-${i}`, nickname, speciesSlug: slug, photoUrl: null }));
+  }
+
+  async updateProfile(update: ProfileUpdate): Promise<Profile> {
+    const invalid = validateProfile(update);
+    if (invalid) throw new Error(invalid.message);
+    if (DEMO_PEOPLE.some((d) => d.username === update.username)) throw new Error(`Имя @${update.username} уже занято — выберите другое`);
+    this.state.profile = { username: update.username, displayName: update.displayName.trim(), bio: update.bio.trim() || null };
+    this.persist();
+    return this.state.profile;
+  }
+}
+
 /** Стартовые данные, чтобы экраны демо-режима не были пустыми. */
 export async function seedDemo(state: DemoState, clock: () => Date = () => new Date()) {
   const garden = new DemoGarden(state, () => {}, clock);
@@ -442,26 +658,53 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
   await garden.logCare(osya.id, "mist", { performedAt: ago(2, 7) });
   await garden.logCare(robert.id, "fertilize", { performedAt: ago(1, 19) });
 
-  SAMPLE_POSTS.forEach(([author, plant, text, likes], i) =>
+  const hours = (h: number) => new Date(now.getTime() - h * 3_600_000).toISOString();
+  const speciesId = (slug: string) => ALL_SPECIES.find((s) => s.slug === slug)?.id ?? null;
+  SAMPLE_DIARIES.forEach(([author, plant, slug, event, text, likes], i) => {
+    const id = `demo-post-${i}`;
     state.posts.push({
-      id: `demo-post-${i}`,
-      authorId: `demo-${author}`,
+      id,
+      kind: "diary",
+      event,
+      speciesId: speciesId(slug),
+      solvedCommentId: null,
+      authorId: demoId(author),
       authorName: author,
       text,
-      createdAt: new Date(now.getTime() - (3 + i * 7) * 3_600_000).toISOString(),
+      createdAt: hours(3 + i * 7),
       plantId: null,
       plantName: plant,
       photoUrl: null,
       likeCount: likes,
       commentCount: 2,
       likedByMe: false,
-    }),
-  );
-  state.posts.forEach((p) => {
-    if (!p.id.startsWith("demo-post-")) return;
+    });
     state.comments.push(
-      { id: `${p.id}-c1`, postId: p.id, authorName: "fikus_papa", text: "Какая красота! Чем подкармливаете?", createdAt: new Date(now.getTime() - 2 * 3_600_000).toISOString(), mine: false },
-      { id: `${p.id}-c2`, postId: p.id, authorName: "succulove", text: "Сохранила себе в вишлист 🌿", createdAt: new Date(now.getTime() - 40 * 60_000).toISOString(), mine: false },
+      { id: `${id}-c1`, postId: id, authorName: "fikus_papa", text: "Какая красота! Чем подкармливаете?", createdAt: hours(2), mine: false },
+      { id: `${id}-c2`, postId: id, authorName: "succulove", text: "Сохранила себе в вишлист 🌿", createdAt: hours(0.7), mine: false },
+    );
+  });
+  SAMPLE_QUESTIONS.forEach(([author, slug, text, answers, best], i) => {
+    const id = `demo-question-${i}`;
+    state.posts.push({
+      id,
+      kind: "question",
+      event: null,
+      speciesId: speciesId(slug),
+      solvedCommentId: best === null ? null : `${id}-a${best}`,
+      authorId: demoId(author),
+      authorName: author,
+      text,
+      createdAt: hours(5 + i * 9),
+      plantId: null,
+      plantName: null,
+      photoUrl: null,
+      likeCount: 0,
+      commentCount: answers.length,
+      likedByMe: false,
+    });
+    answers.forEach(([who, answer], j) =>
+      state.comments.push({ id: `${id}-a${j}`, postId: id, authorName: who, text: answer, createdAt: hours(4 + i * 9 - j), mine: false }),
     );
   });
 }
@@ -479,7 +722,8 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
     mode: "demo",
     garden: new DemoGarden(s, persist, clock),
     social: new DemoSocial(s, persist, clock),
+    people: new DemoPeople(s, persist),
     identifier: null,
-    profile: async () => ({ username: "gost", displayName: "Гость" }),
+    profile: async () => s.profile ?? DEFAULT_PROFILE,
   };
 }

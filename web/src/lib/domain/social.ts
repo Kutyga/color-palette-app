@@ -1,9 +1,38 @@
-export type FeedTab = "following" | "discover";
+import { prettyUsername } from "./people";
+
+/** «Дневники»: записи подписок или все публичные. */
+export type DiaryScope = "following" | "all";
+/** «Помощь»: без лучшего ответа, про мои виды, мои вопросы, все. */
+export type HelpFilter = "open" | "my_species" | "mine" | "all";
+
+export type PostKind = "diary" | "question";
+
+/** События из жизни растения — о чём запись в дневнике. */
+export const DIARY_EVENTS = {
+  new_leaf: { label: "Новый лист", emoji: "🌱" },
+  bloom: { label: "Цветение", emoji: "🌸" },
+  repot: { label: "Пересадка", emoji: "🪴" },
+  cutting: { label: "Черенок или детка", emoji: "✂️" },
+  rescue: { label: "Спасение", emoji: "🩹" },
+  progress: { label: "Как растёт", emoji: "📏" },
+} as const;
+export type DiaryEvent = keyof typeof DIARY_EVENTS;
+export const isDiaryEvent = (v: unknown): v is DiaryEvent => typeof v === "string" && v in DIARY_EVENTS;
 
 export interface FeedPost {
   id: string;
+  kind: PostKind;
+  /** Для записей дневника; у старых постов — «Как растёт». */
+  event: DiaryEvent | null;
+  /** id вида из базы знаний (для вопросов — фильтр «Мои виды»). */
+  speciesId: string | null;
+  /** Лучший ответ на вопрос (id комментария). */
+  solvedCommentId: string | null;
   authorId: string;
+  /** username автора (без @) — для ссылки на профиль. */
   authorName: string;
+  /** Имя, которое автор указал в профиле. */
+  authorDisplayName: string;
   text: string;
   createdAt: Date;
   plantId: string | null;
@@ -21,12 +50,16 @@ export interface PostComment {
   id: string;
   postId: string;
   authorName: string;
+  authorDisplayName: string;
   text: string;
   createdAt: Date;
   mine: boolean;
 }
 
 export interface NewPost {
+  kind: PostKind;
+  /** Обязательно для записи дневника. */
+  event?: DiaryEvent | null;
   text: string;
   plantId?: string | null;
   photo?: Blob | null;
@@ -75,17 +108,23 @@ export const translatedUrl = (url: string, target = "ru") =>
 
 type Row = Record<string, unknown>;
 
-/** Ожидает выборку `*, author:profiles(username), plant:plants(nickname)`. */
+/** Ожидает выборку `*, author:profiles(username, display_name), plant:plants(nickname)`. */
 export function postFromRow(
   r: Row,
   opts: { photoUrl?: string | null; likedByMe?: boolean; following?: boolean; myId?: string | null },
 ): FeedPost {
-  const author = r.author as { username?: string } | null;
+  const author = r.author as { username?: string; display_name?: string | null } | null;
   const plant = r.plant as { nickname?: string } | null;
+  const kind = r.kind === "question" ? "question" : "diary";
   return {
     id: r.id as string,
+    kind,
+    event: kind === "diary" ? (isDiaryEvent(r.event) ? r.event : "progress") : null,
+    speciesId: (r.species_id as string | null) ?? null,
+    solvedCommentId: (r.solved_comment_id as string | null) ?? null,
     authorId: r.author_id as string,
     authorName: author?.username ?? "садовник",
+    authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),
     text: (r.text as string | null) ?? "",
     createdAt: new Date(r.created_at as string),
     plantId: (r.plant_id as string | null) ?? null,
@@ -100,10 +139,12 @@ export function postFromRow(
 }
 
 export function commentFromRow(r: Row, myId: string | null): PostComment {
+  const author = r.author as { username?: string; display_name?: string | null } | null;
   return {
     id: r.id as string,
     postId: r.post_id as string,
-    authorName: (r.author as { username?: string } | null)?.username ?? "садовник",
+    authorName: author?.username ?? "садовник",
+    authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),
     text: r.text as string,
     createdAt: new Date(r.created_at as string),
     mine: myId != null && r.author_id === myId,
