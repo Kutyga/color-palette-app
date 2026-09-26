@@ -153,6 +153,59 @@ export function ProgressRing({
   );
 }
 
+/**
+ * Несколько колец одно в другом (как «Активность» в iOS). Все рисуются в одном SVG от одного
+ * центра, поэтому всегда строго концентричны и одной толщины.
+ */
+export function ActivityRings({
+  rings,
+  size = 88,
+  stroke = 10,
+  gap = 3,
+}: {
+  rings: { progress: number; color: string; label: string }[];
+  size?: number;
+  stroke?: number;
+  gap?: number;
+}) {
+  const center = size / 2;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="block shrink-0"
+      role="img"
+      aria-label={rings.map((r) => `${r.label}: ${Math.round(Math.max(0, Math.min(1, r.progress)) * 100)}%`).join(", ")}
+    >
+      <g transform={`rotate(-90 ${center} ${center})`}>
+        {rings.map((ring, i) => {
+          const r = center - stroke / 2 - i * (stroke + gap);
+          const c = 2 * Math.PI * r;
+          const p = Math.max(0, Math.min(1, ring.progress));
+          return (
+            <g key={ring.label}>
+              <circle cx={center} cy={center} r={r} fill="none" stroke={ring.color} strokeOpacity={0.18} strokeWidth={stroke} />
+              <circle
+                cx={center}
+                cy={center}
+                r={r}
+                fill="none"
+                stroke={ring.color}
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={c}
+                strokeDashoffset={c * (1 - p)}
+                style={{ transition: "stroke-dashoffset 600ms cubic-bezier(0.22, 1, 0.36, 1)" }}
+              />
+            </g>
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
 const GRADIENTS = [
   ["#a8e063", "#56ab2f"],
   ["#43cea2", "#185a9d"],

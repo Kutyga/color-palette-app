@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import {
+  ActivityRings,
   CARE_COLORS,
   CARE_ICONS,
   Card,
@@ -12,7 +13,6 @@ import {
   ErrorNote,
   PageHeader,
   PlantPhoto,
-  ProgressRing,
   SectionTitle,
   Spinner,
   cx,
@@ -162,13 +162,13 @@ function TodayContent() {
   return (
     <>
       <Card className="flex items-center gap-5 p-5">
-        {/* Кольца «Полив» и «Другой уход» — одно в другом, центры совпадают. */}
-        <div className="relative size-[88px] shrink-0">
-          <ProgressRing progress={waterDone + waterPending ? waterDone / (waterDone + waterPending) : 1} color="var(--water)" size={88} stroke={10} label="Полив" />
-          <div className="absolute inset-0 grid place-items-center">
-            <ProgressRing progress={otherDone + otherPending ? otherDone / (otherDone + otherPending) : 1} color="var(--leaf)" size={60} stroke={10} label="Другой уход" />
-          </div>
-        </div>
+        {/* Кольца «Полив» и «Другой уход» — одно в другом, в одном SVG. */}
+        <ActivityRings
+          rings={[
+            { label: "Полив", color: "var(--water)", progress: waterDone + waterPending ? waterDone / (waterDone + waterPending) : 1 },
+            { label: "Другой уход", color: "var(--leaf)", progress: otherDone + otherPending ? otherDone / (otherDone + otherPending) : 1 },
+          ]}
+        />
         <div className="min-w-0 flex-1">
           <p className="text-[22px] font-semibold">
             {pending.length === 0 ? "На сегодня всё" : `${doneCount} из ${total} сделано`}

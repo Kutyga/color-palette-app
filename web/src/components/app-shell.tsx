@@ -3,7 +3,7 @@
 import { BookOpen, CalendarCheck, Clapperboard, LogIn, Plus, Sprout, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { AchievementWatcher } from "./achievement-watcher";
 import { useSession } from "./session";
 import { Avatar, Spinner, cx } from "./ui";
@@ -56,12 +56,32 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { session } = useSession();
   const isDemo = session.status === "ready" && session.backend.mode === "demo";
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Прокрутка живёт в области контента, поэтому при переходе на другой экран возвращаем её наверх сами.
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0);
+  }, [pathname]);
+
+  // После закрытия клавиатуры iOS может оставить окно сдвинутым — возвращаем его на место.
+  useEffect(() => {
+    const reset = () =>
+      setTimeout(() => {
+        const el = document.activeElement;
+        if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) && window.scrollY) window.scrollTo(0, 0);
+      }, 100);
+    document.addEventListener("focusout", reset);
+    return () => document.removeEventListener("focusout", reset);
+  }, []);
 
   return (
-    <div className="min-h-dvh md:flex">
+    // Каркас на всю высоту экрана: прокручивается только область контента, а нижнее меню — обычный
+    // элемент под ней, а не position: fixed. На iOS фиксированная панель при прокрутке и после
+    // клавиатуры иногда «отъезжала» от низа экрана.
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row">
       {session.status === "ready" && <AchievementWatcher />}
       {/* Боковое меню (≥ md) */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-separator px-4 py-6 md:flex lg:w-64">
+      <aside className="hidden h-dvh w-60 shrink-0 flex-col border-r border-separator px-4 py-6 md:flex lg:w-64">
         <Logo className="px-2" />
         <nav className="mt-8 flex flex-col gap-1" aria-label="Разделы">
           {NAV.map(({ href, label, icon: Icon }) => (
@@ -103,7 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1">
+      <div ref={scrollRef} data-app-scroll className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain">
         {/* Верхняя панель на телефоне */}
         <header className="glass sticky top-0 z-30 flex items-center justify-between border-b border-separator px-4 py-2.5 md:hidden">
           <Logo />
@@ -117,11 +137,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
         )}
-        <main className="mx-auto w-full max-w-5xl px-4 pb-28 sm:px-6 md:pb-12">{children}</main>
+        <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 md:pb-12">{children}</main>
       </div>
 
       {/* Нижняя навигация на телефоне */}
-      <nav className="glass fixed inset-x-0 bottom-0 z-40 border-t border-separator pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Разделы">
+      <nav className="glass z-40 shrink-0 border-t border-separator pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Разделы">
         <ul className="grid grid-cols-5 items-center">
           {[...NAV.slice(0, 2), null, ...NAV.slice(2)].map((item) =>
             item ? (
