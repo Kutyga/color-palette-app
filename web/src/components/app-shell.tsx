@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, CalendarCheck, Clapperboard, LogIn, Plus, Sprout, Trophy } from "lucide-react";
+import { BookOpen, CalendarCheck, LogIn, Plus, Sprout, Trophy, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -11,7 +11,7 @@ import { Avatar, Spinner, cx } from "./ui";
 const NAV = [
   { href: "/today/", label: "Сегодня", icon: CalendarCheck },
   { href: "/garden/", label: "Коллекция", icon: Sprout },
-  { href: "/feed/", label: "Лента", icon: Clapperboard },
+  { href: "/feed/", label: "Сообщество", icon: UsersRound },
   { href: "/plants/", label: "Знания", icon: BookOpen },
 ];
 

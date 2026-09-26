@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, Share2, Sun, Trash2 } from "lucide-react";
+import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Sun, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -151,10 +151,16 @@ function PlantView({ id }: { id: string }) {
           </div>
           <div className="mt-2 flex gap-2">
             <Link
-              href={`/feed/new/?plant=${plant.id}`}
+              href={`/feed/new/?type=diary&plant=${plant.id}`}
               className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
             >
-              <Share2 className="size-4" aria-hidden /> Поделиться в ленте
+              <NotebookPen className="size-4" aria-hidden /> Запись в дневник
+            </Link>
+            <Link
+              href={`/feed/plant/?id=${plant.id}`}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
+            >
+              <BookOpen className="size-4" aria-hidden /> Дневник
             </Link>
           </div>
         </div>

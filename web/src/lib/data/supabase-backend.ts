@@ -5,7 +5,7 @@ import { statsFromRow } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
-import { commentFromRow, newsFromRow, postFromRow, type FeedTab, type NewPost, type ReaderArticle } from "../domain/social";
+import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFilter, type NewPost, type ReaderArticle } from "../domain/social";
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
@@ -17,7 +17,7 @@ const PLANT_SELECT =
 const PLANT_BUCKET = "plant-photos";
 const POST_BUCKET = "post-photos";
 const POST_SELECT = "*, author:profiles!posts_author_id_fkey(username, display_name), plant:plants(nickname)";
-const COMMENT_SELECT = "*, author:profiles!comments_author_id_fkey(username)";
+const COMMENT_SELECT = "*, author:profiles!comments_author_id_fkey(username, display_name)";
 
 type Row = Record<string, unknown>;
 
@@ -193,11 +193,37 @@ export class SupabaseSocial implements SocialRepository {
     );
   }
 
-  async feed(tab: FeedTab) {
+  async diaries(scope: DiaryScope) {
+    const rows = check(await this.db.rpc("feed_diaries", { scope, lim: 30 }).select(POST_SELECT)) as Row[];
+    return this.hydrate(rows);
+  }
+
+  async plantDiary(plantId: string) {
     const rows = check(
-      await this.db.rpc(tab === "following" ? "feed_following" : "feed_discover", { lim: 30 }).select(POST_SELECT),
+      await this.db
+        .from("posts")
+        .select(POST_SELECT)
+        .eq("plant_id", plantId)
+        .in("kind", ["milestone", "photo"])
+        .is("deleted_at", null)
+        .order("created_at")
+        .limit(100),
     ) as Row[];
     return this.hydrate(rows);
+  }
+
+  async questions(filter: HelpFilter) {
+    const rows = check(await this.db.rpc("help_questions", { filter, lim: 40 }).select(POST_SELECT)) as Row[];
+    return this.hydrate(rows);
+  }
+
+  async post(id: string) {
+    const row = check(await this.db.from("posts").select(POST_SELECT).eq("id", id).is("deleted_at", null).maybeSingle()) as Row | null;
+    return row ? (await this.hydrate([row]))[0] : null;
+  }
+
+  async markSolved(postId: string, commentId: string | null) {
+    check(await this.db.from("posts").update({ solved_comment_id: commentId }).eq("id", postId).eq("author_id", this.uid));
   }
 
   async news(onlyMySpecies = false, langs: string[] = []) {
@@ -230,7 +256,8 @@ export class SupabaseSocial implements SocialRepository {
           plant_id: post.plantId ?? null,
           photo_paths: paths,
           visibility: post.visibility ?? "public",
-          kind: "photo",
+          kind: post.kind === "question" ? "question" : "milestone",
+          event: post.kind === "diary" ? (post.event ?? "progress") : null,
         })
         .select(POST_SELECT)
         .single(),

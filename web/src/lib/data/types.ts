@@ -3,7 +3,7 @@ import type { GardenStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
-import type { FeedPost, FeedTab, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
+import type { DiaryScope, FeedPost, HelpFilter, NewPost, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
 export type PlantDraft = Omit<NewPlant, "speciesId"> & { speciesSlug?: string | null };
@@ -31,7 +31,15 @@ export interface GardenRepository {
 }
 
 export interface SocialRepository {
-  feed(tab: FeedTab): Promise<FeedPost[]>;
+  /** Лента «Дневники». */
+  diaries(scope: DiaryScope): Promise<FeedPost[]>;
+  /** Дневник одного растения — от первой записи к последней. */
+  plantDiary(plantId: string): Promise<FeedPost[]>;
+  /** Вопросы раздела «Помощь». */
+  questions(filter: HelpFilter): Promise<FeedPost[]>;
+  post(id: string): Promise<FeedPost | null>;
+  /** Автор вопроса отмечает лучший ответ (null — снять отметку). */
+  markSolved(postId: string, commentId: string | null): Promise<void>;
   /** langs — языки новостей; пустой список = все. */
   news(onlyMySpecies?: boolean, langs?: string[]): Promise<NewsArticle[]>;
   /** Текст статьи для чтения на сайте; null — недоступно (демо-режим). */

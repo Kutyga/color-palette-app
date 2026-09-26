@@ -169,6 +169,59 @@ do $$ begin
          'счётчик после удаления комментария';
 end $$;
 
+-- Дневники и Помощь: вид берётся из растения, лучший ответ отмечает только автор вопроса
+-- и только ответом на этот же вопрос.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.posts (id, kind, event, plant_id, text, visibility) values
+  ('40000000-0000-0000-0000-000000000002', 'milestone', 'bloom',
+   '20000000-0000-0000-0000-000000000001', 'Зацвела!', 'public'),
+  ('40000000-0000-0000-0000-000000000003', 'question', null,
+   '20000000-0000-0000-0000-000000000001', 'Желтеют нижние листья — что делать?', 'public');
+insert into public.comments (id, post_id, text)
+values ('50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000002', 'Спасибо!');
+do $$ begin
+  assert (select species_id from public.posts where id = '40000000-0000-0000-0000-000000000003')
+         = (select id from public.species where slug = 'monstera-deliciosa'), 'вид вопроса из растения';
+  assert (select count(*) from public.feed_diaries()) = 2, 'в дневниках старый пост и новая запись';
+  assert (select count(*) from public.feed_diaries()
+           where id = '40000000-0000-0000-0000-000000000003') = 0, 'вопрос не попадает в дневники';
+  assert (select count(*) from public.help_questions('mine')) = 1, 'мои вопросы';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.comments (id, post_id, text)
+values ('50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000003',
+        'Похоже на перелив — проверьте дренаж.');
+-- Боб не автор: обновление не затрагивает строк.
+update public.posts set solved_comment_id = '50000000-0000-0000-0000-000000000001'
+ where id = '40000000-0000-0000-0000-000000000003';
+do $$ begin
+  assert (select count(*) from public.feed_diaries('following')) = 2, 'дневники подписок у Боба';
+  assert (select count(*) from public.help_questions('open')) = 1, 'вопрос без лучшего ответа';
+  assert (select count(*) from public.help_questions('my_species')) = 0, 'у Боба нет растений';
+  assert (select solved_comment_id from public.posts where id = '40000000-0000-0000-0000-000000000003') is null,
+         'чужой вопрос отметить нельзя';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  update public.posts set solved_comment_id = '50000000-0000-0000-0000-000000000002'
+   where id = '40000000-0000-0000-0000-000000000003';
+  raise exception 'нельзя отметить ответ с другого поста';
+exception when check_violation then null;
+end $$;
+update public.posts set solved_comment_id = '50000000-0000-0000-0000-000000000001'
+ where id = '40000000-0000-0000-0000-000000000003';
+do $$ begin
+  assert (select count(*) from public.help_questions('open')) = 0, 'решённый вопрос уходит из «Без ответа»';
+  assert (select count(*) from public.help_questions('my_species')) = 1, 'вопрос про мой вид';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.help_questions('all')) = 0, 'заблокированный не видит вопросы';
+end $$;
+
 -- Фото растения: владелец загружает в свою папку и ставит обложку; посторонний — нет.
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
 insert into storage.objects (bucket_id, name)

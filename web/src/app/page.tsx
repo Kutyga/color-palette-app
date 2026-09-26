@@ -1,4 +1,4 @@
-import { BookOpen, CalendarCheck, Camera, Clapperboard, Sprout, Trophy } from "lucide-react";
+import { BookOpen, CalendarCheck, Camera, Sprout, Trophy, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/app-shell";
 import { HomeActions, RedirectSignedIn } from "@/components/home-actions";
@@ -11,7 +11,7 @@ const FEATURES = [
   { icon: Sprout, title: "Коллекция", text: "Все растения сеткой, как профиль в Instagram. Статус полива — цветной точкой." },
   { icon: BookOpen, title: "База знаний", text: `${ALL_SPECIES.length} комнатных растений: свет, полив летом и зимой, влажность, токсичность для питомцев.` },
   { icon: Camera, title: "Распознавание", text: "Сфотографируйте лист — Pl@ntNet подскажет вид и подставит карточку ухода." },
-  { icon: Clapperboard, title: "Лента", text: "Подписки, «Интересное» и свежие новости о растениях со всего интернета." },
+  { icon: UsersRound, title: "Сообщество", text: "Дневники растений, помощь садоводов с фото и свежие новости о растениях." },
   { icon: Trophy, title: "Достижения", text: "24 награды на четырёх уровнях — от «Ростка» до «Баобаба» — и серии дней ухода." },
 ];
 

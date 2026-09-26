@@ -12,6 +12,8 @@ export const ALL_SPECIES: Species[] = (rows as Record<string, unknown>[]).map(sp
 
 const bySlug = new Map(ALL_SPECIES.map((s) => [s.slug, s]));
 export const speciesBySlug = (slug: string | null | undefined) => (slug ? bySlug.get(slug) ?? null : null);
+const byId = new Map(ALL_SPECIES.map((s) => [s.id, s]));
+export const speciesById = (id: string | null | undefined) => (id ? byId.get(id) ?? null : null);
 
 /** Своё фото растения, а если его нет — фото вида из базы знаний. */
 export const plantPhotoUrl = (p: { photoUrl: string | null; speciesSlug: string | null } | null | undefined) =>

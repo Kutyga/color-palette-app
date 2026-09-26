@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
-import type { FeedTab } from "./domain/social";
+import type { DiaryScope, HelpFilter } from "./domain/social";
 
 /** Все запросы данных сайта. Кэш сбрасывается при входе, выходе и смене демо-режима. */
 
@@ -62,9 +62,24 @@ export function useProfile() {
   return useQuery({ queryKey: ["profile"], queryFn: () => b.profile(), staleTime: Infinity });
 }
 
-export function useFeed(tab: FeedTab) {
+export function useDiaries(scope: DiaryScope) {
   const b = useBackend();
-  return useQuery({ queryKey: ["feed", tab], queryFn: () => b.social.feed(tab) });
+  return useQuery({ queryKey: ["feed", "diaries", scope], queryFn: () => b.social.diaries(scope) });
+}
+
+export function usePlantDiary(plantId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "plant", plantId], queryFn: () => b.social.plantDiary(plantId!), enabled: !!plantId });
+}
+
+export function useQuestions(filter: HelpFilter) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "questions", filter], queryFn: () => b.social.questions(filter) });
+}
+
+export function usePost(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "post", id], queryFn: () => b.social.post(id!), enabled: !!id });
 }
 
 export function useNews(onlyMine: boolean, langs: string[] = []) {

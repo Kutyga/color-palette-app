@@ -62,7 +62,7 @@ function Profile() {
             <p className="text-[15px] text-secondary">
               {stats.data.plants} {plural(stats.data.plants, "растение", "растения", "растений")} · {stats.data.careEvents}{" "}
               {plural(stats.data.careEvents, "отметка", "отметки", "отметок")} ухода · {stats.data.posts}{" "}
-              {plural(stats.data.posts, "пост", "поста", "постов")}
+              {plural(stats.data.posts, "публикация", "публикации", "публикаций")}
             </p>
           </div>
           <ChevronRight className="size-5 text-secondary" aria-hidden />

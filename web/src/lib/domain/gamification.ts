@@ -76,7 +76,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "first_sprout", title: "Первый росток", description: "Добавьте первое растение", tier: "sprout", icon: "Sprout", target: 1, metric: (s) => s.plants },
   { id: "wet_business", title: "Мокрое дело", description: "Отметьте первый полив", tier: "sprout", icon: "Droplet", target: 1, metric: (s) => s.waterings },
   { id: "big_move", title: "Переезд века", description: "Пересадите растение", tier: "sprout", icon: "Truck", target: 1, metric: (s) => s.repots },
-  { id: "windowsill_star", title: "Звезда подоконника", description: "Опубликуйте первый пост", tier: "sprout", icon: "Camera", target: 1, metric: (s) => s.posts },
+  { id: "windowsill_star", title: "Звезда подоконника", description: "Сделайте первую запись в дневнике или задайте вопрос", tier: "sprout", icon: "Camera", target: 1, metric: (s) => s.posts },
   { id: "interior_designer", title: "Дизайнер подоконников", description: "Заведите 3 места для растений", tier: "sprout", icon: "Armchair", target: 3, metric: (s) => s.locations },
   // Побег — нужна регулярность
   { id: "green_five", title: "Зелёная пятилетка", description: "Соберите 5 растений", tier: "shoot", icon: "Leaf", target: 5, metric: (s) => s.plants },
@@ -88,9 +88,9 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "camel_patience", title: "Верблюжья выдержка", description: "Соберите 3 суккулента", tier: "shoot", icon: "Mountain", target: 3, metric: (s) => s.succulents },
   { id: "early_bird", title: "Ранняя пташка", description: "5 раз поухаживать с 5 до 8 утра", tier: "shoot", icon: "Sunrise", target: 5, metric: (s) => s.earlyBird },
   { id: "night_gardener", title: "Ночной садовник", description: "5 раз поухаживать после 23:00", tier: "shoot", icon: "Moon", target: 5, metric: (s) => s.nightOwl, secret: true },
-  { id: "green_blogger", title: "Зелёный блогер", description: "10 постов в ленте", tier: "shoot", icon: "BookOpen", target: 10, metric: (s) => s.posts },
+  { id: "green_blogger", title: "Зелёный летописец", description: "10 записей и вопросов в сообществе", tier: "shoot", icon: "BookOpen", target: 10, metric: (s) => s.posts },
   // Дерево — серьёзная коллекция и дисциплина
-  { id: "ficus_influencer", title: "Инфлюенсер фикусов", description: "Соберите 100 лайков", tier: "tree", icon: "Heart", target: 100, metric: (s) => s.likesReceived },
+  { id: "ficus_influencer", title: "Инфлюенсер фикусов", description: "Соберите 100 «Поддержать»", tier: "tree", icon: "Heart", target: 100, metric: (s) => s.likesReceived },
   { id: "windowsill_garden", title: "Ботсад на подоконнике", description: "Соберите 15 растений", tier: "tree", icon: "Trees", target: 15, metric: (s) => s.plants },
   { id: "green_discipline", title: "Месяц зелёной дисциплины", description: "Ухаживайте 30 дней подряд", tier: "tree", icon: "Zap", target: 30, metric: (s) => s.bestStreak },
   { id: "moisture_lord", title: "Повелитель влаги", description: "250 поливов", tier: "tree", icon: "Waves", target: 250, metric: (s) => s.waterings },
@@ -98,7 +98,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   // Баобаб — легенды
   { id: "jungle_calls", title: "Джунгли зовут", description: "Соберите 30 растений", tier: "baobab", icon: "TreePalm", target: 30, metric: (s) => s.plants },
   { id: "hundred_days", title: "Сто дней фотосинтеза", description: "Ухаживайте 100 дней подряд", tier: "baobab", icon: "Sun", target: 100, metric: (s) => s.bestStreak },
-  { id: "botanical_celebrity", title: "Ботаническая знаменитость", description: "1000 лайков на ваших постах", tier: "baobab", icon: "Star", target: 1000, metric: (s) => s.likesReceived, secret: true },
+  { id: "botanical_celebrity", title: "Ботаническая знаменитость", description: "1000 «Поддержать» на ваших записях", tier: "baobab", icon: "Star", target: 1000, metric: (s) => s.likesReceived, secret: true },
   { id: "indoor_poseidon", title: "Комнатный Посейдон", description: "1000 поливов", tier: "baobab", icon: "Anchor", target: 1000, metric: (s) => s.waterings },
 ];
 
