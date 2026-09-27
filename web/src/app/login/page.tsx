@@ -1,6 +1,6 @@
 "use client";
 
-/** Вход по ссылке из письма (без пароля). */
+/** Вход и регистрация по email и паролю; новый аккаунт подтверждается по ссылке из письма. */
 
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
