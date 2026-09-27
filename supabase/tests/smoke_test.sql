@@ -584,6 +584,15 @@ insert into public.shops (name, inn, city, status) values ('Зелёный уг�
 do $$ begin
   assert (select status from public.shops where owner_id = auth.uid()) = 'pending', 'заявка всегда на проверке';
 end $$;
+-- ИНН необязателен (проверка временно отключена), но указанный — только 10 или 12 цифр.
+update public.shops set inn = null where owner_id = auth.uid();
+do $$ begin
+  assert (select inn from public.shops where owner_id = auth.uid()) is null, 'ИНН необязателен';
+  update public.shops set inn = '12345' where owner_id = auth.uid();
+  raise exception 'ИНН не той длины принят';
+exception when check_violation then null;
+end $$;
+update public.shops set inn = '7707083893' where owner_id = auth.uid();
 update public.shops set delivery = true where owner_id = auth.uid();
 select * from public.shop_import_products(jsonb_build_array(
   jsonb_build_object('external_id', 'M-1', 'title', 'Монстера 17/70', 'price_rub', 1500,

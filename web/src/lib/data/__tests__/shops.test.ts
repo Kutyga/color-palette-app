@@ -3,6 +3,7 @@ import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from
 import { SpeciesIds } from "../supabase-backend";
 import {
   TEMPLATE_CSV,
+  INN_REQUIRED,
   guessMapping,
   isValidInn,
   parseCsv,
@@ -38,7 +39,11 @@ describe("анкета магазина", () => {
     expect(validateShop({ ...d, website: "kaktus.ru" })).toBeNull();
     expect(validateShop({ ...d, website: "не сайт" })?.field).toBe("website");
     expect(validateShop({ ...d, phone: "+7 (843) 200-00-00" })).toBeNull();
-    expect(validateShop({ ...d, inn: "1234567890", phone: "+7 843" })?.field).toBe("inn");
+    // Проверка ИНН временно отключена: пустой и «неправильный по контрольным цифрам» проходят.
+    expect(INN_REQUIRED).toBe(false);
+    expect(validateShop({ ...d, inn: "", phone: "+7 843 200-00-00" })).toBeNull();
+    expect(validateShop({ ...d, inn: "1234567890", phone: "+7 843 200-00-00" })).toBeNull();
+    expect(validateShop({ ...d, inn: "12345", phone: "+7 843 200-00-00" })?.field).toBe("inn");
   });
 
   it("UTM-метки не затирают свои", () => {
@@ -143,7 +148,8 @@ describe("магазины в демо-режиме", () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
     const shop = await b.shops.saveShop(draft);
     expect(shop).toMatchObject({ status: "pending", mine: true });
-    await expect(b.shops.saveShop({ ...draft, inn: "1111111111" })).rejects.toThrow(/ИНН/);
+    await expect(b.shops.saveShop({ ...draft, inn: "12345" })).rejects.toThrow(/ИНН/);
+    expect((await b.shops.saveShop({ ...draft, inn: "" })).inn).toBeNull();
 
     const row = { externalId: "M1", title: "Монстера", speciesId: "monstera-deliciosa", priceRub: 100, inStock: true, potCm: null, heightCm: null, url: null, imageUrl: null };
     expect(await b.shops.importProducts([row, { ...row, externalId: "M2" }], false)).toEqual({ inserted: 2, updated: 0, deleted: 0 });

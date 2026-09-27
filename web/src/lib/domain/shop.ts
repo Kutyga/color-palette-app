@@ -18,7 +18,8 @@ export interface Shop {
   ownerId: string;
   name: string;
   description: string;
-  inn: string;
+  /** null — магазин не указал ИНН (пока проверка ИНН отключена, см. INN_REQUIRED). */
+  inn: string | null;
   city: string;
   address: string | null;
   hours: string | null;
@@ -51,7 +52,7 @@ export const emptyShopDraft = (city = ""): ShopDraft => ({
 export const shopToDraft = (s: Shop): ShopDraft => ({
   name: s.name,
   description: s.description,
-  inn: s.inn,
+  inn: s.inn ?? "",
   city: s.city,
   address: s.address ?? "",
   hours: s.hours ?? "",
@@ -105,6 +106,12 @@ export const MAX_PRODUCTS = 5000;
 // Проверка анкеты
 // ---------------------------------------------------------------------------
 
+/**
+ * Проверка ИНН временно отключена: поле необязательное, контрольные цифры не проверяются
+ * (указанный ИНН должен быть из 10 или 12 цифр — этого требует база). Вернуть — true.
+ */
+export const INN_REQUIRED = false;
+
 /** Контрольные цифры ИНН (10 цифр — организация, 12 — ИП). */
 export function isValidInn(inn: string): boolean {
   if (!/^\d{10}(\d{2})?$/.test(inn)) return false;
@@ -124,7 +131,9 @@ export function normalizeWebsite(v: string): string | null {
 export function validateShop(d: ShopDraft): { field: keyof ShopDraft; message: string } | null {
   const name = d.name.trim();
   if (name.length < 2 || name.length > 80) return { field: "name", message: "Название — от 2 до 80 символов" };
-  if (!isValidInn(d.inn.trim())) return { field: "inn", message: "Проверьте ИНН: 10 цифр у организации, 12 — у ИП" };
+  const inn = d.inn.trim();
+  if (INN_REQUIRED ? !isValidInn(inn) : inn !== "" && !/^\d{10}(\d{2})?$/.test(inn))
+    return { field: "inn", message: "Проверьте ИНН: 10 цифр у организации, 12 — у ИП" };
   const city = d.city.trim();
   if (city.length < 2 || city.length > 60) return { field: "city", message: "Укажите город" };
   if (d.description.length > 1000) return { field: "description", message: "Описание — до 1000 символов" };
@@ -417,7 +426,7 @@ export function shopFromRow(r: Row, myId: string | null): Shop {
     ownerId: r.owner_id as string,
     name: r.name as string,
     description: (r.description as string | null) ?? "",
-    inn: r.inn as string,
+    inn: (r.inn as string | null) || null,
     city: r.city as string,
     address: (r.address as string | null) || null,
     hours: (r.hours as string | null) || null,

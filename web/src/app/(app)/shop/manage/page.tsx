@@ -10,6 +10,7 @@ import { ShopStatusPill, shopHref } from "@/components/shops";
 import { Button, Card, ErrorNote, Field, PageHeader, Spinner, cx, inputClass, useToast } from "@/components/ui";
 import {
   IMPORT_FIELDS,
+  INN_REQUIRED,
   TEMPLATE_CSV,
   emptyShopDraft,
   guessMapping,
@@ -70,7 +71,10 @@ function ShopForm({ shop, onDone }: { shop: Shop | null; onDone?: () => void }) 
         <input className={inputClass} value={draft.name} onChange={(e) => set({ name: e.target.value })} maxLength={80} autoComplete="organization" />
         {err("name")}
       </Field>
-      <Field label="ИНН" hint="Для проверки: сверяем с ЕГРЮЛ/ЕГРИП. Показывается на витрине.">
+      <Field
+        label={INN_REQUIRED ? "ИНН" : "ИНН (необязательно)"}
+        hint={INN_REQUIRED ? "Для проверки: сверяем с ЕГРЮЛ/ЕГРИП. Показывается на витрине." : "Если укажете — покажем на витрине и ускорим проверку."}
+      >
         <input className={inputClass} value={draft.inn} onChange={(e) => set({ inn: e.target.value.replace(/\D/g, "") })} inputMode="numeric" maxLength={12} />
         {err("inn")}
       </Field>
@@ -119,7 +123,7 @@ function ShopForm({ shop, onDone }: { shop: Shop | null; onDone?: () => void }) 
 }
 
 const STATUS_TEXT: Record<Shop["status"], string> = {
-  pending: "Проверяем данные по ИНН. Пока витрину видите только вы — можно загрузить каталог заранее.",
+  pending: "Проверяем магазин. Пока витрину видите только вы — можно загрузить каталог заранее.",
   verified: "Витрина открыта всем, товары показываются в «Где купить» на страницах растений.",
   rejected: "Заявка отклонена. Исправьте анкету — она снова уйдёт на проверку.",
   suspended: "Магазин скрыт модератором. Напишите нам, если это ошибка.",
@@ -528,7 +532,7 @@ function Intro() {
         <li>📄 Каталог загружается из Excel или CSV и выгружается обратно</li>
       </ul>
       <p className="mt-3 text-[13px] text-secondary">
-        Для значка ✓ проверяем магазин вручную по ИНН — обычно за 1–2 дня. Деньги через приложение не проходят: покупатель переходит на ваш сайт или звонит.
+        Для значка ✓ проверяем магазин вручную — обычно за 1–2 дня. Деньги через приложение не проходят: покупатель переходит на ваш сайт или звонит.
       </p>
     </Card>
   );

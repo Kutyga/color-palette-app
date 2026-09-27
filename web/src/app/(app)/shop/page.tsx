@@ -161,7 +161,7 @@ function Storefront() {
       </header>
       <Catalog shopId={s.id} />
       <p className="text-[12px] text-secondary">
-        Цены и наличие указывает магазин. Покупка и оплата — напрямую у магазина. ИНН {s.inn}.
+        Цены и наличие указывает магазин. Покупка и оплата — напрямую у магазина.{s.inn && ` ИНН ${s.inn}.`}
       </p>
     </div>
   );
