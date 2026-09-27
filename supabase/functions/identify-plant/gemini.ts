@@ -78,25 +78,47 @@ export function geminiRequest(imageBase64: string, plantHint?: string | null) {
         parts: [{ inline_data: { mime_type: "image/jpeg", data: imageBase64 } }, { text: `${hint} Что с растением?` }],
       },
     ],
-    generationConfig: { responseMimeType: "application/json", responseSchema: SCHEMA, temperature: 0.2, maxOutputTokens: 1024 },
+    // Запас по длине: новые модели тратят часть лимита на «размышления», и ответ обрезался.
+    generationConfig: { responseMimeType: "application/json", responseSchema: SCHEMA, temperature: 0.2, maxOutputTokens: 4096 },
   };
 }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** Ответ generateContent → проверенный диагноз; null — ответа нет или он не по схеме. */
-export function toAiDiagnosis(body: unknown): AiDiagnosis | null {
-  const text = (body as { candidates?: { content?: { parts?: { text?: string }[] } }[] })?.candidates?.[0]?.content?.parts
-    ?.map((p) => p.text ?? "")
+type GeminiBody = { candidates?: { finishReason?: string; content?: { parts?: { text?: string; thought?: boolean }[] } }[] };
+
+/** Текст ответа без «мыслей» модели. */
+const answerText = (body: unknown) =>
+  ((body as GeminiBody)?.candidates?.[0]?.content?.parts ?? [])
+    .filter((p) => !p.thought)
+    .map((p) => p.text ?? "")
     .join("");
-  if (!text) return null;
-  let raw: Record<string, unknown>;
+
+/** JSON из ответа, даже если модель обернула его в ```json … ``` или добавила текст вокруг. */
+function parseJsonObject(text: string): Record<string, unknown> | null {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
   try {
-    raw = JSON.parse(text);
+    const v = JSON.parse(text.slice(start, end + 1));
+    return typeof v === "object" && v !== null && !Array.isArray(v) ? v : null;
   } catch {
     return null;
   }
-  if (typeof raw !== "object" || raw === null) return null;
+}
+
+/** Почему ответ не разобрался — для журнала функции (причина остановки и начало текста). */
+export function describeGeminiFailure(body: unknown): string {
+  const c = (body as GeminiBody)?.candidates?.[0];
+  return `finishReason=${c?.finishReason ?? "нет"}, text=${JSON.stringify(answerText(body).slice(0, 200))}`;
+}
+
+/** Ответ generateContent → проверенный диагноз; null — ответа нет или он не по схеме. */
+export function toAiDiagnosis(body: unknown): AiDiagnosis | null {
+  const text = answerText(body);
+  if (!text) return null;
+  const raw = parseJsonObject(text);
+  if (!raw) return null;
   const known = new Set<string>(CAUSE_IDS);
   const problems = (Array.isArray(raw.problems) ? raw.problems : [])
     .map((p): AiProblem | null => {
