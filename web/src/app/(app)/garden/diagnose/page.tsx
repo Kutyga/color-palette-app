@@ -12,6 +12,7 @@ import { Button, Card, Chip, PageHeader, Spinner, cx } from "@/components/ui";
 import {
   SYMPTOMS,
   SYMPTOM_GROUPS,
+  confidentGuesses,
   describeEppo,
   diagnose,
   eppoHref,
@@ -51,7 +52,7 @@ function PhotoCheck() {
   const backend = useBackend();
   const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
   const check = useMutation({
-    mutationFn: async (blob: Blob): Promise<DiseaseGuess[]> => backend.identifier!.diagnose(await toJpeg(blob, 1280)),
+    mutationFn: async (blob: Blob): Promise<DiseaseGuess[]> => confidentGuesses(await backend.identifier!.diagnose(await toJpeg(blob, 1280))),
   });
   return (
     <Card className="p-5">
@@ -101,7 +102,7 @@ function PhotoCheck() {
               </ul>
             ) : (
               <p className="mt-3 rounded-2xl bg-muted px-4 py-3 text-[15px]">
-                Болезнь по фото не определилась — сервис знает пока не все растения и болезни. Отметьте симптомы ниже.
+                Явных признаков болезни на фото не нашли. Если что-то беспокоит — снимите поражённое место крупнее или отметьте симптомы ниже: сервис знает пока не все болезни.
               </p>
             ))}
           {check.data && check.data.length > 0 && (
