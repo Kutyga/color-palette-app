@@ -1,3 +1,5 @@
+/** Тесты извлечения статьи: чистый текст, заголовки и картинки из HTML (deno test). */
+
 import { assertEquals, assert } from "jsr:@std/assert@1";
 import { absoluteUrl, extractArticle } from "./extract.ts";
 
@@ -21,12 +23,18 @@ Deno.test("основной текст без меню, скриптов и оп
   const a = extractArticle(page, "https://example.org/blog/monstera")!;
   assert(a, "статья извлечена");
   assertEquals(a.lang, "en");
-  const text = a.blocks.filter((b) => b.type !== "img").map((b) => ("text" in b ? b.text : "")).join("\n");
+  const text = a.blocks
+    .filter((b) => b.type !== "img")
+    .map((b) => ("text" in b ? b.text : ""))
+    .join("\n");
   assert(text.includes("needs a bigger pot"));
   assert(!text.includes("Shop"), "меню отброшено");
   assert(!text.includes("alert"), "скрипты отброшены");
   const imgs = a.blocks.filter((b) => b.type === "img");
-  assertEquals(imgs.map((b) => ("src" in b ? b.src : "")), ["https://example.org/img/monstera.jpg"]);
+  assertEquals(
+    imgs.map((b) => ("src" in b ? b.src : "")),
+    ["https://example.org/img/monstera.jpg"],
+  );
   assert(a.blocks.some((b) => b.type === "li" && b.text === "Chunky aroid mix"));
   assert(a.blocks.some((b) => b.type === "h" && b.text === "What you need"));
 });

@@ -1,3 +1,5 @@
+/** Распознавание по фото: сопоставление ответа Pl@ntNet с видами из базы знаний. */
+
 import type { Species } from "./species";
 
 /** Ответ распознавателя: латинское название, уверенность 0…1 и, если есть, народное название. */
@@ -32,9 +34,7 @@ export function matchSpecies(p: Prediction, knowledgeBase: Species[]): Identific
   const exact = knowledgeBase.find((s) => [s.latinName, ...s.synonyms].map(normalize).includes(name));
   if (exact) return { ...base, species: exact, genusOnly: false };
   const genus = name.split(" ")[0];
-  const sameGenus = knowledgeBase.find((s) =>
-    [s.latinName, ...s.synonyms].some((n) => normalize(n).split(" ")[0] === genus),
-  );
+  const sameGenus = knowledgeBase.find((s) => [s.latinName, ...s.synonyms].some((n) => normalize(n).split(" ")[0] === genus));
   if (sameGenus) return { ...base, species: sameGenus, genusOnly: true };
   return { ...base, species: null, genusOnly: false };
 }

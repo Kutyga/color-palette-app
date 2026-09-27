@@ -1,13 +1,15 @@
 "use client";
 
+/** Магазины в приложении: список, «Где купить» на странице вида, «Хочу», карточка своего магазина. */
+
 import { BadgeCheck, ChevronRight, ExternalLink, Heart, LogIn, MapPin, ShieldCheck, Store, Truck } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "./session";
-import { Card, EmptyState, ErrorNote, PlantPhoto, Spinner, cx, useToast } from "./ui";
 import { SHOP_STATUS, sizeLabel, withUtm, type Offer, type Shop, type ShopStatus } from "@/lib/domain/shop";
 import { speciesName } from "@/lib/domain/species";
 import { speciesById } from "@/lib/knowledge";
 import { useMyShop, useProfile, useReviewQueue, useSetWished, useShops, useWhereToBuy, useWishlist } from "@/lib/queries";
+import { useSession } from "./session";
+import { Card, EmptyState, ErrorNote, PlantPhoto, Spinner, cx, useToast } from "./ui";
 
 export const shopHref = (id: string) => `/shop/?id=${encodeURIComponent(id)}`;
 
@@ -19,12 +21,16 @@ const STATUS_TONE: Record<ShopStatus, string> = {
 };
 
 export function ShopStatusPill({ status }: { status: ShopStatus }) {
-  return <span className={cx("inline-flex rounded-full px-2.5 py-0.5 text-[12px] font-semibold", STATUS_TONE[status])}>{SHOP_STATUS[status]}</span>;
+  return (
+    <span className={cx("inline-flex rounded-full px-2.5 py-0.5 text-[12px] font-semibold", STATUS_TONE[status])}>
+      {SHOP_STATUS[status]}
+    </span>
+  );
 }
 
 /** Значок проверенного магазина. */
 export function VerifiedMark({ className }: { className?: string }) {
-  return <BadgeCheck className={cx("inline size-[1em] shrink-0 text-leaf", className)} aria-label="Проверенный магазин" />;
+  return <BadgeCheck className={cx("text-leaf inline size-[1em] shrink-0", className)} aria-label="Проверенный магазин" />;
 }
 
 const priceText = (rub: number | null) => (rub == null ? "Цена по запросу" : `${rub.toLocaleString("ru-RU")} ₽`);
@@ -37,11 +43,11 @@ function OfferRow({ offer: o }: { offer: Offer }) {
         <span className="flex items-center gap-1 text-[15px] font-semibold">
           <span className="truncate">{o.shopName}</span> <VerifiedMark />
         </span>
-        <span className="block truncate text-[13px] text-secondary">
+        <span className="text-secondary block truncate text-[13px]">
           {o.title}
           {size && ` · ${size}`}
         </span>
-        <span className="flex items-center gap-1 text-[12px] text-secondary">
+        <span className="text-secondary flex items-center gap-1 text-[12px]">
           {o.sameCity ? (
             <>
               <MapPin className="size-3.5" aria-hidden /> {o.shopCity}
@@ -60,12 +66,12 @@ function OfferRow({ offer: o }: { offer: Offer }) {
             href={withUtm(o.url, "where_to_buy")}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[13px] font-semibold text-leaf"
+            className="text-leaf inline-flex items-center gap-1 text-[13px] font-semibold"
           >
             В магазин <ExternalLink className="size-3.5" aria-hidden />
           </a>
         ) : (
-          <Link href={shopHref(o.shopId)} className="text-[13px] font-semibold text-leaf">
+          <Link href={shopHref(o.shopId)} className="text-leaf text-[13px] font-semibold">
             Контакты
           </Link>
         )}
@@ -109,7 +115,7 @@ export function WishButton({ speciesId }: { speciesId: string }) {
   if (session.status === "loading") return null;
   if (session.status === "guest") {
     return (
-      <Link href="/login/" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-muted px-6 text-[17px] font-semibold">
+      <Link href="/login/" className="bg-muted inline-flex min-h-12 items-center gap-2 rounded-full px-6 text-[17px] font-semibold">
         <Heart className="size-5" aria-hidden /> Хочу купить
       </Link>
     );
@@ -125,12 +131,13 @@ function WhereToBuyInner({ speciesId }: { speciesId: string }) {
   if (offers.error) return <ErrorNote error={offers.error} onRetry={() => offers.refetch()} />;
   if (!offers.data.length) {
     return (
-      <p className="text-[15px] text-secondary">
-        {city ? `В г. ${city} и с доставкой пока не продают.` : "Пока нигде не продают."} Нажмите «Хочу купить» — пришлём уведомление, когда появится.
+      <p className="text-secondary text-[15px]">
+        {city ? `В г. ${city} и с доставкой пока не продают.` : "Пока нигде не продают."} Нажмите «Хочу купить» — пришлём уведомление, когда
+        появится.
         {!city && (
           <>
             {" "}
-            <Link href="/profile/" className="font-medium text-leaf">
+            <Link href="/profile/" className="text-leaf font-medium">
               Укажите город
             </Link>
             , чтобы видеть магазины рядом.
@@ -140,7 +147,7 @@ function WhereToBuyInner({ speciesId }: { speciesId: string }) {
     );
   }
   return (
-    <ul className="divide-y divide-separator" aria-label="Предложения магазинов">
+    <ul className="divide-separator divide-y" aria-label="Предложения магазинов">
       {offers.data.map((o) => (
         <OfferRow key={o.productId} offer={o} />
       ))}
@@ -152,16 +159,16 @@ function WhereToBuyInner({ speciesId }: { speciesId: string }) {
 export function WhereToBuy({ speciesId }: { speciesId: string }) {
   const { session } = useSession();
   return (
-    <section className="mt-6 rounded-[20px] bg-surface p-5">
+    <section className="bg-surface mt-6 rounded-[20px] p-5">
       <h3 className="flex items-center gap-2 text-[17px] font-semibold">
-        <Store className="size-5 text-leaf" aria-hidden /> Где купить
+        <Store className="text-leaf size-5" aria-hidden /> Где купить
       </h3>
       <div className="mt-2">
         {session.status === "loading" ? (
           <Spinner />
         ) : session.status === "guest" ? (
-          <p className="text-[15px] text-secondary">
-            <Link href="/login/" className="inline-flex items-center gap-1 font-medium text-leaf">
+          <p className="text-secondary text-[15px]">
+            <Link href="/login/" className="text-leaf inline-flex items-center gap-1 font-medium">
               <LogIn className="size-4" aria-hidden /> Войдите
             </Link>
             , чтобы увидеть цены проверенных магазинов в вашем городе.
@@ -170,9 +177,9 @@ export function WhereToBuy({ speciesId }: { speciesId: string }) {
           <WhereToBuyInner speciesId={speciesId} />
         )}
       </div>
-      <p className="mt-3 text-[12px] text-secondary">
+      <p className="text-secondary mt-3 text-[12px]">
         Магазины проверяются вручную. Покупка — на сайте магазина, «Подоконник» не берёт комиссию.{" "}
-        <Link href="/shop/manage/" className="font-medium hover:text-label">
+        <Link href="/shop/manage/" className="hover:text-label font-medium">
           Вы магазин?
         </Link>
       </p>
@@ -183,22 +190,23 @@ export function WhereToBuy({ speciesId }: { speciesId: string }) {
 function ShopRow({ shop: s, myCity }: { shop: Shop; myCity: string | null }) {
   return (
     <li>
-      <Link href={shopHref(s.id)} className="flex items-center gap-3 rounded-[20px] bg-surface p-4 transition hover:brightness-[0.98]">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-leaf/10 text-leaf">
+      <Link href={shopHref(s.id)} className="bg-surface flex items-center gap-3 rounded-[20px] p-4 transition hover:brightness-[0.98]">
+        <span className="bg-leaf/10 text-leaf grid size-12 shrink-0 place-items-center rounded-2xl">
           <Store className="size-6" aria-hidden />
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1 font-semibold">
             <span className="truncate">{s.name}</span> <VerifiedMark />
           </span>
-          <span className="block truncate text-[13px] text-secondary">{s.description || s.address || s.city}</span>
-          <span className="mt-0.5 flex items-center gap-3 text-[12px] text-secondary">
+          <span className="text-secondary block truncate text-[13px]">{s.description || s.address || s.city}</span>
+          <span className="text-secondary mt-0.5 flex items-center gap-3 text-[12px]">
             <span className="inline-flex items-center gap-1">
               <MapPin className="size-3.5" aria-hidden /> {s.city}
             </span>
             {s.delivery && (
               <span className="inline-flex items-center gap-1">
-                <Truck className="size-3.5" aria-hidden /> {myCity && s.city.toLowerCase() === myCity.toLowerCase() ? "Доставка" : "Доставка в ваш город"}
+                <Truck className="size-3.5" aria-hidden />{" "}
+                {myCity && s.city.toLowerCase() === myCity.toLowerCase() ? "Доставка" : "Доставка в ваш город"}
               </span>
             )}
           </span>
@@ -222,7 +230,7 @@ export function ShopsList() {
         title="Магазинов пока нет"
         message="Здесь появятся проверенные магазины растений с ценами и наличием."
         action={
-          <Link href="/shop/manage/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+          <Link href="/shop/manage/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Открыть свой магазин
           </Link>
         }
@@ -236,8 +244,8 @@ export function ShopsList() {
           <ShopRow key={s.id} shop={s} myCity={city} />
         ))}
       </ul>
-      <p className="mt-4 text-center text-[13px] text-secondary">
-        <Link href="/shop/manage/" className="font-medium text-leaf">
+      <p className="text-secondary mt-4 text-center text-[13px]">
+        <Link href="/shop/manage/" className="text-leaf font-medium">
           Вы магазин? Разместите каталог бесплатно
         </Link>
       </p>
@@ -246,9 +254,16 @@ export function ShopsList() {
 }
 
 /** Фото товара: своё из каталога или фото вида. */
-export const productPhoto = (p: { imageUrl: string | null; speciesId: string | null }) => p.imageUrl ?? speciesById(p.speciesId)?.image?.url ?? null;
+const productPhoto = (p: { imageUrl: string | null; speciesId: string | null }) =>
+  p.imageUrl ?? speciesById(p.speciesId)?.image?.url ?? null;
 
-export function ProductPhoto({ product, className }: { product: { id: string; title: string; imageUrl: string | null; speciesId: string | null }; className?: string }) {
+export function ProductPhoto({
+  product,
+  className,
+}: {
+  product: { id: string; title: string; imageUrl: string | null; speciesId: string | null };
+  className?: string;
+}) {
   return <PlantPhoto src={productPhoto(product)} seed={product.id} alt={product.title} className={className} iconSize={32} />;
 }
 
@@ -260,36 +275,39 @@ export function ProfileShopCard() {
   const queue = useReviewQueue(isAdmin);
   const pending = queue.data?.filter((s) => s.status === "pending").length ?? 0;
   return (
-    <Card className="divide-y divide-separator">
+    <Card className="divide-separator divide-y">
       <Link href="/shop/manage/" className="flex items-center gap-4 p-5">
-        <Store className="size-6 text-leaf" aria-hidden />
+        <Store className="text-leaf size-6" aria-hidden />
         <span className="min-w-0 flex-1">
           {shop.data ? (
             <>
               <span className="flex flex-wrap items-center gap-2 font-semibold">
                 <span className="truncate">{shop.data.name}</span> <ShopStatusPill status={shop.data.status} />
               </span>
-              <span className="block text-[15px] text-secondary">Витрина, каталог и цены</span>
+              <span className="text-secondary block text-[15px]">Витрина, каталог и цены</span>
             </>
           ) : (
             <>
               <span className="block font-semibold">Вы продаёте растения?</span>
-              <span className="block text-[15px] text-secondary">Откройте магазин — бесплатно</span>
+              <span className="text-secondary block text-[15px]">Откройте магазин — бесплатно</span>
             </>
           )}
         </span>
-        <ChevronRight className="size-5 text-secondary" aria-hidden />
+        <ChevronRight className="text-secondary size-5" aria-hidden />
       </Link>
       {isAdmin && (
         <Link href="/admin/shops/" className="flex items-center gap-4 p-5">
-          <ShieldCheck className="size-6 text-soil" aria-hidden />
+          <ShieldCheck className="text-soil size-6" aria-hidden />
           <span className="flex-1 font-semibold">Проверка магазинов</span>
           {pending > 0 && (
-            <span className="grid min-w-6 place-items-center rounded-full bg-alert px-1.5 text-[12px] font-bold text-white" aria-label={`Заявок: ${pending}`}>
+            <span
+              className="bg-alert grid min-w-6 place-items-center rounded-full px-1.5 text-[12px] font-bold text-white"
+              aria-label={`Заявок: ${pending}`}
+            >
               {pending}
             </span>
           )}
-          <ChevronRight className="size-5 text-secondary" aria-hidden />
+          <ChevronRight className="text-secondary size-5" aria-hidden />
         </Link>
       )}
     </Card>
@@ -303,7 +321,7 @@ export function WishlistCard() {
   return (
     <Card className="p-5">
       <p className="flex items-center gap-2 font-semibold">
-        <Heart className="size-5 text-alert" aria-hidden /> Хочу купить
+        <Heart className="text-alert size-5" aria-hidden /> Хочу купить
       </p>
       {wishlist.isPending ? (
         <Spinner />
@@ -311,16 +329,19 @@ export function WishlistCard() {
         <ul className="mt-3 flex flex-wrap gap-2" aria-label="Хочу купить">
           {species.map((s) => (
             <li key={s.id}>
-              <Link href={`/plants/${s.slug}/`} className="inline-flex rounded-full bg-muted px-3 py-1.5 text-[13px] font-medium hover:brightness-95">
+              <Link
+                href={`/plants/${s.slug}/`}
+                className="bg-muted inline-flex rounded-full px-3 py-1.5 text-[13px] font-medium hover:brightness-95"
+              >
                 {speciesName(s)}
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-1 text-[15px] text-secondary">
+        <p className="text-secondary mt-1 text-[15px]">
           Отмечайте «Хочу купить» на страницах растений в{" "}
-          <Link href="/plants/" className="font-medium text-leaf">
+          <Link href="/plants/" className="text-leaf font-medium">
             «Знаниях»
           </Link>{" "}
           — сообщим, когда растение появится в магазинах или подешевеет.

@@ -17,6 +17,7 @@ export async function toJpeg(file: Blob, maxSide = 1600, quality = 0.85): Promis
   );
 }
 
+/** Файл → data: URL (для предпросмотра и передачи в функции). */
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -26,6 +27,7 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+/** Файл → чистый base64 без префикса data: — так фото принимает функция распознавания. */
 export async function blobToBase64(blob: Blob): Promise<string> {
   return (await blobToDataUrl(blob)).split(",", 2)[1];
 }

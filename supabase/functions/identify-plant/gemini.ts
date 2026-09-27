@@ -10,9 +10,24 @@ export const isRetryableGeminiStatus = (status: number) => status === 429 || sta
 
 /** id причин из справочника сайта; «other» — проблема вне справочника. */
 export const CAUSE_IDS = [
-  "overwatering", "root_rot", "underwatering", "dry_air", "low_light", "sunburn", "natural_aging", "hunger",
-  "stress", "spider_mite", "mealybug", "scale", "thrips", "aphids", "fungus_gnats", "powdery_mildew",
-  "leaf_spot", "grey_mould",
+  "overwatering",
+  "root_rot",
+  "underwatering",
+  "dry_air",
+  "low_light",
+  "sunburn",
+  "natural_aging",
+  "hunger",
+  "stress",
+  "spider_mite",
+  "mealybug",
+  "scale",
+  "thrips",
+  "aphids",
+  "fungus_gnats",
+  "powdery_mildew",
+  "leaf_spot",
+  "grey_mould",
 ] as const;
 
 export interface AiProblem {
@@ -126,7 +141,8 @@ export function toAiDiagnosis(body: unknown): AiDiagnosis | null {
       const title = str(item.title, 120);
       if (!title) return null;
       const cause = typeof item.cause === "string" && known.has(item.cause) ? item.cause : "other";
-      const confidence = typeof item.confidence === "number" && Number.isFinite(item.confidence) ? Math.max(0, Math.min(1, item.confidence)) : 0.5;
+      const confidence =
+        typeof item.confidence === "number" && Number.isFinite(item.confidence) ? Math.max(0, Math.min(1, item.confidence)) : 0.5;
       return { cause, title, confidence, evidence: str(item.evidence, 400) };
     })
     .filter((p): p is AiProblem => p !== null)

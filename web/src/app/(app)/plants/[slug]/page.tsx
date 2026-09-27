@@ -1,3 +1,5 @@
+/** Страница вида из базы знаний: уход, грунт, токсичность и «Где купить». Собирается заранее для каждого вида. */
+
 import { Droplet, Droplets, FlaskConical, PawPrint, Plus, Sun, Thermometer, Wind } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -28,9 +30,9 @@ export async function generateMetadata({ params }: PageProps<"/plants/[slug]">):
 
 function Fact({ icon: Icon, label, value, tone }: { icon: typeof Sun; label: string; value: string; tone?: string }) {
   return (
-    <div className="min-w-[140px] flex-1 rounded-[20px] bg-surface p-4">
+    <div className="bg-surface min-w-[140px] flex-1 rounded-[20px] p-4">
       <Icon className="size-5" style={{ color: tone ?? "var(--leaf)" }} aria-hidden />
-      <p className="mt-3 text-[13px] text-secondary">{label}</p>
+      <p className="text-secondary mt-3 text-[13px]">{label}</p>
       <p className="text-[17px] leading-snug font-semibold">{value}</p>
     </div>
   );
@@ -49,7 +51,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
 
   return (
     <article className="pt-6">
-      <nav className="text-[15px] text-secondary">
+      <nav className="text-secondary text-[15px]">
         <Link href="/plants/" className="hover:text-label">
           Знания
         </Link>{" "}
@@ -66,19 +68,21 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
           )}
         </figure>
         <div>
-          <p className="text-[17px] text-secondary italic">{s.latinName}</p>
+          <p className="text-secondary text-[17px] italic">{s.latinName}</p>
           <h1 className="mt-1 text-[40px] leading-[1.05] font-bold tracking-tight sm:text-[48px]">{name}</h1>
-          {s.commonNamesRu.length > 1 && <p className="mt-2 text-[15px] text-secondary">Ещё называют: {s.commonNamesRu.slice(1).join(", ")}</p>}
+          {s.commonNamesRu.length > 1 && (
+            <p className="text-secondary mt-2 text-[15px]">Ещё называют: {s.commonNamesRu.slice(1).join(", ")}</p>
+          )}
           {s.descriptionRu && <p className="mt-4 text-[19px] leading-relaxed">{s.descriptionRu}</p>}
           <div className="mt-4 flex flex-wrap gap-2 text-[13px] font-medium">
-            {s.difficulty != null && <span className="rounded-full bg-muted px-3 py-1">Сложность: {DIFFICULTY_LABELS[s.difficulty]}</span>}
-            {s.plantType && <span className="rounded-full bg-muted px-3 py-1 first-letter:uppercase">{s.plantType}</span>}
-            {s.airPurifying && <span className="rounded-full bg-mist/15 px-3 py-1 text-mist">Очищает воздух</span>}
+            {s.difficulty != null && <span className="bg-muted rounded-full px-3 py-1">Сложность: {DIFFICULTY_LABELS[s.difficulty]}</span>}
+            {s.plantType && <span className="bg-muted rounded-full px-3 py-1 first-letter:uppercase">{s.plantType}</span>}
+            {s.airPurifying && <span className="bg-mist/15 text-mist rounded-full px-3 py-1">Очищает воздух</span>}
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link
               href={`/garden/new/?species=${s.slug}`}
-              className="inline-flex min-h-12 items-center gap-2 rounded-full bg-leaf px-6 text-[17px] font-semibold text-white hover:brightness-110"
+              className="bg-leaf inline-flex min-h-12 items-center gap-2 rounded-full px-6 text-[17px] font-semibold text-white hover:brightness-110"
             >
               <Plus className="size-5" aria-hidden /> Добавить в коллекцию
             </Link>
@@ -113,21 +117,21 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-2">
-            <section className="rounded-[20px] bg-surface p-5">
+            <section className="bg-surface rounded-[20px] p-5">
               <h3 className="flex items-center gap-2 text-[17px] font-semibold">
-                <Droplets className="size-5 text-water" aria-hidden /> Полив
+                <Droplets className="text-water size-5" aria-hidden /> Полив
               </h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-secondary">
+              <p className="text-secondary mt-2 text-[15px] leading-relaxed">
                 {care.drynessRu && <>Поливайте, когда просохнет {care.drynessRu}. </>}В приложении стартовый интервал — примерно раз в{" "}
                 {Math.round(baseWaterInterval(care.waterIntervalSummer))} дн.; летом он короче, зимой длиннее, а ещё учитывается горшок,
                 освещение и то, как вы поливаете на самом деле.
               </p>
             </section>
-            <section className="rounded-[20px] bg-surface p-5">
+            <section className="bg-surface rounded-[20px] p-5">
               <h3 className="flex items-center gap-2 text-[17px] font-semibold">
-                <FlaskConical className="size-5 text-soil" aria-hidden /> Подкормка и пересадка
+                <FlaskConical className="text-soil size-5" aria-hidden /> Подкормка и пересадка
               </h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-secondary">
+              <p className="text-secondary mt-2 text-[15px] leading-relaxed">
                 {care.fertilizeIntervalDays
                   ? `Подкармливайте раз в ${care.fertilizeIntervalDays} дн.${care.fertilizeMonths.length ? ` (${care.fertilizeMonths.map((m) => MONTHS_SHORT[m - 1]).join(", ")})` : ""}. `
                   : ""}
@@ -148,12 +152,12 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
           )}
 
           {care.tipsRu.length > 0 && (
-            <section className="mt-6 rounded-[20px] bg-surface p-5">
+            <section className="bg-surface mt-6 rounded-[20px] p-5">
               <h3 className="text-[17px] font-semibold">Советы</h3>
               <ul className="mt-2 space-y-2">
                 {care.tipsRu.map((t) => (
                   <li key={t} className="flex gap-3 text-[15px] leading-relaxed">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-leaf" aria-hidden />
+                    <span className="bg-leaf mt-2 size-1.5 shrink-0 rounded-full" aria-hidden />
                     {t}
                   </li>
                 ))}
@@ -164,7 +168,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
       )}
 
       {(s.synonyms.length > 0 || s.commonNamesEn.length > 0) && (
-        <p className="mt-6 text-[13px] text-secondary">
+        <p className="text-secondary mt-6 text-[13px]">
           {s.synonyms.length > 0 && <>Прежние латинские названия: {s.synonyms.join(", ")}. </>}
           {s.commonNamesEn.length > 0 && <>По-английски: {s.commonNamesEn.join(", ")}.</>}
         </p>

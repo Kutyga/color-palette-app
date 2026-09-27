@@ -1,5 +1,7 @@
 "use client";
 
+/** Новая запись: запись в дневник растения или вопрос в «Помощь». */
+
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageCircleQuestion, NotebookPen, Sprout } from "lucide-react";
 import Link from "next/link";
@@ -62,7 +64,7 @@ function NewPostForm() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-xl">
-      <div className="mb-5 flex rounded-full bg-muted p-1" role="tablist" aria-label="Что публикуем">
+      <div className="bg-muted mb-5 flex rounded-full p-1" role="tablist" aria-label="Что публикуем">
         {(
           [
             ["diary", "Запись в дневник", NotebookPen],
@@ -91,7 +93,7 @@ function NewPostForm() {
           title="Сначала добавьте растение"
           message="Дневник ведётся для растений из вашей коллекции."
           action={
-            <Link href="/garden/new/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+            <Link href="/garden/new/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
               Добавить растение
             </Link>
           }
@@ -110,7 +112,7 @@ function NewPostForm() {
           </Field>
           {isDiary && (
             <fieldset>
-              <legend className="mb-2 text-[13px] font-medium text-secondary">Что произошло</legend>
+              <legend className="text-secondary mb-2 text-[13px] font-medium">Что произошло</legend>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(DIARY_EVENTS) as DiaryEvent[]).map((k) => (
                   <Chip key={k} active={event === k} onClick={() => setEvent(k)}>
@@ -121,12 +123,21 @@ function NewPostForm() {
             </fieldset>
           )}
           <div>
-            <CameraField aspect="aspect-[4/3]" photoUrl={photo?.url ?? null} onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })} />
-            <p className="mt-2 text-center text-[13px] text-secondary">
-              {isDiary ? "Фото обязательно — так в дневнике будет видно, как растение меняется." : "Фото поможет понять, что случилось. Можно и без него."}
+            <CameraField
+              aspect="aspect-[4/3]"
+              photoUrl={photo?.url ?? null}
+              onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })}
+            />
+            <p className="text-secondary mt-2 text-center text-[13px]">
+              {isDiary
+                ? "Фото обязательно — так в дневнике будет видно, как растение меняется."
+                : "Фото поможет понять, что случилось. Можно и без него."}
             </p>
           </div>
-          <Field label={isDiary ? "Пара слов" : "Вопрос"} hint={isDiary ? undefined : "Опишите, что видите, как поливаете и где стоит растение."}>
+          <Field
+            label={isDiary ? "Пара слов" : "Вопрос"}
+            hint={isDiary ? undefined : "Опишите, что видите, как поливаете и где стоит растение."}
+          >
             <textarea
               className={`${inputClass} min-h-28 resize-y`}
               maxLength={2000}
@@ -147,8 +158,12 @@ function NewPostForm() {
             {isDiary ? "Добавить в дневник" : "Спросить"}
           </Button>
           {!ready && (
-            <p className="text-center text-[13px] text-secondary">
-              {isDiary ? (!plantId ? "Выберите растение и сфотографируйте его." : "Сфотографируйте растение.") : `Опишите вопрос подробнее — хотя бы ${MIN_QUESTION} символов.`}
+            <p className="text-secondary text-center text-[13px]">
+              {isDiary
+                ? !plantId
+                  ? "Выберите растение и сфотографируйте его."
+                  : "Сфотографируйте растение."
+                : `Опишите вопрос подробнее — хотя бы ${MIN_QUESTION} символов.`}
             </p>
           )}
         </div>

@@ -55,15 +55,14 @@ export function personFromRow(r: Row): PersonCard {
   };
 }
 
-export const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
+const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
 
 /** Проверка формы профиля; null — всё в порядке, иначе текст ошибки для поля. */
 export function validateProfile(p: ProfileUpdate): { field: keyof ProfileUpdate; message: string } | null {
   const name = p.displayName.trim();
   if (!name) return { field: "displayName", message: "Введите имя" };
   if (name.length > 40) return { field: "displayName", message: "Имя — до 40 символов" };
-  if (!USERNAME_RE.test(p.username))
-    return { field: "username", message: "3–30 символов: латинские строчные буквы, цифры и _" };
+  if (!USERNAME_RE.test(p.username)) return { field: "username", message: "3–30 символов: латинские строчные буквы, цифры и _" };
   if (p.bio.length > 500) return { field: "bio", message: "О себе — до 500 символов" };
   if ((p.city ?? "").trim().length > 60) return { field: "city", message: "Город — до 60 символов" };
   return null;
@@ -71,4 +70,10 @@ export function validateProfile(p: ProfileUpdate): { field: keyof ProfileUpdate;
 
 /** Нормализует ввод username: без @, строчные, пробелы и точки → «_». */
 export const normalizeUsername = (raw: string) =>
-  raw.trim().replace(/^@+/, "").toLowerCase().replace(/[\s.\-]+/g, "_").replace(/[^a-z0-9_]/g, "").replace(/_+/g, "_");
+  raw
+    .trim()
+    .replace(/^@+/, "")
+    .toLowerCase()
+    .replace(/[\s.\-]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "")
+    .replace(/_+/g, "_");

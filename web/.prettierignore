@@ -1,0 +1,11 @@
+# Сгенерированное и сторонние данные
+.next
+out
+test-results
+node_modules
+package-lock.json
+next-env.d.ts
+src/data/*.json
+public
+AGENTS.md
+CLAUDE.md

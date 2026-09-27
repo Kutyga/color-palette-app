@@ -1,5 +1,7 @@
 "use client";
 
+/** Вход и регистрация по email и паролю; новый аккаунт подтверждается по ссылке из письма. */
+
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,13 +73,19 @@ function LoginForm() {
   if (sentTo) {
     return (
       <div className="text-center">
-        <MailCheck className="mx-auto size-12 text-leaf" aria-hidden />
+        <MailCheck className="text-leaf mx-auto size-12" aria-hidden />
         <h1 className="mt-4 text-[28px] font-bold">Проверьте почту</h1>
-        <p className="mt-2 text-secondary">
-          Мы отправили письмо на <b className="text-label">{sentTo}</b>. Откройте ссылку из письма — и вы сразу окажетесь в своём
-          саду.
+        <p className="text-secondary mt-2">
+          Мы отправили письмо на <b className="text-label">{sentTo}</b>. Откройте ссылку из письма — и вы сразу окажетесь в своём саду.
         </p>
-        <Button variant="secondary" className="mt-6" onClick={() => { setSentTo(null); setMode("signin"); }}>
+        <Button
+          variant="secondary"
+          className="mt-6"
+          onClick={() => {
+            setSentTo(null);
+            setMode("signin");
+          }}
+        >
           Уже подтвердил — войти
         </Button>
       </div>
@@ -87,14 +95,21 @@ function LoginForm() {
   return (
     <>
       <h1 className="text-center text-[28px] font-bold tracking-tight">{mode === "signin" ? "С возвращением" : "Создать аккаунт"}</h1>
-      <p className="mt-1 text-center text-secondary">
+      <p className="text-secondary mt-1 text-center">
         {mode === "signin" ? "Войдите, чтобы увидеть свой сад" : "Растения синхронизируются между устройствами"}
       </p>
 
       {hasBackend ? (
         <form onSubmit={submit} className="mt-8 space-y-4">
           <Field label="Почта">
-            <input className={inputClass} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              className={inputClass}
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </Field>
           <Field label="Пароль" hint={mode === "signup" ? "Минимум 6 символов" : undefined}>
             <input
@@ -119,7 +134,7 @@ function LoginForm() {
             </Field>
           )}
           {error && (
-            <p className="rounded-xl bg-alert/10 px-4 py-3 text-[15px] text-alert" role="alert">
+            <p className="bg-alert/10 text-alert rounded-xl px-4 py-3 text-[15px]" role="alert">
               {error}
             </p>
           )}
@@ -128,20 +143,23 @@ function LoginForm() {
           </Button>
           <button
             type="button"
-            className="w-full py-2 text-[15px] font-medium text-leaf"
-            onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(null); }}
+            className="text-leaf w-full py-2 text-[15px] font-medium"
+            onClick={() => {
+              setMode(mode === "signin" ? "signup" : "signin");
+              setError(null);
+            }}
           >
             {mode === "signin" ? "Впервые здесь? Регистрация" : "Уже есть аккаунт? Войти"}
           </button>
         </form>
       ) : (
-        <p className="mt-8 rounded-xl bg-muted px-4 py-3 text-[15px] text-secondary">
+        <p className="bg-muted text-secondary mt-8 rounded-xl px-4 py-3 text-[15px]">
           Сервер не подключён в этой сборке — доступен демо-режим.
         </p>
       )}
 
-      <div className="mt-6 flex items-center gap-3 text-[13px] text-secondary">
-        <span className="h-px flex-1 bg-separator" /> или <span className="h-px flex-1 bg-separator" />
+      <div className="text-secondary mt-6 flex items-center gap-3 text-[13px]">
+        <span className="bg-separator h-px flex-1" /> или <span className="bg-separator h-px flex-1" />
       </div>
       <Button
         variant="secondary"
@@ -167,7 +185,7 @@ export default function LoginPage() {
         <Suspense>
           <LoginForm />
         </Suspense>
-        <p className="mt-8 text-center text-[13px] text-secondary">
+        <p className="text-secondary mt-8 text-center text-[13px]">
           <Link href="/plants/" className="underline">
             Посмотреть базу знаний
           </Link>{" "}

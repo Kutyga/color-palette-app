@@ -1,3 +1,5 @@
+/** Клиент Supabase; null, если сайт собран без адреса проекта (тогда работает только демо). */
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL, hasBackend } from "./config";
 

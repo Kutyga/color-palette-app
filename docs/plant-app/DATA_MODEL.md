@@ -1,8 +1,8 @@
 # Модель данных
 
-Postgres (Supabase). Все первичные ключи — UUID, генерируемые клиентом (для офлайн-создания и
-идемпотентной синхронизации). Все пользовательские таблицы имеют `created_at`, `updated_at`,
-`deleted_at` (мягкое удаление).
+Postgres (Supabase). Источник истины — миграции в `supabase/migrations`, этот документ —
+обзор. Первичные ключи — UUID. Id отметок ухода задаёт клиент, поэтому повтор запроса
+после потерянного ответа не создаёт дубль. Растения удаляются мягко (`deleted_at`).
 
 ## ER-схема (упрощённо)
 
@@ -264,12 +264,19 @@ create policy plants_read_shared on plants
   );
 ```
 
-## Локальная БД клиента (Drift)
+## Разделы, добавленные позже
 
-Зеркалирует собственные таблицы (`locations`, `plants`, `plant_photos`, `care_schedules`,
-`care_events`) плюс:
+Подробности — в миграциях с тем же названием.
 
-- `kb_species_cache`, `kb_care_profiles_cache` — кэш базы знаний;
-- `outbox (id, entity, entity_id, op, payload_json, created_at, attempts)` — очередь на отправку;
-- `sync_state (entity, last_pulled_at)`;
-- `pending_uploads (photo_id, local_path, status)` — фото, ожидающие загрузки.
+| Раздел | Таблицы | Миграция |
+|---|---|---|
+| Новости | `news_sources`, `news_articles` | `*_news.sql`, `*_news_languages.sql` |
+| Грунты | `soil_mixes` (ссылка из `care_profiles.soil_mix_slug`) | `*_soil_mixes.sql` |
+| Дневники и «Помощь» | `posts.event`, `posts.species_id`, `posts.solved_comment_id` (лучший ответ) | `*_diaries_and_help.sql` |
+| Барахолка и чат | `listings`, `conversations`, `messages` | `*_marketplace_chat.sql` |
+| Растение в воде, Web Push | `plants.in_water`, `push_subscriptions`, `private.push_queue`, `private.care_reminder_log` | `*_water_culture_and_push.sql` |
+| Магазины | `shops`, `shop_products`, `private.wishlist_alert_log` | `*_shops.sql` |
+| Квоты распознавания | `private.identify_usage` | `*_identify_quota.sql` |
+
+Таблицы в схеме `private` из браузера недоступны: с ними работают только триггеры,
+RPC и Edge Functions.

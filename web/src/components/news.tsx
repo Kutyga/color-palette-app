@@ -1,5 +1,7 @@
 "use client";
 
+/** Новости о растениях: лента с фильтром по языкам и переводом заголовков. */
+
 import { Languages, Newspaper, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -29,19 +31,19 @@ function NewsItem({ a, prefs }: { a: NewsArticle; prefs: NewsPrefs }) {
   // Статьи из базы знаний (демо) — внутренние ссылки; остальные открываются в режиме чтения на сайте.
   const href = a.url.startsWith("/") ? a.url : `/feed/article/?id=${a.id}`;
   return (
-    <article className="rounded-[20px] bg-surface transition hover:brightness-[0.98]">
+    <article className="bg-surface rounded-[20px] transition hover:brightness-[0.98]">
       <Link href={href} className="flex gap-4 p-4">
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1.5 text-[13px] text-secondary">
-            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase">{a.language}</span>
+          <p className="text-secondary flex items-center gap-1.5 text-[13px]">
+            <span className="bg-muted rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase">{a.language}</span>
             {a.sourceName} · {timeAgo(a.publishedAt)}
-            {state === "done" && <Languages className="size-3.5 text-leaf" aria-label="Переведено" />}
+            {state === "done" && <Languages className="text-leaf size-3.5" aria-label="Переведено" />}
           </p>
           <h3 className="mt-1 text-[17px] leading-snug font-semibold" lang={state === "done" ? prefs.target : a.language}>
             {title}
           </h3>
           {summary && (
-            <p className="mt-1 line-clamp-2 text-[15px] text-secondary" lang={state === "done" ? prefs.target : a.language}>
+            <p className="text-secondary mt-1 line-clamp-2 text-[15px]" lang={state === "done" ? prefs.target : a.language}>
               {summary}
             </p>
           )}
@@ -52,7 +54,7 @@ function NewsItem({ a, prefs }: { a: NewsArticle; prefs: NewsPrefs }) {
         )}
       </Link>
       {foreign && !a.url.startsWith("/") && (
-        <div className="flex gap-4 border-t border-separator px-4 py-2 text-[13px] font-medium">
+        <div className="border-separator flex gap-4 border-t px-4 py-2 text-[13px] font-medium">
           <a href={translatedUrl(a.url, prefs.target)} target="_blank" rel="noopener noreferrer" className="text-leaf">
             Открыть в переводе
           </a>
@@ -72,7 +74,7 @@ function NewsSettings({ prefs, onChange }: { prefs: NewsPrefs; onChange: (p: New
     <div className="space-y-6">
       <section>
         <h3 className="font-semibold">Языки новостей</h3>
-        <p className="text-[13px] text-secondary">Ничего не выбрано — показываем все.</p>
+        <p className="text-secondary text-[13px]">Ничего не выбрано — показываем все.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {Object.entries(NEWS_LANGUAGES).map(([code, name]) => (
             <Chip key={code} active={prefs.langs.includes(code)} onClick={() => toggle(code)}>
@@ -83,7 +85,7 @@ function NewsSettings({ prefs, onChange }: { prefs: NewsPrefs; onChange: (p: New
       </section>
       <section>
         <h3 className="font-semibold">Перевод</h3>
-        <label className="mt-3 flex items-center justify-between gap-4 rounded-2xl bg-muted px-4 py-3">
+        <label className="bg-muted mt-3 flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
           <span>Переводить автоматически</span>
           <input
             type="checkbox"
@@ -92,12 +94,12 @@ function NewsSettings({ prefs, onChange }: { prefs: NewsPrefs; onChange: (p: New
             className="size-5 accent-[var(--leaf)]"
           />
         </label>
-        <label className="mt-2 flex items-center justify-between gap-4 rounded-2xl bg-muted px-4 py-3">
+        <label className="bg-muted mt-2 flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
           <span>На язык</span>
           <select
             value={prefs.target}
             onChange={(e) => onChange({ ...prefs, target: e.target.value })}
-            className="rounded-lg bg-surface px-2 py-1"
+            className="bg-surface rounded-lg px-2 py-1"
             aria-label="Язык перевода"
           >
             {Object.entries(NEWS_LANGUAGES).map(([code, name]) => (
@@ -107,7 +109,7 @@ function NewsSettings({ prefs, onChange }: { prefs: NewsPrefs; onChange: (p: New
             ))}
           </select>
         </label>
-        <p className="mt-2 text-[13px] text-secondary">
+        <p className="text-secondary mt-2 text-[13px]">
           {hasBrowserTranslator()
             ? "Ваш браузер переводит прямо на странице, без отправки текста на сервер."
             : "Этот браузер не умеет переводить сам — у зарубежных статей будет кнопка «Открыть в переводе» (Google Переводчик). В Safari можно также нажать «аА» → «Перевести»."}
@@ -128,7 +130,7 @@ export function News() {
       <div className="no-scrollbar -mx-4 mb-3 flex items-center gap-2 overflow-x-auto px-4">
         <button
           onClick={() => setSettingsOpen(true)}
-          className="flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-[13px] font-medium"
+          className="bg-muted flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium"
           aria-label="Настройки новостей"
         >
           <SlidersHorizontal className="size-4" aria-hidden /> Язык и перевод
@@ -146,7 +148,7 @@ export function News() {
           </Chip>
         ))}
       </div>
-      <label className="mb-4 flex items-center justify-between rounded-[20px] bg-surface px-4 py-3">
+      <label className="bg-surface mb-4 flex items-center justify-between rounded-[20px] px-4 py-3">
         <span className="font-medium">Только про мои растения</span>
         <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} className="size-5 accent-[var(--leaf)]" />
       </label>

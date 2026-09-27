@@ -1,3 +1,5 @@
+/** Стартовый график ухода нового растения — общая логика для Supabase и демо. */
+
 import { baseWaterInterval, type CareType } from "../domain/care";
 import type { CareProfile } from "../domain/species";
 
@@ -7,7 +9,7 @@ export interface ScheduleSeed {
   lastDoneAt: Date | null;
 }
 
-/** Графики ухода для нового растения по данным базы знаний. Общая логика для Supabase и демо. */
+/** Полив — по профилю вида (или раз в неделю); подкормка и пересадка — если виду они нужны. */
 export function initialSchedules(
   care: CareProfile | null,
   opts: { waterIntervalDays?: number | null; lastWateredAt?: Date | null },

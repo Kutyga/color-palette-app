@@ -1,16 +1,18 @@
 "use client";
 
+/** Барахолка: лента объявлений с фильтрами, бейджи и жалоба на объявление. */
+
 import { MapPin, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useBackend } from "./session";
-import { ShopsList } from "./shops";
-import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
 import { LISTING_KINDS, LISTING_STATUS, priceLabel, type Listing, type ListingFilter, type ListingKind } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
 import { useListings, useMyListings, useProfile } from "@/lib/queries";
+import { useBackend } from "./session";
+import { ShopsList } from "./shops";
+import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
 
 export const chatHref = (id: string) => `/messages/chat/?id=${encodeURIComponent(id)}`;
 export const listingHref = (id: string) => `/market/view/?id=${encodeURIComponent(id)}`;
@@ -21,18 +23,27 @@ export const listingPhoto = (l: Pick<Listing, "photoUrls" | "speciesId">) => l.p
 export function KindBadge({ kind, className }: { kind: ListingKind; className?: string }) {
   const k = LISTING_KINDS[kind];
   return (
-    <span className={cx("inline-flex items-center gap-1 rounded-full bg-surface/90 px-2.5 py-1 text-[12px] font-semibold backdrop-blur", className)}>
+    <span
+      className={cx(
+        "bg-surface/90 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold backdrop-blur",
+        className,
+      )}
+    >
       <span aria-hidden>{k.emoji}</span> {k.label}
     </span>
   );
 }
 
 /** Плитка объявления в сетке. */
-export function ListingCard({ listing: l }: { listing: Listing }) {
+function ListingCard({ listing: l }: { listing: Listing }) {
   const sp = speciesById(l.speciesId);
   return (
     <li>
-      <Link href={listingHref(l.id)} className="block overflow-hidden rounded-[20px] bg-surface transition hover:brightness-[0.98]" aria-label={`${l.title}, ${priceLabel(l)}`}>
+      <Link
+        href={listingHref(l.id)}
+        className="bg-surface block overflow-hidden rounded-[20px] transition hover:brightness-[0.98]"
+        aria-label={`${l.title}, ${priceLabel(l)}`}
+      >
         <div className="relative">
           <PlantPhoto src={listingPhoto(l)} seed={l.id} alt={l.title} className="aspect-square w-full" iconSize={36} />
           <KindBadge kind={l.kind} className="absolute top-2 left-2" />
@@ -45,8 +56,8 @@ export function ListingCard({ listing: l }: { listing: Listing }) {
         <div className="p-3">
           <p className="text-[17px] font-bold">{priceLabel(l)}</p>
           <p className="line-clamp-2 text-[15px] leading-snug">{l.title}</p>
-          {sp && <p className="mt-0.5 truncate text-[12px] text-secondary">{speciesName(sp)}</p>}
-          <p className="mt-1.5 flex items-center gap-1 text-[12px] text-secondary">
+          {sp && <p className="text-secondary mt-0.5 truncate text-[12px]">{speciesName(sp)}</p>}
+          <p className="text-secondary mt-1.5 flex items-center gap-1 text-[12px]">
             <MapPin className="size-3.5 shrink-0" aria-hidden />
             <span className="truncate">{l.city}</span>
             {l.delivery && <Truck className="ml-1 size-3.5 shrink-0" aria-label="Есть доставка" />}
@@ -91,7 +102,7 @@ function MineList() {
         title="У вас пока нет объявлений"
         message="Продайте детку, отдайте черенок или найдите растение мечты."
         action={
-          <Link href="/market/new/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+          <Link href="/market/new/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Новое объявление
           </Link>
         }
@@ -110,9 +121,13 @@ function Results({ filter }: { filter: ListingFilter }) {
       <EmptyState
         icon={Store}
         title="Объявлений пока нет"
-        message={filter.city ? `В городе ${filter.city} ничего не нашлось — посмотрите все города или разместите своё.` : "Будьте первым — разместите объявление."}
+        message={
+          filter.city
+            ? `В городе ${filter.city} ничего не нашлось — посмотрите все города или разместите своё.`
+            : "Будьте первым — разместите объявление."
+        }
         action={
-          <Link href="/market/new/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+          <Link href="/market/new/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Разместить объявление
           </Link>
         }
@@ -133,7 +148,7 @@ export function Market() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="mb-3 rounded-2xl bg-muted px-4 py-3 text-[13px] text-secondary">
+      <p className="bg-muted text-secondary mb-3 rounded-2xl px-4 py-3 text-[13px]">
         Сделки — напрямую между садоводами, приложение не берёт деньги. Не переводите предоплату незнакомым и встречайтесь в людных местах.
       </p>
       <div className="no-scrollbar -mx-4 mb-2 flex gap-2 overflow-x-auto px-4">
@@ -155,7 +170,7 @@ export function Market() {
               </Chip>
             </>
           ) : (
-            <Link href="/profile/" className="shrink-0 rounded-full bg-muted px-4 py-2 text-[13px] font-medium text-leaf">
+            <Link href="/profile/" className="bg-muted text-leaf shrink-0 rounded-full px-4 py-2 text-[13px] font-medium">
               📍 Укажите город в профиле
             </Link>
           )}
@@ -202,7 +217,12 @@ export function ReportSheet({
       <ul className="space-y-2 pb-2">
         {REPORT_REASONS.map((r) => (
           <li key={r}>
-            <button type="button" disabled={sending} onClick={() => send(r)} className="w-full rounded-2xl bg-muted px-4 py-3.5 text-left text-[15px] font-medium disabled:opacity-50">
+            <button
+              type="button"
+              disabled={sending}
+              onClick={() => send(r)}
+              className="bg-muted w-full rounded-2xl px-4 py-3.5 text-left text-[15px] font-medium disabled:opacity-50"
+            >
               {r}
             </button>
           </li>

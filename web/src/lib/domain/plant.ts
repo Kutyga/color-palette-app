@@ -1,3 +1,6 @@
+/** Растение в коллекции: модель, видимость для других, статус полива. */
+
+import { DAY_MS, startOfDay } from "../time";
 import type { CareEvent, CareSchedule, LightLevel, PotMaterial } from "./care";
 
 export const VISIBILITIES = {
@@ -77,7 +80,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
     locationName: location?.name ?? null,
     lightLevel: location?.light_level ?? null,
     potMaterial: (r.pot_material as PotMaterial | null) ?? null,
-    visibility: ((r.visibility as Visibility | null) ?? "followers"),
+    visibility: (r.visibility as Visibility | null) ?? "followers",
     notes: (r.notes as string | null) ?? null,
     inWater,
     nextWaterAt: water?.next_due_at ? new Date(water.next_due_at) : null,
@@ -86,15 +89,16 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
   };
 }
 
-export const coverPathOf = (r: Row) => ((r.cover as { storage_path?: string } | null)?.storage_path ?? null);
+/** Путь к обложке растения в хранилище (из вложенного select cover:plant_photos). */
+export const coverPathOf = (r: Row) => (r.cover as { storage_path?: string } | null)?.storage_path ?? null;
 
 export type PlantStatus = "ok" | "soon" | "overdue";
 
 /** Статус для точки в углу карточки: просрочено / полив сегодня-завтра / всё хорошо. */
 export function plantStatus(p: Pick<Plant, "nextWaterAt">, now: Date): PlantStatus {
   if (!p.nextWaterAt) return "ok";
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = startOfDay(now);
   if (p.nextWaterAt < today) return "overdue";
-  if (p.nextWaterAt.getTime() < today.getTime() + 2 * 86_400_000) return "soon";
+  if (p.nextWaterAt.getTime() < today.getTime() + 2 * DAY_MS) return "soon";
   return "ok";
 }

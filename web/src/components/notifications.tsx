@@ -1,21 +1,28 @@
 "use client";
 
+/** Настройки уведомлений: напоминания о поливе в браузере (web push). */
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellOff, Share } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { NotificationSettings } from "@/lib/data/repositories";
+import { currentSubscription, disablePush, enablePush, pushSupport } from "@/lib/push";
 import { useBackend } from "./session";
 import { Button, Card, Spinner, cx, inputClass, useIsClient, useToast } from "./ui";
-import type { NotificationSettings } from "@/lib/data/types";
-import { currentSubscription, disablePush, enablePush, pushSupport } from "@/lib/push";
 
 function Toggle({ label, hint, checked, onChange }: { label: string; hint: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <label className="flex items-center justify-between gap-3 py-3">
       <span>
         <span className="block text-[15px] font-medium">{label}</span>
-        <span className="block text-[13px] text-secondary">{hint}</span>
+        <span className="text-secondary block text-[13px]">{hint}</span>
       </span>
-      <input type="checkbox" className="size-5 shrink-0 accent-[var(--leaf)]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input
+        type="checkbox"
+        className="size-5 shrink-0 accent-[var(--leaf)]"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
     </label>
   );
 }
@@ -38,9 +45,14 @@ function Preferences() {
   if (!settings.data) return <Spinner />;
   const s = settings.data;
   return (
-    <div className="mt-3 divide-y divide-separator">
+    <div className="divide-separator mt-3 divide-y">
       <div>
-        <Toggle label="Напоминания об уходе" hint="Раз в день, если есть что полить или подкормить" checked={s.care} onChange={(v) => save({ care: v })} />
+        <Toggle
+          label="Напоминания об уходе"
+          hint="Раз в день, если есть что полить или подкормить"
+          checked={s.care}
+          onChange={(v) => save({ care: v })}
+        />
         {s.care && (
           <label className="flex items-center justify-between gap-3 pb-3 text-[15px]">
             <span className="text-secondary">Во сколько</span>
@@ -55,8 +67,18 @@ function Preferences() {
         )}
       </div>
       <Toggle label="Сообщения" hint="Новые сообщения в чатах барахолки" checked={s.messages} onChange={(v) => save({ messages: v })} />
-      <Toggle label="Сообщество" hint="Ответы на ваши вопросы и комментарии к записям" checked={s.community} onChange={(v) => save({ community: v })} />
-      <Toggle label="«Хочу купить»" hint="Растение из списка появилось в магазине или подешевело" checked={s.wishlist} onChange={(v) => save({ wishlist: v })} />
+      <Toggle
+        label="Сообщество"
+        hint="Ответы на ваши вопросы и комментарии к записям"
+        checked={s.community}
+        onChange={(v) => save({ community: v })}
+      />
+      <Toggle
+        label="«Хочу купить»"
+        hint="Растение из списка появилось в магазине или подешевело"
+        checked={s.wishlist}
+        onChange={(v) => save({ wishlist: v })}
+      />
     </div>
   );
 }
@@ -107,18 +129,18 @@ export function NotificationsCard() {
   return (
     <Card className="p-5">
       <div className="flex items-center gap-3">
-        <Bell className="size-6 text-leaf" aria-hidden />
+        <Bell className="text-leaf size-6" aria-hidden />
         <div className="flex-1">
           <p className="font-semibold">Уведомления</p>
-          <p className="text-[13px] text-secondary">О поливе, сообщениях и ответах — даже когда сайт закрыт</p>
+          <p className="text-secondary text-[13px]">О поливе, сообщениях и ответах — даже когда сайт закрыт</p>
         </div>
       </div>
       {!repo ? (
-        <p className="mt-3 text-[15px] text-secondary">Уведомления работают после регистрации.</p>
+        <p className="text-secondary mt-3 text-[15px]">Уведомления работают после регистрации.</p>
       ) : support === "ios-needs-install" ? (
-        <div className="mt-3 rounded-2xl bg-muted px-4 py-3 text-[15px]">
+        <div className="bg-muted mt-3 rounded-2xl px-4 py-3 text-[15px]">
           <p className="font-medium">На iPhone уведомления приходят только от сайта на экране «Домой»:</p>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-secondary">
+          <ol className="text-secondary mt-2 list-decimal space-y-1 pl-5">
             <li>
               Откройте сайт в Safari и нажмите <Share className="inline size-4 align-text-bottom" aria-label="«Поделиться»" />
             </li>
@@ -127,7 +149,7 @@ export function NotificationsCard() {
           </ol>
         </div>
       ) : support === "unsupported" ? (
-        <p className="mt-3 text-[15px] text-secondary">Этот браузер не поддерживает уведомления. Попробуйте Chrome, Safari или Firefox.</p>
+        <p className="text-secondary mt-3 text-[15px]">Этот браузер не поддерживает уведомления. Попробуйте Chrome, Safari или Firefox.</p>
       ) : subscribed === null ? (
         <Spinner />
       ) : (

@@ -34,11 +34,38 @@ async function load(file, path) {
   return res.json();
 }
 
-const SPECIES_FIELDS = ["slug", "latin_name", "common_names", "synonyms", "description", "plant_type", "difficulty",
-  "toxic_to_pets", "toxic_to_humans", "air_purifying", "image_url", "image_credit", "image_license", "image_source_url"];
-const CARE_FIELDS = ["light", "water_interval_summer", "water_interval_winter", "soil_dryness_before_watering",
-  "humidity_min_pct", "temp_min_c", "temp_max_c", "fertilize_interval_days", "fertilize_months", "repot_every_years",
-  "propagation", "tips", "soil_mix_slug", "soil_note"];
+const SPECIES_FIELDS = [
+  "slug",
+  "latin_name",
+  "common_names",
+  "synonyms",
+  "description",
+  "plant_type",
+  "difficulty",
+  "toxic_to_pets",
+  "toxic_to_humans",
+  "air_purifying",
+  "image_url",
+  "image_credit",
+  "image_license",
+  "image_source_url",
+];
+const CARE_FIELDS = [
+  "light",
+  "water_interval_summer",
+  "water_interval_winter",
+  "soil_dryness_before_watering",
+  "humidity_min_pct",
+  "temp_min_c",
+  "temp_max_c",
+  "fertilize_interval_days",
+  "fertilize_months",
+  "repot_every_years",
+  "propagation",
+  "tips",
+  "soil_mix_slug",
+  "soil_note",
+];
 const pick = (obj, fields) => Object.fromEntries(fields.map((f) => [f, obj?.[f] ?? null]));
 
 const rows = await load(arg("--from"), "species?select=*,care_profiles(*)&order=latin_name");
@@ -54,8 +81,21 @@ if (rows) {
   console.log(`sync-species: ${species.length} видов → src/data/species.json`);
 }
 
-const SOIL_FIELDS = ["slug", "name", "summary", "components", "ph_min", "ph_max", "drainage", "top_layer", "pot",
-  "water_retention", "aeration", "tips", "sort"];
+const SOIL_FIELDS = [
+  "slug",
+  "name",
+  "summary",
+  "components",
+  "ph_min",
+  "ph_max",
+  "drainage",
+  "top_layer",
+  "pot",
+  "water_retention",
+  "aeration",
+  "tips",
+  "sort",
+];
 const mixes = await load(arg("--soil-from"), "soil_mixes?select=*&order=sort");
 if (mixes) {
   const sorted = mixes.map((m) => pick(m, SOIL_FIELDS)).sort((a, b) => a.sort - b.sort);

@@ -1,5 +1,7 @@
 "use client";
 
+/** «Сегодня»: задачи ухода на день, кольца прогресса и серия дней без пропусков. */
+
 import { Check, Flame, PartyPopper, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -23,8 +25,8 @@ import { CARE_TYPES, taskBucket, type CareTask, type TaskBucket } from "@/lib/do
 import { evaluateAchievements, levelFor } from "@/lib/domain/gamification";
 import type { Plant } from "@/lib/domain/plant";
 import { formatDate, plural, relativeDay } from "@/lib/format";
-import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
 import { plantPhotoUrl } from "@/lib/knowledge";
+import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
 
 const SECTIONS: { bucket: TaskBucket; title: string }[] = [
   { bucket: "overdue", title: "Просрочено" },
@@ -58,11 +60,11 @@ function TaskRow({ task, bucket, plant, now }: { task: CareTask; bucket: TaskBuc
   }
 
   return (
-    <li className={cx("flex items-center gap-3 rounded-[20px] bg-surface p-3 pr-4 transition", done && "opacity-50")}>
+    <li className={cx("bg-surface flex items-center gap-3 rounded-[20px] p-3 pr-4 transition", done && "opacity-50")}>
       <Link href={`/garden/plant/?id=${task.plantId}`} className="flex min-w-0 flex-1 items-center gap-3">
         <div className="relative shrink-0">
           <PlantPhoto src={plantPhotoUrl(plant)} seed={task.plantId} alt="" className="size-14 rounded-2xl" iconSize={22} />
-          <span className="absolute -right-1 -bottom-1 grid size-6 place-items-center rounded-full bg-surface" style={{ color }}>
+          <span className="bg-surface absolute -right-1 -bottom-1 grid size-6 place-items-center rounded-full" style={{ color }}>
             <Icon className="size-4" aria-hidden />
           </span>
         </div>
@@ -110,7 +112,7 @@ function Stories({ plants, tasks, now }: { plants: Plant[]; tasks: CareTask[]; n
         return (
           <Link key={p.id} href={`/garden/plant/?id=${p.id}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
             <span className="rounded-full p-[3px]" style={{ background: ring }}>
-              <span className="block rounded-full bg-bg p-[2px]">
+              <span className="bg-bg block rounded-full p-[2px]">
                 <PlantPhoto src={plantPhotoUrl(p)} seed={p.id} alt={p.nickname} className="size-16 rounded-full" iconSize={24} />
               </span>
             </span>
@@ -151,7 +153,7 @@ function TodayContent() {
         title="Начнём ваш сад"
         message="Добавьте первое растение — мы составим график полива по карточке вида и напомним, когда пора."
         action={
-          <Link href="/garden/new/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+          <Link href="/garden/new/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Добавить растение
           </Link>
         }
@@ -170,24 +172,23 @@ function TodayContent() {
           ]}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-[22px] font-semibold">
-            {pending.length === 0 ? "На сегодня всё" : `${doneCount} из ${total} сделано`}
-          </p>
-          <p className="text-[15px] text-secondary">
+          <p className="text-[22px] font-semibold">{pending.length === 0 ? "На сегодня всё" : `${doneCount} из ${total} сделано`}</p>
+          <p className="text-secondary text-[15px]">
             {pending.length === 0
               ? "Растения довольны. Загляните в ленту — посмотрите, что растёт у других."
               : `Ещё ${pending.length} ${plural(pending.length, "дело", "дела", "дел")} ждут заботы`}
           </p>
           {stats.data && level && (
             <div className="mt-3 flex flex-wrap gap-2 text-[13px] font-medium">
-              <span className="inline-flex items-center gap-1 rounded-full bg-soil/15 px-3 py-1 text-soil">
+              <span className="bg-soil/15 text-soil inline-flex items-center gap-1 rounded-full px-3 py-1">
                 <Flame className="size-3.5" aria-hidden />
                 {stats.data.currentStreak
                   ? `${stats.data.currentStreak} ${plural(stats.data.currentStreak, "день", "дня", "дней")} подряд`
                   : "Начните серию"}
               </span>
-              <Link href="/achievements/" className="inline-flex items-center gap-1 rounded-full bg-leaf/15 px-3 py-1 text-leaf">
-                <Trophy className="size-3.5" aria-hidden /> Ур. {level.level.number} · {level.level.title} · {unlocked} {plural(unlocked, "награда", "награды", "наград")}
+              <Link href="/achievements/" className="bg-leaf/15 text-leaf inline-flex items-center gap-1 rounded-full px-3 py-1">
+                <Trophy className="size-3.5" aria-hidden /> Ур. {level.level.number} · {level.level.title} · {unlocked}{" "}
+                {plural(unlocked, "награда", "награды", "наград")}
               </Link>
             </div>
           )}

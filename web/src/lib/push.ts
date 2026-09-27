@@ -4,7 +4,7 @@
  * На iPhone уведомления работают только у сайта, добавленного на экран «Домой» (iOS 16.4+).
  */
 import { BASE_PATH } from "./config";
-import type { NotificationsRepository } from "./data/types";
+import type { NotificationsRepository } from "./data/repositories";
 
 export type PushSupport = "supported" | "unsupported" | "ios-needs-install";
 
@@ -12,6 +12,7 @@ const isIos = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.p
 const isStandalone = () =>
   window.matchMedia?.("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
+/** Можно ли включить push: на iPhone — только после «На экран Домой». */
 export function pushSupport(): PushSupport {
   const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
   if (ok) return "supported";
@@ -25,6 +26,7 @@ async function registration() {
   return (await navigator.serviceWorker.getRegistration(SW_SCOPE)) ?? navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE });
 }
 
+/** Текущая подписка этого браузера на push или null. */
 export async function currentSubscription(): Promise<PushSubscription | null> {
   if (pushSupport() !== "supported") return null;
   const reg = await navigator.serviceWorker.getRegistration(SW_SCOPE);

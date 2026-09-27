@@ -1,6 +1,9 @@
+/** Барахолка: правила формы объявления, объявления и переписка в демо-режиме. */
+
 import { describe, expect, it } from "vitest";
-import { DemoChat, demoBackend, memoryDemoStorage } from "../demo-backend";
 import { priceLabel, sameCity, validateListing, type ListingDraft } from "../../domain/market";
+import { demoBackend, memoryDemoStorage } from "../demo";
+import { DemoChat } from "../demo/chat";
 
 const clock = () => new Date(2026, 6, 15, 12);
 const draft = (patch: Partial<ListingDraft> = {}): ListingDraft => ({
@@ -39,7 +42,10 @@ describe("демо: барахолка и сообщения", () => {
   it("фильтры, своё объявление и его статусы", async () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
     expect((await b.market.listings({ kind: "all", city: "Москва", deliveryOnly: false })).length).toBe(4);
-    expect((await b.market.listings({ kind: "all", city: null, deliveryOnly: true })).map((l) => l.city).sort()).toEqual(["Казань", "Москва"]);
+    expect((await b.market.listings({ kind: "all", city: null, deliveryOnly: true })).map((l) => l.city).sort()).toEqual([
+      "Казань",
+      "Москва",
+    ]);
     expect((await b.market.listings({ kind: "free", city: null, deliveryOnly: false }))[0].title).toMatch(/каланхоэ/);
 
     // «Ищу» — без фото (в Node нет FileReader для снимка).

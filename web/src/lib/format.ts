@@ -1,3 +1,7 @@
+/** Форматирование для интерфейса: склонение чисел, относительные даты, интервалы. */
+
+import { DAY_MS, startOfDay } from "./time";
+
 /** Русское склонение: plural(3, "растение", "растения", "растений") → «растения». */
 export function plural(n: number, one: string, few: string, many: string): string {
   const mod10 = n % 10;
@@ -7,12 +11,9 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
-const DAY = 86_400_000;
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-
 /** «сегодня», «вчера», «3 дня назад», «завтра», «через 5 дней». */
 export function relativeDay(date: Date, now = new Date()): string {
-  const diff = Math.round((startOfDay(date) - startOfDay(now)) / DAY);
+  const diff = Math.round((startOfDay(date).getTime() - startOfDay(now).getTime()) / DAY_MS);
   if (diff === 0) return "сегодня";
   if (diff === -1) return "вчера";
   if (diff === 1) return "завтра";
@@ -40,9 +41,10 @@ export function timeAgo(date: Date, now = new Date()): string {
   return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 }
 
-export const formatDate = (d: Date) =>
-  d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
+/** «понедельник, 27 сентября» */
+export const formatDate = (d: Date) => d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
 
+/** «27 сент.» */
 export const formatShortDate = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 
 /** «каждые 7 дн.» / «каждые 6,5 дн.» */

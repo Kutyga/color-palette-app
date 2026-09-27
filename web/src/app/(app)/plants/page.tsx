@@ -1,3 +1,5 @@
+/** База знаний: поиск и подборки видов комнатных растений. */
+
 import type { Metadata } from "next";
 import { KnowledgeBrowser } from "@/components/knowledge-browser";
 import { PageHeader } from "@/components/ui";

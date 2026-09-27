@@ -151,7 +151,11 @@ export const CAUSES: Cause[] = [
     id: "stress",
     title: "Стресс от перемен",
     about: "Переезд, сквозняк, холодное окно или перестановка — растение сбрасывает листья, но потом привыкает.",
-    steps: ["Не переставляйте растение ещё пару недель.", "Уберите от сквозняков и холодного стекла.", "Не подкармливайте, пока не появятся новые листья."],
+    steps: [
+      "Не переставляйте растение ещё пару недель.",
+      "Уберите от сквозняков и холодного стекла.",
+      "Не подкармливайте, пока не появятся новые листья.",
+    ],
     urgency: 1,
     symptoms: ["leaf_drop", "drooping", "curling"],
   },
@@ -257,6 +261,7 @@ export const CAUSES: Cause[] = [
   },
 ];
 
+/** Причина из справочника по id (им же отвечает Gemini). */
 export const causeById = (id: string) => CAUSES.find((c) => c.id === id) ?? null;
 
 export interface CauseMatch {
@@ -361,7 +366,8 @@ export function describeEppo(g: DiseaseGuess): { name: string; cause: Cause | nu
  * Ниже этой уверенности догадки сервиса — шум: на здоровой монстере Pl@ntNet выдаёт
  * случайные болезни с 3–8 %. Такие результаты не показываем.
  */
-export const MIN_DISEASE_SCORE = 0.15;
+const MIN_DISEASE_SCORE = 0.15;
 export const confidentGuesses = (list: DiseaseGuess[]) => list.filter((g) => g.score >= MIN_DISEASE_SCORE);
 
+/** Страница болезни или вредителя в базе EPPO. */
 export const eppoHref = (code: string) => `https://gd.eppo.int/taxon/${encodeURIComponent(code)}`;

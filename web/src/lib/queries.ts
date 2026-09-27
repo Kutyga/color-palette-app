@@ -1,13 +1,22 @@
 "use client";
 
+/**
+ * Хуки данных для экранов: запросы и изменения через TanStack Query поверх выбранного бэкенда.
+ * Ключ запроса начинается с раздела («plants», «feed», «shops»…) — по нему изменения сбрасывают кэш.
+ * Весь кэш сбрасывается при входе, выходе и смене демо-режима.
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
 import type { GardenStats } from "./domain/gamification";
 import type { ListingFilter } from "./domain/market";
 import type { DiaryScope, HelpFilter } from "./domain/social";
+import { startOfDay } from "./time";
 
-/** Все запросы данных сайта. Кэш сбрасывается при входе, выходе и смене демо-режима. */
+// ---------------------------------------------------------------------------
+// Коллекция и уход
+// ---------------------------------------------------------------------------
 
 export function usePlants() {
   const b = useBackend();
@@ -31,14 +40,12 @@ export function useTasks() {
   });
 }
 
+/** Что уже сделано сегодня — для колец прогресса. */
 export function useDoneToday() {
   const b = useBackend();
   return useQuery({
     queryKey: ["done-today"],
-    queryFn: () => {
-      const d = new Date();
-      return b.garden.careEventsSince(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
-    },
+    queryFn: () => b.garden.careEventsSince(startOfDay(new Date())),
   });
 }
 
@@ -66,6 +73,10 @@ export function useStats() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Профиль и сообщество
+// ---------------------------------------------------------------------------
 
 export function useProfile() {
   const b = useBackend();
@@ -118,8 +129,7 @@ export function useLogCare() {
   const b = useBackend();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ plantId, type }: { plantId: string; type: CareType }) =>
-      b.garden.logCare(plantId, type, { id: crypto.randomUUID() }),
+    mutationFn: ({ plantId, type }: { plantId: string; type: CareType }) => b.garden.logCare(plantId, type, { id: crypto.randomUUID() }),
     onSuccess: (_d, { plantId }) => {
       for (const key of [["tasks"], ["done-today"], ["plants"], ["plant", plantId], ["stats"]]) qc.invalidateQueries({ queryKey: key });
     },
@@ -167,6 +177,10 @@ export function useFollow() {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Барахолка и сообщения
+// ---------------------------------------------------------------------------
+
 export function useListings(filter: ListingFilter) {
   const b = useBackend();
   return useQuery({ queryKey: ["market", "list", filter], queryFn: () => b.market.listings(filter) });
@@ -190,7 +204,11 @@ export function useConversations() {
 
 export function useMessages(conversationId: string | null) {
   const b = useBackend();
-  return useQuery({ queryKey: ["chat", "messages", conversationId], queryFn: () => b.chat.messages(conversationId!), enabled: !!conversationId });
+  return useQuery({
+    queryKey: ["chat", "messages", conversationId],
+    queryFn: () => b.chat.messages(conversationId!),
+    enabled: !!conversationId,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +258,9 @@ export function useSetWished() {
     mutationFn: ({ speciesId, wanted }: { speciesId: string; wanted: boolean }) => b.wishlist.set(speciesId, wanted),
     onMutate: ({ speciesId, wanted }) => {
       const prev = qc.getQueryData<string[]>(["wishlist"]);
-      qc.setQueryData<string[]>(["wishlist"], (l = []) => (wanted ? [speciesId, ...l.filter((x) => x !== speciesId)] : l.filter((x) => x !== speciesId)));
+      qc.setQueryData<string[]>(["wishlist"], (l = []) =>
+        wanted ? [speciesId, ...l.filter((x) => x !== speciesId)] : l.filter((x) => x !== speciesId),
+      );
       return { prev };
     },
     onError: (_e, _v, ctx) => qc.setQueryData(["wishlist"], ctx?.prev),

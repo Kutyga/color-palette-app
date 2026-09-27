@@ -1,26 +1,29 @@
 "use client";
 
+/** Схема грунтовой смеси: слои компонентов в горшке и краткая сводка. */
+
 import { Layers } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
-import {
-  SOIL_MATERIALS,
-  SOIL_ROLES,
-  componentVolumes,
-  phLabel,
-  soilParticles,
-  type SoilMix,
-} from "@/lib/domain/soil";
+import { SOIL_MATERIALS, SOIL_ROLES, componentVolumes, phLabel, soilParticles, type SoilMix } from "@/lib/domain/soil";
 import { cx } from "./ui";
 
 const fmt = (n: number) => n.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
 
 /** Полоса пропорций: каждый компонент — отрезок своей ширины и цвета. */
-export function SoilBar({ mix, className }: { mix: SoilMix; className?: string }) {
+function SoilBar({ mix, className }: { mix: SoilMix; className?: string }) {
   return (
-    <div className={cx("flex h-4 overflow-hidden rounded-full ring-1 ring-separator", className)} role="img" aria-label={mix.components.map((c) => `${SOIL_MATERIALS[c.material].label} ${c.pct}%`).join(", ")}>
+    <div
+      className={cx("ring-separator flex h-4 overflow-hidden rounded-full ring-1", className)}
+      role="img"
+      aria-label={mix.components.map((c) => `${SOIL_MATERIALS[c.material].label} ${c.pct}%`).join(", ")}
+    >
       {mix.components.map((c) => (
-        <span key={c.material} style={{ width: `${c.pct}%`, background: SOIL_MATERIALS[c.material].color }} title={`${SOIL_MATERIALS[c.material].label} — ${c.pct}%`} />
+        <span
+          key={c.material}
+          style={{ width: `${c.pct}%`, background: SOIL_MATERIALS[c.material].color }}
+          title={`${SOIL_MATERIALS[c.material].label} — ${c.pct}%`}
+        />
       ))}
     </div>
   );
@@ -46,7 +49,12 @@ function PotDiagram({ mix }: { mix: SoilMix }) {
   const layers: { y: number; text: string; sub?: string }[] = [];
   if (mix.topLayer) layers.push({ y: soilTop + topH / 2, text: "Мульча", sub: SOIL_MATERIALS[mix.topLayer.material].label.toLowerCase() });
   layers.push({ y: (soilTop + topH + drainTop) / 2, text: "Смесь" });
-  if (mix.drainage) layers.push({ y: drainTop + drainH / 2, text: `Дренаж ${mix.drainage.cm} см`, sub: SOIL_MATERIALS[mix.drainage.material].label.toLowerCase() });
+  if (mix.drainage)
+    layers.push({
+      y: drainTop + drainH / 2,
+      text: `Дренаж ${mix.drainage.cm} см`,
+      sub: SOIL_MATERIALS[mix.drainage.material].label.toLowerCase(),
+    });
 
   const pebbles: { x: number; y: number; r: number }[] = [];
   if (mix.drainage) {
@@ -57,7 +65,12 @@ function PotDiagram({ mix }: { mix: SoilMix }) {
   }
 
   return (
-    <svg viewBox="0 0 320 250" className="w-full" role="img" aria-label={`Разрез горшка: ${layers.map((l) => (l.sub ? `${l.text} (${l.sub})` : l.text).toLowerCase()).join(", ")}`}>
+    <svg
+      viewBox="0 0 320 250"
+      className="w-full"
+      role="img"
+      aria-label={`Разрез горшка: ${layers.map((l) => (l.sub ? `${l.text} (${l.sub})` : l.text).toLowerCase()).join(", ")}`}
+    >
       <defs>
         <clipPath id={`pot-${id}`}>
           <polygon points={`${xAt(top, "l")},${top} ${xAt(top, "r")},${top} ${xAt(bottom, "r")},${bottom} ${xAt(bottom, "l")},${bottom}`} />
@@ -88,7 +101,16 @@ function PotDiagram({ mix }: { mix: SoilMix }) {
           const x = xAt(y, "l") + p.x * (xAt(y, "r") - xAt(y, "l"));
           const m = SOIL_MATERIALS[p.material];
           return m.grain >= 2 ? (
-            <rect key={i} x={x - p.r} y={y - p.r * 0.7} width={p.r * 2} height={p.r * 1.4} rx={p.r * 0.4} fill={m.color} transform={`rotate(${(i * 37) % 90} ${x} ${y})`} />
+            <rect
+              key={i}
+              x={x - p.r}
+              y={y - p.r * 0.7}
+              width={p.r * 2}
+              height={p.r * 1.4}
+              rx={p.r * 0.4}
+              fill={m.color}
+              transform={`rotate(${(i * 37) % 90} ${x} ${y})`}
+            />
           ) : (
             <circle key={i} cx={x} cy={y} r={p.r} fill={m.color} />
           );
@@ -103,7 +125,15 @@ function PotDiagram({ mix }: { mix: SoilMix }) {
           <g>
             <rect x="0" y={soilTop} width="320" height={topH} fill={SOIL_MATERIALS[mix.topLayer.material].color} opacity="0.55" />
             {Array.from({ length: 22 }, (_, i) => (
-              <circle key={i} cx={34 + i * 7.4} cy={soilTop + 3 + (i % 3) * 2.4} r={2.6} fill={SOIL_MATERIALS[mix.topLayer!.material].color} stroke="#0002" strokeWidth="0.5" />
+              <circle
+                key={i}
+                cx={34 + i * 7.4}
+                cy={soilTop + 3 + (i % 3) * 2.4}
+                r={2.6}
+                fill={SOIL_MATERIALS[mix.topLayer!.material].color}
+                stroke="#0002"
+                strokeWidth="0.5"
+              />
             ))}
           </g>
         )}
@@ -111,7 +141,15 @@ function PotDiagram({ mix }: { mix: SoilMix }) {
           <g>
             <rect x="0" y={drainTop} width="320" height={drainH} fill="#00000022" />
             {pebbles.map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={SOIL_MATERIALS[mix.drainage!.material].color} stroke="#0003" strokeWidth="0.6" />
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r={p.r}
+                fill={SOIL_MATERIALS[mix.drainage!.material].color}
+                stroke="#0003"
+                strokeWidth="0.6"
+              />
             ))}
           </g>
         )}
@@ -181,14 +219,17 @@ function PhScale({ min, max }: { min: number; max: number }) {
           pH {fmt(min)}–{fmt(max)} · {phLabel(min, max)}
         </span>
       </div>
-      <div className="relative mt-1.5 h-2 rounded-full" style={{ background: "linear-gradient(90deg,#e5484d,#f5a524 30%,#8bc34a 55%,#2f80ed 85%,#6e56cf)" }}>
+      <div
+        className="relative mt-1.5 h-2 rounded-full"
+        style={{ background: "linear-gradient(90deg,#e5484d,#f5a524 30%,#8bc34a 55%,#2f80ed 85%,#6e56cf)" }}
+      >
         <span
-          className="absolute -top-1 h-4 rounded-full border-2 border-label bg-white/40"
+          className="border-label absolute -top-1 h-4 rounded-full border-2 bg-white/40"
           style={{ left: pos(min), width: `max(8px, calc(${pos(max)} - ${pos(min)}))` }}
           aria-hidden
         />
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-secondary" aria-hidden>
+      <div className="text-secondary mt-1 flex justify-between text-[11px]" aria-hidden>
         <span>3 кислый</span>
         <span>7 нейтр.</span>
         <span>9</span>
@@ -204,16 +245,16 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
   const [liters, setLiters] = useState(2);
   const volumes = componentVolumes(mix, liters);
   return (
-    <section className="rounded-[20px] bg-surface p-5" aria-labelledby={`soil-${mix.slug}`}>
-      <p className="text-[13px] font-medium text-soil">Состав грунта</p>
+    <section className="bg-surface rounded-[20px] p-5" aria-labelledby={`soil-${mix.slug}`}>
+      <p className="text-soil text-[13px] font-medium">Состав грунта</p>
       <h3 id={`soil-${mix.slug}`} className="text-[22px] font-bold tracking-tight">
         {mix.nameRu}
       </h3>
-      {mix.summaryRu && <p className="mt-1 text-[15px] text-secondary">{mix.summaryRu}</p>}
-      {noteRu && <p className="mt-3 rounded-2xl bg-soil/10 px-4 py-3 text-[15px]">Для этого растения: {noteRu}</p>}
+      {mix.summaryRu && <p className="text-secondary mt-1 text-[15px]">{mix.summaryRu}</p>}
+      {noteRu && <p className="bg-soil/10 mt-3 rounded-2xl px-4 py-3 text-[15px]">Для этого растения: {noteRu}</p>}
 
       <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-start">
-        <div className="rounded-2xl bg-muted/60 p-2">
+        <div className="bg-muted/60 rounded-2xl p-2">
           <PotDiagram mix={mix} />
         </div>
         <div>
@@ -223,10 +264,10 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
               const m = SOIL_MATERIALS[c.material];
               return (
                 <li key={c.material} className="flex items-center gap-3">
-                  <span className="size-4 shrink-0 rounded-md ring-1 ring-separator" style={{ background: m.color }} aria-hidden />
+                  <span className="ring-separator size-4 shrink-0 rounded-md ring-1" style={{ background: m.color }} aria-hidden />
                   <span className="min-w-0 flex-1">
                     <span className="font-medium">{m.label}</span>
-                    <span className="block truncate text-[13px] text-secondary">
+                    <span className="text-secondary block truncate text-[13px]">
                       {SOIL_ROLES[c.role]} · {m.hint}
                     </span>
                   </span>
@@ -243,7 +284,7 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl bg-muted p-4">
+      <div className="bg-muted mt-6 rounded-2xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="font-semibold">Сколько смешать</p>
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Объём горшка">
@@ -285,13 +326,13 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
         <ul className="mt-3 space-y-2">
           {mix.tipsRu.map((t) => (
             <li key={t} className="flex gap-3 text-[15px] leading-relaxed">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-soil" aria-hidden />
+              <span className="bg-soil mt-2 size-1.5 shrink-0 rounded-full" aria-hidden />
               {t}
             </li>
           ))}
         </ul>
       )}
-      <Link href={`/plants/soil/#${mix.slug}`} className="mt-4 inline-block text-[15px] font-semibold text-soil">
+      <Link href={`/plants/soil/#${mix.slug}`} className="text-soil mt-4 inline-block text-[15px] font-semibold">
         Все составы грунта →
       </Link>
     </section>
@@ -301,13 +342,13 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
 /** Короткая версия для карточки растения в коллекции. */
 export function SoilSummary({ mix, href }: { mix: SoilMix; href: string }) {
   return (
-    <Link href={href} className="block rounded-[20px] bg-surface p-5 transition hover:brightness-[0.98]">
-      <p className="flex items-center gap-2 text-[13px] font-medium text-soil">
+    <Link href={href} className="bg-surface block rounded-[20px] p-5 transition hover:brightness-[0.98]">
+      <p className="text-soil flex items-center gap-2 text-[13px] font-medium">
         <Layers className="size-4" aria-hidden /> Грунт
       </p>
       <p className="mt-1 text-[17px] font-semibold">{mix.nameRu}</p>
       <SoilBar mix={mix} className="mt-3 h-3" />
-      <p className="mt-2 text-[13px] text-secondary">
+      <p className="text-secondary mt-2 text-[13px]">
         {mix.components
           .slice(0, 4)
           .map((c) => `${SOIL_MATERIALS[c.material].label.toLowerCase()} ${c.pct}%`)

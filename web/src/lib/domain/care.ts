@@ -1,3 +1,7 @@
+/** Уход: виды ухода, свет и горшки, расчёт интервала с поправками и сроков, задачи на день. */
+
+import { DAY_MS, startOfDay } from "../time";
+
 /** Виды ухода. Значения совпадают с enum `care_type` в Postgres. */
 export const CARE_TYPES = {
   water: { label: "Полив", action: "Полить" },
@@ -32,30 +36,30 @@ export type PotMaterial = keyof typeof POT_MATERIALS;
 
 export type Hemisphere = "N" | "S";
 
-const DAY_MS = 86_400_000;
-
 /**
  * Расчёт интервалов ухода. Повторяет SQL-функции из
  * supabase/migrations/20260924133411_care_logic.sql — менять синхронно.
  * Сервер — источник истины; клиент считает то же самое для демо-режима.
  */
-export const MIN_INTERVAL_DAYS = 0.5;
+const MIN_INTERVAL_DAYS = 0.5;
 
 /** Зима — период покоя (поливаем реже), лето — активный рост (чаще). */
-export function seasonFactor(month: number, hemisphere: Hemisphere = "N"): number {
+function seasonFactor(month: number, hemisphere: Hemisphere = "N"): number {
   const m = hemisphere === "S" ? ((month + 5) % 12) + 1 : month;
   if (m === 12 || m === 1 || m === 2) return 1.4;
   if (m >= 6 && m <= 8) return 0.85;
   return 1.0;
 }
 
-export function potFactor(material?: PotMaterial | null): number {
+/** Терракота испаряет влагу через стенки — сохнет быстрее; пластик и стекло — медленнее. */
+function potFactor(material?: PotMaterial | null): number {
   if (material === "terracotta") return 0.85;
   if (material === "plastic" || material === "glass") return 1.1;
   return 1.0;
 }
 
-export function lightFactor(light?: LightLevel | null): number {
+/** Чем меньше света, тем медленнее растение пьёт. */
+function lightFactor(light?: LightLevel | null): number {
   switch (light) {
     case "low":
       return 1.25;
@@ -74,6 +78,10 @@ function round(value: number, digits: 1 | 2): number {
   return Math.round(value * p + 1e-9) / p;
 }
 
+/**
+ * Фактический интервал ухода: базовый × личная поправка × (для полива) сезон, горшок и свет.
+ * Та же формула работает в базе (supabase/migrations/*_care_logic.sql) — результаты должны совпадать.
+ */
 export function effectiveIntervalDays(opts: {
   type: CareType;
   intervalDays: number;
@@ -94,6 +102,7 @@ export function effectiveIntervalDays(opts: {
   return days < MIN_INTERVAL_DAYS ? MIN_INTERVAL_DAYS : days;
 }
 
+/** Следующий срок: последнее выполнение + интервал (с точностью до секунды, как в базе). */
 export function nextDue(lastDone: Date, intervalDays: number): Date {
   return new Date(lastDone.getTime() + Math.round(intervalDays * 86_400) * 1000);
 }
@@ -111,14 +120,6 @@ export function adjustUserFactor(current: number, expectedDays: number, actualDa
 /** Базовый интервал полива из базы знаний: летнее значение, приведённое к межсезонью. */
 export function baseWaterInterval(summerIntervalDays: number): number {
   return round(summerIntervalDays / 0.85, 1);
-}
-
-export function startOfDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-export function daysBetween(a: Date, b: Date): number {
-  return (b.getTime() - a.getTime()) / DAY_MS;
 }
 
 export interface CareSchedule {
@@ -152,6 +153,7 @@ export interface CareTask {
 
 export type TaskBucket = "overdue" | "today" | "soon";
 
+/** В какой раздел «Сегодня» попадает задача: просрочено, сегодня или скоро. */
 export function taskBucket(task: CareTask, now: Date): TaskBucket {
   const today = startOfDay(now);
   if (task.dueAt < today) return "overdue";

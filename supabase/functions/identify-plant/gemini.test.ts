@@ -24,15 +24,25 @@ test("ответ Gemini: причины из справочника, незна�
   assert.equal(d?.healthy, false);
   assert.deepEqual(
     d?.problems.map((p) => [p.cause, p.confidence]),
-    [["spider_mite", 1], ["dry_air", 0.4], ["other", 0.3]],
+    [
+      ["spider_mite", 1],
+      ["dry_air", 0.4],
+      ["other", 0.3],
+    ],
   );
 });
 
 test("здоровое растение, не растение, мусор", () => {
   assert.deepEqual(toAiDiagnosis(reply({ is_plant: true, healthy: true, plant: null, summary: "Всё хорошо", problems: [] })), {
-    isPlant: true, healthy: true, plant: null, summary: "Всё хорошо", problems: [],
+    isPlant: true,
+    healthy: true,
+    plant: null,
+    summary: "Всё хорошо",
+    problems: [],
   });
-  const notPlant = toAiDiagnosis(reply({ is_plant: false, healthy: true, summary: "Это кот", problems: [{ cause: "stress", title: "x", confidence: 1, evidence: "" }] }));
+  const notPlant = toAiDiagnosis(
+    reply({ is_plant: false, healthy: true, summary: "Это кот", problems: [{ cause: "stress", title: "x", confidence: 1, evidence: "" }] }),
+  );
   assert.equal(notPlant?.isPlant, false);
   assert.equal(notPlant?.healthy, false);
   assert.deepEqual(notPlant?.problems, []);
@@ -53,7 +63,9 @@ test("запрос: фото, подсказка о растении и схем
 
 test("ответ в обёртке ```json, с «мыслями» модели; обрезанный — null с понятной причиной", () => {
   const obj = { is_plant: true, healthy: true, plant: null, summary: "Ок", problems: [] };
-  const wrapped = { candidates: [{ content: { parts: [{ text: "думаю…", thought: true }, { text: "```json\n" + JSON.stringify(obj) + "\n```" }] } }] };
+  const wrapped = {
+    candidates: [{ content: { parts: [{ text: "думаю…", thought: true }, { text: "```json\n" + JSON.stringify(obj) + "\n```" }] } }],
+  };
   assert.equal(toAiDiagnosis(wrapped)?.summary, "Ок");
   const cut = { candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: '{"is_plant": true, "summ' }] } }] };
   assert.equal(toAiDiagnosis(cut), null);

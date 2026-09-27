@@ -1,3 +1,5 @@
+/** Вид растения из базы знаний: профиль ухода, фото, поиск по названиям, подборки. */
+
 import type { LightLevel } from "./care";
 
 export interface CareProfile {
@@ -45,8 +47,7 @@ export interface Species {
 }
 
 /** Русское народное название, если есть, иначе латинское. */
-export const speciesName = (s: Pick<Species, "commonNamesRu" | "latinName">) =>
-  s.commonNamesRu[0] ?? s.latinName;
+export const speciesName = (s: Pick<Species, "commonNamesRu" | "latinName">) => s.commonNamesRu[0] ?? s.latinName;
 
 type Row = Record<string, unknown>;
 const ru = (v: unknown) => ((v as { ru?: unknown } | null)?.ru ?? null) as never;
@@ -104,9 +105,7 @@ export function speciesFromRow(r: Row): Species {
 export function speciesMatches(s: Species, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [s.latinName, ...s.commonNamesRu, ...s.commonNamesEn, ...s.synonyms].some((n) =>
-    n.toLowerCase().includes(q),
-  );
+  return [s.latinName, ...s.commonNamesRu, ...s.commonNamesEn, ...s.synonyms].some((n) => n.toLowerCase().includes(q));
 }
 
 /** Ранжирование как у search_species: точное название, затем начало, затем вхождение. */
@@ -119,9 +118,7 @@ export function searchLocal(all: Species[], query: string): Species[] {
     if (names.some((n) => n.startsWith(q))) return 1;
     return 2;
   };
-  return all
-    .filter((s) => speciesMatches(s, q))
-    .sort((a, b) => rank(a) - rank(b) || a.latinName.localeCompare(b.latinName));
+  return all.filter((s) => speciesMatches(s, q)).sort((a, b) => rank(a) - rank(b) || a.latinName.localeCompare(b.latinName));
 }
 
 export const DIFFICULTY_LABELS = ["", "Неубиваемое", "Легко", "Средне", "Капризное", "Для экспертов"];
@@ -129,7 +126,12 @@ export const DIFFICULTY_LABELS = ["", "Неубиваемое", "Легко", "�
 /** Подборки на витрине базы знаний. */
 export const COLLECTIONS: { id: string; title: string; subtitle: string; test: (s: Species) => boolean }[] = [
   { id: "pet-safe", title: "Безопасно для кошек", subtitle: "Не ядовиты для питомцев", test: (s) => s.toxicToPets === false },
-  { id: "shade", title: "Для тёмной квартиры", subtitle: "Мирятся с тенью и полутенью", test: (s) => s.care?.light === "low" || s.care?.light === "medium" },
+  {
+    id: "shade",
+    title: "Для тёмной квартиры",
+    subtitle: "Мирятся с тенью и полутенью",
+    test: (s) => s.care?.light === "low" || s.care?.light === "medium",
+  },
   { id: "easy", title: "Неубиваемые", subtitle: "Простят забывчивость", test: (s) => (s.difficulty ?? 5) <= 1 },
   { id: "air", title: "Очищают воздух", subtitle: "Лучшие для спальни и офиса", test: (s) => s.airPurifying === true },
   { id: "succulents", title: "Суккуленты и кактусы", subtitle: "Полив раз в пару недель", test: (s) => s.plantType === "суккулент" },

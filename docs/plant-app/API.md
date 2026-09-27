@@ -1,90 +1,94 @@
 # API
 
-Основной доступ к данным — через PostgREST (Supabase SDK) с RLS. Нетривиальная логика — через
-Edge Functions (`POST /functions/v1/<name>`). Все запросы — с JWT пользователя.
+Сайт работает с Supabase напрямую. Таблицы читаются и меняются через PostgREST, права
+проверяют RLS-политики. Логика, которую нельзя доверить браузеру, выполняется в RPC
+(функции Postgres) и в Edge Functions (`POST /functions/v1/<name>`). Все запросы идут
+с JWT вошедшего пользователя.
 
-## CRUD через PostgREST (примеры)
+В коде каждому разделу соответствует свой репозиторий в `web/src/lib/data/supabase/`.
+Ниже — что они вызывают.
 
-| Действие | Запрос |
+## Таблицы (PostgREST)
+
+| Раздел | Таблицы | Особенности |
+|---|---|---|
+| Коллекция и уход | `plants`, `locations`, `care_schedules`, `care_events`, `plant_photos` | Отметка ухода — вставка в `care_events` с id от клиента, поэтому повтор не создаёт дубль. Триггер сдвигает `next_due_at`, удаление отметки откатывает график |
+| База знаний | `species` | Нужна только для перевода slug ↔ uuid (`SpeciesIds`); сами карточки — из снимка при сборке |
+| Сообщество | `posts`, `comments`, `likes`, `follows`, `blocks`, `reports` | Правка своей записи — в течение часа; окно проверяет база |
+| Люди | `profiles`, `profile_cards` | `profile_cards` — представление с публичными полями и счётчиками |
+| Барахолка и чат | `listings`, `messages` | Новые сообщения приходят через Realtime-канал `chat:<id>` |
+| Магазины | `shops`, `shop_products`, `wishlist_items` | Статус магазина меняет только администратор (RPC `review_shop`) |
+| Уведомления | `push_subscriptions` | Запись — через RPC `save_push_subscription` |
+
+## RPC
+
+| Функция | Для чего |
 |---|---|
-| Мои растения | `GET /rest/v1/plants?owner_id=eq.{me}&deleted_at=is.null&select=*,species(latin_name,common_names),care_schedules(*)` |
-| Что полить сегодня | `GET /rest/v1/care_schedules?next_due_at=lte.{end_of_day}&enabled=is.true&select=*,plants!inner(nickname,cover_photo_id,owner_id)` |
-| Отметить полив | `POST /rest/v1/care_events` `{id, plant_id, type:"water", performed_at}` → триггер пересчитывает `next_due_at` |
-| Коллекция другого пользователя | `GET /rest/v1/plants?owner_id=eq.{userId}` (RLS отфильтрует по видимости) |
-| Поиск по базе знаний | `POST /rest/v1/rpc/search_species` `{query:"фикус", limit:20}` |
-| Подписаться | `POST /rest/v1/follows` `{follower_id: me, followee_id}` |
-| Синхронизация (pull) | `GET /rest/v1/{table}?owner_id=eq.{me}&updated_at=gt.{last_pulled_at}` |
+| `care_due(p_until)` | Задачи ухода до даты — экран «Сегодня» |
+| `my_garden_stats()` | Статистика сада и сообщества — уровни и достижения |
+| `feed_diaries(scope, lim)` | Записи дневников: подписки или все публичные |
+| `help_questions(filter, lim)` | Вопросы «Помощи»: ждут ответа, про мои виды, мои, все |
+| `news_feed(lim, only_my_species, langs)` | Лента новостей с фильтром по языкам и своим видам |
+| `search_people(q, lim)`, `people_followers(p_user)`, `people_following(p_user)` | Поиск садоводов и списки подписок |
+| `start_conversation(p_listing)`, `my_conversations()`, `mark_conversation_read(p_conversation)` | Переписка по объявлению; лимит новых чатов проверяет функция |
+| `shop_import_products(p_rows, p_replace)` | Загрузка каталога: обновление по артикулу, при `p_replace` — удаление отсутствующих |
+| `where_to_buy(p_species, p_city)` | «Где купить»: свой город первым, чужие — только с доставкой |
+| `review_shop(p_shop, p_status, p_note)` | Решение администратора по заявке магазина |
+| `save_push_subscription(p_endpoint, p_p256dh, p_auth, p_user_agent)` | Подписка браузера на Web Push |
+
+## Хранилище
+
+Бакеты `plant-photos`, `post-photos`, `listing-photos` закрыты. Путь файла начинается с id
+владельца, а читать можно по подписанной ссылке, которую выдаёт `signedUrls`
+(`supabase/shared.ts`). Право на чтение повторяет видимость растения, записи или объявления.
 
 ## Edge Functions
 
-### `POST /identify-plant`
-Распознавание по фото.
+### `identify-plant`
 
-```json
+Распознавание вида и болезней по фото. Нужен токен пользователя. Квоты: 20 в день на
+пользователя и 450 на проект.
+
+```jsonc
 // запрос
-{ "image_path": "plant-photos/…/abc.jpg", "organ": "leaf" }
-// ответ
+{ "image_base64": "…", "organ": "auto", "mode": "species" | "diseases", "plant_hint": "Монстера Мося, Монстера деликатесная" }
+
+// ответ, mode = "species"
+{ "source": "plantnet", "results": [{ "name": "Monstera deliciosa", "score": 0.94, "common_names": ["…"], "genus": "Monstera", "family": "Araceae" }] }
+
+// ответ, mode = "diseases": коды EPPO от Pl@ntNet и разбор Gemini (null, если Gemini не ответил)
 {
-  "suggestions": [
-    { "species_id": "…", "latin_name": "Monstera deliciosa", "name": "Монстера деликатесная",
-      "probability": 0.94, "care_summary": { "light": "bright_indirect", "water_interval_days": 7 } }
-  ],
-  "health": { "is_healthy": false, "issues": [ { "disease_id": "…", "probability": 0.61 } ] },
-  "remaining_quota": 9
+  "source": "plantnet",
+  "diseases": [{ "eppo": "TETRUR", "score": 0.41, "name": "Tetranychus urticae" }],
+  "ai": {
+    "isPlant": true, "healthy": false, "plant": "Монстера", "summary": "…",
+    "problems": [{ "cause": "spider_mite", "title": "Паутинный клещ", "confidence": 0.7, "evidence": "…" }]
+  }
 }
 ```
-Лимит: 10 распознаваний в день на бесплатном тарифе.
 
-### `POST /feed`
-```json
-// запрос
-{ "tab": "following" | "discover", "cursor": "2026-09-20T10:00:00Z|<uuid>", "limit": 20 }
-// ответ
-{ "items": [ { "type": "post", "post": { … }, "author": { … } } ], "next_cursor": "…" }
-```
+`cause` — id причины из справочника `web/src/lib/domain/diagnosis.ts` или `"other"`.
 
-### `POST /care-recommendations`
-Персональные рекомендации для растения с учётом вида, сезона, погоды в городе и истории ухода.
-```json
-{ "plant_id": "…" }
-→ { "water_interval_days": 9.5, "reasons": ["Зима: интервал увеличен на 40%", "Терракотовый горшок: −10%"],
-    "tips": ["Протирайте листья раз в 2 недели"], "warnings": ["Токсичен для кошек"] }
-```
+### `news-reader`
 
-### `POST /sync/push`
-Батч-отправка outbox, если нужна транзакционность нескольких таблиц.
-```json
-{ "ops": [ { "entity": "plants", "op": "upsert", "data": { … } },
-           { "entity": "care_events", "op": "insert", "data": { … } } ] }
-→ { "applied": ["…uuid"], "conflicts": [ { "id": "…", "server": { … } } ] }
-```
+`{ "id": "<uuid статьи>" }` → `{ url, title, byline, siteName, lang, excerpt, blocks }`.
+Функция скачивает страницу источника и возвращает только текст и картинки («режим чтения»).
+Ошибки: `not_found`, `source_unavailable`, `not_html`, `too_large`, `no_article`.
 
-### `POST /devices/register`
-`{ "platform": "ios", "push_token": "…", "timezone": "Europe/Moscow", "locale": "ru" }`
+### `push`
 
-### Cron-функции (без публичного доступа)
+- `{ "action": "config" }` → `{ publicKey }`: открытый VAPID-ключ для подписки браузера.
+- `{ "action": "send" }` + заголовок `x-cron-secret`: рассылка очереди `private.push_queue`.
+  Её вызывает только pg_cron.
 
-| Функция | Расписание | Что делает |
-|---|---|---|
-| `care-scheduler` | каждый час | Находит просроченный уход, шлёт резервные push, учитывает часовой пояс и тихие часы |
-| `weather-adjust` | раз в сутки | Тянет прогноз по городам пользователей (Open-Meteo), корректирует `next_due_at` уличных растений (дождь → полив переносится) и шлёт предупреждения о заморозках/жаре |
-| `trending` | каждые 30 мин | Пересчитывает популярные посты для вкладки «Интересное» |
+### `news-ingest`
 
-## Realtime
+Вызывается только из pg_cron (`x-cron-secret`). Собирает RSS/Atom из `news_sources` и
+сохраняет статьи через RPC `ingest_news`.
 
-- Канал `plant:{id}` — события ухода от со-опекунов (кто-то уже полил → снимаем напоминание).
-- Канал `user:{id}:notifications` — лайки, комментарии, новые подписчики.
+## Push-уведомления
 
-## Push-уведомления (payload)
-
-```json
-{ "type": "care_due", "plant_ids": ["…"], "care_type": "water",
-  "title": "Пора полить 3 растения", "deeplink": "myapp://care/today" }
-```
-Типы: `care_due`, `care_overdue`, `weather_alert`, `new_follower`, `like`, `comment`, `caretaker_done`.
-
-## Deep links
-
-- `myapp://plant/{id}`, `myapp://user/{username}`, `myapp://species/{slug}`, `myapp://care/today`
-- Universal Links / App Links на `https://<domain>/u/{username}` — публичная веб-страница коллекции
-  для шаринга (SSR-страница, подключает мобильное приложение при наличии).
+Типы уведомлений: напоминание об уходе (раз в день в выбранное время по часовому поясу
+пользователя), новое сообщение, ответ на вопрос, комментарий, «ваш ответ — лучший»,
+товар из списка «Хочу» появился в продаже или подешевел. Уведомление ведёт на нужную
+страницу сайта.

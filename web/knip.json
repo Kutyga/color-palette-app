@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": ["public/sw.js"],
+  "ignoreBinaries": ["python3"],
+  "ignoreDependencies": ["prettier-plugin-tailwindcss"],
+  "ignoreExportsUsedInFile": { "interface": true, "type": true }
+}

@@ -1,10 +1,12 @@
+/** Предметная логика: интервалы ухода, достижения, распознавание, поиск, форматирование, окно правки записи. */
+
 import { describe, expect, it } from "vitest";
+import { plural, relativeDay } from "../../format";
 import { adjustUserFactor, baseWaterInterval, effectiveIntervalDays, nextDue, taskBucket } from "../care";
 import { EMPTY_STATS, ACHIEVEMENTS, GROUPS, TIERS, evaluateAchievements, experience, levelFor, visibleAchievements } from "../gamification";
 import { capitalizeLatin, matchSpecies } from "../identification";
-import { searchLocal, type Species } from "../species";
 import { editTimeLeft } from "../social";
-import { plural, relativeDay } from "../../format";
+import { searchLocal, type Species } from "../species";
 
 // Ожидаемые значения совпадают с supabase/tests/smoke_test.sql и тестами мобильного приложения —
 // клиентская и серверная формулы должны давать одно и то же.
@@ -20,9 +22,7 @@ describe("интервал ухода", () => {
     expect(effectiveIntervalDays({ ...water, userFactor: 0.98, pot: "terracotta", light: "bright_indirect" })).toBe(5.0);
   });
   it("июль в южном полушарии — зима: 8.2", () => {
-    expect(
-      effectiveIntervalDays({ ...water, userFactor: 0.98, hemisphere: "S", pot: "terracotta", light: "bright_indirect" }),
-    ).toBe(8.2);
+    expect(effectiveIntervalDays({ ...water, userFactor: 0.98, hemisphere: "S", pot: "terracotta", light: "bright_indirect" })).toBe(8.2);
   });
   it("без автоподстройки интервал не меняется", () => {
     expect(effectiveIntervalDays({ ...water, autoAdjust: false, month: 1, pot: "terracotta", light: "low" })).toBe(7);
@@ -62,7 +62,9 @@ describe("геймификация", () => {
   });
   it("первое растение и полив открывают достижения и дают 85 XP", () => {
     const stats = { ...EMPTY_STATS, plants: 1, waterings: 1, careEvents: 1 };
-    const unlocked = evaluateAchievements(stats).filter((p) => p.unlocked).map((p) => p.achievement.id);
+    const unlocked = evaluateAchievements(stats)
+      .filter((p) => p.unlocked)
+      .map((p) => p.achievement.id);
     expect(unlocked).toEqual(expect.arrayContaining(["first_sprout", "wet_business"]));
     expect(experience(stats)).toBe(85);
   });
@@ -79,7 +81,9 @@ describe("геймификация", () => {
   });
   it("награды сообщества, барахолки и за растение в воде", () => {
     const stats = { ...EMPTY_STATS, answers: 1, bestAnswers: 1, inWater: 1, listings: 1, giveaways: 3, deals: 3, wishlist: 3 };
-    const unlocked = evaluateAchievements(stats).filter((p) => p.unlocked).map((p) => p.achievement.id);
+    const unlocked = evaluateAchievements(stats)
+      .filter((p) => p.unlocked)
+      .map((p) => p.achievement.id);
     expect(unlocked).toEqual(
       expect.arrayContaining(["good_advice", "it_helped", "water_baby", "first_listing", "generous_soul", "handshake", "dreamer"]),
     );
@@ -89,9 +93,11 @@ describe("геймификация", () => {
     const shop = { ...EMPTY_STATS, hasShop: 1, shopVerified: 1, products: 120, shopSpecies: 25 };
     const all = evaluateAchievements(shop);
     expect(visibleAchievements(all, EMPTY_STATS).some((p) => p.achievement.group === "shop")).toBe(false);
-    expect(visibleAchievements(all, shop).filter((p) => p.achievement.group === "shop" && p.unlocked).map((p) => p.achievement.id)).toEqual([
-      "open_doors", "first_shelf", "trust_mark", "shop_botanist", "big_assortment",
-    ]);
+    expect(
+      visibleAchievements(all, shop)
+        .filter((p) => p.achievement.group === "shop" && p.unlocked)
+        .map((p) => p.achievement.id),
+    ).toEqual(["open_doors", "first_shelf", "trust_mark", "shop_botanist", "big_assortment"]);
     expect(experience(shop)).toBe(0);
   });
   it("максимальный уровень", () => {
@@ -103,8 +109,20 @@ describe("геймификация", () => {
 });
 
 const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = []): Species => ({
-  id: slug, slug, latinName, commonNamesRu: ru, commonNamesEn: [], synonyms, descriptionRu: null, plantType: null,
-  difficulty: null, toxicToPets: null, toxicToHumans: null, airPurifying: null, image: null, care: null,
+  id: slug,
+  slug,
+  latinName,
+  commonNamesRu: ru,
+  commonNamesEn: [],
+  synonyms,
+  descriptionRu: null,
+  plantType: null,
+  difficulty: null,
+  toxicToPets: null,
+  toxicToHumans: null,
+  airPurifying: null,
+  image: null,
+  care: null,
 });
 const kb = [
   sp("monstera-deliciosa", "Monstera deliciosa", ["Монстера деликатесная", "Монстера"]),
@@ -115,7 +133,11 @@ const kb = [
 
 describe("сопоставление распознавания с базой знаний", () => {
   it("точное название, синоним, гибрид", () => {
-    expect(matchSpecies({ label: "monstera deliciosa", score: 0.8 }, kb)).toMatchObject({ genusOnly: false, percent: 80, species: { slug: "monstera-deliciosa" } });
+    expect(matchSpecies({ label: "monstera deliciosa", score: 0.8 }, kb)).toMatchObject({
+      genusOnly: false,
+      percent: 80,
+      species: { slug: "monstera-deliciosa" },
+    });
     expect(matchSpecies({ label: "Sansevieria trifasciata", score: 0.5 }, kb).species?.slug).toBe("dracaena-trifasciata");
     expect(matchSpecies({ label: "Alocasia amazonica", score: 0.5 }, kb).species?.slug).toBe("alocasia-amazonica");
   });
@@ -142,7 +164,15 @@ describe("поиск в демо-режиме", () => {
 
 describe("форматирование", () => {
   it("склонение", () => {
-    expect([1, 2, 5, 11, 21, 22, 25].map((n) => plural(n, "день", "дня", "дней"))).toEqual(["день", "дня", "дней", "дней", "день", "дня", "дней"]);
+    expect([1, 2, 5, 11, 21, 22, 25].map((n) => plural(n, "день", "дня", "дней"))).toEqual([
+      "день",
+      "дня",
+      "дней",
+      "дней",
+      "день",
+      "дня",
+      "дней",
+    ]);
   });
   it("относительные дни", () => {
     const now = new Date(2026, 8, 24, 12);

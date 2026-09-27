@@ -30,10 +30,7 @@ Deno.serve(async (req) => {
     return new Response("forbidden", { status: 403 });
   }
 
-  const { data: sources, error } = await db
-    .from("news_sources")
-    .select("id, name, feed_url, filter_keywords")
-    .eq("enabled", true);
+  const { data: sources, error } = await db.from("news_sources").select("id, name, feed_url, filter_keywords").eq("enabled", true);
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
   const report: Record<string, number | string> = {};

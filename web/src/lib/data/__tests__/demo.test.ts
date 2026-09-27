@@ -1,5 +1,7 @@
+/** Демо-бэкенд: уход и график, сообщество, растение в воде, журнал и места, сохранение состояния. */
+
 import { describe, expect, it } from "vitest";
-import { demoBackend, memoryDemoStorage } from "../demo-backend";
+import { demoBackend, memoryDemoStorage } from "../demo";
 
 const clock = () => new Date(2026, 6, 15, 12); // июль: летний коэффициент 0.85
 

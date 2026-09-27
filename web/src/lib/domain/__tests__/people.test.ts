@@ -1,5 +1,7 @@
+/** Люди: профиль садовода, поиск и подписки в демо-режиме. */
+
 import { describe, expect, it } from "vitest";
-import { demoBackend, memoryDemoStorage } from "../../data/demo-backend";
+import { demoBackend, memoryDemoStorage } from "../../data/demo";
 import { normalizeUsername, personFromRow, prettyUsername, validateProfile } from "../people";
 
 describe("профиль садовода", () => {
@@ -57,7 +59,13 @@ describe("люди в демо-режиме", () => {
     await expect(b.people.updateProfile({ displayName: "Макс", username: "fikus_papa", bio: "" })).rejects.toThrow("уже занято");
     await b.people.updateProfile({ displayName: "Макс", username: "max_green", bio: "Люблю фикусы", city: " Казань " });
     const again = await demoBackend(storage, clock);
-    expect(await again.profile()).toEqual({ username: "max_green", displayName: "Макс", bio: "Люблю фикусы", city: "Казань", isAdmin: false });
+    expect(await again.profile()).toEqual({
+      username: "max_green",
+      displayName: "Макс",
+      bio: "Люблю фикусы",
+      city: "Казань",
+      isAdmin: false,
+    });
     expect((await again.people.search("макс"))[0].isMe).toBe(true);
   });
 });

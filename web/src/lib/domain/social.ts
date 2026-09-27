@@ -1,3 +1,5 @@
+/** Сообщество: записи дневников, вопросы, комментарии и новости. */
+
 import { prettyUsername } from "./people";
 
 /** «Дневники»: записи подписок или все публичные. */
@@ -17,7 +19,7 @@ export const DIARY_EVENTS = {
   progress: { label: "Как растёт", emoji: "📏" },
 } as const;
 export type DiaryEvent = keyof typeof DIARY_EVENTS;
-export const isDiaryEvent = (v: unknown): v is DiaryEvent => typeof v === "string" && v in DIARY_EVENTS;
+const isDiaryEvent = (v: unknown): v is DiaryEvent => typeof v === "string" && v in DIARY_EVENTS;
 
 export interface FeedPost {
   id: string;
@@ -99,9 +101,7 @@ export interface NewsArticle {
 }
 
 /** Текст статьи для чтения на сайте (Edge Function news-reader). */
-export type ReaderBlock =
-  | { type: "p" | "h" | "li" | "quote"; text: string }
-  | { type: "img"; src: string; alt: string };
+export type ReaderBlock = { type: "p" | "h" | "li" | "quote"; text: string } | { type: "img"; src: string; alt: string };
 
 export interface ReaderArticle {
   url: string;

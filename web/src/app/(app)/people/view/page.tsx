@@ -1,5 +1,7 @@
 "use client";
 
+/** Профиль садовода: о себе, подписки и открытые растения. */
+
 import { ChevronLeft, Lock, Sprout, UserX } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -49,7 +51,7 @@ function PersonProfile() {
 export default function PersonPage() {
   return (
     <div className="pt-4">
-      <Link href="/people/" className="inline-flex items-center gap-1 text-[17px] text-leaf">
+      <Link href="/people/" className="text-leaf inline-flex items-center gap-1 text-[17px]">
         <ChevronLeft className="size-5" aria-hidden /> Садоводы
       </Link>
       <div className="mt-4">
