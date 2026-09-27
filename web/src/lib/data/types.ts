@@ -1,9 +1,10 @@
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
-import type { GardenStats } from "../domain/gamification";
+import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
 import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
+import type { ImportResult, Offer, ProductInput, Shop, ShopDraft, ShopProduct, ShopStatus } from "../domain/shop";
 import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
@@ -18,6 +19,10 @@ export interface GardenRepository {
   plantDetails(plantId: string): Promise<PlantDetails>;
   addPlant(draft: PlantDraft): Promise<Plant>;
   deletePlant(plantId: string): Promise<void>;
+  /** Переставить растение в другое место (null — место не указано); интервалы пересчитываются. */
+  setLocation(plantId: string, locationId: string | null): Promise<void>;
+  /** Удалить ошибочную отметку ухода; если она последняя — график возвращается как был. */
+  deleteCareEvent(eventId: string): Promise<void>;
   /** Растёт в воде — полив не нужен (график полива выключается и включается обратно). */
   setInWater(plantId: string, inWater: boolean): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
@@ -58,7 +63,8 @@ export interface SocialRepository {
   addComment(postId: string, text: string): Promise<PostComment>;
   deleteComment(commentId: string): Promise<void>;
   /** Для достижений: сколько постов опубликовано и лайков получено. */
-  myActivity(): Promise<{ posts: number; likesReceived: number }>;
+  /** Для достижений: публикации, «Поддержать», ответы в «Помощи» (и лучшие), подписчики. */
+  myActivity(): Promise<ActivityStats>;
 }
 
 /** Распознаёт растение по фото. */
@@ -71,6 +77,8 @@ export interface Profile {
   displayName: string | null;
   bio: string | null;
   city: string | null;
+  /** Администратор проверяет заявки магазинов. */
+  isAdmin: boolean;
 }
 
 /** Садоводы: поиск, профили, подписчики и их растения. Подписка — SocialRepository.setFollowing. */
@@ -96,6 +104,8 @@ export interface MarketRepository {
   updateListing(id: string, draft: ListingDraft): Promise<Listing>;
   setStatus(id: string, status: ListingStatus): Promise<void>;
   deleteListing(id: string): Promise<void>;
+  /** Для достижений: свои объявления (включая удалённые), «Отдам даром», закрытые сделки. */
+  myStats(): Promise<MarketStats>;
   /** Жалоба модераторам. */
   report(targetType: "listing" | "message" | "profile", targetId: string, reason: string): Promise<void>;
 }
@@ -119,6 +129,8 @@ export interface NotificationSettings {
   care: boolean;
   messages: boolean;
   community: boolean;
+  /** «Появилось в продаже / подешевело» по списку «Хочу». */
+  wishlist: boolean;
   /** «09:00» — когда присылать напоминание об уходе. */
   reminderTime: string;
   timezone: string;
@@ -134,6 +146,35 @@ export interface NotificationsRepository {
   updateSettings(patch: Partial<NotificationSettings>): Promise<void>;
 }
 
+/** Магазины: своя витрина и каталог, «Где купить», проверка заявок администратором. */
+export interface ShopRepository {
+  myShop(): Promise<Shop | null>;
+  /** Создаёт заявку или меняет анкету; смена названия или ИНН проверенного магазина — снова на проверку. */
+  saveShop(draft: ShopDraft): Promise<Shop>;
+  shop(id: string): Promise<Shop | null>;
+  /** Проверенные магазины; city — сначала свой город. */
+  shops(city: string | null): Promise<Shop[]>;
+  products(shopId: string): Promise<ShopProduct[]>;
+  /** Загрузка каталога: обновление по артикулу; replace — удалить товары, которых нет в файле. */
+  importProducts(rows: ProductInput[], replace: boolean): Promise<ImportResult>;
+  setInStock(productId: string, inStock: boolean): Promise<void>;
+  deleteProduct(productId: string): Promise<void>;
+  /** Предложения проверенных магазинов по виду: свой город и с доставкой. */
+  whereToBuy(speciesId: string, city: string | null): Promise<Offer[]>;
+  /** Для администратора: все магазины, заявки первыми. */
+  reviewQueue(): Promise<Shop[]>;
+  review(shopId: string, status: ShopStatus, note: string): Promise<void>;
+  /** Для достижений магазина. */
+  myStats(): Promise<ShopStats>;
+}
+
+/** Список «Хочу»: виды, которые садовод хочет купить. */
+export interface WishlistRepository {
+  /** id видов из базы знаний. */
+  list(): Promise<string[]>;
+  set(speciesId: string, wanted: boolean): Promise<void>;
+}
+
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
@@ -141,6 +182,8 @@ export interface Backend {
   people: PeopleRepository;
   market: MarketRepository;
   chat: ChatRepository;
+  shops: ShopRepository;
+  wishlist: WishlistRepository;
   notifications: NotificationsRepository | null;
   identifier: PlantIdentifier | null;
   profile(): Promise<Profile>;

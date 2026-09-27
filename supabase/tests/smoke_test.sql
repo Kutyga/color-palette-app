@@ -576,6 +576,91 @@ begin
 end $$;
 set role authenticated;
 
+-- Магазины: заявка на проверке, импорт каталога, проверка администратором, «Где купить»,
+-- уведомление «подешевело» по «Хочу».
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.shops (name, inn, city, status) values ('Зелёный угол', '7707083893', 'Казань', 'verified');
+do $$ begin
+  assert (select status from public.shops where owner_id = auth.uid()) = 'pending', 'заявка всегда на проверке';
+end $$;
+update public.shops set delivery = true where owner_id = auth.uid();
+select * from public.shop_import_products(jsonb_build_array(
+  jsonb_build_object('external_id', 'M-1', 'title', 'Монстера 17/70', 'price_rub', 1500,
+                     'species_id', (select id from public.species where slug = 'monstera-deliciosa')),
+  jsonb_build_object('external_id', 'X-1', 'title', 'Кашпо', 'price_rub', 300)));
+do $$ begin
+  perform public.review_shop((select id from public.shops where owner_id = auth.uid()), 'verified');
+  raise exception 'подтверждает только администратор';
+exception when insufficient_privilege then null;
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.wishlist_items (species_id) values ((select id from public.species where slug = 'monstera-deliciosa'));
+do $$ begin
+  assert (select count(*) from public.shops) = 0, 'непроверенный магазин не виден';
+  assert (select count(*) from public.shop_products) = 0, 'и его каталог';
+end $$;
+reset role;
+update public.profiles set is_admin = true where id = '00000000-0000-0000-0000-00000000000b';
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+select public.review_shop((select id from public.shops limit 1), 'verified', 'Реквизиты проверены');
+do $$ begin
+  assert (select count(*) from public.where_to_buy((select id from public.species where slug = 'monstera-deliciosa'))) = 1,
+         'где купить: одно предложение';
+  assert (select price_rub from public.where_to_buy((select id from public.species where slug = 'monstera-deliciosa'), 'Москва')) = 1500,
+         'из другого города — если есть доставка';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+select * from public.shop_import_products(jsonb_build_array(
+  jsonb_build_object('external_id', 'M-1', 'title', 'Монстера 17/70', 'price_rub', 1200,
+                     'species_id', (select id from public.species where slug = 'monstera-deliciosa'))), true);
+do $$ begin
+  assert (select count(*) from public.shop_products) = 1, 'замена каталога удаляет отсутствующие в файле';
+end $$;
+update public.shops set name = 'Зелёный угол и К' where owner_id = auth.uid();
+do $$ begin
+  assert (select status from public.shops where owner_id = auth.uid()) = 'pending', 'смена названия — снова на проверку';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.shops) = 0, 'заблокированный не видит магазин';
+end $$;
+
+reset role;
+do $$ begin
+  assert (select count(*) from private.push_queue
+           where user_id = '00000000-0000-0000-0000-00000000000b' and title like 'Подешевело:%') = 1,
+         'подписчику «Хочу» — уведомление о снижении цены';
+  assert (select count(*) from private.push_queue
+           where user_id = '00000000-0000-0000-0000-00000000000a' and title = 'Магазин подтверждён ✓') = 1,
+         'владельцу — о проверке магазина';
+end $$;
+set role authenticated;
+
+-- Ошибочная отметка ухода: удаление возвращает график как было.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$
+declare before_s public.care_schedules;
+declare after_s public.care_schedules;
+begin
+  select * into before_s from public.care_schedules where id = '30000000-0000-0000-0000-000000000001';
+  insert into public.care_events (id, plant_id, type, performed_at)
+  values ('70000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'water',
+          coalesce(before_s.last_done_at, now() - interval '10 days') + interval '1 day');
+  assert (select last_done_at from public.care_schedules where id = before_s.id) <> before_s.last_done_at,
+         'отметка сдвинула график';
+  delete from public.care_events where id = '70000000-0000-0000-0000-000000000001';
+  select * into after_s from public.care_schedules where id = before_s.id;
+  assert after_s.last_done_at is not distinct from before_s.last_done_at, 'удаление вернуло дату последнего полива';
+  assert after_s.user_factor = before_s.user_factor, 'и коэффициент подстройки';
+  assert after_s.next_due_at is not distinct from before_s.next_due_at, 'и дату следующего полива';
+end $$;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

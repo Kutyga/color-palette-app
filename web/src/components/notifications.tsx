@@ -56,6 +56,7 @@ function Preferences() {
       </div>
       <Toggle label="Сообщения" hint="Новые сообщения в чатах барахолки" checked={s.messages} onChange={(v) => save({ messages: v })} />
       <Toggle label="Сообщество" hint="Ответы на ваши вопросы и комментарии к записям" checked={s.community} onChange={(v) => save({ community: v })} />
+      <Toggle label="«Хочу купить»" hint="Растение из списка появилось в магазине или подешевело" checked={s.wishlist} onChange={(v) => save({ wishlist: v })} />
     </div>
   );
 }

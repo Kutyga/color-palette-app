@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
+import type { GardenStats } from "./domain/gamification";
 import type { ListingFilter } from "./domain/market";
 import type { DiaryScope, HelpFilter } from "./domain/social";
 
@@ -51,9 +52,17 @@ export function useStats() {
   const b = useBackend();
   return useQuery({
     queryKey: ["stats"],
-    queryFn: async () => {
-      const [stats, activity] = await Promise.all([b.garden.stats(), b.social.myActivity()]);
-      return { ...stats, ...activity };
+    queryFn: async (): Promise<GardenStats> => {
+      // Сад обязателен; остальное — дополнения: их сбой не должен ломать экран достижений.
+      const soft = <T>(p: Promise<T>, fallback: T) => p.catch(() => fallback);
+      const [stats, activity, market, wishlist, shop] = await Promise.all([
+        b.garden.stats(),
+        soft(b.social.myActivity(), { posts: 0, likesReceived: 0, answers: 0, bestAnswers: 0, followers: 0 }),
+        soft(b.market.myStats(), { listings: 0, giveaways: 0, deals: 0 }),
+        soft(b.wishlist.list(), []),
+        soft(b.shops.myStats(), { hasShop: 0, shopVerified: 0, products: 0, shopSpecies: 0 }),
+      ]);
+      return { ...stats, ...activity, ...market, ...shop, wishlist: wishlist.length };
     },
   });
 }
@@ -182,4 +191,62 @@ export function useConversations() {
 export function useMessages(conversationId: string | null) {
   const b = useBackend();
   return useQuery({ queryKey: ["chat", "messages", conversationId], queryFn: () => b.chat.messages(conversationId!), enabled: !!conversationId });
+}
+
+// ---------------------------------------------------------------------------
+// Магазины и «Хочу»
+// ---------------------------------------------------------------------------
+
+export function useMyShop() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "mine"], queryFn: () => b.shops.myShop() });
+}
+
+export function useShop(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "one", id], queryFn: () => b.shops.shop(id!), enabled: !!id });
+}
+
+export function useShops(city: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "list", city], queryFn: () => b.shops.shops(city) });
+}
+
+export function useShopProducts(shopId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "products", shopId], queryFn: () => b.shops.products(shopId!), enabled: !!shopId });
+}
+
+export function useWhereToBuy(speciesId: string, city: string | null, enabled = true) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "offers", speciesId, city], queryFn: () => b.shops.whereToBuy(speciesId, city), enabled });
+}
+
+export function useReviewQueue(enabled: boolean) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["shops", "review"], queryFn: () => b.shops.reviewQueue(), enabled });
+}
+
+export function useWishlist() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["wishlist"], queryFn: () => b.wishlist.list() });
+}
+
+/** «Хочу» / «Не хочу» — сразу меняет список на экране. */
+export function useSetWished() {
+  const b = useBackend();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ speciesId, wanted }: { speciesId: string; wanted: boolean }) => b.wishlist.set(speciesId, wanted),
+    onMutate: ({ speciesId, wanted }) => {
+      const prev = qc.getQueryData<string[]>(["wishlist"]);
+      qc.setQueryData<string[]>(["wishlist"], (l = []) => (wanted ? [speciesId, ...l.filter((x) => x !== speciesId)] : l.filter((x) => x !== speciesId)));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => qc.setQueryData(["wishlist"], ctx?.prev),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["wishlist"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+    },
+  });
 }

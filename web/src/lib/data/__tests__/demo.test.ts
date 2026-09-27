@@ -61,7 +61,7 @@ describe("демо-режим", () => {
     expect(mine).toMatchObject({ kind: "diary", event: "bloom", likeCount: 1, commentCount: 1, likedByMe: true, mine: true });
     expect(mine.speciesId).not.toBeNull();
     expect((await b.social.plantDiary(plant.id)).map((p) => p.id)).toEqual([post.id]);
-    expect(await b.social.myActivity()).toEqual({ posts: 1, likesReceived: 1 });
+    expect(await b.social.myActivity()).toMatchObject({ posts: 1, likesReceived: 1 });
   });
 
   it("помощь: вопрос, ответ, лучший ответ", async () => {
@@ -118,5 +118,24 @@ describe("демо-режим", () => {
   it("в демо-режиме уведомлений нет", async () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
     expect(b.notifications).toBeNull();
+  });
+
+  it("ошибочная отметка удаляется, график возвращается как был; растение можно переставить", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
+    const before = (await b.garden.plantDetails(mosya.id)).schedules.find((s) => s.type === "water")!;
+    await b.garden.logCare(mosya.id, "water", { id: "oops" });
+    const after = (await b.garden.plantDetails(mosya.id)).schedules.find((s) => s.type === "water")!;
+    expect(after.nextDueAt!.getTime()).not.toBe(before.nextDueAt!.getTime());
+    await b.garden.deleteCareEvent("oops");
+    const back = await b.garden.plantDetails(mosya.id);
+    const restored = back.schedules.find((s) => s.type === "water")!;
+    expect(restored.nextDueAt).toEqual(before.nextDueAt);
+    expect(restored.userFactor).toBe(before.userFactor);
+    expect(back.events.some((e) => e.id === "oops")).toBe(false);
+
+    const kitchen = (await b.garden.myLocations()).find((l) => l.name === "Кухня")!;
+    await b.garden.setLocation(mosya.id, kitchen.id);
+    expect((await b.garden.plantDetails(mosya.id)).plant.locationName).toBe("Кухня");
   });
 });

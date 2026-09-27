@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SpeciesCard } from "@/components/knowledge-browser";
+import { WhereToBuy, WishButton } from "@/components/shops";
 import { SoilSchematic } from "@/components/soil-schematic";
 import { PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
@@ -74,14 +75,19 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
             {s.plantType && <span className="rounded-full bg-muted px-3 py-1 first-letter:uppercase">{s.plantType}</span>}
             {s.airPurifying && <span className="rounded-full bg-mist/15 px-3 py-1 text-mist">Очищает воздух</span>}
           </div>
-          <Link
-            href={`/garden/new/?species=${s.slug}`}
-            className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-leaf px-6 text-[17px] font-semibold text-white hover:brightness-110"
-          >
-            <Plus className="size-5" aria-hidden /> Добавить в коллекцию
-          </Link>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              href={`/garden/new/?species=${s.slug}`}
+              className="inline-flex min-h-12 items-center gap-2 rounded-full bg-leaf px-6 text-[17px] font-semibold text-white hover:brightness-110"
+            >
+              <Plus className="size-5" aria-hidden /> Добавить в коллекцию
+            </Link>
+            <WishButton speciesId={s.id} />
+          </div>
         </div>
       </div>
+
+      <WhereToBuy speciesId={s.id} />
 
       {care && (
         <>

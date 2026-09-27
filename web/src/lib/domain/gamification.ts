@@ -17,15 +17,37 @@ export interface GardenStats {
   nightOwl: number;
   currentStreak: number;
   bestStreak: number;
+  /** Растения, которые растут в воде. */
+  inWater: number;
   /** Социальная активность — из SocialRepository.myActivity(). */
   posts: number;
   likesReceived: number;
+  /** Ответы на вопросы в «Помощи» и сколько из них отмечены лучшими. */
+  answers: number;
+  bestAnswers: number;
+  followers: number;
+  /** Список «Хочу купить». */
+  wishlist: number;
+  /** «Барахолка»: объявления, «Отдам даром», закрытые сделки. */
+  listings: number;
+  giveaways: number;
+  deals: number;
+  /** Магазин: заявка подана (1), проверен (1), товаров и видов в каталоге. */
+  hasShop: number;
+  shopVerified: number;
+  products: number;
+  shopSpecies: number;
 }
+
+export type ActivityStats = Pick<GardenStats, "posts" | "likesReceived" | "answers" | "bestAnswers" | "followers">;
+export type MarketStats = Pick<GardenStats, "listings" | "giveaways" | "deals">;
+export type ShopStats = Pick<GardenStats, "hasShop" | "shopVerified" | "products" | "shopSpecies">;
 
 export const EMPTY_STATS: GardenStats = {
   plants: 0, species: 0, locations: 0, petSafe: 0, succulents: 0, careEvents: 0, waterings: 0,
   fertilizings: 0, mistings: 0, repots: 0, earlyBird: 0, nightOwl: 0, currentStreak: 0, bestStreak: 0,
-  posts: 0, likesReceived: 0,
+  inWater: 0, posts: 0, likesReceived: 0, answers: 0, bestAnswers: 0, followers: 0, wishlist: 0,
+  listings: 0, giveaways: 0, deals: 0, hasShop: 0, shopVerified: 0, products: 0, shopSpecies: 0,
 };
 
 export function statsFromRow(j: Record<string, unknown>): GardenStats {
@@ -58,8 +80,18 @@ export const TIERS = {
 } as const;
 export type Tier = keyof typeof TIERS;
 
+/** Разделы на экране достижений. Раздел «Магазин» виден только владельцам магазинов. */
+export const GROUPS = {
+  garden: "Сад",
+  community: "Сообщество",
+  market: "Барахолка",
+  shop: "Магазин",
+} as const;
+export type AchievementGroup = keyof typeof GROUPS;
+
 export interface Achievement {
   id: string;
+  group: AchievementGroup;
   title: string;
   description: string;
   tier: Tier;
@@ -71,35 +103,69 @@ export interface Achievement {
   secret?: boolean;
 }
 
+type Def = Omit<Achievement, "group">;
+const group = (g: AchievementGroup, list: Def[]): Achievement[] => list.map((a) => ({ ...a, group: g }));
+
 export const ACHIEVEMENTS: Achievement[] = [
-  // Росток — первые шаги
-  { id: "first_sprout", title: "Первый росток", description: "Добавьте первое растение", tier: "sprout", icon: "Sprout", target: 1, metric: (s) => s.plants },
-  { id: "wet_business", title: "Мокрое дело", description: "Отметьте первый полив", tier: "sprout", icon: "Droplet", target: 1, metric: (s) => s.waterings },
-  { id: "big_move", title: "Переезд века", description: "Пересадите растение", tier: "sprout", icon: "Truck", target: 1, metric: (s) => s.repots },
-  { id: "windowsill_star", title: "Звезда подоконника", description: "Сделайте первую запись в дневнике или задайте вопрос", tier: "sprout", icon: "Camera", target: 1, metric: (s) => s.posts },
-  { id: "interior_designer", title: "Дизайнер подоконников", description: "Заведите 3 места для растений", tier: "sprout", icon: "Armchair", target: 3, metric: (s) => s.locations },
-  // Побег — нужна регулярность
-  { id: "green_five", title: "Зелёная пятилетка", description: "Соберите 5 растений", tier: "shoot", icon: "Leaf", target: 5, metric: (s) => s.plants },
-  { id: "no_drought_week", title: "Неделя без засухи", description: "Ухаживайте 7 дней подряд", tier: "shoot", icon: "Flame", target: 7, metric: (s) => s.bestStreak },
-  { id: "watering_can_traveler", title: "Лейка-путешественница", description: "50 поливов", tier: "shoot", icon: "Droplets", target: 50, metric: (s) => s.waterings },
-  { id: "fertilizer_chef", title: "Шеф-повар удобрений", description: "10 подкормок", tier: "shoot", icon: "ChefHat", target: 10, metric: (s) => s.fertilizings },
-  { id: "foggy_albion", title: "Туманный Альбион", description: "20 опрыскиваний", tier: "shoot", icon: "Cloud", target: 20, metric: (s) => s.mistings },
-  { id: "cat_diplomat", title: "Кошачий дипломат", description: "3 растения, безопасных для питомцев", tier: "shoot", icon: "Cat", target: 3, metric: (s) => s.petSafe },
-  { id: "camel_patience", title: "Верблюжья выдержка", description: "Соберите 3 суккулента", tier: "shoot", icon: "Mountain", target: 3, metric: (s) => s.succulents },
-  { id: "early_bird", title: "Ранняя пташка", description: "5 раз поухаживать с 5 до 8 утра", tier: "shoot", icon: "Sunrise", target: 5, metric: (s) => s.earlyBird },
-  { id: "night_gardener", title: "Ночной садовник", description: "5 раз поухаживать после 23:00", tier: "shoot", icon: "Moon", target: 5, metric: (s) => s.nightOwl, secret: true },
-  { id: "green_blogger", title: "Зелёный летописец", description: "10 записей и вопросов в сообществе", tier: "shoot", icon: "BookOpen", target: 10, metric: (s) => s.posts },
-  // Дерево — серьёзная коллекция и дисциплина
-  { id: "ficus_influencer", title: "Инфлюенсер фикусов", description: "Соберите 100 «Поддержать»", tier: "tree", icon: "Heart", target: 100, metric: (s) => s.likesReceived },
-  { id: "windowsill_garden", title: "Ботсад на подоконнике", description: "Соберите 15 растений", tier: "tree", icon: "Trees", target: 15, metric: (s) => s.plants },
-  { id: "green_discipline", title: "Месяц зелёной дисциплины", description: "Ухаживайте 30 дней подряд", tier: "tree", icon: "Zap", target: 30, metric: (s) => s.bestStreak },
-  { id: "moisture_lord", title: "Повелитель влаги", description: "250 поливов", tier: "tree", icon: "Waves", target: 250, metric: (s) => s.waterings },
-  { id: "latin_collector", title: "Коллекционер латыни", description: "10 разных видов", tier: "tree", icon: "Library", target: 10, metric: (s) => s.species },
-  // Баобаб — легенды
-  { id: "jungle_calls", title: "Джунгли зовут", description: "Соберите 30 растений", tier: "baobab", icon: "TreePalm", target: 30, metric: (s) => s.plants },
-  { id: "hundred_days", title: "Сто дней фотосинтеза", description: "Ухаживайте 100 дней подряд", tier: "baobab", icon: "Sun", target: 100, metric: (s) => s.bestStreak },
-  { id: "botanical_celebrity", title: "Ботаническая знаменитость", description: "1000 «Поддержать» на ваших записях", tier: "baobab", icon: "Star", target: 1000, metric: (s) => s.likesReceived, secret: true },
-  { id: "indoor_poseidon", title: "Комнатный Посейдон", description: "1000 поливов", tier: "baobab", icon: "Anchor", target: 1000, metric: (s) => s.waterings },
+  ...group("garden", [
+    // Росток — первые шаги
+    { id: "first_sprout", title: "Первый росток", description: "Добавьте первое растение", tier: "sprout", icon: "Sprout", target: 1, metric: (s) => s.plants },
+    { id: "wet_business", title: "Мокрое дело", description: "Отметьте первый полив", tier: "sprout", icon: "Droplet", target: 1, metric: (s) => s.waterings },
+    { id: "big_move", title: "Переезд века", description: "Пересадите растение", tier: "sprout", icon: "Truck", target: 1, metric: (s) => s.repots },
+    { id: "interior_designer", title: "Дизайнер подоконников", description: "Заведите 3 места для растений", tier: "sprout", icon: "Armchair", target: 3, metric: (s) => s.locations },
+    { id: "water_baby", title: "Водяной", description: "Вырастите растение в воде", tier: "sprout", icon: "GlassWater", target: 1, metric: (s) => s.inWater },
+    { id: "dreamer", title: "Мечтатель", description: "Добавьте 3 растения в «Хочу купить»", tier: "sprout", icon: "Sparkles", target: 3, metric: (s) => s.wishlist },
+    // Побег — нужна регулярность
+    { id: "green_five", title: "Зелёная пятилетка", description: "Соберите 5 растений", tier: "shoot", icon: "Leaf", target: 5, metric: (s) => s.plants },
+    { id: "no_drought_week", title: "Неделя без засухи", description: "Ухаживайте 7 дней подряд", tier: "shoot", icon: "Flame", target: 7, metric: (s) => s.bestStreak },
+    { id: "watering_can_traveler", title: "Лейка-путешественница", description: "50 поливов", tier: "shoot", icon: "Droplets", target: 50, metric: (s) => s.waterings },
+    { id: "fertilizer_chef", title: "Шеф-повар удобрений", description: "10 подкормок", tier: "shoot", icon: "ChefHat", target: 10, metric: (s) => s.fertilizings },
+    { id: "foggy_albion", title: "Туманный Альбион", description: "20 опрыскиваний", tier: "shoot", icon: "Cloud", target: 20, metric: (s) => s.mistings },
+    { id: "repot_master", title: "Мастер пересадки", description: "10 пересадок", tier: "shoot", icon: "Shovel", target: 10, metric: (s) => s.repots },
+    { id: "cat_diplomat", title: "Кошачий дипломат", description: "3 растения, безопасных для питомцев", tier: "shoot", icon: "Cat", target: 3, metric: (s) => s.petSafe },
+    { id: "camel_patience", title: "Верблюжья выдержка", description: "Соберите 3 суккулента", tier: "shoot", icon: "Mountain", target: 3, metric: (s) => s.succulents },
+    { id: "aquarist", title: "Аквариумист", description: "3 растения растут в воде", tier: "shoot", icon: "Fish", target: 3, metric: (s) => s.inWater },
+    { id: "early_bird", title: "Ранняя пташка", description: "5 раз поухаживать с 5 до 8 утра", tier: "shoot", icon: "Sunrise", target: 5, metric: (s) => s.earlyBird },
+    { id: "night_gardener", title: "Ночной садовник", description: "5 раз поухаживать после 23:00", tier: "shoot", icon: "Moon", target: 5, metric: (s) => s.nightOwl, secret: true },
+    // Дерево — серьёзная коллекция и дисциплина
+    { id: "windowsill_garden", title: "Ботсад на подоконнике", description: "Соберите 15 растений", tier: "tree", icon: "Trees", target: 15, metric: (s) => s.plants },
+    { id: "green_discipline", title: "Месяц зелёной дисциплины", description: "Ухаживайте 30 дней подряд", tier: "tree", icon: "Zap", target: 30, metric: (s) => s.bestStreak },
+    { id: "moisture_lord", title: "Повелитель влаги", description: "250 поливов", tier: "tree", icon: "Waves", target: 250, metric: (s) => s.waterings },
+    { id: "latin_collector", title: "Коллекционер латыни", description: "10 разных видов", tier: "tree", icon: "Library", target: 10, metric: (s) => s.species },
+    { id: "care_veteran", title: "Садовник со стажем", description: "500 отметок ухода", tier: "tree", icon: "Medal", target: 500, metric: (s) => s.careEvents },
+    // Баобаб — легенды
+    { id: "jungle_calls", title: "Джунгли зовут", description: "Соберите 30 растений", tier: "baobab", icon: "TreePalm", target: 30, metric: (s) => s.plants },
+    { id: "hundred_days", title: "Сто дней фотосинтеза", description: "Ухаживайте 100 дней подряд", tier: "baobab", icon: "Sun", target: 100, metric: (s) => s.bestStreak },
+    { id: "green_encyclopedia", title: "Живая энциклопедия", description: "25 разных видов", tier: "baobab", icon: "GraduationCap", target: 25, metric: (s) => s.species },
+    { id: "indoor_poseidon", title: "Комнатный Посейдон", description: "1000 поливов", tier: "baobab", icon: "Anchor", target: 1000, metric: (s) => s.waterings },
+  ]),
+  ...group("community", [
+    { id: "windowsill_star", title: "Звезда подоконника", description: "Сделайте первую запись в дневнике или задайте вопрос", tier: "sprout", icon: "Camera", target: 1, metric: (s) => s.posts },
+    { id: "good_advice", title: "Добрый совет", description: "Ответьте на вопрос в «Помощи»", tier: "sprout", icon: "MessageCircle", target: 1, metric: (s) => s.answers },
+    { id: "green_blogger", title: "Зелёный летописец", description: "10 записей и вопросов в сообществе", tier: "shoot", icon: "BookOpen", target: 10, metric: (s) => s.posts },
+    { id: "it_helped", title: "Спасибо, помогло!", description: "Ваш ответ отметили лучшим", tier: "shoot", icon: "BadgeCheck", target: 1, metric: (s) => s.bestAnswers },
+    { id: "first_followers", title: "Своя аудитория", description: "10 подписчиков", tier: "shoot", icon: "Users", target: 10, metric: (s) => s.followers },
+    { id: "ficus_influencer", title: "Инфлюенсер фикусов", description: "Соберите 100 «Поддержать»", tier: "tree", icon: "Heart", target: 100, metric: (s) => s.likesReceived },
+    { id: "plant_doctor", title: "Зелёный доктор", description: "10 лучших ответов", tier: "tree", icon: "Stethoscope", target: 10, metric: (s) => s.bestAnswers },
+    { id: "opinion_leader", title: "Лидер мнений", description: "100 подписчиков", tier: "tree", icon: "Megaphone", target: 100, metric: (s) => s.followers },
+    { id: "people_agronomist", title: "Народный агроном", description: "50 лучших ответов", tier: "baobab", icon: "Award", target: 50, metric: (s) => s.bestAnswers },
+    { id: "botanical_celebrity", title: "Ботаническая знаменитость", description: "1000 «Поддержать» на ваших записях", tier: "baobab", icon: "Star", target: 1000, metric: (s) => s.likesReceived, secret: true },
+  ]),
+  ...group("market", [
+    { id: "first_listing", title: "Первое объявление", description: "Разместите объявление в «Барахолке»", tier: "sprout", icon: "Tag", target: 1, metric: (s) => s.listings },
+    { id: "generous_soul", title: "Щедрая душа", description: "3 раза отдайте растения даром", tier: "shoot", icon: "Gift", target: 3, metric: (s) => s.giveaways },
+    { id: "handshake", title: "По рукам!", description: "Закройте 3 сделки", tier: "shoot", icon: "Handshake", target: 3, metric: (s) => s.deals },
+    { id: "trading_house", title: "Торговый дом", description: "Закройте 15 сделок", tier: "tree", icon: "Store", target: 15, metric: (s) => s.deals },
+  ]),
+  ...group("shop", [
+    { id: "open_doors", title: "Открываем двери", description: "Подайте заявку магазина", tier: "sprout", icon: "DoorOpen", target: 1, metric: (s) => s.hasShop },
+    { id: "first_shelf", title: "Первая полка", description: "10 товаров в каталоге", tier: "sprout", icon: "Package", target: 10, metric: (s) => s.products },
+    { id: "trust_mark", title: "Галочка доверия", description: "Пройдите проверку магазина", tier: "shoot", icon: "BadgeCheck", target: 1, metric: (s) => s.shopVerified },
+    { id: "shop_botanist", title: "Магазин-ботаник", description: "20 видов растений в каталоге", tier: "shoot", icon: "Flower2", target: 20, metric: (s) => s.shopSpecies },
+    { id: "big_assortment", title: "Большой ассортимент", description: "100 товаров в каталоге", tier: "tree", icon: "Boxes", target: 100, metric: (s) => s.products },
+    { id: "whole_reference", title: "Весь справочник", description: "75 видов растений в каталоге", tier: "tree", icon: "BookOpenCheck", target: 75, metric: (s) => s.shopSpecies },
+    { id: "hypermarket", title: "Ботанический гипермаркет", description: "1000 товаров в каталоге", tier: "baobab", icon: "Warehouse", target: 1000, metric: (s) => s.products },
+  ]),
 ];
 
 export interface AchievementProgress {
@@ -128,10 +194,17 @@ export const LEVELS = [
 ] as const;
 export type Level = (typeof LEVELS)[number];
 
-/** Опыт: полив 10, другой уход 15, растение в коллекции 25, плюс бонус за достижения. */
+/** Достижения магазина видны только владельцам магазинов. */
+export const visibleAchievements = (progress: AchievementProgress[], s: GardenStats) =>
+  progress.filter((p) => p.achievement.group !== "shop" || s.hasShop > 0);
+
+/**
+ * Опыт садовода: полив 10, другой уход 15, растение в коллекции 25, плюс бонус за достижения.
+ * Достижения магазина на уровень садовода не влияют.
+ */
 export function experience(s: GardenStats): number {
   const bonus = evaluateAchievements(s)
-    .filter((p) => p.unlocked)
+    .filter((p) => p.unlocked && p.achievement.group !== "shop")
     .reduce((sum, p) => sum + TIERS[p.achievement.tier].xp, 0);
   return s.waterings * 10 + (s.careEvents - s.waterings) * 15 + s.plants * 25 + bonus;
 }

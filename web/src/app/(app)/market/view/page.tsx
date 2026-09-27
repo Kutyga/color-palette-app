@@ -23,7 +23,10 @@ function OwnerActions({ listing }: { listing: Listing }) {
   const toast = useToast();
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
-  const refresh = () => qc.invalidateQueries({ queryKey: ["market"] });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["market"] });
+    qc.invalidateQueries({ queryKey: ["stats"] });
+  };
   const status = useMutation({
     mutationFn: (s: ListingStatus) => backend.market.setStatus(listing.id, s),
     onSuccess: (_d, s) => {
