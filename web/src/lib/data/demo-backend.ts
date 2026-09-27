@@ -12,7 +12,7 @@ import {
 } from "../domain/care";
 import type { GardenStats } from "../domain/gamification";
 import type { Location, Plant, Visibility } from "../domain/plant";
-import type { DiaryEvent, DiaryScope, FeedPost, HelpFilter, NewPost, NewsArticle, PostComment } from "../domain/social";
+import { EDIT_WINDOW_MS, type DiaryEvent, type DiaryScope, type FeedPost, type HelpFilter, type NewPost, type NewsArticle, type PostComment, type PostUpdate } from "../domain/social";
 import { speciesName, type Species } from "../domain/species";
 import { blobToDataUrl } from "../image";
 import { ALL_SPECIES } from "../knowledge";
@@ -34,8 +34,8 @@ type Dated<T, K extends keyof T> = Omit<T, K> & { [P in K]: string | null };
 type ScheduleRec = Dated<CareSchedule, "lastDoneAt" | "nextDueAt">;
 type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string };
 // Поля дневника и вопросов необязательны: в сохранённых раньше демо-данных их нет.
-type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId"> &
-  Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & { createdAt: string; authorDisplayName?: string };
+type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId" | "editedAt"> &
+  Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & { createdAt: string; authorDisplayName?: string; editedAt?: string | null };
 type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName"> & { createdAt: string; authorDisplayName?: string };
 
 export interface DemoState {
@@ -388,6 +388,7 @@ export class DemoSocial implements SocialRepository {
       event: kind === "diary" ? (p.event ?? "progress") : null,
       speciesId: p.speciesId ?? null,
       solvedCommentId: p.solvedCommentId ?? null,
+      editedAt: p.editedAt ? new Date(p.editedAt) : null,
       authorDisplayName:
         p.authorId === ME
           ? (me.displayName ?? "Вы")
@@ -462,6 +463,27 @@ export class DemoSocial implements SocialRepository {
     this.state.posts.push(rec);
     this.persist();
     return this.toPost(rec);
+  }
+
+  async updatePost(id: string, update: PostUpdate) {
+    const p = this.state.posts.find((x) => x.id === id && x.authorId === ME);
+    if (!p) throw new Error("Публикация не найдена");
+    if (this.clock().getTime() - new Date(p.createdAt).getTime() > EDIT_WINDOW_MS) {
+      throw new Error("Прошло больше часа — публикацию уже нельзя изменить");
+    }
+    p.text = update.text;
+    if (update.event !== undefined && (p.kind ?? "diary") === "diary") p.event = update.event;
+    p.editedAt = this.clock().toISOString();
+    this.persist();
+    return this.toPost(p);
+  }
+
+  async deletePost(id: string) {
+    const p = this.state.posts.find((x) => x.id === id && x.authorId === ME);
+    if (!p) return;
+    this.state.posts = this.state.posts.filter((x) => x !== p);
+    this.state.comments = this.state.comments.filter((c) => c.postId !== id);
+    this.persist();
   }
 
   async setLiked(postId: string, liked: boolean) {

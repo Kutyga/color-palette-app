@@ -222,6 +222,50 @@ do $$ begin
   assert (select count(*) from public.help_questions('all')) = 0, 'заблокированный не видит вопросы';
 end $$;
 
+-- Правка своей публикации — в течение часа, удаление — в любое время, чужие — никогда.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+update public.posts set text = 'Зацвела! Первый бутон', event = 'bloom'
+ where id = '40000000-0000-0000-0000-000000000002';
+do $$ begin
+  assert (select text from public.posts where id = '40000000-0000-0000-0000-000000000002') = 'Зацвела! Первый бутон',
+         'автор правит свежую запись';
+  assert (select edited_at from public.posts where id = '40000000-0000-0000-0000-000000000002') is not null,
+         'отметка «изменено»';
+end $$;
+do $$ begin
+  update public.posts set kind = 'question' where id = '40000000-0000-0000-0000-000000000002';
+  raise exception 'тип публикации менять нельзя';
+exception when check_violation then null;
+end $$;
+
+reset role;
+update public.posts set created_at = now() - interval '2 hours'
+ where id = '40000000-0000-0000-0000-000000000002';
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  update public.posts set text = 'поздно' where id = '40000000-0000-0000-0000-000000000002';
+  raise exception 'через час править нельзя';
+exception when check_violation then null;
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+update public.posts set deleted_at = now() where id = '40000000-0000-0000-0000-000000000002';
+update public.posts set text = 'чужое' where id = '40000000-0000-0000-0000-000000000003';
+do $$ begin
+  assert (select count(*) from public.feed_diaries('following')
+           where id = '40000000-0000-0000-0000-000000000002') = 1, 'чужую запись удалить нельзя';
+  assert (select text from public.posts where id = '40000000-0000-0000-0000-000000000003')
+         = 'Желтеют нижние листья — что делать?', 'чужой вопрос не правится';
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+update public.posts set deleted_at = now() where id = '40000000-0000-0000-0000-000000000002';
+do $$ begin
+  assert (select count(*) from public.feed_diaries()
+           where id = '40000000-0000-0000-0000-000000000002') = 0, 'автор удаляет и старую запись';
+end $$;
+
 -- Фото растения: владелец загружает в свою папку и ставит обложку; посторонний — нет.
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
 insert into storage.objects (bucket_id, name)
