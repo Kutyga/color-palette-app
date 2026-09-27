@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoBackend, memoryDemoStorage } from "../../data/demo-backend";
+import { demoBackend, memoryDemoStorage } from "../../data/demo";
 import { normalizeUsername, personFromRow, prettyUsername, validateProfile } from "../people";
 
 describe("профиль садовода", () => {

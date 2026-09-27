@@ -3,9 +3,9 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { hasBackend } from "@/lib/config";
-import { demoBackend, localDemoStorage } from "@/lib/data/demo-backend";
-import { supabaseBackend } from "@/lib/data/supabase-backend";
-import type { Backend } from "@/lib/data/types";
+import { demoBackend, localDemoStorage } from "@/lib/data/demo";
+import { supabaseBackend } from "@/lib/data/supabase";
+import type { Backend } from "@/lib/data/repositories";
 import { supabase } from "@/lib/supabase";
 
 export type SessionState = { status: "loading" } | { status: "guest" } | { status: "ready"; backend: Backend; email: string | null };

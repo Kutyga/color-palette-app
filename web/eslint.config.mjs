@@ -18,6 +18,8 @@ export default defineConfig([
       "no-console": "error",
       // Импорт типов — отдельно: сборщик выбрасывает его целиком.
       "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
+      // Импорт только типов — целиком через «import type», а не «import { type X }».
+      "@typescript-eslint/no-import-type-side-effects": "error",
       // Неиспользуемое — ошибка; осознанно пропущенный аргумент начинается с «_».
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       "prefer-const": "error",

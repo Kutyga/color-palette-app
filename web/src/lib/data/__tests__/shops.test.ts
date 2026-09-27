@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from "../demo-backend";
-import { SpeciesIds } from "../supabase-backend";
+import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from "../demo";
+import { SpeciesIds } from "../supabase/shared";
 import {
   TEMPLATE_CSV,
   INN_REQUIRED,

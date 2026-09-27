@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DemoChat, demoBackend, memoryDemoStorage } from "../demo-backend";
+import { demoBackend, memoryDemoStorage } from "../demo";
+import { DemoChat } from "../demo/chat";
 import { priceLabel, sameCity, validateListing, type ListingDraft } from "../../domain/market";
 
 const clock = () => new Date(2026, 6, 15, 12);

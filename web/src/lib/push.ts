@@ -4,7 +4,7 @@
  * На iPhone уведомления работают только у сайта, добавленного на экран «Домой» (iOS 16.4+).
  */
 import { BASE_PATH } from "./config";
-import type { NotificationsRepository } from "./data/types";
+import type { NotificationsRepository } from "./data/repositories";
 
 export type PushSupport = "supported" | "unsupported" | "ios-needs-install";
 
