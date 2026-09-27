@@ -1,6 +1,6 @@
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
-import type { DiseaseGuess } from "../domain/diagnosis";
+import type { PhotoDiagnosis } from "../domain/diagnosis";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
@@ -75,8 +75,11 @@ export interface SocialRepository {
 /** Распознаёт растение по фото. */
 export interface PlantIdentifier {
   identify(jpeg: Blob): Promise<Prediction[]>;
-  /** Болезни и вредители по фото (Pl@ntNet, ограниченный список видов и болезней). */
-  diagnose(jpeg: Blob): Promise<DiseaseGuess[]>;
+  /**
+   * Болезни и вредители по фото: Pl@ntNet (ограниченный список болезней) и Gemini (разбор
+   * с объяснением). plantHint — что за растение, если известно.
+   */
+  diagnose(jpeg: Blob, plantHint?: string | null): Promise<PhotoDiagnosis>;
 }
 
 export interface Profile {
