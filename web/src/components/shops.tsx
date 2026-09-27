@@ -171,7 +171,7 @@ export function WhereToBuy({ speciesId }: { speciesId: string }) {
         )}
       </div>
       <p className="mt-3 text-[12px] text-secondary">
-        Магазины проверяются вручную по ИНН. Покупка — на сайте магазина, «Подоконник» не берёт комиссию.{" "}
+        Магазины проверяются вручную. Покупка — на сайте магазина, «Подоконник» не берёт комиссию.{" "}
         <Link href="/shop/manage/" className="font-medium hover:text-label">
           Вы магазин?
         </Link>

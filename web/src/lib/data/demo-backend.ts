@@ -1087,7 +1087,7 @@ export class DemoShops implements ShopRepository {
     const fields = {
       name: d.name.trim(),
       description: d.description.trim(),
-      inn: d.inn.trim(),
+      inn: d.inn.trim() || null,
       city: d.city.trim(),
       address: d.address.trim() || null,
       hours: d.hours.trim() || null,

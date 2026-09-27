@@ -423,11 +423,11 @@ test("демо: магазины — «Где купить», «Хочу», ви
   await page.getByRole("link", { name: /Вы продаёте растения/ }).click();
   await page.waitForURL("**/shop/manage/");
   await page.getByLabel("Название магазина").fill("Суккуленты у Гостя");
-  await page.getByLabel("ИНН").fill("1234567890");
+  await page.getByLabel(/^ИНН/).fill("12345");
   await page.getByLabel("Телефон").fill("+7 900 123-45-67");
   await page.getByRole("button", { name: "Отправить на проверку" }).click();
   await expect(page.getByText("Проверьте ИНН")).toBeVisible();
-  await page.getByLabel("ИНН").fill("500100732259");
+  await page.getByLabel(/^ИНН/).fill("");
   await page.getByRole("button", { name: "Отправить на проверку" }).click();
   await expect(page.getByText("На проверке")).toBeVisible();
 

@@ -43,6 +43,10 @@ function ShopReview({ shop: s }: { shop: Shop }) {
       <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
         <dt className="text-secondary">ИНН</dt>
         <dd className="flex flex-wrap items-center gap-x-3">
+          {!s.inn ? (
+            <span className="text-secondary">не указан</span>
+          ) : (
+            <>
           <span className="font-mono">{s.inn}</span>
           <a href={`https://www.rusprofile.ru/search?query=${s.inn}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-medium text-leaf">
             Rusprofile <ExternalLink className="size-3.5" aria-hidden />
@@ -50,6 +54,8 @@ function ShopReview({ shop: s }: { shop: Shop }) {
           <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-medium text-leaf">
             ЕГРЮЛ <ExternalLink className="size-3.5" aria-hidden />
           </a>
+            </>
+          )}
         </dd>
         <dt className="text-secondary">Город</dt>
         <dd>
