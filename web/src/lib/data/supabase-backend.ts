@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../domain/care";
 import { statsFromRow } from "../domain/gamification";
-import type { DiseaseGuess } from "../domain/diagnosis";
+import type { AiDiagnosis, PhotoDiagnosis } from "../domain/diagnosis";
 import type { Prediction } from "../domain/identification";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
@@ -515,9 +515,9 @@ export class SupabasePeople implements PeopleRepository {
 export class PlantNetIdentifier implements PlantIdentifier {
   constructor(private db: SupabaseClient) {}
 
-  private async call(jpeg: Blob, mode: "species" | "diseases") {
+  private async call(jpeg: Blob, mode: "species" | "diseases", plantHint?: string | null) {
     const { data, error } = await this.db.functions.invoke("identify-plant", {
-      body: { image_base64: await blobToBase64(jpeg), organ: "auto", mode },
+      body: { image_base64: await blobToBase64(jpeg), organ: "auto", mode, plant_hint: plantHint ?? undefined },
     });
     if (error) {
       const status = error instanceof FunctionsHttpError ? error.context.status : 0;
@@ -525,12 +525,15 @@ export class PlantNetIdentifier implements PlantIdentifier {
       if (status === 401) throw new Error("Войдите, чтобы распознавать растения.");
       throw new Error("Сервис распознавания недоступен, попробуйте позже.");
     }
-    return data as { results?: Row[]; diseases?: Row[] } | null;
+    return data as { results?: Row[]; diseases?: Row[]; ai?: AiDiagnosis | null } | null;
   }
 
-  async diagnose(jpeg: Blob): Promise<DiseaseGuess[]> {
-    const data = await this.call(jpeg, "diseases");
-    return (data?.diseases ?? []).map((r) => ({ eppo: String(r.eppo), score: Number(r.score), name: String(r.name ?? r.eppo) }));
+  async diagnose(jpeg: Blob, plantHint?: string | null): Promise<PhotoDiagnosis> {
+    const data = await this.call(jpeg, "diseases", plantHint);
+    return {
+      guesses: (data?.diseases ?? []).map((r) => ({ eppo: String(r.eppo), score: Number(r.score), name: String(r.name ?? r.eppo) })),
+      ai: data?.ai ?? null,
+    };
   }
 
   async identify(jpeg: Blob): Promise<Prediction[]> {

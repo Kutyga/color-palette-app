@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CAUSE_IDS } from "../../../../../supabase/functions/identify-plant/gemini";
 import { CAUSES, SYMPTOMS, confidentGuesses, describeEppo, diagnose } from "../diagnosis";
 
 describe("«Что с растением?»", () => {
@@ -35,5 +36,9 @@ describe("«Что с растением?»", () => {
       { eppo: "RIZSPI", score: 0.08, name: "Rhizosphaera pini" },
     ];
     expect(confidentGuesses(guesses).map((g) => g.eppo)).toEqual(["ERYSSP"]);
+  });
+
+  it("Gemini выбирает причины из того же справочника, что и сайт", () => {
+    expect([...CAUSE_IDS].sort()).toEqual(CAUSES.map((c) => c.id).sort());
   });
 });

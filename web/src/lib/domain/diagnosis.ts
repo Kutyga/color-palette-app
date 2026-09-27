@@ -300,6 +300,29 @@ export interface DiseaseGuess {
   name: string;
 }
 
+/** Проблема, которую увидел на фото Gemini; cause — id из CAUSES или «other». */
+export interface AiProblem {
+  cause: string;
+  title: string;
+  confidence: number;
+  evidence: string;
+}
+
+/** Осмотр по фото от Gemini (функция identify-plant, режим diseases). */
+export interface AiDiagnosis {
+  isPlant: boolean;
+  healthy: boolean;
+  plant: string | null;
+  summary: string;
+  problems: AiProblem[];
+}
+
+/** Ответ проверки по фото: догадки Pl@ntNet и, если Gemini ответил, его разбор. */
+export interface PhotoDiagnosis {
+  guesses: DiseaseGuess[];
+  ai: AiDiagnosis | null;
+}
+
 /** Частые коды EPPO → русское название и совет из справочника (по родам — первые 4 буквы + SP). */
 const EPPO_RU: Record<string, { name: string; cause?: string }> = {
   ERYSSP: { name: "Мучнистая роса", cause: "powdery_mildew" },
