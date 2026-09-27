@@ -48,6 +48,39 @@ export function toIdentifications(body: unknown): Identification[] {
   return out.sort((a, b) => b.score - a.score);
 }
 
+/** Болезнь по фото: код EPPO, уверенность 0…1 и название (на языке запроса, если есть). */
+export interface DiseaseGuess {
+  eppo: string;
+  score: number;
+  name: string;
+}
+
+export function plantnetDiseasesUrl(apiKey: string, lang = "ru", results = 5): string {
+  const params = new URLSearchParams({
+    "api-key": apiKey,
+    lang,
+    "nb-results": String(results),
+    "include-related-images": "false",
+  });
+  return `https://my-api.plantnet.org/v2/diseases/identify?${params}`;
+}
+
+/** Ответ /v2/diseases/identify: results[].name — код EPPO, description — название болезни. */
+export function toDiseases(body: unknown): DiseaseGuess[] {
+  const results = (body as { results?: unknown[] })?.results;
+  if (!Array.isArray(results)) return [];
+  const out: DiseaseGuess[] = [];
+  for (const r of results) {
+    const item = r as { name?: unknown; score?: unknown; description?: unknown };
+    if (typeof item.name !== "string" || typeof item.score !== "number") continue;
+    const eppo = item.name.trim();
+    if (!eppo) continue;
+    const name = typeof item.description === "string" && item.description.trim() ? item.description.trim() : eppo;
+    out.push({ eppo, score: Math.max(0, Math.min(1, item.score)), name });
+  }
+  return out.sort((a, b) => b.score - a.score);
+}
+
 /** base64 (с префиксом data: или без) → байты. */
 export function decodeBase64Image(value: string): Uint8Array {
   const clean = value.replace(/^data:[^;]+;base64,/, "").replace(/\s+/g, "");

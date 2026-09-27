@@ -138,4 +138,18 @@ describe("демо-режим", () => {
     await b.garden.setLocation(mosya.id, kitchen.id);
     expect((await b.garden.plantDetails(mosya.id)).plant.locationName).toBe("Кухня");
   });
+
+  it("место: переименование и свет пересчитывают сроки, удаление оставляет растения без места", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const room = (await b.garden.myLocations()).find((l) => l.name === "Гостиная")!;
+    const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
+    const due = async () => (await b.garden.plantDetails(mosya.id)).schedules.find((s) => s.type === "water")!.nextDueAt!.getTime();
+    const before = await due();
+    await b.garden.updateLocation(room.id, "Зал", "low");
+    expect((await b.garden.plantDetails(mosya.id)).plant.locationName).toBe("Зал");
+    expect(await due()).toBeGreaterThan(before); // в тени поливать реже
+    await b.garden.deleteLocation(room.id);
+    expect((await b.garden.myLocations()).some((l) => l.id === room.id)).toBe(false);
+    expect((await b.garden.plantDetails(mosya.id)).plant.locationId).toBeNull();
+  });
 });

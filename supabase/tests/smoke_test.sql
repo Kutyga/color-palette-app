@@ -722,6 +722,38 @@ do $$ begin
            where s.slug = 'lithops-lesliei') = 'mesembs_mineral', 'литопсу — минеральный грунт';
 end $$;
 
+-- Правка и удаление места: свет меняет интервалы, удаление оставляет растение без места.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.locations (id, name, light_level)
+values ('10000000-0000-0000-0000-0000000000f1', 'Балкон', 'bright_indirect');
+insert into public.plants (id, nickname, species_id, location_id, pot_material)
+values ('20000000-0000-0000-0000-0000000000f1', 'Фикус на балконе',
+        (select id from public.species where slug = 'ficus-elastica'),
+        '10000000-0000-0000-0000-0000000000f1', 'plastic');
+insert into public.care_schedules (id, plant_id, type, interval_days, last_done_at)
+values ('30000000-0000-0000-0000-0000000000f1', '20000000-0000-0000-0000-0000000000f1',
+        'water', 7, '2026-07-01 00:00+00');
+create temp table loc_due as
+  select next_due_at from public.care_schedules where id = '30000000-0000-0000-0000-0000000000f1';
+update public.locations set name = 'Лоджия', light_level = 'low' where id = '10000000-0000-0000-0000-0000000000f1';
+do $$ begin
+  assert (select next_due_at from public.care_schedules where id = '30000000-0000-0000-0000-0000000000f1')
+       > (select next_due_at from loc_due), 'в тени поливать реже';
+end $$;
+truncate loc_due;
+insert into loc_due select next_due_at from public.care_schedules where id = '30000000-0000-0000-0000-0000000000f1';
+delete from public.locations where id = '10000000-0000-0000-0000-0000000000f1';
+do $$ begin
+  assert (select location_id from public.plants where id = '20000000-0000-0000-0000-0000000000f1') is null,
+         'растение осталось без места';
+  assert (select next_due_at from public.care_schedules where id = '30000000-0000-0000-0000-0000000000f1')
+       <> (select next_due_at from loc_due), 'интервалы пересчитаны после удаления места';
+end $$;
+reset role;
+set role anon;
+set request.jwt.claim.sub = '';
+
 do $$ begin
   perform private.can_view(gen_random_uuid(), 'public');
   raise exception 'гость не должен вызывать служебные функции';

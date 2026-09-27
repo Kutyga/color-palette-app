@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../domain/care";
 import { statsFromRow } from "../domain/gamification";
+import type { DiseaseGuess } from "../domain/diagnosis";
 import type { Prediction } from "../domain/identification";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
@@ -216,6 +217,18 @@ export class SupabaseGarden implements GardenRepository {
       await this.db.from("locations").insert({ id: crypto.randomUUID(), name, light_level: light }).select().single(),
     ) as Row;
     return { id: r.id as string, name: r.name as string, lightLevel: (r.light_level as never) ?? null };
+  }
+
+  async updateLocation(id: string, name: string, light: Location["lightLevel"]) {
+    const r = check(
+      await this.db.from("locations").update({ name: name.trim(), light_level: light }).eq("id", id).eq("owner_id", this.uid).select().single(),
+    ) as Row;
+    return { id: r.id as string, name: r.name as string, lightLevel: (r.light_level as never) ?? null };
+  }
+
+  /** Растения этого места база оставляет без места (on delete set null) и пересчитывает сроки. */
+  async deleteLocation(id: string) {
+    check(await this.db.from("locations").delete().eq("id", id).eq("owner_id", this.uid));
   }
 
   async dueTasks(until: Date) {
@@ -502,9 +515,9 @@ export class SupabasePeople implements PeopleRepository {
 export class PlantNetIdentifier implements PlantIdentifier {
   constructor(private db: SupabaseClient) {}
 
-  async identify(jpeg: Blob): Promise<Prediction[]> {
+  private async call(jpeg: Blob, mode: "species" | "diseases") {
     const { data, error } = await this.db.functions.invoke("identify-plant", {
-      body: { image_base64: await blobToBase64(jpeg), organ: "auto" },
+      body: { image_base64: await blobToBase64(jpeg), organ: "auto", mode },
     });
     if (error) {
       const status = error instanceof FunctionsHttpError ? error.context.status : 0;
@@ -512,6 +525,16 @@ export class PlantNetIdentifier implements PlantIdentifier {
       if (status === 401) throw new Error("Войдите, чтобы распознавать растения.");
       throw new Error("Сервис распознавания недоступен, попробуйте позже.");
     }
+    return data as { results?: Row[]; diseases?: Row[] } | null;
+  }
+
+  async diagnose(jpeg: Blob): Promise<DiseaseGuess[]> {
+    const data = await this.call(jpeg, "diseases");
+    return (data?.diseases ?? []).map((r) => ({ eppo: String(r.eppo), score: Number(r.score), name: String(r.name ?? r.eppo) }));
+  }
+
+  async identify(jpeg: Blob): Promise<Prediction[]> {
+    const data = await this.call(jpeg, "species");
     const results = ((data as { results?: Row[] } | null)?.results ?? []) as Row[];
     return results.map((r) => ({
       label: r.name as string,
