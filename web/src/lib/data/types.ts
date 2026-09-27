@@ -18,6 +18,8 @@ export interface GardenRepository {
   plantDetails(plantId: string): Promise<PlantDetails>;
   addPlant(draft: PlantDraft): Promise<Plant>;
   deletePlant(plantId: string): Promise<void>;
+  /** Растёт в воде — полив не нужен (график полива выключается и включается обратно). */
+  setInWater(plantId: string, inWater: boolean): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;
@@ -112,6 +114,26 @@ export interface ChatRepository {
   block(userId: string): Promise<void>;
 }
 
+/** Настройки уведомлений в профиле. */
+export interface NotificationSettings {
+  care: boolean;
+  messages: boolean;
+  community: boolean;
+  /** «09:00» — когда присылать напоминание об уходе. */
+  reminderTime: string;
+  timezone: string;
+}
+
+/** Push-уведомления; в демо-режиме их нет. */
+export interface NotificationsRepository {
+  /** Открытый VAPID-ключ сервера. */
+  publicKey(): Promise<string>;
+  subscribe(sub: { endpoint: string; p256dh: string; auth: string }, userAgent: string): Promise<void>;
+  unsubscribe(endpoint: string): Promise<void>;
+  settings(): Promise<NotificationSettings>;
+  updateSettings(patch: Partial<NotificationSettings>): Promise<void>;
+}
+
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
@@ -119,6 +141,7 @@ export interface Backend {
   people: PeopleRepository;
   market: MarketRepository;
   chat: ChatRepository;
+  notifications: NotificationsRepository | null;
   identifier: PlantIdentifier | null;
   profile(): Promise<Profile>;
 }

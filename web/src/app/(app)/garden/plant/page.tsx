@@ -17,7 +17,7 @@ import {
   type CareSchedule,
   type CareType,
 } from "@/lib/domain/care";
-import type { Plant } from "@/lib/domain/plant";
+import type { Plant, PlantDetails } from "@/lib/domain/plant";
 import { everyDays, formatShortDate, relativeDay } from "@/lib/format";
 import { soilMixFor, speciesBySlug } from "@/lib/knowledge";
 import { CameraCapture } from "@/components/camera";
@@ -57,6 +57,19 @@ function PlantView({ id }: { id: string }) {
     onError: (e) => toast(`Не удалось загрузить фото: ${e.message}`),
   });
 
+  const water_ = useMutation({
+    mutationFn: (inWater: boolean) => backend.garden.setInWater(id, inWater),
+    onSuccess: (_d, inWater) => {
+      qc.setQueryData<PlantDetails>(["plant", id], (d) => (d ? { ...d, plant: { ...d.plant, inWater } } : d));
+      for (const key of ["plant", "plants", "tasks"]) qc.invalidateQueries({ queryKey: [key] });
+      toast(inWater ? "Растёт в воде — полив больше не напоминаем" : "Полив снова в графике");
+    },
+    onError: (e) => toast(`Не удалось сохранить: ${e.message}`),
+    onSettled: () => setInWaterUi(null),
+  });
+  // Переключатель отзывается сразу, не дожидаясь ответа и перезагрузки карточки.
+  const [inWaterUi, setInWaterUi] = useState<boolean | null>(null);
+
   const remove = useMutation({
     mutationFn: () => backend.garden.deletePlant(id),
     onSuccess: () => {
@@ -84,7 +97,9 @@ function PlantView({ id }: { id: string }) {
   }
 
   const facts = [
-    { icon: Droplet, label: "Полить", value: water?.nextDueAt ? relativeDay(water.nextDueAt, now) : "—", color: "var(--water)" },
+    plant.inWater
+      ? { icon: Droplet, label: "Полив", value: "не нужен — в воде", color: "var(--water)" }
+      : { icon: Droplet, label: "Полить", value: water?.nextDueAt ? relativeDay(water.nextDueAt, now) : "—", color: "var(--water)" },
     { icon: Sun, label: "Свет", value: plant.lightLevel ? LIGHT_LEVELS[plant.lightLevel] : "не указан", color: "var(--soil)" },
     { icon: MapPin, label: "Место", value: plant.locationName ?? "не указано", color: "var(--leaf)" },
   ];
@@ -133,9 +148,33 @@ function PlantView({ id }: { id: string }) {
             ))}
           </div>
 
-          <Button className="mt-5 min-h-13 w-full bg-water text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
-            <Droplet className="size-5" aria-hidden /> Полить
-          </Button>
+          {plant.inWater ? (
+            <p className="mt-5 rounded-2xl bg-water/10 px-4 py-3 text-[15px]">
+              💧 Растёт в воде — поливать не нужно. Меняйте воду раз в 5–7 дней на отстоянную комнатной температуры и следите, чтобы
+              вода не зеленела.
+            </p>
+          ) : (
+            <Button className="mt-5 min-h-13 w-full bg-water text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
+              <Droplet className="size-5" aria-hidden /> Полить
+            </Button>
+          )}
+          <label className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+            <span>
+              <span className="block text-[15px] font-medium">Растёт в воде</span>
+              <span className="block text-[13px] text-secondary">Черенок в стакане или гидропоника</span>
+            </span>
+            <input
+              type="checkbox"
+              className="size-5 shrink-0 accent-[var(--water)]"
+              checked={inWaterUi ?? plant.inWater}
+              disabled={water_.isPending}
+              onChange={(e) => {
+                setInWaterUi(e.target.checked);
+                water_.mutate(e.target.checked);
+              }}
+              aria-label="Растёт в воде"
+            />
+          </label>
           <div className="mt-2 flex gap-2">
             {quickTypes.map((t) => {
               const Icon = CARE_ICONS[t];

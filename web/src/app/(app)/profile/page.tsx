@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RequireSession } from "@/components/app-shell";
 import { useSession } from "@/components/session";
+import { NotificationsCard } from "@/components/notifications";
 import { EditProfileSheet, ProfileHeader } from "@/components/people";
 import { Button, Card, PageHeader, Spinner } from "@/components/ui";
 import { levelFor } from "@/lib/domain/gamification";
@@ -68,6 +69,8 @@ function Profile() {
           <ChevronRight className="size-5 text-secondary" aria-hidden />
         </Link>
       )}
+
+      <NotificationsCard />
 
       {isDemo && (
         <Card className="p-5">

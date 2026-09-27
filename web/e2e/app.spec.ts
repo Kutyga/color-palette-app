@@ -243,6 +243,25 @@ test("демо: барахолка — фильтры, чат с продавц�
   expect(errors).toEqual([]);
 });
 
+test("демо: растение в воде не просит полива; уведомления — после регистрации", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/today/");
+  await expect(page.getByText("Монстера Мося").first()).toBeVisible();
+  await page.goto("/garden/");
+  await page.getByRole("link", { name: /Монстера Мося/ }).first().click();
+  await page.waitForURL("**/garden/plant/**");
+  await expect(page.getByRole("button", { name: "Полить" })).toBeVisible();
+  await page.getByRole("checkbox", { name: "Растёт в воде" }).check();
+  await expect(page.getByText("не нужен — в воде")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Полить" })).toHaveCount(0);
+  await page.goto("/garden/");
+  await expect(page.getByText("💧 в воде")).toBeVisible();
+  await page.goto("/profile/");
+  await expect(page.getByText("Уведомления работают после регистрации.")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("демо: достижения и выход из демо-режима", async ({ page }) => {
   await startDemo(page);
   await page.goto("/achievements/");

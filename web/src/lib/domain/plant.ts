@@ -25,6 +25,8 @@ export interface Plant {
   potMaterial: PotMaterial | null;
   visibility: Visibility;
   notes: string | null;
+  /** Растёт в воде (черенок, гидропоника) — полив не нужен, график полива выключен. */
+  inWater: boolean;
   /** Денормализовано из графика полива — для статуса в списке коллекции. */
   nextWaterAt: Date | null;
   /** Обложка: подписанная ссылка из Storage или data URL (демо-режим). */
@@ -49,6 +51,8 @@ export interface NewPlant {
   waterIntervalDays?: number | null;
   lastWateredAt?: Date | null;
   notes?: string | null;
+  /** Растёт в воде — график полива создаётся выключенным. */
+  inWater?: boolean;
 }
 
 type Row = Record<string, unknown>;
@@ -61,7 +65,8 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
   const species = r.species as { slug?: string; latin_name: string; common_names?: { ru?: string[] } } | null;
   const location = r.locations as { name: string; light_level: LightLevel | null } | null;
   const schedules = (r.care_schedules as { type: string; next_due_at: string | null }[] | null) ?? [];
-  const water = schedules.find((s) => s.type === "water" && s.next_due_at);
+  const inWater = Boolean(r.in_water);
+  const water = inWater ? undefined : schedules.find((s) => s.type === "water" && s.next_due_at);
   return {
     id: r.id as string,
     nickname: r.nickname as string,
@@ -74,6 +79,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
     potMaterial: (r.pot_material as PotMaterial | null) ?? null,
     visibility: ((r.visibility as Visibility | null) ?? "followers"),
     notes: (r.notes as string | null) ?? null,
+    inWater,
     nextWaterAt: water?.next_due_at ? new Date(water.next_due_at) : null,
     photoUrl,
     createdAt: new Date((r.created_at as string | undefined) ?? Date.now()),

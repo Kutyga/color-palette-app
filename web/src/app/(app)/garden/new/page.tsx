@@ -126,6 +126,7 @@ function NewPlantForm() {
   const [pot, setPot] = useState<PotMaterial | "">("");
   const [visibility, setVisibility] = useState<Visibility>("followers");
   const [lastWatered, setLastWatered] = useState<number | null>(3);
+  const [inWater, setInWater] = useState(false);
   const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
   const [candidates, setCandidates] = useState<IdentificationCandidate[] | null>(null);
   const [identifying, setIdentifying] = useState(false);
@@ -179,7 +180,8 @@ function NewPlantForm() {
         locationId: location,
         potMaterial: pot || null,
         visibility,
-        lastWateredAt: lastWatered == null ? null : new Date(today.getFullYear(), today.getMonth(), today.getDate() - lastWatered, 10),
+        lastWateredAt: inWater || lastWatered == null ? null : new Date(today.getFullYear(), today.getMonth(), today.getDate() - lastWatered, 10),
+        inWater,
       });
       try {
         await backend.garden.setPlantPhoto(plant.id, photo.blob);
@@ -286,6 +288,14 @@ function NewPlantForm() {
             </select>
           </Field>
         </div>
+        <label className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+          <span>
+            <span className="block text-[17px]">💧 Растёт в воде</span>
+            <span className="block text-[13px] text-secondary">Черенок в стакане или гидропоника — полив не нужен</span>
+          </span>
+          <input type="checkbox" className="size-5 shrink-0 accent-[var(--water)]" checked={inWater} onChange={(e) => setInWater(e.target.checked)} />
+        </label>
+        {!inWater && (
         <Field label="Последний полив" group>
           <div className="flex flex-wrap gap-2">
             {LAST_WATERED.map((o) => (
@@ -301,6 +311,7 @@ function NewPlantForm() {
             ))}
           </div>
         </Field>
+        )}
         <Button type="submit" className="w-full min-h-12 text-[17px]" loading={saving} disabled={!nickname.trim() || !photo}>
           Добавить в коллекцию
         </Button>
