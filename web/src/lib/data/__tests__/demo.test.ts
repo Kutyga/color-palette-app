@@ -99,4 +99,24 @@ describe("демо-режим", () => {
     expect(await b.social.post(q.id)).toBeNull();
     expect((await b.social.questions("mine")).length).toBe(0);
   });
+
+  it("растение в воде: полива нет в графике и в делах, выключение возвращает полив", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const cutting = await b.garden.addPlant({ nickname: "Черенок традесканции", inWater: true });
+    expect(cutting).toMatchObject({ inWater: true, nextWaterAt: null });
+    const far = new Date(2027, 0, 1);
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === cutting.id && t.type === "water")).toBe(false);
+
+    const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
+    await b.garden.setInWater(mosya.id, true);
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(false);
+    expect((await b.garden.plantDetails(mosya.id)).plant.inWater).toBe(true);
+    await b.garden.setInWater(mosya.id, false);
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(true);
+  });
+
+  it("в демо-режиме уведомлений нет", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    expect(b.notifications).toBeNull();
+  });
 });

@@ -508,6 +508,74 @@ do $$ begin
   assert (select count(*) from public.search_people('alice')) = 0, 'заблокированный не видит профиль';
 end $$;
 
+-- Растение в воде: график полива выключается и включается обратно.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+update public.plants set in_water = true where id = '20000000-0000-0000-0000-000000000001';
+do $$ begin
+  assert (select enabled from public.care_schedules where id = '30000000-0000-0000-0000-000000000001') = false,
+         'в воде — полив выключен';
+  assert (select count(*) from public.care_due('2027-01-01') where type = 'water') = 0, 'и не в списке дел';
+end $$;
+insert into public.plants (id, nickname, in_water) values ('20000000-0000-0000-0000-000000000009', 'Черенок в стакане', true);
+insert into public.care_schedules (plant_id, type, interval_days)
+values ('20000000-0000-0000-0000-000000000009', 'water', 5);
+do $$ begin
+  assert (select enabled from public.care_schedules
+           where plant_id = '20000000-0000-0000-0000-000000000009' and type = 'water') = false,
+         'новый график полива для растения в воде создаётся выключенным';
+end $$;
+update public.plants set in_water = false where id = '20000000-0000-0000-0000-000000000001';
+do $$ begin
+  assert (select enabled from public.care_schedules where id = '30000000-0000-0000-0000-000000000001'),
+         'из воды в грунт — полив снова включён';
+end $$;
+
+-- Push-уведомления: подписки, очередь по событиям и настройкам, напоминание об уходе.
+select public.save_push_subscription('https://push.example/alice', 'p256-a', 'auth-a', 'test');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+select public.save_push_subscription('https://push.example/bob', 'p256-b', 'auth-b', 'test');
+do $$ begin
+  assert (select count(*) from public.push_subscriptions) = 1, 'Боб видит только свою подписку';
+  insert into public.push_subscriptions (user_id, endpoint, p256dh, auth)
+  values (auth.uid(), 'https://push.example/x', 'x', 'x');
+  raise exception 'подписка напрямую не добавляется';
+exception when insufficient_privilege then null;
+end $$;
+insert into public.comments (post_id, text)
+values ('40000000-0000-0000-0000-000000000003', 'Ещё проверьте, не холодно ли ему');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.messages (conversation_id, body)
+values ((select id from public.conversations limit 1), 'Жду вас в субботу');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+update public.profiles set notify_messages = false where id = auth.uid();
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.messages (conversation_id, body)
+values ((select id from public.conversations limit 1), 'Это уведомление Бобу не придёт');
+update public.profiles set reminder_time = '00:00', timezone = 'Europe/Moscow' where id = auth.uid();
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.push_subscriptions) = 0, 'чужие подписки не видны';
+end $$;
+
+reset role;
+do $$
+declare n int;
+begin
+  assert (select count(*) from private.push_queue
+           where user_id = '00000000-0000-0000-0000-00000000000b' and url like '/messages/chat/%') = 1,
+         'одно сообщение — одно уведомление, после отключения — ни одного';
+  assert (select title from private.push_queue
+           where user_id = '00000000-0000-0000-0000-00000000000a' and url like '/feed/question/%')
+         = 'Новый ответ на ваш вопрос', 'автору вопроса — об ответе';
+  n := private.enqueue_care_reminders();
+  assert n = 1, format('напоминание об уходе Алисе: %s', n);
+  assert private.enqueue_care_reminders() = 0, 'второй раз за день не напоминаем';
+  assert (select count(*) from public.push_take_batch(100)) = 3, 'три уведомления к отправке';
+  assert (select count(*) from private.push_queue where sent_at is null) = 0, 'очередь разобрана';
+end $$;
+set role authenticated;
+
 -- Поиск по базе знаний (доступен и гостям).
 set role anon;
 set request.jwt.claim.sub = '';

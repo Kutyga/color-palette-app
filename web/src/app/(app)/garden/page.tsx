@@ -86,12 +86,18 @@ function Collection() {
                   <span className="block truncate text-[15px] font-semibold">{p.nickname}</span>
                   {p.speciesName && <span className="block truncate text-[12px] opacity-80">{p.speciesName}</span>}
                 </span>
-                <span
-                  className="absolute top-2.5 right-2.5 size-3 rounded-full ring-2 ring-white"
-                  style={{ background: status.color }}
-                  title={status.label}
-                  aria-label={status.label}
-                />
+                {p.inWater ? (
+                  <span className="glass absolute top-2 right-2 rounded-full px-2 py-0.5 text-[12px] font-medium" title="Растёт в воде">
+                    💧 в воде
+                  </span>
+                ) : (
+                  <span
+                    className="absolute top-2.5 right-2.5 size-3 rounded-full ring-2 ring-white"
+                    style={{ background: status.color }}
+                    title={status.label}
+                    aria-label={status.label}
+                  />
+                )}
               </Link>
             </li>
           );

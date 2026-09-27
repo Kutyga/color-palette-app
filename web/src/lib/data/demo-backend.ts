@@ -40,6 +40,7 @@ interface PlantRec {
   visibility: Visibility;
   notes: string | null;
   createdAt: string;
+  inWater?: boolean;
 }
 type Dated<T, K extends keyof T> = Omit<T, K> & { [P in K]: string | null };
 type ScheduleRec = Dated<CareSchedule, "lastDoneAt" | "nextDueAt">;
@@ -173,7 +174,8 @@ export class DemoGarden implements GardenRepository {
       potMaterial: p.potMaterial,
       visibility: p.visibility,
       notes: p.notes,
-      nextWaterAt: toDate(water?.nextDueAt ?? null),
+      inWater: !!p.inWater,
+      nextWaterAt: p.inWater ? null : toDate(water?.nextDueAt ?? null),
       photoUrl: this.state.photos[p.id] ?? null,
       createdAt: new Date(p.createdAt),
     };
@@ -214,6 +216,7 @@ export class DemoGarden implements GardenRepository {
       visibility: draft.visibility ?? "followers",
       notes: draft.notes ?? null,
       createdAt: this.clock().toISOString(),
+      inWater: !!draft.inWater,
     };
     this.state.plants.push(rec);
     for (const seed of initialSchedules(this.speciesOf(rec)?.care ?? null, draft)) {
@@ -226,12 +229,21 @@ export class DemoGarden implements GardenRepository {
         userFactor: 1,
         lastDoneAt: iso(seed.lastDoneAt),
         nextDueAt: null,
-        enabled: true,
+        // Как триггер в базе: растению в воде полив не нужен.
+        enabled: !(seed.type === "water" && rec.inWater),
       };
       this.state.schedules.push(this.computeDue(s));
     }
     this.persist();
     return this.toPlant(rec);
+  }
+
+  async setInWater(plantId: string, inWater: boolean) {
+    const p = this.state.plants.find((x) => x.id === plantId);
+    if (!p) throw new Error("Растение не найдено");
+    p.inWater = inWater;
+    for (const sch of this.state.schedules) if (sch.plantId === plantId && sch.type === "water") sch.enabled = !inWater;
+    this.persist();
   }
 
   async deletePlant(plantId: string) {
@@ -1077,6 +1089,7 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
     people: new DemoPeople(s, persist),
     market: new DemoMarket(s, persist, clock),
     chat: new DemoChat(s, persist, clock),
+    notifications: null,
     identifier: null,
     profile: async () => ({ ...DEFAULT_PROFILE, ...s.profile }),
   };
