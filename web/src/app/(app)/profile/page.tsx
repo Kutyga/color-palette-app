@@ -8,6 +8,7 @@ import { RequireSession } from "@/components/app-shell";
 import { useSession } from "@/components/session";
 import { NotificationsCard } from "@/components/notifications";
 import { EditProfileSheet, ProfileHeader } from "@/components/people";
+import { ProfileShopCard, WishlistCard } from "@/components/shops";
 import { Button, Card, PageHeader, Spinner } from "@/components/ui";
 import { levelFor } from "@/lib/domain/gamification";
 import { plural } from "@/lib/format";
@@ -70,7 +71,9 @@ function Profile() {
         </Link>
       )}
 
+      <WishlistCard />
       <NotificationsCard />
+      <ProfileShopCard />
 
       {isDemo && (
         <Card className="p-5">

@@ -63,7 +63,7 @@ function PlantView({ id }: { id: string }) {
     mutationFn: (inWater: boolean) => backend.garden.setInWater(id, inWater),
     onSuccess: (_d, inWater) => {
       qc.setQueryData<PlantDetails>(["plant", id], (d) => (d ? { ...d, plant: { ...d.plant, inWater } } : d));
-      for (const key of ["plant", "plants", "tasks"]) qc.invalidateQueries({ queryKey: [key] });
+      for (const key of ["plant", "plants", "tasks", "stats"]) qc.invalidateQueries({ queryKey: [key] });
       toast(inWater ? "Растёт в воде — полив больше не напоминаем" : "Полив снова в графике");
     },
     onError: (e) => toast(`Не удалось сохранить: ${e.message}`),

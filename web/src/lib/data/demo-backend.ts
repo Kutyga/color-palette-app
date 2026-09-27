@@ -10,7 +10,7 @@ import {
   type LightLevel,
   type PotMaterial,
 } from "../domain/care";
-import type { GardenStats } from "../domain/gamification";
+import { EMPTY_STATS, type GardenStats, type ShopStats } from "../domain/gamification";
 import type { Location, Plant, Visibility } from "../domain/plant";
 import { EDIT_WINDOW_MS, type DiaryEvent, type DiaryScope, type FeedPost, type HelpFilter, type NewPost, type NewsArticle, type PostComment, type PostUpdate } from "../domain/social";
 import { speciesName, type Species } from "../domain/species";
@@ -25,11 +25,23 @@ import {
   type ListingKind,
   type ListingStatus,
 } from "../domain/market";
+import { normalizeWebsite, validateShop, type ImportResult, type Offer, type ProductInput, type Shop, type ShopDraft, type ShopProduct, type ShopStatus } from "../domain/shop";
 import { blobToDataUrl } from "../image";
 import { ALL_SPECIES } from "../knowledge";
 import { initialSchedules } from "./schedules";
 import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../domain/people";
-import type { Backend, ChatRepository, GardenRepository, MarketRepository, PeopleRepository, PlantDraft, Profile, SocialRepository } from "./types";
+import type {
+  Backend,
+  ChatRepository,
+  GardenRepository,
+  MarketRepository,
+  PeopleRepository,
+  PlantDraft,
+  Profile,
+  ShopRepository,
+  SocialRepository,
+  WishlistRepository,
+} from "./types";
 
 interface PlantRec {
   id: string;
@@ -70,7 +82,13 @@ export interface DemoState {
   conversations?: ConversationRec[];
   messages?: MessageRec[];
   blocked?: string[];
+  /** Магазины и их каталоги, список «Хочу». */
+  shops?: ShopRec[];
+  products?: Record<string, ShopProduct[]>;
+  wishlist?: string[];
 }
+
+type ShopRec = Omit<Shop, "createdAt" | "verifiedAt" | "mine"> & { createdAt: string; verifiedAt: string | null };
 
 interface ListingRec {
   id: string;
@@ -357,6 +375,7 @@ export class DemoGarden implements GardenRepository {
     }
     const alive = prev !== null && Math.round((dayKey(this.clock()) - prev) / 3_600_000) <= 24;
     return {
+      ...EMPTY_STATS,
       plants: this.state.plants.length,
       species: new Set(this.state.plants.map((p) => p.speciesSlug).filter(Boolean)).size,
       locations: this.state.locations.length,
@@ -371,8 +390,7 @@ export class DemoGarden implements GardenRepository {
       nightOwl: events.filter((e) => e.at.getHours() >= 23 || e.at.getHours() < 4).length,
       currentStreak: alive ? run : 0,
       bestStreak: best,
-      posts: 0,
-      likesReceived: 0,
+      inWater: this.state.plants.filter((p) => p.inWater).length,
     };
   }
 
@@ -432,7 +450,7 @@ const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followe
   },
 ];
 const demoId = (username: string) => `demo-${username}`;
-const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null, city: "Москва" };
+const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null, city: "Москва", isAdmin: false };
 
 /** Записи дневников: автор, растение, вид, событие, текст, «поддержали». */
 const SAMPLE_DIARIES: [string, string, string, DiaryEvent, string, number][] = [
@@ -634,7 +652,16 @@ export class DemoSocial implements SocialRepository {
 
   async myActivity() {
     const mine = this.state.posts.filter((p) => p.authorId === ME);
-    return { posts: mine.length, likesReceived: mine.reduce((sum, p) => sum + p.likeCount, 0) };
+    const questions = new Map(this.state.posts.filter((p) => p.kind === "question").map((p) => [p.id, p]));
+    const answers = this.state.comments.filter((c) => c.mine && questions.has(c.postId));
+    return {
+      posts: mine.length,
+      likesReceived: mine.reduce((sum, p) => sum + p.likeCount, 0),
+      answers: answers.length,
+      bestAnswers: answers.filter((c) => questions.get(c.postId)?.solvedCommentId === c.id).length,
+      // В демо-режиме на гостя подписаны демо-садоводы с «подписан на вас».
+      followers: DEMO_PEOPLE.filter((d) => d.followsMe).length,
+    };
   }
 
   /** В демо-режиме — подборка советов из базы знаний вместо настоящих новостей. */
@@ -752,9 +779,10 @@ export class DemoPeople implements PeopleRepository {
       displayName: update.displayName.trim(),
       bio: update.bio.trim() || null,
       city: update.city !== undefined ? update.city.trim() || null : (prev.city ?? null),
+      isAdmin: prev.isAdmin ?? false,
     };
     this.persist();
-    return this.state.profile;
+    return this.state.profile!;
   }
 }
 
@@ -894,6 +922,16 @@ export class DemoMarket implements MarketRepository {
     this.persist();
   }
 
+  /** Удалённые объявления тоже считаются: награды за прошлые сделки не пропадают. */
+  async myStats() {
+    const mine = this.recs.filter((r) => r.sellerId === ME);
+    return {
+      listings: mine.length,
+      giveaways: mine.filter((r) => r.kind === "free").length,
+      deals: mine.filter((r) => r.status === "closed").length,
+    };
+  }
+
   async report() {}
 }
 
@@ -1009,6 +1047,259 @@ export class DemoChat implements ChatRepository {
   }
 }
 
+/** Магазины в браузере: заявку в демо-режиме никто не проверяет, она остаётся «на проверке». */
+export class DemoShops implements ShopRepository {
+  constructor(
+    private state: DemoState,
+    private persist: () => void,
+    private clock: () => Date = () => new Date(),
+  ) {}
+
+  private get recs() {
+    return (this.state.shops ??= []);
+  }
+  private get catalog() {
+    return (this.state.products ??= {});
+  }
+  private isAdmin() {
+    return Boolean(this.state.profile?.isAdmin);
+  }
+  private toShop(r: ShopRec): Shop {
+    return { ...r, createdAt: new Date(r.createdAt), verifiedAt: toDate(r.verifiedAt), mine: r.ownerId === ME };
+  }
+  private visible(r: ShopRec) {
+    return r.ownerId === ME || r.status === "verified" || this.isAdmin();
+  }
+  private mine() {
+    const r = this.recs.find((x) => x.ownerId === ME);
+    if (!r) throw new Error("Сначала создайте магазин");
+    return r;
+  }
+
+  async myShop() {
+    const r = this.recs.find((x) => x.ownerId === ME);
+    return r ? this.toShop(r) : null;
+  }
+
+  async saveShop(d: ShopDraft) {
+    const invalid = validateShop(d);
+    if (invalid) throw new Error(invalid.message);
+    const fields = {
+      name: d.name.trim(),
+      description: d.description.trim(),
+      inn: d.inn.trim(),
+      city: d.city.trim(),
+      address: d.address.trim() || null,
+      hours: d.hours.trim() || null,
+      phone: d.phone.trim() || null,
+      website: normalizeWebsite(d.website),
+      delivery: d.delivery,
+    };
+    let r = this.recs.find((x) => x.ownerId === ME);
+    if (!r) {
+      r = { id: crypto.randomUUID(), ownerId: ME, ...fields, status: "pending", reviewNote: null, createdAt: this.clock().toISOString(), verifiedAt: null };
+      this.recs.push(r);
+    } else {
+      // Как триггер shops_guard: новые реквизиты проверенного магазина — снова на проверку.
+      if (r.status === "verified" && (r.name !== fields.name || r.inn !== fields.inn)) {
+        r.status = "pending";
+        r.verifiedAt = null;
+      }
+      Object.assign(r, fields);
+    }
+    this.persist();
+    return this.toShop(r);
+  }
+
+  async shop(id: string) {
+    const r = this.recs.find((x) => x.id === id);
+    return r && this.visible(r) ? this.toShop(r) : null;
+  }
+
+  async shops(city: string | null) {
+    const here = (r: ShopRec) => sameCity(r.city, city);
+    return this.recs
+      .filter((r) => r.status === "verified")
+      .sort((a, b) => Number(here(b)) - Number(here(a)) || a.name.localeCompare(b.name))
+      .map((r) => this.toShop(r));
+  }
+
+  async products(shopId: string) {
+    const r = this.recs.find((x) => x.id === shopId);
+    if (!r || !this.visible(r)) return [];
+    return [...(this.catalog[shopId] ?? [])].sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  async importProducts(rows: ProductInput[], replace: boolean): Promise<ImportResult> {
+    const shop = this.mine();
+    if (rows.length > 5000) throw new Error("Не больше 5000 строк за раз");
+    const list = (this.catalog[shop.id] ??= []);
+    const byExt = new Map(list.map((p) => [p.externalId, p]));
+    const result = { inserted: 0, updated: 0, deleted: 0 };
+    for (const row of rows) {
+      const cur = byExt.get(row.externalId);
+      if (cur) {
+        Object.assign(cur, row);
+        result.updated++;
+      } else {
+        if (list.length >= 5000) throw new Error("В каталоге не больше 5000 товаров");
+        const p = { id: crypto.randomUUID(), ...row };
+        list.push(p);
+        byExt.set(p.externalId, p);
+        result.inserted++;
+      }
+    }
+    if (replace) {
+      const keep = new Set(rows.map((r) => r.externalId));
+      const before = list.length;
+      this.catalog[shop.id] = list.filter((p) => keep.has(p.externalId));
+      result.deleted = before - this.catalog[shop.id].length;
+    }
+    this.persist();
+    return result;
+  }
+
+  async setInStock(productId: string, inStock: boolean) {
+    const p = (this.catalog[this.mine().id] ?? []).find((x) => x.id === productId);
+    if (!p) throw new Error("Товар не найден");
+    p.inStock = inStock;
+    this.persist();
+  }
+
+  async deleteProduct(productId: string) {
+    const shop = this.mine();
+    this.catalog[shop.id] = (this.catalog[shop.id] ?? []).filter((x) => x.id !== productId);
+    this.persist();
+  }
+
+  async whereToBuy(speciesId: string, city: string | null): Promise<Offer[]> {
+    return this.recs
+      .filter((s) => s.status === "verified" && (!city || sameCity(s.city, city) || s.delivery))
+      .flatMap((s) =>
+        (this.catalog[s.id] ?? [])
+          .filter((p) => p.inStock && p.speciesId === speciesId)
+          .map((p) => ({
+            productId: p.id,
+            title: p.title,
+            priceRub: p.priceRub,
+            potCm: p.potCm,
+            heightCm: p.heightCm,
+            url: p.url,
+            imageUrl: p.imageUrl,
+            shopId: s.id,
+            shopName: s.name,
+            shopCity: s.city,
+            shopDelivery: s.delivery,
+            sameCity: sameCity(s.city, city),
+          })),
+      )
+      .sort((a, b) => Number(b.sameCity) - Number(a.sameCity) || (a.priceRub ?? Infinity) - (b.priceRub ?? Infinity))
+      .slice(0, 30);
+  }
+
+  async reviewQueue() {
+    if (!this.isAdmin()) throw new Error("Только для администратора");
+    const order: Record<ShopStatus, number> = { pending: 0, suspended: 1, rejected: 2, verified: 3 };
+    return this.recs.map((r) => this.toShop(r)).sort((a, b) => order[a.status] - order[b.status]);
+  }
+
+  async myStats(): Promise<ShopStats> {
+    const shop = this.recs.find((x) => x.ownerId === ME);
+    const products = shop ? (this.catalog[shop.id] ?? []) : [];
+    return {
+      hasShop: shop ? 1 : 0,
+      shopVerified: shop?.status === "verified" ? 1 : 0,
+      products: products.length,
+      shopSpecies: new Set(products.map((p) => p.speciesId).filter(Boolean)).size,
+    };
+  }
+
+  async review(shopId: string, status: ShopStatus, note: string) {
+    if (!this.isAdmin()) throw new Error("Только для администратора");
+    const r = this.recs.find((x) => x.id === shopId);
+    if (!r) throw new Error("Магазин не найден");
+    r.status = status;
+    r.reviewNote = note.trim() || null;
+    r.verifiedAt = status === "verified" ? this.clock().toISOString() : null;
+    this.persist();
+  }
+}
+
+export class DemoWishlist implements WishlistRepository {
+  constructor(
+    private state: DemoState,
+    private persist: () => void,
+  ) {}
+
+  async list() {
+    return [...(this.state.wishlist ?? [])];
+  }
+
+  async set(speciesId: string, wanted: boolean) {
+    const cur = (this.state.wishlist ?? []).filter((x) => x !== speciesId);
+    this.state.wishlist = wanted ? [speciesId, ...cur] : cur;
+    this.persist();
+  }
+}
+
+/** Проверенные демо-магазины: название, ИНН, город, адрес, телефон, сайт, доставка, описание. */
+const SAMPLE_SHOPS: [string, string, string, string, string, string, boolean, string][] = [
+  ["Зелёная комната", "7707083893", "Москва", "ул. Садовая, 12", "+7 495 123-45-67", "https://example.ru/green-room", true, "Тропические растения из питомников Голландии. Доставка по Москве и области."],
+  ["Ботаника на Литейном", "7736207543", "Санкт-Петербург", "Литейный пр., 40", "+7 812 765-43-21", "https://example.ru/botanika", true, "Ароидные, калатеи и редкие сорта. Отправляем по всей России."],
+];
+
+/** Каталоги демо-магазинов: магазин, артикул, название, вид, цена, горшок, высота. */
+const SAMPLE_PRODUCTS: [number, string, string, string, number, number | null, number | null][] = [
+  [0, "MON-17", "Монстера деликатесная 17/60", "monstera-deliciosa", 2490, 17, 60],
+  [0, "MON-24", "Монстера деликатесная 24/100", "monstera-deliciosa", 4990, 24, 100],
+  [0, "ZAM-17", "Замиокулькас 17/60", "zamioculcas-zamiifolia", 1890, 17, 60],
+  [0, "SAN-14", "Сансевиерия трёхполосная Лаурентии", "dracaena-trifasciata", 1290, 14, 50],
+  [0, "FIC-21", "Фикус эластика Робуста 21/90", "ficus-elastica", 3290, 21, 90],
+  [0, "SPA-14", "Спатифиллум Свит Шико", "spathiphyllum-wallisii", 1190, 14, 45],
+  [1, "B-MON-12", "Монстера деликатесная, молодое растение", "monstera-deliciosa", 1590, 12, 40],
+  [1, "B-ORB-14", "Калатея орбифолия", "goeppertia-orbifolia", 2290, 14, 45],
+  [1, "B-ALO-12", "Алоказия Зебрина", "alocasia-zebrina", 2790, 12, 50],
+  [1, "B-HOY-10", "Хойя карноза, ампель", "hoya-carnosa", 990, 10, null],
+  [1, "B-BEG-12", "Бегония макулата", "begonia-maculata", 1490, 12, 35],
+];
+
+/** Магазины досеиваются и в старые демо-данные. */
+function seedShops(state: DemoState, now: Date) {
+  if (state.shops) return;
+  state.shops = SAMPLE_SHOPS.map(([name, inn, city, address, phone, website, delivery, description], i) => ({
+    id: `demo-shop-${i}`,
+    ownerId: `demo-shop-owner-${i}`,
+    name,
+    description,
+    inn,
+    city,
+    address,
+    hours: "Ежедневно 10:00–21:00",
+    phone,
+    website,
+    delivery,
+    status: "verified" as const,
+    reviewNote: null,
+    createdAt: new Date(now.getTime() - (30 + i) * 86_400_000).toISOString(),
+    verifiedAt: new Date(now.getTime() - (29 + i) * 86_400_000).toISOString(),
+  }));
+  state.products = {};
+  for (const [shop, externalId, title, slug, priceRub, potCm, heightCm] of SAMPLE_PRODUCTS) {
+    (state.products[`demo-shop-${shop}`] ??= []).push({
+      id: `demo-product-${shop}-${externalId}`,
+      externalId,
+      title,
+      speciesId: ALL_SPECIES.find((s) => s.slug === slug)?.id ?? null,
+      priceRub,
+      inStock: true,
+      potCm,
+      heightCm,
+      url: `${SAMPLE_SHOPS[shop][5]}/${externalId.toLowerCase()}`,
+      imageUrl: null,
+    });
+  }
+}
+
 /** Стартовые данные, чтобы экраны демо-режима не были пустыми. */
 export async function seedDemo(state: DemoState, clock: () => Date = () => new Date()) {
   const garden = new DemoGarden(state, () => {}, clock);
@@ -1109,8 +1400,9 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
   }
   const s = state;
   const persist = () => storage.save(s);
-  if (!s.listings) {
+  if (!s.listings || !s.shops) {
     seedListings(s, clock());
+    seedShops(s, clock());
     persist();
   }
   return {
@@ -1120,6 +1412,8 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
     people: new DemoPeople(s, persist),
     market: new DemoMarket(s, persist, clock),
     chat: new DemoChat(s, persist, clock),
+    shops: new DemoShops(s, persist, clock),
+    wishlist: new DemoWishlist(s, persist),
     notifications: null,
     identifier: null,
     profile: async () => ({ ...DEFAULT_PROFILE, ...s.profile }),

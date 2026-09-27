@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { adjustUserFactor, baseWaterInterval, effectiveIntervalDays, nextDue, taskBucket } from "../care";
-import { EMPTY_STATS, ACHIEVEMENTS, TIERS, evaluateAchievements, experience, levelFor } from "../gamification";
+import { EMPTY_STATS, ACHIEVEMENTS, GROUPS, TIERS, evaluateAchievements, experience, levelFor, visibleAchievements } from "../gamification";
 import { capitalizeLatin, matchSpecies } from "../identification";
 import { searchLocal, type Species } from "../species";
 import { editTimeLeft } from "../social";
@@ -76,6 +76,23 @@ describe("геймификация", () => {
   it("в каждом уровне сложности есть достижения, id уникальны", () => {
     for (const tier of Object.keys(TIERS)) expect(ACHIEVEMENTS.some((a) => a.tier === tier)).toBe(true);
     expect(new Set(ACHIEVEMENTS.map((a) => a.id)).size).toBe(ACHIEVEMENTS.length);
+  });
+  it("награды сообщества, барахолки и за растение в воде", () => {
+    const stats = { ...EMPTY_STATS, answers: 1, bestAnswers: 1, inWater: 1, listings: 1, giveaways: 3, deals: 3, wishlist: 3 };
+    const unlocked = evaluateAchievements(stats).filter((p) => p.unlocked).map((p) => p.achievement.id);
+    expect(unlocked).toEqual(
+      expect.arrayContaining(["good_advice", "it_helped", "water_baby", "first_listing", "generous_soul", "handshake", "dreamer"]),
+    );
+    for (const group of Object.keys(GROUPS)) expect(ACHIEVEMENTS.some((a) => a.group === group)).toBe(true);
+  });
+  it("награды магазина видны только владельцу и не дают опыт садовода", () => {
+    const shop = { ...EMPTY_STATS, hasShop: 1, shopVerified: 1, products: 120, shopSpecies: 25 };
+    const all = evaluateAchievements(shop);
+    expect(visibleAchievements(all, EMPTY_STATS).some((p) => p.achievement.group === "shop")).toBe(false);
+    expect(visibleAchievements(all, shop).filter((p) => p.achievement.group === "shop" && p.unlocked).map((p) => p.achievement.id)).toEqual([
+      "open_doors", "first_shelf", "trust_mark", "shop_botanist", "big_assortment",
+    ]);
+    expect(experience(shop)).toBe(0);
   });
   it("максимальный уровень", () => {
     const lp = levelFor({ ...EMPTY_STATS, waterings: 1000, careEvents: 1000, plants: 30 });

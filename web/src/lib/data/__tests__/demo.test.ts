@@ -61,7 +61,7 @@ describe("демо-режим", () => {
     expect(mine).toMatchObject({ kind: "diary", event: "bloom", likeCount: 1, commentCount: 1, likedByMe: true, mine: true });
     expect(mine.speciesId).not.toBeNull();
     expect((await b.social.plantDiary(plant.id)).map((p) => p.id)).toEqual([post.id]);
-    expect(await b.social.myActivity()).toEqual({ posts: 1, likesReceived: 1 });
+    expect(await b.social.myActivity()).toMatchObject({ posts: 1, likesReceived: 1 });
   });
 
   it("помощь: вопрос, ответ, лучший ответ", async () => {

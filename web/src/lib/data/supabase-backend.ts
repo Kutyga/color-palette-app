@@ -19,7 +19,22 @@ import {
   type ListingFilter,
   type ListingStatus,
 } from "../domain/market";
-import type { Backend, ChatRepository, NotificationSettings, NotificationsRepository, GardenRepository, MarketRepository, PeopleRepository, PlantDraft, PlantIdentifier, Profile, SocialRepository } from "./types";
+import { offerFromRow, productFromRow, shopFromRow, normalizeWebsite, validateShop, type ProductInput, type ShopDraft, type ShopStatus } from "../domain/shop";
+import type {
+  Backend,
+  ChatRepository,
+  NotificationSettings,
+  NotificationsRepository,
+  GardenRepository,
+  MarketRepository,
+  PeopleRepository,
+  PlantDraft,
+  PlantIdentifier,
+  Profile,
+  ShopRepository,
+  SocialRepository,
+  WishlistRepository,
+} from "./types";
 
 const PLANT_SELECT =
   "*, species(slug, latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at), " +
@@ -43,7 +58,44 @@ const profileFromRow = (r: Row): Profile => ({
   displayName: (r.display_name as string | null) ?? null,
   bio: (r.bio as string | null) ?? null,
   city: (r.city as string | null) ?? null,
+  isAdmin: Boolean(r.is_admin),
 });
+const PROFILE_FIELDS = "username, display_name, bio, city, is_admin";
+
+/**
+ * В снимке базы знаний id вида = slug, а в базе — uuid. Сайт везде работает со slug,
+ * поэтому на входе и выходе переводим. Справочник (≈250 строк) грузится один раз.
+ */
+export class SpeciesIds {
+  private maps: Promise<{ slugOf: Map<string, string>; uuidOf: Map<string, string> }> | null = null;
+  constructor(private db: SupabaseClient) {}
+
+  private load() {
+    this.maps ??= (async () => {
+      const rows = check(await this.db.from("species").select("id, slug")) as Row[];
+      return {
+        slugOf: new Map(rows.map((r) => [r.id as string, r.slug as string])),
+        uuidOf: new Map(rows.map((r) => [r.slug as string, r.id as string])),
+      };
+    })().catch((e) => {
+      this.maps = null;
+      throw e;
+    });
+    return this.maps;
+  }
+
+  /** uuid → slug (для строк из базы). */
+  async slugs() {
+    const { slugOf } = await this.load();
+    return (id: string | null | undefined) => (id ? (slugOf.get(id) ?? null) : null);
+  }
+
+  /** slug → uuid (для записи в базу); неизвестный вид — null. */
+  async uuids() {
+    const { uuidOf } = await this.load();
+    return (slug: string | null | undefined) => (slug ? (uuidOf.get(slug) ?? null) : null);
+  }
+}
 
 async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();
@@ -195,12 +247,16 @@ export class SupabaseGarden implements GardenRepository {
   }
 
   async stats() {
-    return statsFromRow(check(await this.db.rpc("my_garden_stats")) as Row);
+    const [row, inWater] = await Promise.all([
+      this.db.rpc("my_garden_stats"),
+      this.db.from("plants").select("id", { count: "exact", head: true }).eq("owner_id", this.uid).eq("in_water", true).is("deleted_at", null),
+    ]);
+    return { ...statsFromRow(check(row) as Row), inWater: inWater.count ?? 0 };
   }
 }
 
 export class SupabaseSocial implements SocialRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
 
   /** Подписанные ссылки на фото и отметка «мне нравится». */
   private async hydrate(rows: Row[]) {
@@ -208,21 +264,23 @@ export class SupabaseSocial implements SocialRepository {
     const ids = rows.map((r) => r.id as string);
     const firstPhoto = (r: Row) => ((r.photo_paths as string[] | null) ?? [])[0];
     const authors = [...new Set(rows.map((r) => r.author_id as string))];
-    const [liked, follows, urls] = await Promise.all([
+    const [liked, follows, urls, slugOf] = await Promise.all([
       this.db.from("likes").select("post_id").eq("user_id", this.uid).in("post_id", ids),
       this.db.from("follows").select("followee_id").eq("follower_id", this.uid).in("followee_id", authors),
       signedUrls(this.db, POST_BUCKET, rows.map(firstPhoto).filter(Boolean)),
+      this.species.slugs(),
     ]);
     const likedIds = new Set((check(liked) as Row[]).map((l) => l.post_id as string));
     const followed = new Set((check(follows) as Row[]).map((f) => f.followee_id as string));
-    return rows.map((r) =>
-      postFromRow(r, {
+    return rows.map((r) => ({
+      ...postFromRow(r, {
         likedByMe: likedIds.has(r.id as string),
         following: followed.has(r.author_id as string),
         photoUrl: urls.get(firstPhoto(r)) ?? null,
         myId: this.uid,
       }),
-    );
+      speciesId: slugOf(r.species_id as string | null),
+    }));
   }
 
   async diaries(scope: DiaryScope) {
@@ -262,7 +320,11 @@ export class SupabaseSocial implements SocialRepository {
     const rows = check(
       await this.db.rpc("news_feed", { lim: 50, only_my_species: onlyMySpecies, langs: langs.length ? langs : null }),
     ) as Row[];
-    return rows.map(newsFromRow);
+    const slugOf = await this.species.slugs();
+    return rows.map((r) => {
+      const n = newsFromRow(r);
+      return { ...n, speciesIds: n.speciesIds.map(slugOf).filter((x): x is string => !!x) };
+    });
   }
 
   async readArticle(id: string): Promise<ReaderArticle | null> {
@@ -353,10 +415,26 @@ export class SupabaseSocial implements SocialRepository {
   }
 
   async myActivity() {
-    const rows = check(
-      await this.db.from("posts").select("like_count").eq("author_id", this.uid).is("deleted_at", null),
-    ) as Row[];
-    return { posts: rows.length, likesReceived: rows.reduce((sum, r) => sum + Number(r.like_count), 0) };
+    const [posts, answers, followers] = await Promise.all([
+      this.db.from("posts").select("like_count").eq("author_id", this.uid).is("deleted_at", null),
+      // Свои ответы на вопросы: у comments и posts две связи (post_id и solved_comment_id) — указываем нужную.
+      this.db
+        .from("comments")
+        .select("id, post:posts!comments_post_id_fkey!inner(kind, solved_comment_id)")
+        .eq("author_id", this.uid)
+        .eq("post.kind", "question")
+        .limit(5000),
+      this.db.from("follows").select("follower_id", { count: "exact", head: true }).eq("followee_id", this.uid),
+    ]);
+    const rows = check(posts) as Row[];
+    const mine = check(answers) as Row[];
+    return {
+      posts: rows.length,
+      likesReceived: rows.reduce((sum, r) => sum + Number(r.like_count), 0),
+      answers: mine.length,
+      bestAnswers: mine.filter((r) => (r.post as { solved_comment_id?: string | null } | null)?.solved_comment_id === r.id).length,
+      followers: followers.count ?? 0,
+    };
   }
 }
 
@@ -413,7 +491,7 @@ export class SupabasePeople implements PeopleRepository {
         ...(update.city !== undefined ? { city: update.city.trim() || null } : {}),
       })
       .eq("id", this.uid)
-      .select("username, display_name, bio, city")
+      .select(PROFILE_FIELDS)
       .single();
     if (error?.code === "23505") throw new Error(`Имя @${update.username} уже занято — выберите другое`);
     if (error) throw new Error(error.message);
@@ -448,14 +526,15 @@ const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, dis
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 export class SupabaseMarket implements MarketRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
 
   private async hydrate(rows: Row[]) {
     const paths = rows.flatMap((r) => (r.photo_paths as string[] | null) ?? []);
-    const urls = await signedUrls(this.db, LISTING_BUCKET, paths);
-    return rows.map((r) =>
-      listingFromRow(r, ((r.photo_paths as string[] | null) ?? []).map((p) => urls.get(p)).filter((u): u is string => !!u), this.uid),
-    );
+    const [urls, slugOf] = await Promise.all([signedUrls(this.db, LISTING_BUCKET, paths), this.species.slugs()]);
+    return rows.map((r) => ({
+      ...listingFromRow(r, ((r.photo_paths as string[] | null) ?? []).map((p) => urls.get(p)).filter((u): u is string => !!u), this.uid),
+      speciesId: slugOf(r.species_id as string | null),
+    }));
   }
 
   async listings(filter: ListingFilter) {
@@ -491,7 +570,7 @@ export class SupabaseMarket implements MarketRepository {
       kind: d.kind,
       title: d.title.trim(),
       description: d.description.trim(),
-      species_id: d.speciesId,
+      species_id: (await this.species.uuids())(d.speciesId),
       price_rub: d.kind === "sell" ? d.priceRub : null,
       swap_for: d.kind === "swap" ? d.swapFor.trim() || null : null,
       city: d.city.trim(),
@@ -528,6 +607,16 @@ export class SupabaseMarket implements MarketRepository {
 
   async deleteListing(id: string) {
     check(await this.db.from("listings").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("seller_id", this.uid));
+  }
+
+  /** Удалённые объявления владельцу видны (RLS) и тоже считаются. */
+  async myStats() {
+    const rows = check(await this.db.from("listings").select("kind, status").eq("seller_id", this.uid).limit(5000)) as Row[];
+    return {
+      listings: rows.length,
+      giveaways: rows.filter((r) => r.kind === "free").length,
+      deals: rows.filter((r) => r.status === "closed").length,
+    };
   }
 
   async report(targetType: "listing" | "message" | "profile", targetId: string, reason: string) {
@@ -610,12 +699,13 @@ export class SupabaseNotifications implements NotificationsRepository {
 
   async settings(): Promise<NotificationSettings> {
     const r = check(
-      await this.db.from("profiles").select("notify_care, notify_messages, notify_community, reminder_time, timezone").eq("id", this.uid).single(),
+      await this.db.from("profiles").select("notify_care, notify_messages, notify_community, notify_wishlist, reminder_time, timezone").eq("id", this.uid).single(),
     ) as Row;
     return {
       care: Boolean(r.notify_care),
       messages: Boolean(r.notify_messages),
       community: Boolean(r.notify_community),
+      wishlist: Boolean(r.notify_wishlist),
       reminderTime: String(r.reminder_time ?? "09:00").slice(0, 5),
       timezone: (r.timezone as string | null) ?? "UTC",
     };
@@ -626,24 +716,166 @@ export class SupabaseNotifications implements NotificationsRepository {
     if (patch.care !== undefined) row.notify_care = patch.care;
     if (patch.messages !== undefined) row.notify_messages = patch.messages;
     if (patch.community !== undefined) row.notify_community = patch.community;
+    if (patch.wishlist !== undefined) row.notify_wishlist = patch.wishlist;
     if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime;
     if (patch.timezone !== undefined) row.timezone = patch.timezone;
     check(await this.db.from("profiles").update(row).eq("id", this.uid));
   }
 }
 
+const SHOP_FIELDS = "id, owner_id, name, description, inn, city, address, hours, phone, website, delivery, status, review_note, created_at, verified_at";
+const PRODUCT_FIELDS = "id, external_id, title, species_id, price_rub, in_stock, pot_cm, height_cm, url, image_url";
+const IMPORT_CHUNK = 1000;
+
+export class SupabaseShops implements ShopRepository {
+  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+
+  async myShop() {
+    const row = check(await this.db.from("shops").select(SHOP_FIELDS).eq("owner_id", this.uid).maybeSingle()) as Row | null;
+    return row ? shopFromRow(row, this.uid) : null;
+  }
+
+  async saveShop(d: ShopDraft) {
+    const invalid = validateShop(d);
+    if (invalid) throw new Error(invalid.message);
+    const fields = {
+      name: d.name.trim(),
+      description: d.description.trim(),
+      inn: d.inn.trim(),
+      city: d.city.trim(),
+      address: d.address.trim() || null,
+      hours: d.hours.trim() || null,
+      phone: d.phone.trim() || null,
+      website: normalizeWebsite(d.website),
+      delivery: d.delivery,
+    };
+    const existing = await this.myShop();
+    const res = existing
+      ? await this.db.from("shops").update(fields).eq("id", existing.id).select(SHOP_FIELDS).single()
+      : await this.db.from("shops").insert(fields).select(SHOP_FIELDS).single();
+    if (res.error?.code === "23505") throw new Error("У вас уже есть магазин");
+    return shopFromRow(check(res) as Row, this.uid);
+  }
+
+  async shop(id: string) {
+    const row = check(await this.db.from("shops").select(SHOP_FIELDS).eq("id", id).maybeSingle()) as Row | null;
+    return row ? shopFromRow(row, this.uid) : null;
+  }
+
+  async shops(city: string | null) {
+    const rows = check(await this.db.from("shops").select(SHOP_FIELDS).eq("status", "verified").order("name").limit(200)) as Row[];
+    const list = rows.map((r) => shopFromRow(r, this.uid));
+    const here = (s: { city: string }) => !!city && s.city.trim().toLowerCase() === city.trim().toLowerCase();
+    return list.sort((a, b) => Number(here(b)) - Number(here(a)));
+  }
+
+  async products(shopId: string) {
+    const [rows, slugOf] = await Promise.all([
+      this.db.from("shop_products").select(PRODUCT_FIELDS).eq("shop_id", shopId).order("title").limit(5000),
+      this.species.slugs(),
+    ]);
+    return (check(rows) as Row[]).map((r) => ({ ...productFromRow(r), speciesId: slugOf(r.species_id as string | null) }));
+  }
+
+  async importProducts(rows: ProductInput[], replace: boolean) {
+    const uuidOf = await this.species.uuids();
+    const payload = rows.map((p) => ({
+      external_id: p.externalId,
+      title: p.title,
+      species_id: uuidOf(p.speciesId),
+      price_rub: p.priceRub,
+      in_stock: p.inStock,
+      pot_cm: p.potCm,
+      height_cm: p.heightCm,
+      url: p.url,
+      image_url: p.imageUrl,
+    }));
+    // Один вызов — одна транзакция; при замене каталога файл обязан уйти целиком.
+    if (replace || payload.length <= IMPORT_CHUNK) {
+      const r = (check(await this.db.rpc("shop_import_products", { p_rows: payload, p_replace: replace })) as Row[])[0] ?? {};
+      return { inserted: Number(r.inserted ?? 0), updated: Number(r.updated ?? 0), deleted: Number(r.deleted ?? 0) };
+    }
+    const total = { inserted: 0, updated: 0, deleted: 0 };
+    for (let i = 0; i < payload.length; i += IMPORT_CHUNK) {
+      const r = (check(await this.db.rpc("shop_import_products", { p_rows: payload.slice(i, i + IMPORT_CHUNK), p_replace: false })) as Row[])[0] ?? {};
+      total.inserted += Number(r.inserted ?? 0);
+      total.updated += Number(r.updated ?? 0);
+    }
+    return total;
+  }
+
+  async setInStock(productId: string, inStock: boolean) {
+    check(await this.db.from("shop_products").update({ in_stock: inStock }).eq("id", productId));
+  }
+
+  async deleteProduct(productId: string) {
+    check(await this.db.from("shop_products").delete().eq("id", productId));
+  }
+
+  async whereToBuy(speciesId: string, city: string | null) {
+    const uuid = (await this.species.uuids())(speciesId);
+    if (!uuid) return [];
+    const rows = check(await this.db.rpc("where_to_buy", { p_species: uuid, p_city: city?.trim() || null })) as Row[];
+    return rows.map(offerFromRow);
+  }
+
+  async reviewQueue() {
+    const rows = check(await this.db.from("shops").select(SHOP_FIELDS).order("created_at", { ascending: false }).limit(200)) as Row[];
+    const order: Record<ShopStatus, number> = { pending: 0, suspended: 1, rejected: 2, verified: 3 };
+    return rows.map((r) => shopFromRow(r, this.uid)).sort((a, b) => order[a.status] - order[b.status]);
+  }
+
+  async myStats() {
+    const shop = await this.myShop();
+    if (!shop) return { hasShop: 0, shopVerified: 0, products: 0, shopSpecies: 0 };
+    const rows = check(await this.db.from("shop_products").select("species_id").eq("shop_id", shop.id).limit(5000)) as Row[];
+    return {
+      hasShop: 1,
+      shopVerified: shop.status === "verified" ? 1 : 0,
+      products: rows.length,
+      shopSpecies: new Set(rows.map((r) => r.species_id).filter(Boolean)).size,
+    };
+  }
+
+  async review(shopId: string, status: ShopStatus, note: string) {
+    check(await this.db.rpc("review_shop", { p_shop: shopId, p_status: status, p_note: note.trim() || null }));
+  }
+}
+
+export class SupabaseWishlist implements WishlistRepository {
+  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+
+  async list() {
+    const [rows, slugOf] = await Promise.all([
+      this.db.from("wishlist_items").select("species_id").eq("user_id", this.uid).order("created_at", { ascending: false }),
+      this.species.slugs(),
+    ]);
+    return (check(rows) as Row[]).map((r) => slugOf(r.species_id as string)).filter((x): x is string => !!x);
+  }
+
+  async set(speciesId: string, wanted: boolean) {
+    const uuid = (await this.species.uuids())(speciesId);
+    if (!uuid) throw new Error("Вид не найден");
+    if (wanted) check(await this.db.from("wishlist_items").upsert({ user_id: this.uid, species_id: uuid }, { ignoreDuplicates: true }));
+    else check(await this.db.from("wishlist_items").delete().eq("user_id", this.uid).eq("species_id", uuid));
+  }
+}
+
 export function supabaseBackend(db: SupabaseClient, uid: string): Backend {
+  const species = new SpeciesIds(db);
   return {
     mode: "live",
     garden: new SupabaseGarden(db, uid),
-    social: new SupabaseSocial(db, uid),
+    social: new SupabaseSocial(db, uid, species),
     people: new SupabasePeople(db, uid),
-    market: new SupabaseMarket(db, uid),
+    market: new SupabaseMarket(db, uid, species),
     chat: new SupabaseChat(db, uid),
+    shops: new SupabaseShops(db, uid, species),
+    wishlist: new SupabaseWishlist(db, uid, species),
     notifications: new SupabaseNotifications(db, uid),
     identifier: new PlantNetIdentifier(db),
     async profile() {
-      return profileFromRow(check(await db.from("profiles").select("username, display_name, bio, city").eq("id", uid).single()) as Row);
+      return profileFromRow(check(await db.from("profiles").select(PROFILE_FIELDS).eq("id", uid).single()) as Row);
     },
   };
 }

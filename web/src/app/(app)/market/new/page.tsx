@@ -80,6 +80,7 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
       const full = { ...draft, photo: photo?.blob ?? null };
       const saved = existing ? await backend.market.updateListing(existing.id, full) : await backend.market.createListing(full);
       qc.invalidateQueries({ queryKey: ["market"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
       toast(existing ? "Объявление обновлено" : "Объявление опубликовано");
       router.replace(listingHref(saved.id));
     } catch (err) {

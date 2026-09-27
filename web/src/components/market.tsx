@@ -4,6 +4,7 @@ import { MapPin, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useBackend } from "./session";
+import { ShopsList } from "./shops";
 import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
 import { LISTING_KINDS, LISTING_STATUS, priceLabel, type Listing, type ListingFilter, type ListingKind } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
@@ -57,12 +58,15 @@ export function ListingCard({ listing: l }: { listing: Listing }) {
   );
 }
 
-const KIND_FILTERS: { id: ListingFilter["kind"] | "mine"; label: string }[] = [
+type MarketView = ListingFilter["kind"] | "mine" | "shops";
+
+const KIND_FILTERS: { id: MarketView; label: string }[] = [
   { id: "all", label: "Все" },
   { id: "sell", label: "🏷️ Продаю" },
   { id: "free", label: "🎁 Даром" },
   { id: "swap", label: "🔄 Обмен" },
   { id: "wanted", label: "🔎 Ищу" },
+  { id: "shops", label: "🏪 Магазины" },
   { id: "mine", label: "Мои" },
 ];
 
@@ -122,7 +126,7 @@ function Results({ filter }: { filter: ListingFilter }) {
 export function Market() {
   const profile = useProfile();
   const myCity = profile.data?.city?.trim() || null;
-  const [kind, setKind] = useState<ListingFilter["kind"] | "mine">("all");
+  const [kind, setKind] = useState<MarketView>("all");
   const [onlyMyCity, setOnlyMyCity] = useState(true);
   const [deliveryOnly, setDeliveryOnly] = useState(false);
   const city = onlyMyCity ? myCity : null;
@@ -139,7 +143,7 @@ export function Market() {
           </Chip>
         ))}
       </div>
-      {kind !== "mine" && (
+      {kind !== "mine" && kind !== "shops" && (
         <div className="no-scrollbar -mx-4 mb-4 flex items-center gap-2 overflow-x-auto px-4">
           {myCity ? (
             <>
@@ -160,7 +164,7 @@ export function Market() {
           </Chip>
         </div>
       )}
-      {kind === "mine" ? <MineList /> : <Results filter={{ kind, city, deliveryOnly }} />}
+      {kind === "mine" ? <MineList /> : kind === "shops" ? <ShopsList /> : <Results filter={{ kind, city, deliveryOnly }} />}
     </div>
   );
 }

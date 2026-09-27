@@ -289,6 +289,9 @@ test("демо: достижения и выход из демо-режима", 
   await expect(page.getByText("Росточек")).toBeVisible();
   await expect(page.getByText("Первый росток")).toBeVisible();
   await expect(page.getByText("Секрет").first()).toBeVisible();
+  for (const section of ["Сад", "Сообщество", "Барахолка"]) await expect(page.getByRole("region", { name: section })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Магазин" })).toHaveCount(0);
+  await expect(page.getByText("Откройте магазин — появятся награды магазина.")).toBeVisible();
 
   await page.goto("/profile/");
   await page.getByRole("button", { name: "Выйти из демо-режима" }).click();
@@ -382,5 +385,88 @@ test("демо: редактирование профиля, подписчик�
   await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
   await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
   await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("демо: магазины — «Где купить», «Хочу», витрина, заявка и загрузка прайса", async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto("/plants/monstera-deliciosa/");
+  await expect(page.getByText("чтобы увидеть цены проверенных магазинов")).toBeVisible();
+  await startDemo(page);
+
+  // «Где купить»: московский магазин первым, питерский — с доставкой.
+  await page.goto("/plants/monstera-deliciosa/");
+  const offers = page.getByRole("list", { name: "Предложения магазинов" }).getByRole("listitem");
+  await expect(offers).toHaveCount(3);
+  await expect(offers.first()).toContainText("Зелёная комната");
+  await expect(offers.first()).toContainText("2 490 ₽");
+  await expect(offers.last()).toContainText("Доставка из г. Санкт-Петербург");
+  await page.getByRole("button", { name: "Хочу купить" }).click();
+  await expect(page.getByRole("button", { name: "Хочу", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.goto("/profile/");
+  await expect(page.getByRole("list", { name: "Хочу купить" })).toContainText("Монстера деликатесная");
+
+  // Витрина из вкладки «Магазины».
+  await page.goto("/feed/?tab=market");
+  await page.getByRole("button", { name: "🏪 Магазины" }).click();
+  await page.getByRole("link", { name: /Зелёная комната/ }).click();
+  await page.waitForURL("**/shop/**");
+  await expect(page.getByText("Проверенный магазин · Москва")).toBeVisible();
+  const catalog = page.getByRole("list", { name: "Каталог" }).getByRole("listitem");
+  await expect(catalog).toHaveCount(6);
+  await page.getByLabel("Поиск по каталогу").fill("замио");
+  await expect(catalog).toHaveCount(1);
+  await expect(catalog.first()).toContainText("1 890 ₽");
+
+  // Свой магазин: заявка с проверкой ИНН.
+  await page.goto("/profile/");
+  await page.getByRole("link", { name: /Вы продаёте растения/ }).click();
+  await page.waitForURL("**/shop/manage/");
+  await page.getByLabel("Название магазина").fill("Суккуленты у Гостя");
+  await page.getByLabel("ИНН").fill("1234567890");
+  await page.getByLabel("Телефон").fill("+7 900 123-45-67");
+  await page.getByRole("button", { name: "Отправить на проверку" }).click();
+  await expect(page.getByText("Проверьте ИНН")).toBeVisible();
+  await page.getByLabel("ИНН").fill("500100732259");
+  await page.getByRole("button", { name: "Отправить на проверку" }).click();
+  await expect(page.getByText("На проверке")).toBeVisible();
+
+  // Прайс в CSV из Excel: «;», вид определяется по названию, один — вручную.
+  const csv = "Артикул;Наименование;Цена;Остаток\nA1;Монстера деликатесная 17/60;2 100;3\nA2;Хойя Керри сердечко;450;0\nA3;Кашпо белое 20 см;900;5\n";
+  await page.getByLabel("Файл прайса").setInputFiles({ name: "price.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
+  await expect(page.getByRole("status")).toContainText("Готово к загрузке: 3 · вид определён у 1");
+  await page.getByLabel("Вид для «Хойя Керри сердечко»").selectOption({ label: "Хойя мясистая (Hoya carnosa)" });
+  await expect(page.getByRole("status")).toContainText("вид определён у 2");
+  await page.getByRole("button", { name: "Загрузить 3 товара" }).click();
+  await expect(page.getByText("Готово: новых 3, обновлено 0")).toBeVisible();
+  const products = page.getByRole("list", { name: "Товары" }).getByRole("listitem");
+  await expect(products).toHaveCount(3);
+  await expect(products.filter({ hasText: "Хойя Керри" })).toContainText("Хойя мясистая");
+  await expect(page.getByLabel("В наличии: Хойя Керри сердечко")).not.toBeChecked();
+  await page.getByLabel("В наличии: Хойя Керри сердечко").check();
+  await expect(page.getByLabel("В наличии: Хойя Керри сердечко")).toBeChecked();
+  await page.getByRole("button", { name: "Удалить «Кашпо белое 20 см»" }).click();
+  await page.getByRole("button", { name: "Удалить", exact: true }).click();
+  await expect(products).toHaveCount(2);
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Выгрузить" }).click();
+  expect((await download).suggestedFilename()).toMatch(/^katalog-\d{4}-\d{2}-\d{2}\.csv$/);
+
+  // Прайс из Excel (.xlsx) дополняет каталог по артикулу.
+  await page.getByLabel("Файл прайса").setInputFiles("e2e/fixtures/price.xlsx");
+  await expect(page.getByRole("status")).toContainText("Готово к загрузке: 2 · вид определён у 2");
+  await page.getByRole("button", { name: "Загрузить 2 товара" }).click();
+  await expect(products).toHaveCount(4);
+  await expect(page.getByLabel("В наличии: Фикус лировидный")).not.toBeChecked();
+
+  // Появились награды магазина.
+  await page.goto("/achievements/");
+  const shopSection = page.getByRole("region", { name: "Магазин" });
+  await expect(shopSection).toContainText("Открываем двери");
+  await expect(shopSection).toContainText("1 из 7");
+
+  // Пока магазин не проверен, его нет в «Где купить».
+  await page.goto("/plants/monstera-deliciosa/");
+  await expect(offers).toHaveCount(3);
   expect(errors).toEqual([]);
 });
