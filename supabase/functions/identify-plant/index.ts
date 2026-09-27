@@ -15,6 +15,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   bytesToBase64,
+  describeGeminiFailure,
   GEMINI_FALLBACK_MODEL,
   GEMINI_MODEL,
   geminiRequest,
@@ -67,15 +68,25 @@ async function geminiDiagnosis(db: any, image: Uint8Array, plantHint: string | n
       body: request,
       signal: AbortSignal.timeout(25_000),
     });
-  let res = await call(GEMINI_MODEL);
-  if (isRetryableGeminiStatus(res.status)) {
-    console.error(`gemini ${GEMINI_MODEL}: HTTP ${res.status}, пробуем ${GEMINI_FALLBACK_MODEL}`);
-    res = await call(GEMINI_FALLBACK_MODEL);
+  // Основная модель, при перегрузке или неразборчивом ответе — запасная.
+  let lastError = "";
+  for (const model of [GEMINI_MODEL, GEMINI_FALLBACK_MODEL]) {
+    const res = await call(model);
+    if (!res.ok) {
+      lastError = `${model}: HTTP ${res.status} ${(await res.text()).slice(0, 300)}`;
+      if (isRetryableGeminiStatus(res.status)) {
+        console.error(`gemini ${lastError}`);
+        continue;
+      }
+      break;
+    }
+    const body = await res.json();
+    const diagnosis = toAiDiagnosis(body);
+    if (diagnosis) return diagnosis;
+    lastError = `${model}: ответ не по схеме (${describeGeminiFailure(body)})`;
+    console.error(`gemini ${lastError}`);
   }
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
-  const diagnosis = toAiDiagnosis(await res.json());
-  if (!diagnosis) throw new Error("ответ не по схеме");
-  return diagnosis;
+  throw new Error(lastError);
 }
 
 Deno.serve(async (req) => {

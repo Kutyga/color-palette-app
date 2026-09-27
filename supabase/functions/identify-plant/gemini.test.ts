@@ -1,7 +1,7 @@
 // Запуск: node --experimental-strip-types --test supabase/functions/identify-plant/gemini.test.ts
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { bytesToBase64, CAUSE_IDS, geminiRequest, isRetryableGeminiStatus, toAiDiagnosis } from "./gemini.ts";
+import { bytesToBase64, CAUSE_IDS, describeGeminiFailure, geminiRequest, isRetryableGeminiStatus, toAiDiagnosis } from "./gemini.ts";
 
 const reply = (obj: unknown) => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(obj) }] } }] });
 
@@ -49,4 +49,13 @@ test("запрос: фото, подсказка о растении и схем
   assert.ok(CAUSE_IDS.every((id) => r.systemInstruction.parts[0].text.includes(id)));
   assert.equal(bytesToBase64(new Uint8Array([65, 66, 67])), "QUJD");
   assert.ok(isRetryableGeminiStatus(503) && !isRetryableGeminiStatus(400));
+});
+
+test("ответ в обёртке ```json, с «мыслями» модели; обрезанный — null с понятной причиной", () => {
+  const obj = { is_plant: true, healthy: true, plant: null, summary: "Ок", problems: [] };
+  const wrapped = { candidates: [{ content: { parts: [{ text: "думаю…", thought: true }, { text: "```json\n" + JSON.stringify(obj) + "\n```" }] } }] };
+  assert.equal(toAiDiagnosis(wrapped)?.summary, "Ок");
+  const cut = { candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: '{"is_plant": true, "summ' }] } }] };
+  assert.equal(toAiDiagnosis(cut), null);
+  assert.match(describeGeminiFailure(cut), /finishReason=MAX_TOKENS/);
 });
