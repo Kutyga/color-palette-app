@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CAUSES, SYMPTOMS, describeEppo, diagnose } from "../diagnosis";
+import { CAUSES, SYMPTOMS, confidentGuesses, describeEppo, diagnose } from "../diagnosis";
 
 describe("«Что с растением?»", () => {
   it("справочник согласован: у каждой причины известные симптомы, каждый симптом к чему-то ведёт", () => {
@@ -27,5 +27,13 @@ describe("«Что с растением?»", () => {
     expect(describeEppo({ eppo: "TETRUR", score: 0.8, name: "Tetranychus urticae" })).toMatchObject({ name: "Паутинный клещ", cause: { id: "spider_mite" } });
     expect(describeEppo({ eppo: "BOTRAL", score: 0.5, name: "Botrytis" })).toMatchObject({ name: "Серая гниль" });
     expect(describeEppo({ eppo: "ZZZZZZ", score: 0.5, name: "Unknown blight" })).toEqual({ name: "Unknown blight", cause: null });
+  });
+
+  it("слабые догадки по фото (шум на здоровом растении) отбрасываются", () => {
+    const guesses = [
+      { eppo: "ERYSSP", score: 0.62, name: "Erysiphe" },
+      { eppo: "RIZSPI", score: 0.08, name: "Rhizosphaera pini" },
+    ];
+    expect(confidentGuesses(guesses).map((g) => g.eppo)).toEqual(["ERYSSP"]);
   });
 });

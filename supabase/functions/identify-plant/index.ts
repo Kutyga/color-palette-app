@@ -93,8 +93,8 @@ Deno.serve(async (req) => {
 
   const diseases = body.mode === "diseases";
   const form = new FormData();
-  // У распознавания болезней поле с фото называется image, у распознавания вида — images.
-  form.append(diseases ? "image" : "images", new Blob([image], { type: "image/jpeg" }), "plant.jpg");
+  // Оба метода Pl@ntNet принимают фото в поле images (проверено на живом API).
+  form.append("images", new Blob([image], { type: "image/jpeg" }), "plant.jpg");
   form.append("organs", organ);
 
   if (diseases) {
@@ -102,6 +102,7 @@ Deno.serve(async (req) => {
     if (res.status === 404) return json({ source: "plantnet", diseases: [] });
     if (!res.ok) {
       const detail = (await res.text()).slice(0, 300);
+      console.error(`plantnet diseases: HTTP ${res.status} ${detail}`);
       return json({ error: "upstream", status: res.status, detail }, 502);
     }
     const payload = await res.json();
@@ -116,6 +117,7 @@ Deno.serve(async (req) => {
   if (res.status === 404) return json({ source: "plantnet", results: [] }); // «Species not found»
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 300);
+    console.error(`plantnet identify: HTTP ${res.status} ${detail}`);
     return json({ error: "upstream", status: res.status, detail }, 502);
   }
   const payload = await res.json();
