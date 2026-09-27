@@ -8,5 +8,4 @@
 
 - `web/` — сайт (Next.js, статическая сборка, GitHub Pages)
 - `supabase/` — база данных, RLS-политики, Edge Functions (новости, распознавание)
-- `mobile/` — прежняя версия клиента на Flutter (iOS/Android)
 - [docs/plant-app/ARCHITECTURE.md](docs/plant-app/ARCHITECTURE.md) — архитектура и модель данных
