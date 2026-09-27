@@ -187,7 +187,7 @@ web/src/
 | Типы | `npm run typecheck` | TypeScript `strict` + `noUnused*`, `noImplicitReturns` |
 | Логика | `npm test` | vitest: интервалы, достижения, прайс, диагностика, демо-бэкенд |
 | Сценарии | `npm run e2e` | Playwright на телефоне и компьютере в демо-режиме |
-| База | `scripts/check-migrations.sh` | Все миграции на чистом Postgres + `supabase/tests/smoke_test.sql` |
+| База | `scripts/check-migrations.sh` | Все миграции на чистом Postgres + `supabase/tests/smoke_test.sql`: права доступа, график, счётчики, одна политика на действие, индексы у внешних ключей |
 | Функции | `node --test …`, `deno test …` | Разбор RSS, ответов Pl@ntNet и Gemini, извлечение статьи |
 
 Все проверки запускает `.github/workflows/plant-app.yml` на каждый PR.
