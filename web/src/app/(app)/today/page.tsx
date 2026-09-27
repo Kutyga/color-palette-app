@@ -23,8 +23,8 @@ import { CARE_TYPES, taskBucket, type CareTask, type TaskBucket } from "@/lib/do
 import { evaluateAchievements, levelFor } from "@/lib/domain/gamification";
 import type { Plant } from "@/lib/domain/plant";
 import { formatDate, plural, relativeDay } from "@/lib/format";
-import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
 import { plantPhotoUrl } from "@/lib/knowledge";
+import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
 
 const SECTIONS: { bucket: TaskBucket; title: string }[] = [
   { bucket: "overdue", title: "Просрочено" },

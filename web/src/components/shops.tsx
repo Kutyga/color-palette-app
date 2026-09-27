@@ -2,12 +2,12 @@
 
 import { BadgeCheck, ChevronRight, ExternalLink, Heart, LogIn, MapPin, ShieldCheck, Store, Truck } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "./session";
-import { Card, EmptyState, ErrorNote, PlantPhoto, Spinner, cx, useToast } from "./ui";
 import { SHOP_STATUS, sizeLabel, withUtm, type Offer, type Shop, type ShopStatus } from "@/lib/domain/shop";
 import { speciesName } from "@/lib/domain/species";
 import { speciesById } from "@/lib/knowledge";
 import { useMyShop, useProfile, useReviewQueue, useSetWished, useShops, useWhereToBuy, useWishlist } from "@/lib/queries";
+import { useSession } from "./session";
+import { Card, EmptyState, ErrorNote, PlantPhoto, Spinner, cx, useToast } from "./ui";
 
 export const shopHref = (id: string) => `/shop/?id=${encodeURIComponent(id)}`;
 

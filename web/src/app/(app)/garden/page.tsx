@@ -7,8 +7,8 @@ import { RequireSession } from "@/components/app-shell";
 import { Chip, EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner, cx } from "@/components/ui";
 import { plantStatus, type PlantStatus } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
-import { useLocations, usePlants, useStats } from "@/lib/queries";
 import { plantPhotoUrl } from "@/lib/knowledge";
+import { useLocations, usePlants, useStats } from "@/lib/queries";
 
 const STATUS: Record<PlantStatus, { color: string; label: string }> = {
   ok: { color: "var(--leaf)", label: "всё хорошо" },

@@ -1,13 +1,13 @@
 "use client";
 
 import { ChevronRight, LogOut, Pencil, Search, Trophy } from "lucide-react";
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { RequireSession } from "@/components/app-shell";
-import { useSession } from "@/components/session";
 import { NotificationsCard } from "@/components/notifications";
 import { EditProfileSheet, ProfileHeader } from "@/components/people";
+import { useSession } from "@/components/session";
 import { ProfileShopCard, WishlistCard } from "@/components/shops";
 import { Button, Card, PageHeader, Spinner } from "@/components/ui";
 import { levelFor } from "@/lib/domain/gamification";

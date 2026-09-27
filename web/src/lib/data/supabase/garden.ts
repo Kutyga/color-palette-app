@@ -6,8 +6,8 @@ import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../..
 import { statsFromRow } from "../../domain/gamification";
 import { coverPathOf, plantFromRow, type Location } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
-import { initialSchedules } from "../schedules";
 import type { GardenRepository, PlantDraft } from "../repositories";
+import { initialSchedules } from "../schedules";
 
 import { PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls } from "./shared";
 

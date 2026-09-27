@@ -18,8 +18,8 @@ import { speciesName, type Species } from "../../domain/species";
 import { blobToDataUrl } from "../../image";
 import { ALL_SPECIES } from "../../knowledge";
 import { DAY_MS, HOUR_MS, startOfDay } from "../../time";
-import { initialSchedules } from "../schedules";
 import type { GardenRepository, PlantDraft } from "../repositories";
+import { initialSchedules } from "../schedules";
 
 import { type DemoState, type PlantRec, type ScheduleRec, iso, toDate } from "./state";
 

@@ -1,10 +1,10 @@
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
-import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
 import type { PhotoDiagnosis } from "../domain/diagnosis";
+import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
-import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
-import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
 import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
+import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
+import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { ImportResult, Offer, ProductInput, Shop, ShopDraft, ShopProduct, ShopStatus } from "../domain/shop";
 import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 

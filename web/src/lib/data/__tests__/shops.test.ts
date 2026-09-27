@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from "../demo";
-import { SpeciesIds } from "../supabase/shared";
 import {
   TEMPLATE_CSV,
   INN_REQUIRED,
@@ -19,6 +17,8 @@ import {
   type ShopDraft,
 } from "../../domain/shop";
 import { ALL_SPECIES, speciesById } from "../../knowledge";
+import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from "../demo";
+import { SpeciesIds } from "../supabase/shared";
 
 const clock = () => new Date(2026, 6, 15, 12);
 const match = speciesMatcher(ALL_SPECIES);

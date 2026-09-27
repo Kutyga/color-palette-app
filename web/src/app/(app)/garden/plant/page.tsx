@@ -6,7 +6,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { CameraCapture } from "@/components/camera";
+import { DeleteEventButton, LocationSheet } from "@/components/plant-edit";
 import { useBackend } from "@/components/session";
+import { SoilSummary } from "@/components/soil-schematic";
 import { Button, CARE_COLORS, CARE_ICONS, ErrorNote, PlantPhoto, SectionTitle, Sheet, Spinner, useToast } from "@/components/ui";
 import {
   CARE_TYPES,
@@ -20,9 +23,6 @@ import {
 import type { Plant, PlantDetails } from "@/lib/domain/plant";
 import { everyDays, formatShortDate, relativeDay } from "@/lib/format";
 import { soilMixFor, speciesBySlug } from "@/lib/knowledge";
-import { CameraCapture } from "@/components/camera";
-import { DeleteEventButton, LocationSheet } from "@/components/plant-edit";
-import { SoilSummary } from "@/components/soil-schematic";
 import { useLogCare, usePlantDetails } from "@/lib/queries";
 
 function effectiveDays(s: CareSchedule, plant: Plant, now: Date) {

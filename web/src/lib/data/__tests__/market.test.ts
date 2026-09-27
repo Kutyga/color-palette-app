@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { priceLabel, sameCity, validateListing, type ListingDraft } from "../../domain/market";
 import { demoBackend, memoryDemoStorage } from "../demo";
 import { DemoChat } from "../demo/chat";
-import { priceLabel, sameCity, validateListing, type ListingDraft } from "../../domain/market";
 
 const clock = () => new Date(2026, 6, 15, 12);
 const draft = (patch: Partial<ListingDraft> = {}): ListingDraft => ({

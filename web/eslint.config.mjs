@@ -22,6 +22,16 @@ export default defineConfig([
       "@typescript-eslint/no-import-type-side-effects": "error",
       // Неиспользуемое — ошибка; осознанно пропущенный аргумент начинается с «_».
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      // Порядок импортов: пакеты → модули проекта (@/) → соседние файлы, по алфавиту.
+      "import/order": [
+        "error",
+        {
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          pathGroups: [{ pattern: "@/**", group: "internal" }],
+          pathGroupsExcludedImportTypes: ["builtin"],
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
       "prefer-const": "error",
       "object-shorthand": "error",
     },

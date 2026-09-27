@@ -4,14 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, CircleCheck, Leaf, MessageCircle, MoreHorizontal, Pencil, Send, Sprout, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { FollowButton as PersonFollowButton, personHref } from "./people";
-import { useBackend } from "./session";
-import { Avatar, Button, Chip, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
 import { DIARY_EVENTS, editTimeLeft, type DiaryEvent, type FeedPost, type PostComment } from "@/lib/domain/social";
 import { speciesName } from "@/lib/domain/species";
 import { plural, timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
 import { useComments } from "@/lib/queries";
+import { FollowButton as PersonFollowButton, personHref } from "./people";
+import { useBackend } from "./session";
+import { Avatar, Button, Chip, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
 
 /** «Поддержать» запись дневника: счётчик меняется сразу, при ошибке — откатывается. */
 function useSupport(post: FeedPost) {

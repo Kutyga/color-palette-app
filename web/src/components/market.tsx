@@ -3,14 +3,14 @@
 import { MapPin, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useBackend } from "./session";
-import { ShopsList } from "./shops";
-import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
 import { LISTING_KINDS, LISTING_STATUS, priceLabel, type Listing, type ListingFilter, type ListingKind } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
 import { useListings, useMyListings, useProfile } from "@/lib/queries";
+import { useBackend } from "./session";
+import { ShopsList } from "./shops";
+import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
 
 export const chatHref = (id: string) => `/messages/chat/?id=${encodeURIComponent(id)}`;
 export const listingHref = (id: string) => `/market/view/?id=${encodeURIComponent(id)}`;

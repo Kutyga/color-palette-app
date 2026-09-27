@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { plural, relativeDay } from "../../format";
 import { adjustUserFactor, baseWaterInterval, effectiveIntervalDays, nextDue, taskBucket } from "../care";
 import { EMPTY_STATS, ACHIEVEMENTS, GROUPS, TIERS, evaluateAchievements, experience, levelFor, visibleAchievements } from "../gamification";
 import { capitalizeLatin, matchSpecies } from "../identification";
-import { searchLocal, type Species } from "../species";
 import { editTimeLeft } from "../social";
-import { plural, relativeDay } from "../../format";
+import { searchLocal, type Species } from "../species";
 
 // Ожидаемые значения совпадают с supabase/tests/smoke_test.sql и тестами мобильного приложения —
 // клиентская и серверная формулы должны давать одно и то же.

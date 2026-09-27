@@ -50,9 +50,9 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { RequireSession } from "@/components/app-shell";
 import { Card, ErrorNote, PageHeader, ProgressRing, Spinner, cx } from "@/components/ui";
-import Link from "next/link";
 import {
   GROUPS,
   TIERS,

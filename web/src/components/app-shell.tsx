@@ -4,10 +4,10 @@ import { BookOpen, CalendarCheck, LogIn, MessageCircle, Plus, Sprout, Trophy, Us
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
+import { useConversations } from "@/lib/queries";
 import { AchievementWatcher } from "./achievement-watcher";
 import { useSession } from "./session";
 import { Avatar, Spinner, cx } from "./ui";
-import { useConversations } from "@/lib/queries";
 
 const NAV = [
   { href: "/today/", label: "Сегодня", icon: CalendarCheck },

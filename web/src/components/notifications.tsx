@@ -3,10 +3,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellOff, Share } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useBackend } from "./session";
-import { Button, Card, Spinner, cx, inputClass, useIsClient, useToast } from "./ui";
 import type { NotificationSettings } from "@/lib/data/repositories";
 import { currentSubscription, disablePush, enablePush, pushSupport } from "@/lib/push";
+import { useBackend } from "./session";
+import { Button, Card, Spinner, cx, inputClass, useIsClient, useToast } from "./ui";
 
 function Toggle({ label, hint, checked, onChange }: { label: string; hint: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (

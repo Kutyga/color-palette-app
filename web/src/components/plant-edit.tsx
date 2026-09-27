@@ -3,12 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useBackend } from "./session";
-import { Button, Chip, Sheet, cx, inputClass, useToast } from "./ui";
 import { LIGHT_LEVELS, type LightLevel } from "@/lib/domain/care";
 import type { Location } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
 import { useLocations, usePlants } from "@/lib/queries";
+import { useBackend } from "./session";
+import { Button, Chip, Sheet, cx, inputClass, useToast } from "./ui";
 
 /** Правка места: название, свет, удаление (растения остаются без места). */
 function LocationEditor({ location, onDone }: { location: Location; onDone: () => void }) {

@@ -6,9 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { CommentsSheet, DiaryCard, QuestionRow } from "@/components/feed";
-import { Chip, EmptyState, ErrorNote, PageHeader, Spinner, cx } from "@/components/ui";
 import { Market } from "@/components/market";
 import { News } from "@/components/news";
+import { Chip, EmptyState, ErrorNote, PageHeader, Spinner, cx } from "@/components/ui";
 import type { DiaryScope, HelpFilter } from "@/lib/domain/social";
 import { useDiaries, useQuestions } from "@/lib/queries";
 
