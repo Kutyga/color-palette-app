@@ -766,4 +766,32 @@ exception when insufficient_privilege then null;
 end $$;
 
 reset role;
+
+-- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)
+-- и индекс у каждого внешнего ключа (иначе удаление строки просматривает ссылающуюся таблицу).
+do $$
+declare dup text; fk text;
+begin
+  select string_agg(format('%s.%s: %s %s', schemaname, tablename, role, action), '; ') into dup
+    from (select schemaname, tablename, role, action
+            from (select schemaname, tablename, unnest(roles) as role,
+                         unnest(case cmd when 'ALL' then array['SELECT','INSERT','UPDATE','DELETE'] else array[cmd] end) as action
+                    from pg_policies
+                   where schemaname in ('public', 'private') and permissive = 'PERMISSIVE') p
+           group by schemaname, tablename, role, action
+          having count(*) > 1) d;
+  if dup is not null then raise exception 'несколько разрешающих политик на одно действие: %', dup; end if;
+
+  select string_agg(format('%s (%s)', c.conname, c.conrelid::regclass), ', ') into fk
+    from pg_constraint c
+    join pg_namespace n on n.oid = c.connamespace
+   where c.contype = 'f' and n.nspname in ('public', 'private')
+     and not exists (
+       select 1 from pg_index i
+        where i.indrelid = c.conrelid
+          and (string_to_array(i.indkey::text, ' ')::int2[])[1:cardinality(c.conkey)] @> c.conkey
+          and (string_to_array(i.indkey::text, ' ')::int2[])[1:cardinality(c.conkey)] <@ c.conkey);
+  if fk is not null then raise exception 'внешние ключи без индекса: %', fk; end if;
+end $$;
+
 \echo 'smoke test: OK'

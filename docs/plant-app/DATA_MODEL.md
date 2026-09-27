@@ -243,26 +243,29 @@ create table devices (
 
 ## Пример политики RLS
 
+На каждое действие — одна разрешающая политика (это проверяет `supabase/tests/smoke_test.sql`):
+несколько политик на одно действие Postgres вычисляет все сразу. Сложные проверки вынесены
+в функции схемы `private` (`can_view_plant`, `can_care_plant`, `owns_plant`…) — они учитывают
+видимость, подписки, помощников и блокировки в одном месте.
+
 ```sql
 alter table plants enable row level security;
 
-create policy plants_owner_rw on plants
-  for all using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+-- Читать: своё растение или видимое по приватности. Дешёвое сравнение — первым.
+create policy plants_read on plants for select to authenticated
+  using (owner_id = (select auth.uid()) or private.can_view_plant(id));
 
-create policy plants_read_shared on plants
-  for select using (
-    deleted_at is null and (
-      visibility = 'public'
-      or (visibility = 'followers' and exists (
-            select 1 from follows f
-            where f.follower_id = auth.uid() and f.followee_id = plants.owner_id))
-      or exists (select 1 from plant_caretakers c
-                 where c.plant_id = plants.id and c.user_id = auth.uid())
-    )
-    and not exists (select 1 from blocks b
-                    where b.blocker_id = plants.owner_id and b.blocked_id = auth.uid())
-  );
+-- Менять — только владелец.
+create policy plants_insert on plants for insert to authenticated
+  with check (owner_id = (select auth.uid()));
+create policy plants_update on plants for update to authenticated
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+create policy plants_delete on plants for delete to authenticated
+  using (owner_id = (select auth.uid()));
 ```
+
+`(select auth.uid())` вместо `auth.uid()` — Postgres вычисляет его один раз на запрос,
+а не для каждой строки.
 
 ## Разделы, добавленные позже
 
