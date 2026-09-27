@@ -3,7 +3,6 @@
  */
 import type { ChatMessage, Conversation } from "../../domain/market";
 import type { ChatRepository } from "../repositories";
-
 import { AUTO_REPLY, personOf } from "./fixtures";
 import { type ConversationRec, type DemoState, ME, type MessageRec } from "./state";
 

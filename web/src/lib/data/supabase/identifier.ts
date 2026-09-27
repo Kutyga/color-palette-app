@@ -8,7 +8,6 @@ import type { AiDiagnosis, PhotoDiagnosis } from "../../domain/diagnosis";
 import type { Prediction } from "../../domain/identification";
 import { blobToBase64 } from "../../image";
 import type { PlantIdentifier } from "../repositories";
-
 import type { Row } from "./shared";
 
 export class PlantNetIdentifier implements PlantIdentifier {

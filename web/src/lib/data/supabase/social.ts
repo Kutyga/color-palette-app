@@ -13,7 +13,6 @@ import {
   type ReaderArticle,
 } from "../../domain/social";
 import type { SocialRepository } from "../repositories";
-
 import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, signedUrls } from "./shared";
 
 export class SupabaseSocial implements SocialRepository {

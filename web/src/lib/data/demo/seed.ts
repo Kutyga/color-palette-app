@@ -3,7 +3,6 @@
  */
 import { ALL_SPECIES } from "../../knowledge";
 import { DAY_MS, HOUR_MS } from "../../time";
-
 import { SAMPLE_DIARIES, SAMPLE_LISTINGS, SAMPLE_PRODUCTS, SAMPLE_QUESTIONS, SAMPLE_SHOPS, demoId } from "./fixtures";
 import { DemoGarden } from "./garden";
 import type { DemoState } from "./state";

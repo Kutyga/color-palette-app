@@ -3,7 +3,6 @@
  */
 import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../../domain/people";
 import type { PeopleRepository, Profile } from "../repositories";
-
 import { DEFAULT_PROFILE, DEMO_PEOPLE, demoId } from "./fixtures";
 import { type DemoState, ME } from "./state";
 

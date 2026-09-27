@@ -3,7 +3,6 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NotificationSettings, NotificationsRepository } from "../repositories";
-
 import { type Row, check } from "./shared";
 
 export class SupabaseNotifications implements NotificationsRepository {

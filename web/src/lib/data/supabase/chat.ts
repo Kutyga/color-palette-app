@@ -4,7 +4,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { conversationFromRow, messageFromRow, type ChatMessage } from "../../domain/market";
 import type { ChatRepository } from "../repositories";
-
 import { LISTING_BUCKET, type Row, check, signedUrls } from "./shared";
 
 export class SupabaseChat implements ChatRepository {

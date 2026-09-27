@@ -16,7 +16,6 @@ import {
   type ShopStatus,
 } from "../../domain/shop";
 import type { ShopRepository } from "../repositories";
-
 import { type DemoState, ME, type ShopRec, toDate } from "./state";
 
 export class DemoShops implements ShopRepository {

@@ -3,7 +3,6 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { WishlistRepository } from "../repositories";
-
 import { type Row, type SpeciesIds, check } from "./shared";
 
 export class SupabaseWishlist implements WishlistRepository {

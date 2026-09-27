@@ -5,7 +5,6 @@ import { sameCity, validateListing, type Listing, type ListingDraft, type Listin
 import { blobToDataUrl } from "../../image";
 import { ALL_SPECIES } from "../../knowledge";
 import type { MarketRepository } from "../repositories";
-
 import { DEFAULT_PROFILE, personOf } from "./fixtures";
 import { type DemoState, type ListingRec, ME } from "./state";
 

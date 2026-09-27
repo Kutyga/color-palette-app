@@ -20,7 +20,6 @@ import { ALL_SPECIES } from "../../knowledge";
 import { DAY_MS, HOUR_MS, startOfDay } from "../../time";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
-
 import { type DemoState, type PlantRec, type ScheduleRec, iso, toDate } from "./state";
 
 export class DemoGarden implements GardenRepository {

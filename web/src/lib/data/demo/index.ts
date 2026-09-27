@@ -3,7 +3,6 @@
  * Используется без регистрации и в тестах; повторяет правила серверных триггеров.
  */
 import type { Backend } from "../repositories";
-
 import { DemoChat } from "./chat";
 import { DEFAULT_PROFILE } from "./fixtures";
 import { DemoGarden } from "./garden";
