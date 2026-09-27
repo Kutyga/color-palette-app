@@ -18,6 +18,10 @@ export interface GardenRepository {
   plantDetails(plantId: string): Promise<PlantDetails>;
   addPlant(draft: PlantDraft): Promise<Plant>;
   deletePlant(plantId: string): Promise<void>;
+  /** Переставить растение в другое место (null — место не указано); интервалы пересчитываются. */
+  setLocation(plantId: string, locationId: string | null): Promise<void>;
+  /** Удалить ошибочную отметку ухода; если она последняя — график возвращается как был. */
+  deleteCareEvent(eventId: string): Promise<void>;
   /** Растёт в воде — полив не нужен (график полива выключается и включается обратно). */
   setInWater(plantId: string, inWater: boolean): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */

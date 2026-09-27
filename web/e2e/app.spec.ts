@@ -262,6 +262,27 @@ test("демо: растение в воде не просит полива; у�
   expect(errors).toEqual([]);
 });
 
+test("демо: место растения меняется, ошибочный полив удаляется из журнала", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/garden/");
+  await page.getByRole("link", { name: /Щучка/ }).first().click();
+  await page.waitForURL("**/garden/plant/**");
+  await page.getByRole("button", { name: /Место: Кухня/ }).click();
+  await page.getByRole("button", { name: /Спальня/ }).click();
+  await expect(page.getByRole("button", { name: /Место: Спальня/ })).toBeVisible();
+
+  const log = page.getByRole("list", { name: "Журнал ухода" }).getByRole("listitem").filter({ hasText: "Полив" });
+  const before = await log.count();
+  await page.getByRole("button", { name: "Полить" }).click();
+  await expect(log).toHaveCount(before + 1);
+  await log.first().getByRole("button", { name: "Удалить отметку «Полив»" }).click();
+  await log.first().getByRole("button", { name: "Удалить", exact: true }).click();
+  await expect(page.getByText("Отметка «Полив» удалена")).toBeVisible();
+  await expect(log).toHaveCount(before);
+  expect(errors).toEqual([]);
+});
+
 test("демо: достижения и выход из демо-режима", async ({ page }) => {
   await startDemo(page);
   await page.goto("/achievements/");

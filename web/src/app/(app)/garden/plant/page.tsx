@@ -21,6 +21,7 @@ import type { Plant, PlantDetails } from "@/lib/domain/plant";
 import { everyDays, formatShortDate, relativeDay } from "@/lib/format";
 import { soilMixFor, speciesBySlug } from "@/lib/knowledge";
 import { CameraCapture } from "@/components/camera";
+import { DeleteEventButton, LocationSheet } from "@/components/plant-edit";
 import { SoilSummary } from "@/components/soil-schematic";
 import { useLogCare, usePlantDetails } from "@/lib/queries";
 
@@ -45,6 +46,7 @@ function PlantView({ id }: { id: string }) {
   const router = useRouter();
   const [cameraOpen, setCameraOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const now = useMemo(() => new Date(), []);
 
@@ -139,13 +141,27 @@ function PlantView({ id }: { id: string }) {
           )}
 
           <div className="mt-5 grid grid-cols-3 gap-2">
-            {facts.map(({ icon: Icon, label, value, color }) => (
-              <div key={label} className="rounded-2xl bg-surface p-3">
-                <Icon className="size-4" style={{ color }} aria-hidden />
-                <p className="mt-2 text-[12px] text-secondary">{label}</p>
-                <p className="text-[15px] leading-tight font-semibold">{value}</p>
-              </div>
-            ))}
+            {facts.map(({ icon: Icon, label, value, color }) =>
+              label === "Место" ? (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setLocationOpen(true)}
+                  aria-label={`Место: ${value}. Изменить`}
+                  className="rounded-2xl bg-surface p-3 text-left transition hover:brightness-95"
+                >
+                  <Icon className="size-4" style={{ color }} aria-hidden />
+                  <p className="mt-2 text-[12px] text-secondary">{label} · изменить</p>
+                  <p className="text-[15px] leading-tight font-semibold">{value}</p>
+                </button>
+              ) : (
+                <div key={label} className="rounded-2xl bg-surface p-3">
+                  <Icon className="size-4" style={{ color }} aria-hidden />
+                  <p className="mt-2 text-[12px] text-secondary">{label}</p>
+                  <p className="text-[15px] leading-tight font-semibold">{value}</p>
+                </div>
+              ),
+            )}
           </div>
 
           {plant.inWater ? (
@@ -235,19 +251,21 @@ function PlantView({ id }: { id: string }) {
       </p>
 
       <SectionTitle>Журнал</SectionTitle>
+      {events.length > 0 && <p className="-mt-1 mb-2 text-[13px] text-secondary">Отметили по ошибке? Удалите отметку — график вернётся как был.</p>}
       {events.length === 0 ? (
         <p className="rounded-[20px] bg-surface p-4 text-secondary">Пока пусто — отметьте первый полив.</p>
       ) : (
-        <ul className="divide-y divide-separator rounded-[20px] bg-surface">
+        <ul className="divide-y divide-separator rounded-[20px] bg-surface" aria-label="Журнал ухода">
           {events.slice(0, 20).map((e) => {
             const Icon = CARE_ICONS[e.type];
             return (
-              <li key={e.id} className="flex items-center gap-3 px-4 py-3">
+              <li key={e.id} className="flex items-center gap-3 py-2 pr-2 pl-4">
                 <Icon className="size-4" style={{ color: CARE_COLORS[e.type] }} aria-hidden />
                 <span className="flex-1">{CARE_TYPES[e.type].label}</span>
                 <span className="text-[15px] text-secondary">
                   {formatShortDate(e.performedAt)}, {e.performedAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                 </span>
+                <DeleteEventButton eventId={e.id} label={CARE_TYPES[e.type].label} />
               </li>
             );
           })}
@@ -285,6 +303,8 @@ function PlantView({ id }: { id: string }) {
       <Button variant="danger" className="mt-8" onClick={() => setConfirmDelete(true)}>
         <Trash2 className="size-4" aria-hidden /> Удалить из коллекции
       </Button>
+
+      <LocationSheet open={locationOpen} onClose={() => setLocationOpen(false)} plantId={plant.id} current={plant.locationId} />
 
       <Sheet open={moreOpen} onClose={() => setMoreOpen(false)} title="Отметить уход">
         <div className="grid grid-cols-2 gap-2">

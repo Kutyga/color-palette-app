@@ -44,7 +44,8 @@ interface PlantRec {
 }
 type Dated<T, K extends keyof T> = Omit<T, K> & { [P in K]: string | null };
 type ScheduleRec = Dated<CareSchedule, "lastDoneAt" | "nextDueAt">;
-type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string };
+// prevDoneAt / prevFactor — каким был график до отметки (для отмены, как в базе).
+type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string; prevDoneAt?: string | null; prevFactor?: number };
 // Поля дневника и вопросов необязательны: в сохранённых раньше демо-данных их нет.
 type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId" | "editedAt"> &
   Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & { createdAt: string; authorDisplayName?: string; editedAt?: string | null };
@@ -238,6 +239,27 @@ export class DemoGarden implements GardenRepository {
     return this.toPlant(rec);
   }
 
+  async setLocation(plantId: string, locationId: string | null) {
+    const p = this.state.plants.find((x) => x.id === plantId);
+    if (!p) throw new Error("Растение не найдено");
+    p.locationId = locationId;
+    // Свет на новом месте другой — пересчитываем сроки, как триггер в базе.
+    this.state.schedules = this.state.schedules.map((s) => (s.plantId === plantId ? this.computeDue(s) : s));
+    this.persist();
+  }
+
+  async deleteCareEvent(eventId: string) {
+    const e = this.state.events.find((x) => x.id === eventId);
+    if (!e) return;
+    this.state.events = this.state.events.filter((x) => x.id !== eventId);
+    const i = this.state.schedules.findIndex((s) => s.plantId === e.plantId && s.type === e.type);
+    if (i >= 0 && this.state.schedules[i].lastDoneAt === e.performedAt) {
+      const s = this.state.schedules[i];
+      this.state.schedules[i] = this.computeDue({ ...s, lastDoneAt: e.prevDoneAt ?? null, userFactor: e.prevFactor ?? s.userFactor });
+    }
+    this.persist();
+  }
+
   async setInWater(plantId: string, inWater: boolean) {
     const p = this.state.plants.find((x) => x.id === plantId);
     if (!p) throw new Error("Растение не найдено");
@@ -286,9 +308,18 @@ export class DemoGarden implements GardenRepository {
   async logCare(plantId: string, type: CareType, opts: { id?: string; performedAt?: Date; note?: string } = {}) {
     if (opts.id && this.state.events.some((e) => e.id === opts.id)) return;
     const at = opts.performedAt ?? this.clock();
-    this.state.events.push({ id: opts.id ?? crypto.randomUUID(), plantId, type, performedAt: at.toISOString(), note: opts.note ?? null });
-
     const i = this.state.schedules.findIndex((s) => s.plantId === plantId && s.type === type);
+    const prev = i >= 0 ? this.state.schedules[i] : null;
+    this.state.events.push({
+      id: opts.id ?? crypto.randomUUID(),
+      plantId,
+      type,
+      performedAt: at.toISOString(),
+      note: opts.note ?? null,
+      prevDoneAt: prev?.lastDoneAt ?? null,
+      prevFactor: prev?.userFactor,
+    });
+
     if (i >= 0) {
       const s = this.state.schedules[i];
       const last = toDate(s.lastDoneAt);

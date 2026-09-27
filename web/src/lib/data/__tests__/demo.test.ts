@@ -119,4 +119,23 @@ describe("демо-режим", () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
     expect(b.notifications).toBeNull();
   });
+
+  it("ошибочная отметка удаляется, график возвращается как был; растение можно переставить", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
+    const before = (await b.garden.plantDetails(mosya.id)).schedules.find((s) => s.type === "water")!;
+    await b.garden.logCare(mosya.id, "water", { id: "oops" });
+    const after = (await b.garden.plantDetails(mosya.id)).schedules.find((s) => s.type === "water")!;
+    expect(after.nextDueAt!.getTime()).not.toBe(before.nextDueAt!.getTime());
+    await b.garden.deleteCareEvent("oops");
+    const back = await b.garden.plantDetails(mosya.id);
+    const restored = back.schedules.find((s) => s.type === "water")!;
+    expect(restored.nextDueAt).toEqual(before.nextDueAt);
+    expect(restored.userFactor).toBe(before.userFactor);
+    expect(back.events.some((e) => e.id === "oops")).toBe(false);
+
+    const kitchen = (await b.garden.myLocations()).find((l) => l.name === "Кухня")!;
+    await b.garden.setLocation(mosya.id, kitchen.id);
+    expect((await b.garden.plantDetails(mosya.id)).plant.locationName).toBe("Кухня");
+  });
 });

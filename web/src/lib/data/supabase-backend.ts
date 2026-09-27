@@ -126,6 +126,16 @@ export class SupabaseGarden implements GardenRepository {
     return (await this.plantDetails(id)).plant;
   }
 
+  async setLocation(plantId: string, locationId: string | null) {
+    check(await this.db.from("plants").update({ location_id: locationId }).eq("id", plantId));
+  }
+
+  async deleteCareEvent(eventId: string) {
+    const { data, error } = await this.db.from("care_events").delete().eq("id", eventId).select("id");
+    if (error) throw new Error(error.message);
+    if (!data?.length) throw new Error("Эту отметку удалить нельзя — её сделал другой человек");
+  }
+
   async setInWater(plantId: string, inWater: boolean) {
     check(await this.db.from("plants").update({ in_water: inWater }).eq("id", plantId));
   }
