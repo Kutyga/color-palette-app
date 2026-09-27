@@ -1,12 +1,95 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { Check, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useBackend } from "./session";
 import { Button, Chip, Sheet, cx, inputClass, useToast } from "./ui";
 import { LIGHT_LEVELS, type LightLevel } from "@/lib/domain/care";
-import { useLocations } from "@/lib/queries";
+import type { Location } from "@/lib/domain/plant";
+import { plural } from "@/lib/format";
+import { useLocations, usePlants } from "@/lib/queries";
+
+/** Правка места: название, свет, удаление (растения остаются без места). */
+function LocationEditor({ location, onDone }: { location: Location; onDone: () => void }) {
+  const backend = useBackend();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const plants = usePlants();
+  const [name, setName] = useState(location.name);
+  const [light, setLight] = useState<LightLevel | null>(location.lightLevel);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const here = (plants.data ?? []).filter((p) => p.locationId === location.id).length;
+  const refresh = () => {
+    for (const key of ["plant", "plants", "tasks", "locations"]) qc.invalidateQueries({ queryKey: [key] });
+  };
+  const save = useMutation({
+    mutationFn: () => backend.garden.updateLocation(location.id, name, light),
+    onSuccess: () => {
+      refresh();
+      const title = name.trim();
+      toast(light !== location.lightLevel ? `«${title}»: сохранено, сроки ухода пересчитаны под свет` : `«${title}»: сохранено`);
+      onDone();
+    },
+    onError: (e) => toast(`Не удалось сохранить: ${e.message}`),
+  });
+  const remove = useMutation({
+    mutationFn: () => backend.garden.deleteLocation(location.id),
+    onSuccess: () => {
+      refresh();
+      toast(`Место «${location.name}» удалено`);
+      onDone();
+    },
+    onError: (e) => toast(`Не удалось удалить: ${e.message}`),
+  });
+  return (
+    <form
+      className="space-y-3 rounded-2xl bg-muted p-3"
+      aria-label={`Изменить место «${location.name}»`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (name.trim()) save.mutate();
+      }}
+    >
+      <input className={cx(inputClass, "bg-surface")} value={name} onChange={(e) => setName(e.target.value)} maxLength={60} aria-label="Название места" autoFocus />
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Свет">
+        {(Object.keys(LIGHT_LEVELS) as LightLevel[]).map((k) => (
+          <Chip key={k} active={light === k} onClick={() => setLight(k)}>
+            {LIGHT_LEVELS[k]}
+          </Chip>
+        ))}
+      </div>
+      {confirmDelete ? (
+        <div className="space-y-2">
+          <p className="text-[15px]">
+            Удалить «{location.name}»?
+            {here > 0 && ` ${here} ${plural(here, "растение останется", "растения останутся", "растений останутся")} без места.`}
+          </p>
+          <div className="flex gap-2">
+            <Button type="button" variant="secondary" className="flex-1" onClick={() => setConfirmDelete(false)}>
+              Отмена
+            </Button>
+            <Button type="button" variant="danger" className="flex-1 bg-surface" loading={remove.isPending} onClick={() => remove.mutate()}>
+              Удалить
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setConfirmDelete(true)} aria-label="Удалить место" className="grid size-11 shrink-0 place-items-center rounded-full bg-surface text-alert">
+            <Trash2 className="size-5" />
+          </button>
+          <Button type="button" variant="secondary" className="flex-1 bg-surface" onClick={onDone}>
+            Отмена
+          </Button>
+          <Button type="submit" className="flex-1" loading={save.isPending} disabled={!name.trim()}>
+            Сохранить
+          </Button>
+        </div>
+      )}
+    </form>
+  );
+}
 
 /** Выбор места растения: существующее или новое; интервалы ухода пересчитываются под свет. */
 export function LocationSheet({
@@ -25,6 +108,7 @@ export function LocationSheet({
   const toast = useToast();
   const locations = useLocations();
   const [adding, setAdding] = useState<{ name: string; light: LightLevel } | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
   const save = useMutation({
     mutationFn: async (target: string | null | { name: string; light: LightLevel }) => {
       let id: string | null = typeof target === "object" && target !== null ? null : target;
@@ -44,13 +128,19 @@ export function LocationSheet({
     <Sheet open={open} onClose={onClose} title="Где стоит">
       <ul className="space-y-2">
         {[{ id: null as string | null, name: "Не указано", lightLevel: null as LightLevel | null }, ...(locations.data ?? [])].map((l) => (
-          <li key={l.id ?? "none"}>
+          <li key={l.id ?? "none"} className="flex items-center gap-2">
+            {l.id && editing === l.id ? (
+              <div className="flex-1">
+                <LocationEditor location={{ id: l.id, name: l.name, lightLevel: l.lightLevel }} onDone={() => setEditing(null)} />
+              </div>
+            ) : (
+              <>
             <button
               type="button"
               disabled={save.isPending}
               onClick={() => save.mutate(l.id)}
               className={cx(
-                "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left",
+                "flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-left",
                 current === l.id ? "bg-leaf/12 font-semibold" : "bg-muted",
               )}
             >
@@ -60,6 +150,18 @@ export function LocationSheet({
               </span>
               {current === l.id && <Check className="size-5 text-leaf" aria-hidden />}
             </button>
+            {l.id && (
+              <button
+                type="button"
+                onClick={() => setEditing(l.id)}
+                aria-label={`Изменить место «${l.name}»`}
+                className="grid size-11 shrink-0 place-items-center rounded-full bg-muted text-secondary hover:text-label"
+              >
+                <Pencil className="size-4" />
+              </button>
+            )}
+              </>
+            )}
           </li>
         ))}
       </ul>

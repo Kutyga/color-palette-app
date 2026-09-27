@@ -1,7 +1,7 @@
 // Запуск: node --experimental-strip-types --test supabase/functions/identify-plant/plantnet.test.ts
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decodeBase64Image, plantnetUrl, toIdentifications } from "./plantnet.ts";
+import { decodeBase64Image, plantnetDiseasesUrl, plantnetUrl, toDiseases, toIdentifications } from "./plantnet.ts";
 
 const sample = {
   query: { project: "all", organs: ["auto"] },
@@ -57,4 +57,22 @@ test("base64 с префиксом data: и без", () => {
   assert.deepEqual([...decodeBase64Image("AQID")], [1, 2, 3]);
   assert.deepEqual([...decodeBase64Image("data:image/jpeg;base64,AQID")], [1, 2, 3]);
   assert.throws(() => decodeBase64Image("не base64!"));
+});
+
+test("болезни: сортировка по уверенности, название из description, мусор отбрасывается", () => {
+  const body = {
+    language: "ru",
+    results: [
+      { name: "ERYSSP", score: 0.2, description: "Мучнистая роса" },
+      { name: "PHYTSP", score: 0.71, description: "" },
+      { name: 42, score: 0.9 },
+      { name: "XXXX" },
+    ],
+  };
+  assert.deepEqual(toDiseases(body), [
+    { eppo: "PHYTSP", score: 0.71, name: "PHYTSP" },
+    { eppo: "ERYSSP", score: 0.2, name: "Мучнистая роса" },
+  ]);
+  assert.deepEqual(toDiseases({}), []);
+  assert.match(plantnetDiseasesUrl("k"), /\/v2\/diseases\/identify\?api-key=k&lang=ru/);
 });

@@ -269,8 +269,27 @@ test("демо: место растения меняется, ошибочный
   await page.getByRole("link", { name: /Щучка/ }).first().click();
   await page.waitForURL("**/garden/plant/**");
   await page.getByRole("button", { name: /Место: Кухня/ }).click();
-  await page.getByRole("button", { name: /Спальня/ }).click();
+  await page.getByRole("button", { name: /^Спальня/ }).click();
   await expect(page.getByRole("button", { name: /Место: Спальня/ })).toBeVisible();
+
+  // Правка места: название и свет, затем удаление — растение остаётся без места.
+  await page.getByRole("button", { name: /Место: Спальня/ }).click();
+  await page.getByRole("button", { name: "Изменить место «Спальня»" }).click();
+  const editor = page.getByRole("form", { name: "Изменить место «Спальня»" });
+  await editor.getByLabel("Название места").fill("Детская");
+  await editor.getByRole("button", { name: "Тень", exact: true }).click();
+  await editor.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByText("«Детская»: сохранено, сроки ухода пересчитаны под свет")).toBeVisible();
+  await page.getByRole("button", { name: "Закрыть" }).click();
+  await expect(page.getByRole("button", { name: /Место: Детская/ })).toBeVisible();
+  await page.getByRole("button", { name: /Место: Детская/ }).click();
+  await page.getByRole("button", { name: "Изменить место «Детская»" }).click();
+  await page.getByRole("button", { name: "Удалить место" }).click();
+  await expect(page.getByText("2 растения останутся без места.")).toBeVisible();
+  await page.getByRole("button", { name: "Удалить", exact: true }).click();
+  await expect(page.getByText("Место «Детская» удалено")).toBeVisible();
+  await page.getByRole("button", { name: "Закрыть" }).click();
+  await expect(page.getByRole("button", { name: /Место: не указано/ })).toBeVisible();
 
   const log = page.getByRole("list", { name: "Журнал ухода" }).getByRole("listitem").filter({ hasText: "Полив" });
   const before = await log.count();
@@ -468,5 +487,26 @@ test("демо: магазины — «Где купить», «Хочу», ви
   // Пока магазин не проверен, его нет в «Где купить».
   await page.goto("/plants/monstera-deliciosa/");
   await expect(offers).toHaveCount(3);
+  expect(errors).toEqual([]);
+});
+
+test("демо: «Что с растением?» — симптомы, причины и советы; фото — после регистрации", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/garden/");
+  await page.getByRole("link", { name: /Калатея Ося/ }).first().click();
+  await page.waitForURL("**/garden/plant/**");
+  await page.getByRole("link", { name: /Проверить болезни/ }).click();
+  await page.waitForURL("**/garden/diagnose/**");
+  await expect(page.getByText("Растение: Калатея Ося")).toBeVisible();
+  await expect(page.getByText("Распознавание болезней по фото работает после регистрации.")).toBeVisible();
+  await page.getByRole("button", { name: "Тонкая паутинка, мелкие светлые точки на листьях" }).click();
+  await page.getByRole("button", { name: "Листья скручиваются" }).click();
+  const causes = page.getByRole("list", { name: "Вероятные причины" }).getByRole("listitem").filter({ has: page.getByRole("heading") });
+  await expect(causes.first()).toContainText("Паутинный клещ");
+  await expect(causes.first()).toContainText("Действуйте сегодня");
+  await expect(causes.first()).toContainText("Совпадает симптомов: 2 из 2");
+  await page.getByRole("link", { name: "Спросить" }).click();
+  await page.waitForURL("**/feed/new/**type=question**");
   expect(errors).toEqual([]);
 });

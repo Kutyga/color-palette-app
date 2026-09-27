@@ -310,6 +310,30 @@ export class DemoGarden implements GardenRepository {
     return loc;
   }
 
+  async updateLocation(id: string, name: string, lightLevel: LightLevel | null) {
+    const loc = this.state.locations.find((l) => l.id === id);
+    if (!loc) throw new Error("Место не найдено");
+    loc.name = name.trim();
+    loc.lightLevel = lightLevel;
+    this.recomputeAt(id);
+    this.persist();
+    return { ...loc };
+  }
+
+  async deleteLocation(id: string) {
+    this.state.locations = this.state.locations.filter((l) => l.id !== id);
+    const moved = this.state.plants.filter((p) => p.locationId === id);
+    for (const p of moved) p.locationId = null;
+    this.state.schedules = this.state.schedules.map((s) => (moved.some((p) => p.id === s.plantId) ? this.computeDue(s) : s));
+    this.persist();
+  }
+
+  /** Аналог триггера locations_recompute_schedules: свет места влияет на сроки его растений. */
+  private recomputeAt(locationId: string) {
+    const here = new Set(this.state.plants.filter((p) => p.locationId === locationId).map((p) => p.id));
+    this.state.schedules = this.state.schedules.map((s) => (here.has(s.plantId) ? this.computeDue(s) : s));
+  }
+
   async dueTasks(until: Date): Promise<CareTask[]> {
     return this.state.schedules
       .filter((s) => s.enabled && s.nextDueAt && new Date(s.nextDueAt) <= until)

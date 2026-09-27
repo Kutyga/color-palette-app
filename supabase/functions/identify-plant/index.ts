@@ -1,15 +1,17 @@
 // Edge Function: распознавание растения по фото через Pl@ntNet API (бесплатный тариф).
 //
-// Запрос (POST, JSON): { "image_base64": "...", "organ": "auto" | "leaf" | "flower" | "fruit" | "bark" }
+// Запрос (POST, JSON): { "image_base64": "...", "organ": "auto" | "leaf" | "flower" | "fruit" | "bark",
+//                       "mode": "species" (по умолчанию) | "diseases" }
 // Авторизация: токен вошедшего пользователя в Authorization: Bearer <access_token>.
-// Ответ: { "source": "plantnet", "results": [{ name, score, common_names, genus, family }] }
+// Ответ: { "source": "plantnet", "results": [{ name, score, common_names, genus, family }] },
+//        для mode = "diseases": { "source": "plantnet", "diseases": [{ eppo, score, name }] }
 //
 // Ключ Pl@ntNet хранится в Vault (plantnet_api_key) и читается RPC get_plantnet_key.
 // Квоты: 20 распознаваний в день на пользователя и 450 на проект (у Pl@ntNet — 500).
 // Деплой: supabase functions deploy identify-plant --no-verify-jwt (пользователя проверяет сама функция).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { decodeBase64Image, ORGANS, type Organ, plantnetUrl, toIdentifications } from "./plantnet.ts";
+import { decodeBase64Image, ORGANS, type Organ, plantnetDiseasesUrl, plantnetUrl, toDiseases, toIdentifications } from "./plantnet.ts";
 
 const USER_DAILY_LIMIT = 20;
 const TOTAL_DAILY_LIMIT = 450;
@@ -53,7 +55,7 @@ Deno.serve(async (req) => {
   }
   if (!userId) return json({ error: "unauthorized" }, 401);
 
-  let body: { image_base64?: string; image_url?: string; organ?: string };
+  let body: { image_base64?: string; image_url?: string; organ?: string; mode?: string };
   try {
     body = await req.json();
   } catch {
@@ -89,9 +91,26 @@ Deno.serve(async (req) => {
   const { data: apiKey } = await db.rpc("get_plantnet_key");
   if (!apiKey) return json({ error: "not_configured" }, 503);
 
+  const diseases = body.mode === "diseases";
   const form = new FormData();
-  form.append("images", new Blob([image], { type: "image/jpeg" }), "plant.jpg");
+  // У распознавания болезней поле с фото называется image, у распознавания вида — images.
+  form.append(diseases ? "image" : "images", new Blob([image], { type: "image/jpeg" }), "plant.jpg");
   form.append("organs", organ);
+
+  if (diseases) {
+    const res = await fetch(plantnetDiseasesUrl(apiKey as string), { method: "POST", body: form, signal: AbortSignal.timeout(20_000) });
+    if (res.status === 404) return json({ source: "plantnet", diseases: [] });
+    if (!res.ok) {
+      const detail = (await res.text()).slice(0, 300);
+      return json({ error: "upstream", status: res.status, detail }, 502);
+    }
+    const payload = await res.json();
+    return json({
+      source: "plantnet",
+      diseases: toDiseases(payload),
+      remaining: (payload as { remainingIdentificationRequests?: number }).remainingIdentificationRequests ?? null,
+    });
+  }
 
   const res = await fetch(plantnetUrl(apiKey as string), { method: "POST", body: form, signal: AbortSignal.timeout(20_000) });
   if (res.status === 404) return json({ source: "plantnet", results: [] }); // «Species not found»

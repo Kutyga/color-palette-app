@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Sun, Tag, Trash2 } from "lucide-react";
+import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Stethoscope, Sun, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -218,6 +218,12 @@ function PlantView({ id }: { id: string }) {
               <BookOpen className="size-4" aria-hidden /> Дневник
             </Link>
           </div>
+          <Link
+            href={`/garden/diagnose/?plant=${plant.id}`}
+            className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-full bg-alert/10 text-[15px] font-semibold text-alert"
+          >
+            <Stethoscope className="size-4" aria-hidden /> Что-то не так? Проверить болезни
+          </Link>
           <div className="mt-2 flex gap-2">
             <Link
               href={`/market/new/?plant=${plant.id}`}

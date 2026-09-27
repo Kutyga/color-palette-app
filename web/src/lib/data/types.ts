@@ -1,5 +1,6 @@
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
+import type { DiseaseGuess } from "../domain/diagnosis";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
@@ -29,6 +30,10 @@ export interface GardenRepository {
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;
   addLocation(name: string, light: LightLevel | null): Promise<Location>;
+  /** Переименовать место или поменять свет — сроки ухода растений там пересчитываются. */
+  updateLocation(id: string, name: string, light: LightLevel | null): Promise<Location>;
+  /** Удалить место; его растения остаются без места. */
+  deleteLocation(id: string): Promise<void>;
   /** Задачи ухода со сроком до until (включая просроченные). */
   dueTasks(until: Date): Promise<CareTask[]>;
   /** id задаёт клиент — повторная отправка той же отметки не создаёт дубль. */
@@ -70,6 +75,8 @@ export interface SocialRepository {
 /** Распознаёт растение по фото. */
 export interface PlantIdentifier {
   identify(jpeg: Blob): Promise<Prediction[]>;
+  /** Болезни и вредители по фото (Pl@ntNet, ограниченный список видов и болезней). */
+  diagnose(jpeg: Blob): Promise<DiseaseGuess[]>;
 }
 
 export interface Profile {
