@@ -266,6 +266,93 @@ do $$ begin
            where id = '40000000-0000-0000-0000-000000000002') = 0, 'автор удаляет и старую запись';
 end $$;
 
+-- Барахолка и личные сообщения.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.listings (id, kind, title, price_rub, city, photo_paths, species_id)
+values ('60000000-0000-0000-0000-000000000001', 'sell', 'Детка монстеры', 500, 'Казань',
+        array['00000000-0000-0000-0000-00000000000a/60000000-0000-0000-0000-000000000001/0.jpg'],
+        (select id from public.species where slug = 'monstera-deliciosa'));
+do $$ begin
+  insert into public.listings (kind, title, city, photo_paths) values ('sell', 'Без цены', 'Казань', array['x']);
+  raise exception 'у «Продаю» цена обязательна';
+exception when check_violation then null;
+end $$;
+do $$ begin
+  insert into public.listings (kind, title, city) values ('free', 'Без фото', 'Казань');
+  raise exception 'без фото можно только «Ищу»';
+exception when check_violation then null;
+end $$;
+insert into public.listings (kind, title, city) values ('wanted', 'Ищу хойю керри', 'Казань');
+do $$ begin
+  perform public.start_conversation('60000000-0000-0000-0000-000000000001');
+  raise exception 'писать себе нельзя';
+exception when check_violation then null;
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$
+declare c1 uuid; c2 uuid;
+begin
+  assert (select count(*) from public.listings) = 2, 'Боб видит объявления';
+  c1 := public.start_conversation('60000000-0000-0000-0000-000000000001');
+  c2 := public.start_conversation('60000000-0000-0000-0000-000000000001');
+  assert c1 = c2, 'повторно открывается тот же чат';
+  insert into public.messages (conversation_id, body) values (c1, 'Здравствуйте! Ещё продаёте?');
+  assert (select last_message from public.conversations where id = c1) = 'Здравствуйте! Ещё продаёте?',
+         'последнее сообщение в карточке чата';
+  assert (select unread from public.my_conversations()) = false, 'своё сообщение не непрочитанное';
+end $$;
+do $$ begin
+  update public.listings set price_rub = 1 where id = '60000000-0000-0000-0000-000000000001';
+  assert (select price_rub from public.listings where id = '60000000-0000-0000-0000-000000000001') = 500,
+         'чужое объявление не меняется';
+  insert into public.conversations (buyer_id, seller_id)
+  values (auth.uid(), '00000000-0000-0000-0000-00000000000a');
+  raise exception 'чат напрямую не создаётся';
+exception when insufficient_privilege then null;
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$
+declare conv uuid := (select id from public.conversations limit 1);
+begin
+  assert (select unread from public.my_conversations()) = true, 'у продавца непрочитанное';
+  assert (select other_display_name from public.my_conversations()) = 'Bob', 'собеседник';
+  perform public.mark_conversation_read(conv);
+  assert (select unread from public.my_conversations()) = false, 'прочитано';
+  insert into public.messages (conversation_id, body) values (conv, 'Да, приезжайте');
+  assert (select count(*) from public.messages where conversation_id = conv) = 2, 'продавец отвечает';
+end $$;
+update public.listings set status = 'reserved' where id = '60000000-0000-0000-0000-000000000001';
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.listings) = 0, 'заблокированный не видит объявления';
+  assert (select count(*) from public.messages) = 0, 'и чужую переписку';
+  assert (select count(*) from public.conversations) = 0, 'и чужие чаты';
+end $$;
+do $$ begin
+  perform public.start_conversation('60000000-0000-0000-0000-000000000001');
+  raise exception 'заблокированный не может написать';
+exception when no_data_found then null;
+end $$;
+
+-- После блокировки переписка закрыта для обоих.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.blocks (blocker_id, blocked_id) values (auth.uid(), '00000000-0000-0000-0000-00000000000b');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$ begin
+  insert into public.messages (conversation_id, body)
+  values ((select id from public.conversations limit 1), 'Ау?');
+  raise exception 'после блокировки писать нельзя';
+exception when insufficient_privilege then null;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  assert (select blocked from public.my_conversations()) = true, 'чат помечен заблокированным';
+end $$;
+delete from public.blocks where blocker_id = auth.uid() and blocked_id = '00000000-0000-0000-0000-00000000000b';
+
 -- Фото растения: владелец загружает в свою папку и ставит обложку; посторонний — нет.
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
 insert into storage.objects (bucket_id, name)

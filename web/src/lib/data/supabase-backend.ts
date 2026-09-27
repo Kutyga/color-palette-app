@@ -9,7 +9,17 @@ import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFil
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
-import type { Backend, GardenRepository, PeopleRepository, PlantDraft, PlantIdentifier, Profile, SocialRepository } from "./types";
+import {
+  conversationFromRow,
+  listingFromRow,
+  messageFromRow,
+  validateListing,
+  type ChatMessage,
+  type ListingDraft,
+  type ListingFilter,
+  type ListingStatus,
+} from "../domain/market";
+import type { Backend, ChatRepository, GardenRepository, MarketRepository, PeopleRepository, PlantDraft, PlantIdentifier, Profile, SocialRepository } from "./types";
 
 const PLANT_SELECT =
   "*, species(slug, latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at), " +
@@ -28,6 +38,13 @@ function check(res: { data: unknown; error: { message: string; code?: string } |
 }
 
 /** Подписанные ссылки на приватные фото одним запросом. */
+const profileFromRow = (r: Row): Profile => ({
+  username: r.username as string,
+  displayName: (r.display_name as string | null) ?? null,
+  bio: (r.bio as string | null) ?? null,
+  city: (r.city as string | null) ?? null,
+});
+
 async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();
   const { data } = await db.storage.from(bucket).createSignedUrls(paths, 3600);
@@ -374,14 +391,18 @@ export class SupabasePeople implements PeopleRepository {
     if (invalid) throw new Error(invalid.message);
     const { data, error } = await this.db
       .from("profiles")
-      .update({ display_name: update.displayName.trim(), username: update.username, bio: update.bio.trim() || null })
+      .update({
+        display_name: update.displayName.trim(),
+        username: update.username,
+        bio: update.bio.trim() || null,
+        ...(update.city !== undefined ? { city: update.city.trim() || null } : {}),
+      })
       .eq("id", this.uid)
-      .select("username, display_name, bio")
+      .select("username, display_name, bio, city")
       .single();
     if (error?.code === "23505") throw new Error(`Имя @${update.username} уже занято — выберите другое`);
     if (error) throw new Error(error.message);
-    const r = data as Row;
-    return { username: r.username as string, displayName: (r.display_name as string | null) ?? null, bio: (r.bio as string | null) ?? null };
+    return profileFromRow(data as Row);
   }
 }
 
@@ -407,16 +428,163 @@ export class PlantNetIdentifier implements PlantIdentifier {
   }
 }
 
+const LISTING_BUCKET = "listing-photos";
+const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, display_name)";
+const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+export class SupabaseMarket implements MarketRepository {
+  constructor(private db: SupabaseClient, private uid: string) {}
+
+  private async hydrate(rows: Row[]) {
+    const paths = rows.flatMap((r) => (r.photo_paths as string[] | null) ?? []);
+    const urls = await signedUrls(this.db, LISTING_BUCKET, paths);
+    return rows.map((r) =>
+      listingFromRow(r, ((r.photo_paths as string[] | null) ?? []).map((p) => urls.get(p)).filter((u): u is string => !!u), this.uid),
+    );
+  }
+
+  async listings(filter: ListingFilter) {
+    let q = this.db.from("listings").select(LISTING_SELECT).is("deleted_at", null).neq("status", "closed");
+    if (filter.kind !== "all") q = q.eq("kind", filter.kind);
+    if (filter.city) q = q.ilike("city", escapeLike(filter.city.trim()));
+    if (filter.deliveryOnly) q = q.eq("delivery", true);
+    return this.hydrate(check(await q.order("created_at", { ascending: false }).limit(60)) as Row[]);
+  }
+
+  async listing(id: string) {
+    const row = check(await this.db.from("listings").select(LISTING_SELECT).eq("id", id).is("deleted_at", null).maybeSingle()) as Row | null;
+    return row ? (await this.hydrate([row]))[0] : null;
+  }
+
+  async myListings() {
+    const rows = check(
+      await this.db.from("listings").select(LISTING_SELECT).eq("seller_id", this.uid).is("deleted_at", null).order("created_at", { ascending: false }),
+    ) as Row[];
+    return this.hydrate(rows);
+  }
+
+  private async fields(id: string, d: ListingDraft, keepPaths: string[]) {
+    const invalid = validateListing(d, !!d.photo || keepPaths.length > 0);
+    if (invalid) throw new Error(invalid.message);
+    let paths = keepPaths;
+    if (d.photo) {
+      const path = `${this.uid}/${id}/${Date.now()}.jpg`;
+      check(await this.db.storage.from(LISTING_BUCKET).upload(path, d.photo, { contentType: "image/jpeg" }));
+      paths = [path];
+    }
+    return {
+      kind: d.kind,
+      title: d.title.trim(),
+      description: d.description.trim(),
+      species_id: d.speciesId,
+      price_rub: d.kind === "sell" ? d.priceRub : null,
+      swap_for: d.kind === "swap" ? d.swapFor.trim() || null : null,
+      city: d.city.trim(),
+      delivery: d.delivery,
+      photo_paths: paths,
+    };
+  }
+
+  async createListing(d: ListingDraft) {
+    const id = crypto.randomUUID();
+    const row = check(
+      await this.db.from("listings").insert({ id, ...(await this.fields(id, d, [])) }).select(LISTING_SELECT).single(),
+    ) as Row;
+    return (await this.hydrate([row]))[0];
+  }
+
+  async updateListing(id: string, d: ListingDraft) {
+    const cur = check(await this.db.from("listings").select("photo_paths").eq("id", id).eq("seller_id", this.uid).single()) as Row;
+    const row = check(
+      await this.db
+        .from("listings")
+        .update(await this.fields(id, d, (cur.photo_paths as string[] | null) ?? []))
+        .eq("id", id)
+        .eq("seller_id", this.uid)
+        .select(LISTING_SELECT)
+        .single(),
+    ) as Row;
+    return (await this.hydrate([row]))[0];
+  }
+
+  async setStatus(id: string, status: ListingStatus) {
+    check(await this.db.from("listings").update({ status }).eq("id", id).eq("seller_id", this.uid));
+  }
+
+  async deleteListing(id: string) {
+    check(await this.db.from("listings").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("seller_id", this.uid));
+  }
+
+  async report(targetType: "listing" | "message" | "profile", targetId: string, reason: string) {
+    check(await this.db.from("reports").insert({ target_type: targetType, target_id: targetId, reason }));
+  }
+}
+
+export class SupabaseChat implements ChatRepository {
+  constructor(private db: SupabaseClient, private uid: string) {}
+
+  async conversations() {
+    const rows = check(await this.db.rpc("my_conversations")) as Row[];
+    const urls = await signedUrls(this.db, LISTING_BUCKET, rows.map((r) => r.listing_photo as string | null).filter((p): p is string => !!p));
+    return rows.map((r) => conversationFromRow(r, urls.get((r.listing_photo as string | null) ?? "") ?? null));
+  }
+
+  async start(listingId: string) {
+    const { data, error } = await this.db.rpc("start_conversation", { p_listing: listingId });
+    if (error) throw new Error(error.message);
+    return data as string;
+  }
+
+  async messages(conversationId: string) {
+    const rows = check(
+      await this.db.from("messages").select("*").eq("conversation_id", conversationId).order("created_at").limit(500),
+    ) as Row[];
+    return rows.map((r) => messageFromRow(r, this.uid));
+  }
+
+  async send(conversationId: string, body: string): Promise<ChatMessage> {
+    const { data, error } = await this.db
+      .from("messages")
+      .insert({ id: crypto.randomUUID(), conversation_id: conversationId, body: body.trim() })
+      .select()
+      .single();
+    if (error?.code === "42501") throw new Error("Написать нельзя: кто-то из вас заблокировал другого");
+    if (error) throw new Error(error.message);
+    return messageFromRow(data as Row, this.uid);
+  }
+
+  async markRead(conversationId: string) {
+    check(await this.db.rpc("mark_conversation_read", { p_conversation: conversationId }));
+  }
+
+  subscribe(conversationId: string, onMessage: (m: ChatMessage) => void) {
+    const channel = this.db
+      .channel(`chat:${conversationId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        (payload) => onMessage(messageFromRow(payload.new as Row, this.uid)),
+      )
+      .subscribe();
+    return () => void this.db.removeChannel(channel);
+  }
+
+  async block(userId: string) {
+    check(await this.db.from("blocks").upsert({ blocker_id: this.uid, blocked_id: userId }, { ignoreDuplicates: true }));
+  }
+}
+
 export function supabaseBackend(db: SupabaseClient, uid: string): Backend {
   return {
     mode: "live",
     garden: new SupabaseGarden(db, uid),
     social: new SupabaseSocial(db, uid),
     people: new SupabasePeople(db, uid),
+    market: new SupabaseMarket(db, uid),
+    chat: new SupabaseChat(db, uid),
     identifier: new PlantNetIdentifier(db),
     async profile() {
-      const r = check(await db.from("profiles").select("username, display_name, bio").eq("id", uid).single()) as Row;
-      return { username: r.username as string, displayName: (r.display_name as string | null) ?? null, bio: (r.bio as string | null) ?? null };
+      return profileFromRow(check(await db.from("profiles").select("username, display_name, bio, city").eq("id", uid).single()) as Row);
     },
   };
 }

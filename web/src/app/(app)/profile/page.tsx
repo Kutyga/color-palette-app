@@ -48,7 +48,7 @@ function Profile() {
         <EditProfileSheet
           open={editing}
           onClose={() => setEditing(false)}
-          initial={{ displayName: profile.data.displayName ?? "", username: profile.data.username, bio: profile.data.bio ?? "" }}
+          initial={{ displayName: profile.data.displayName ?? "", username: profile.data.username, bio: profile.data.bio ?? "", city: profile.data.city ?? "" }}
         />
       )}
 

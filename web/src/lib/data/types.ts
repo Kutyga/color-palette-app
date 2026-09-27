@@ -3,6 +3,7 @@ import type { GardenStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
+import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
 import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
@@ -67,6 +68,7 @@ export interface Profile {
   username: string;
   displayName: string | null;
   bio: string | null;
+  city: string | null;
 }
 
 /** Садоводы: поиск, профили, подписчики и их растения. Подписка — SocialRepository.setFollowing. */
@@ -82,11 +84,41 @@ export interface PeopleRepository {
   updateProfile(update: ProfileUpdate): Promise<Profile>;
 }
 
+/** «Барахолка»: объявления. */
+export interface MarketRepository {
+  listings(filter: ListingFilter): Promise<Listing[]>;
+  listing(id: string): Promise<Listing | null>;
+  /** Свои объявления, включая закрытые. */
+  myListings(): Promise<Listing[]>;
+  createListing(draft: ListingDraft): Promise<Listing>;
+  updateListing(id: string, draft: ListingDraft): Promise<Listing>;
+  setStatus(id: string, status: ListingStatus): Promise<void>;
+  deleteListing(id: string): Promise<void>;
+  /** Жалоба модераторам. */
+  report(targetType: "listing" | "message" | "profile", targetId: string, reason: string): Promise<void>;
+}
+
+/** Личные сообщения по объявлениям. */
+export interface ChatRepository {
+  conversations(): Promise<Conversation[]>;
+  /** Начать чат по объявлению (или открыть уже начатый); возвращает id чата. */
+  start(listingId: string): Promise<string>;
+  messages(conversationId: string): Promise<ChatMessage[]>;
+  send(conversationId: string, body: string): Promise<ChatMessage>;
+  markRead(conversationId: string): Promise<void>;
+  /** Новые сообщения в чате по мере поступления; возвращает функцию отписки. */
+  subscribe(conversationId: string, onMessage: (m: ChatMessage) => void): () => void;
+  /** Заблокировать собеседника: писать друг другу больше нельзя. */
+  block(userId: string): Promise<void>;
+}
+
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
   social: SocialRepository;
   people: PeopleRepository;
+  market: MarketRepository;
+  chat: ChatRepository;
   identifier: PlantIdentifier | null;
   profile(): Promise<Profile>;
 }
