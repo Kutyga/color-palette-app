@@ -81,4 +81,22 @@ describe("демо-режим", () => {
     await b.social.deleteComment(answer.id);
     expect((await b.social.post(q.id))!.solvedCommentId).toBeNull();
   });
+
+  it("свою публикацию можно править час, удалить — всегда; чужую — нельзя", async () => {
+    let now = new Date(2026, 6, 15, 12);
+    const b = await demoBackend(memoryDemoStorage(), () => now);
+    const q = await b.social.createPost({ kind: "question", text: "Почему желтеют листья у фикуса?" });
+    now = new Date(2026, 6, 15, 12, 50);
+    const edited = await b.social.updatePost(q.id, { text: "Почему желтеют нижние листья у фикуса?" });
+    expect(edited.text).toBe("Почему желтеют нижние листья у фикуса?");
+    expect(edited.editedAt).toEqual(now);
+    now = new Date(2026, 6, 15, 13, 1);
+    await expect(b.social.updatePost(q.id, { text: "поздно" })).rejects.toThrow(/часа/);
+    await expect(b.social.updatePost("demo-post-0", { text: "чужое" })).rejects.toThrow();
+    await b.social.deletePost("demo-post-0");
+    expect(await b.social.post("demo-post-0")).not.toBeNull();
+    await b.social.deletePost(q.id);
+    expect(await b.social.post(q.id)).toBeNull();
+    expect((await b.social.questions("mine")).length).toBe(0);
+  });
 });

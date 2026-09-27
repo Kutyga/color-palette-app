@@ -3,6 +3,7 @@ import { adjustUserFactor, baseWaterInterval, effectiveIntervalDays, nextDue, ta
 import { EMPTY_STATS, ACHIEVEMENTS, TIERS, evaluateAchievements, experience, levelFor } from "../gamification";
 import { capitalizeLatin, matchSpecies } from "../identification";
 import { searchLocal, type Species } from "../species";
+import { editTimeLeft } from "../social";
 import { plural, relativeDay } from "../../format";
 
 // Ожидаемые значения совпадают с supabase/tests/smoke_test.sql и тестами мобильного приложения —
@@ -133,5 +134,14 @@ describe("форматирование", () => {
     expect(relativeDay(new Date(2026, 8, 25), now)).toBe("завтра");
     expect(relativeDay(new Date(2028, 8, 24), now)).toBe("через 2 года");
     expect(relativeDay(new Date(2026, 10, 24), now)).toBe("через 2 месяца");
+  });
+});
+
+describe("editTimeLeft", () => {
+  const post = { mine: true, createdAt: new Date(2026, 6, 15, 12) };
+  it("час на правку своей публикации", () => {
+    expect(editTimeLeft(post, new Date(2026, 6, 15, 12, 45))).toBe(15 * 60_000);
+    expect(editTimeLeft(post, new Date(2026, 6, 15, 13, 1))).toBe(0);
+    expect(editTimeLeft({ ...post, mine: false }, new Date(2026, 6, 15, 12, 1))).toBe(0);
   });
 });

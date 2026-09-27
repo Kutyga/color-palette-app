@@ -28,6 +28,8 @@ export interface FeedPost {
   speciesId: string | null;
   /** Лучший ответ на вопрос (id комментария). */
   solvedCommentId: string | null;
+  /** Когда автор последний раз правил текст; null — не правил. */
+  editedAt: Date | null;
   authorId: string;
   /** username автора (без @) — для ссылки на профиль. */
   authorName: string;
@@ -44,6 +46,22 @@ export interface FeedPost {
   mine: boolean;
   /** Я подписан на автора. */
   following: boolean;
+}
+
+/** Сколько после публикации её можно редактировать (удалять — всегда). */
+export const EDIT_WINDOW_MS = 60 * 60 * 1000;
+
+/** Сколько миллисекунд ещё можно редактировать; 0 — уже нельзя или пост чужой. */
+export function editTimeLeft(post: Pick<FeedPost, "mine" | "createdAt">, now = new Date()): number {
+  if (!post.mine) return 0;
+  return Math.max(0, post.createdAt.getTime() + EDIT_WINDOW_MS - now.getTime());
+}
+
+/** Что автор может поменять в публикации. */
+export interface PostUpdate {
+  text: string;
+  /** Только для записи дневника. */
+  event?: DiaryEvent | null;
 }
 
 export interface PostComment {
@@ -122,6 +140,7 @@ export function postFromRow(
     event: kind === "diary" ? (isDiaryEvent(r.event) ? r.event : "progress") : null,
     speciesId: (r.species_id as string | null) ?? null,
     solvedCommentId: (r.solved_comment_id as string | null) ?? null,
+    editedAt: r.edited_at ? new Date(r.edited_at as string) : null,
     authorId: r.author_id as string,
     authorName: author?.username ?? "садовник",
     authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),

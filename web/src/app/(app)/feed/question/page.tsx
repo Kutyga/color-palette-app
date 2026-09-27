@@ -2,7 +2,7 @@
 
 import { ChevronLeft, MessageCircleQuestion } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { Answers, QuestionHeader } from "@/components/feed";
@@ -11,6 +11,7 @@ import { usePost } from "@/lib/queries";
 
 function Question() {
   const id = useSearchParams().get("id");
+  const router = useRouter();
   const post = usePost(id);
   if (!id) return <EmptyState icon={MessageCircleQuestion} title="Вопрос не найден" message="Ссылка неполная." />;
   if (post.isPending) return <Spinner />;
@@ -19,7 +20,7 @@ function Question() {
     return <EmptyState icon={MessageCircleQuestion} title="Вопрос не найден" message="Его удалили или он скрыт." />;
   return (
     <div className="mx-auto max-w-xl">
-      <QuestionHeader post={post.data} />
+      <QuestionHeader post={post.data} onDeleted={() => router.replace("/feed/?tab=help")} />
       <Answers post={post.data} />
     </div>
   );

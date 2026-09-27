@@ -1,13 +1,13 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, CircleCheck, Leaf, MessageCircle, MessageCircleQuestion, Send, Sprout, Trash2 } from "lucide-react";
+import { BookOpen, CircleCheck, Leaf, MessageCircle, MessageCircleQuestion, MoreHorizontal, Pencil, Send, Sprout, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { FollowButton as PersonFollowButton, personHref } from "./people";
 import { useBackend } from "./session";
-import { Avatar, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
-import { DIARY_EVENTS, type FeedPost, type PostComment } from "@/lib/domain/social";
+import { Avatar, Button, Chip, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
+import { DIARY_EVENTS, editTimeLeft, type DiaryEvent, type FeedPost, type PostComment } from "@/lib/domain/social";
 import { speciesName } from "@/lib/domain/species";
 import { plural, timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
@@ -51,9 +51,145 @@ function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number }) {
         <span className="block truncate font-semibold">{post.authorDisplayName}</span>
         <time className="block text-[13px] text-secondary" dateTime={post.createdAt.toISOString()}>
           {timeAgo(post.createdAt)}
+          {post.editedAt && " · изменено"}
         </time>
       </span>
     </Link>
+  );
+}
+
+/**
+ * Меню своей публикации: «Редактировать» — первый час после публикации, «Удалить» — всегда.
+ * onDeleted — куда уйти, если публикация была открыта отдельной страницей.
+ */
+export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
+  const backend = useBackend();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [mode, setMode] = useState<"menu" | "edit" | "delete" | null>(null);
+  const [left, setLeft] = useState(0);
+  const close = () => setMode(null);
+  // Закрытие одного окна (событие close у <dialog>) не должно сбрасывать уже открытое следующее.
+  const closeIf = (m: typeof mode) => () => setMode((cur) => (cur === m ? null : cur));
+  const remove = useMutation({
+    mutationFn: () => backend.social.deletePost(post.id),
+    onSuccess: () => {
+      close();
+      toast(post.kind === "question" ? "Вопрос удалён" : "Запись удалена");
+      qc.invalidateQueries({ queryKey: ["feed"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+      onDeleted?.();
+    },
+    onError: (e) => toast(`Не удалось удалить: ${e.message}`),
+  });
+  if (!post.mine) return null;
+  const minutes = Math.ceil(left / 60_000);
+  const what = post.kind === "question" ? "вопрос" : "запись";
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setLeft(editTimeLeft(post));
+          setMode("menu");
+        }}
+        aria-label="Действия с публикацией"
+        className="grid size-9 shrink-0 place-items-center rounded-full text-secondary hover:bg-muted"
+      >
+        <MoreHorizontal className="size-5" />
+      </button>
+      <Sheet open={mode === "menu"} onClose={closeIf("menu")} title={post.kind === "question" ? "Мой вопрос" : "Моя запись"}>
+        <div className="space-y-2 pb-2">
+          {left > 0 ? (
+            <button type="button" onClick={() => setMode("edit")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left">
+              <Pencil className="size-5 text-leaf" aria-hidden />
+              <span className="flex-1">
+                <span className="block font-semibold">Редактировать</span>
+                <span className="block text-[13px] text-secondary">
+                  Ещё {minutes} {plural(minutes, "минуту", "минуты", "минут")}
+                </span>
+              </span>
+            </button>
+          ) : (
+            <p className="rounded-2xl bg-muted px-4 py-3.5 text-[15px] text-secondary">
+              Редактировать можно в течение часа после публикации — это время прошло.
+            </p>
+          )}
+          <button type="button" onClick={() => setMode("delete")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left font-semibold text-alert">
+            <Trash2 className="size-5" aria-hidden /> Удалить {what}
+          </button>
+        </div>
+      </Sheet>
+      <Sheet open={mode === "delete"} onClose={closeIf("delete")} title={`Удалить ${what}?`}>
+        <p className="text-secondary">
+          {post.kind === "question"
+            ? "Вопрос и ответы на него пропадут из «Помощи». Отменить нельзя."
+            : "Запись пропадёт из дневника и ленты вместе с комментариями. Отменить нельзя."}
+        </p>
+        <div className="mt-5 flex gap-2 pb-2">
+          <Button variant="secondary" className="flex-1" onClick={close}>
+            Отмена
+          </Button>
+          <Button variant="danger" className="flex-1" loading={remove.isPending} onClick={() => remove.mutate()}>
+            Удалить
+          </Button>
+        </div>
+      </Sheet>
+      <Sheet open={mode === "edit"} onClose={closeIf("edit")} title={post.kind === "question" ? "Изменить вопрос" : "Изменить запись"}>
+        {mode === "edit" && <EditPostForm post={post} onDone={close} />}
+      </Sheet>
+    </>
+  );
+}
+
+function EditPostForm({ post, onDone }: { post: FeedPost; onDone: () => void }) {
+  const backend = useBackend();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [text, setText] = useState(post.text);
+  const [event, setEvent] = useState<DiaryEvent>(post.event ?? "progress");
+  const isQuestion = post.kind === "question";
+  const valid = isQuestion ? text.trim().length >= 15 : true;
+  const save = useMutation({
+    mutationFn: () => backend.social.updatePost(post.id, { text: text.trim(), event: isQuestion ? undefined : event }),
+    onSuccess: () => {
+      toast("Сохранено");
+      qc.invalidateQueries({ queryKey: ["feed"] });
+      onDone();
+    },
+    onError: (e) => toast(e.message),
+  });
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (valid) save.mutate();
+      }}
+      className="space-y-4 pb-2"
+    >
+      {!isQuestion && (
+        <fieldset>
+          <legend className="mb-2 text-[13px] font-medium text-secondary">Что произошло</legend>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(DIARY_EVENTS) as DiaryEvent[]).map((k) => (
+              <Chip key={k} active={event === k} onClick={() => setEvent(k)}>
+                {DIARY_EVENTS[k].emoji} {DIARY_EVENTS[k].label}
+              </Chip>
+            ))}
+          </div>
+        </fieldset>
+      )}
+      <textarea
+        className={cx(inputClass, "min-h-32 resize-y")}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        maxLength={2000}
+        aria-label={isQuestion ? "Текст вопроса" : "Текст записи"}
+      />
+      <Button type="submit" className="w-full" loading={save.isPending} disabled={!valid}>
+        Сохранить
+      </Button>
+    </form>
   );
 }
 
@@ -107,6 +243,7 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
       <header className="flex items-center gap-3 px-4 pt-4">
         <AuthorLine post={post} />
         <FollowAuthor post={post} />
+        <PostMenu post={post} />
       </header>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-3 text-[15px]">
         <EventBadge event={post.event} />
@@ -195,12 +332,13 @@ export function QuestionRow({ post }: { post: FeedPost }) {
 }
 
 /** Полный вопрос: фото, текст, вид — наверху страницы вопроса. */
-export function QuestionHeader({ post }: { post: FeedPost }) {
+export function QuestionHeader({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
   return (
     <article className="overflow-hidden rounded-[20px] bg-surface">
       <header className="flex items-center gap-3 px-4 pt-4">
         <AuthorLine post={post} />
         <QuestionStatus post={post} />
+        <PostMenu post={post} onDeleted={onDeleted} />
       </header>
       <p className="px-4 pt-3 text-[17px] leading-relaxed whitespace-pre-line">{post.text}</p>
       <div className="flex flex-wrap items-center gap-3 px-4 pt-2 text-[13px]">

@@ -5,7 +5,7 @@ import { statsFromRow } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
-import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFilter, type NewPost, type ReaderArticle } from "../domain/social";
+import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFilter, type NewPost, type PostUpdate, type ReaderArticle } from "../domain/social";
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
@@ -263,6 +263,20 @@ export class SupabaseSocial implements SocialRepository {
         .single(),
     ) as Row;
     return (await this.hydrate([row]))[0];
+  }
+
+  async updatePost(id: string, update: PostUpdate) {
+    const patch: Row = { text: update.text };
+    if (update.event !== undefined) patch.event = update.event;
+    const { data, error } = await this.db.from("posts").update(patch).eq("id", id).eq("author_id", this.uid).select(POST_SELECT).maybeSingle();
+    if (error) throw new Error(/часа/.test(error.message) ? "Прошло больше часа — публикацию уже нельзя изменить" : error.message);
+    if (!data) throw new Error("Публикация не найдена");
+    return (await this.hydrate([data as Row]))[0];
+  }
+
+  /** Мягкое удаление: публикация пропадает из лент, комментарии остаются в базе. */
+  async deletePost(id: string) {
+    check(await this.db.from("posts").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("author_id", this.uid));
   }
 
   async setLiked(postId: string, liked: boolean) {

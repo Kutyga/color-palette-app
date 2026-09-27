@@ -167,6 +167,22 @@ test("демо: помощь — вопрос, ответ и лучший отв
   await page.getByRole("link", { name: "Помощь" }).click();
   await page.getByRole("button", { name: "Мои вопросы" }).click();
   await expect(page.getByRole("link", { name: /мягкие листья у основания/ })).toContainText("1 ответ");
+
+  // Свой вопрос: правка в течение часа и удаление.
+  await page.getByRole("link", { name: /мягкие листья у основания/ }).click();
+  await page.getByRole("button", { name: "Действия с публикацией" }).click();
+  await expect(page.getByText(/Ещё \d+ минут/)).toBeVisible();
+  await page.getByRole("button", { name: /Редактировать/ }).click();
+  await page.getByLabel("Текст вопроса").fill("Почему у щучки мягкие и тёмные листья у основания?");
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByText("Почему у щучки мягкие и тёмные листья у основания?")).toBeVisible();
+  await expect(page.getByText(/изменено/)).toBeVisible();
+  await page.getByRole("button", { name: "Действия с публикацией" }).click();
+  await page.getByRole("button", { name: "Удалить вопрос" }).click();
+  await page.getByRole("button", { name: "Удалить", exact: true }).click();
+  await page.waitForURL("**/feed/?tab=help");
+  await page.getByRole("button", { name: "Мои вопросы" }).click();
+  await expect(page.getByText("Вопросов пока нет")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
