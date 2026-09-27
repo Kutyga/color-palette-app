@@ -186,6 +186,63 @@ test("демо: помощь — вопрос, ответ и лучший отв
   expect(errors).toEqual([]);
 });
 
+test("демо: барахолка — фильтры, чат с продавцом, своё объявление, блокировка", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/feed/?tab=market");
+  // По умолчанию — город из профиля (в демо — Москва).
+  await expect(page.getByRole("button", { name: "📍 Москва" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("link", { name: /Укоренённая детка монстеры, 700/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Черенки хойи/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Все города" }).click();
+  await expect(page.getByRole("link", { name: /Черенки хойи/ })).toBeVisible();
+  await page.getByRole("button", { name: "🎁 Даром" }).click();
+  await expect(page.getByRole("link", { name: /каланхоэ/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /детка монстеры/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Все", exact: true }).click();
+
+  // Чат с продавцом: сообщение уходит, продавец (демо) отвечает.
+  await page.getByRole("link", { name: /Укоренённая детка монстеры/ }).click();
+  await page.getByRole("button", { name: "Написать продавцу" }).click();
+  await page.waitForURL("**/messages/chat/**");
+  await page.getByLabel("Текст сообщения").fill("Здравствуйте! Можно забрать завтра?");
+  await page.getByRole("button", { name: "Отправить" }).click();
+  await expect(page.getByText("Здравствуйте! Можно забрать завтра?")).toBeVisible();
+  await expect(page.getByText("Здравствуйте! Да, ещё актуально")).toBeVisible();
+  await page.getByRole("link", { name: "Сообщения" }).first().click();
+  await expect(page.getByRole("link", { name: /Чат с Анна/ })).toContainText("Укоренённая детка монстеры");
+
+  // Блокировка закрывает переписку.
+  await page.getByRole("link", { name: /Чат с Анна/ }).click();
+  await page.getByRole("button", { name: "Действия с чатом" }).click();
+  await page.getByRole("button", { name: "Заблокировать" }).click();
+  await page.getByRole("button", { name: "Заблокировать" }).last().click();
+  await expect(page.getByText("Переписка закрыта: один из вас заблокировал другого.")).toBeVisible();
+
+  // Своё объявление: только снимок с камеры, цена, статус, удаление.
+  await page.goto("/market/new/");
+  await page.getByRole("button", { name: "🏷️ Продаю" }).click();
+  await page.getByLabel("Название").fill("Детка хлорофитума");
+  await page.getByLabel("Цена, ₽").fill("350");
+  await page.getByRole("button", { name: "Опубликовать" }).click();
+  await expect(page.getByText("Сфотографируйте растение")).toBeVisible();
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
+  await page.getByRole("button", { name: "Снять" }).click();
+  await page.getByRole("button", { name: "Опубликовать" }).click();
+  await page.waitForURL("**/market/view/**");
+  await expect(page.getByText("350 ₽")).toBeVisible();
+  await expect(page.getByText("Это ваше объявление")).toBeVisible();
+  await page.getByRole("button", { name: "Забронировано" }).click();
+  await expect(page.getByText("Забронировано").first()).toBeVisible();
+  await page.getByRole("button", { name: "Удалить объявление" }).click();
+  await page.getByRole("button", { name: "Удалить", exact: true }).click();
+  await page.waitForURL("**/feed/?tab=market");
+  await page.getByRole("button", { name: "Мои" }).click();
+  await expect(page.getByText("У вас пока нет объявлений")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("демо: достижения и выход из демо-режима", async ({ page }) => {
   await startDemo(page);
   await page.goto("/achievements/");

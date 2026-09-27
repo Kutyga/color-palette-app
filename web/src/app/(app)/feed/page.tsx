@@ -1,12 +1,13 @@
 "use client";
 
-import { MessageCircleQuestion, NotebookPen, UserSearch, Users } from "lucide-react";
+import { MessageCircleQuestion, NotebookPen, Tag, UserSearch, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { CommentsSheet, DiaryCard, QuestionRow } from "@/components/feed";
 import { Chip, EmptyState, ErrorNote, PageHeader, Spinner, cx } from "@/components/ui";
+import { Market } from "@/components/market";
 import { News } from "@/components/news";
 import type { DiaryScope, HelpFilter } from "@/lib/domain/social";
 import { useDiaries, useQuestions } from "@/lib/queries";
@@ -14,6 +15,7 @@ import { useDiaries, useQuestions } from "@/lib/queries";
 const TABS = [
   { id: "diaries", label: "Дневники" },
   { id: "help", label: "Помощь" },
+  { id: "market", label: "Барахолка" },
   { id: "news", label: "Новости" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
@@ -106,20 +108,46 @@ function Help() {
   );
 }
 
-function FeedInner() {
-  const params = useSearchParams();
-  const router = useRouter();
-  const tab: Tab = TABS.find((t) => t.id === params.get("tab"))?.id ?? "diaries";
-  const [commentsFor, setCommentsFor] = useState<string | null>(null);
+const tabOf = (param: string | null): Tab => TABS.find((t) => t.id === param)?.id ?? "diaries";
+
+/** Кнопки в шапке: «Садоводы» и создание — записи, вопроса или объявления, по открытой вкладке. */
+function HeaderActions() {
+  const tab = tabOf(useSearchParams().get("tab"));
   const action =
     tab === "help"
       ? { href: "/feed/new/?type=question", label: "Спросить", icon: MessageCircleQuestion }
-      : { href: "/feed/new/?type=diary", label: "Запись", icon: NotebookPen };
+      : tab === "market"
+        ? { href: "/market/new/", label: "Объявление", icon: Tag }
+        : tab === "diaries"
+          ? { href: "/feed/new/?type=diary", label: "Запись", icon: NotebookPen }
+          : null;
+  return (
+    <div className="flex items-center gap-2">
+      <Link href="/people/" aria-label="Садоводы" className="flex size-10 items-center justify-center gap-1.5 rounded-full bg-muted text-[15px] font-semibold sm:size-auto sm:px-4 sm:py-2">
+        <UserSearch className="size-5 sm:size-4" aria-hidden /> <span className="hidden sm:inline">Садоводы</span>
+      </Link>
+      {action && (
+        <Link
+          href={action.href}
+          aria-label={action.label}
+          className="flex size-10 items-center justify-center gap-1.5 rounded-full bg-leaf text-[15px] font-semibold text-white sm:size-auto sm:px-4 sm:py-2"
+        >
+          <action.icon className="size-5 sm:size-4" aria-hidden /> <span className="hidden sm:inline">{action.label}</span>
+        </Link>
+      )}
+    </div>
+  );
+}
 
+function FeedInner() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const tab = tabOf(params.get("tab"));
+  const [commentsFor, setCommentsFor] = useState<string | null>(null);
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-1 rounded-full bg-muted p-1 sm:flex-none" role="tablist">
+      <div className="mb-4">
+        <div className="no-scrollbar flex overflow-x-auto rounded-full bg-muted p-1 sm:inline-flex" role="tablist">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -127,7 +155,7 @@ function FeedInner() {
               aria-selected={tab === t.id}
               onClick={() => router.replace(`/feed/?tab=${t.id}`, { scroll: false })}
               className={cx(
-                "flex-1 rounded-full px-3 py-1.5 text-[15px] font-medium transition sm:flex-none sm:px-4",
+                "flex-1 shrink-0 rounded-full px-2 py-1.5 text-[14px] font-medium whitespace-nowrap transition sm:flex-none sm:px-4 sm:text-[15px]",
                 tab === t.id ? "bg-surface shadow-sm" : "text-secondary",
               )}
             >
@@ -135,18 +163,10 @@ function FeedInner() {
             </button>
           ))}
         </div>
-        {tab !== "news" && (
-          <Link
-            href={action.href}
-            aria-label={action.label}
-            className="flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-leaf text-[15px] font-semibold text-white sm:size-auto sm:px-4 sm:py-2"
-          >
-            <action.icon className="size-5 sm:size-4" aria-hidden /> <span className="hidden sm:inline">{action.label}</span>
-          </Link>
-        )}
       </div>
       {tab === "diaries" && <Diaries onComments={setCommentsFor} />}
       {tab === "help" && <Help />}
+      {tab === "market" && <Market />}
       {tab === "news" && <News />}
       <CommentsSheet postId={commentsFor} onClose={() => setCommentsFor(null)} />
     </>
@@ -159,9 +179,9 @@ export default function FeedPage() {
       <PageHeader
         title="Сообщество"
         actions={
-          <Link href="/people/" className="flex items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-[15px] font-semibold">
-            <UserSearch className="size-4" aria-hidden /> Садоводы
-          </Link>
+          <Suspense fallback={null}>
+            <HeaderActions />
+          </Suspense>
         }
       />
       <RequireSession>

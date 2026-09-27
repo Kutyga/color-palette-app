@@ -55,9 +55,9 @@ describe("люди в демо-режиме", () => {
     const storage = memoryDemoStorage();
     const b = await demoBackend(storage, clock);
     await expect(b.people.updateProfile({ displayName: "Макс", username: "fikus_papa", bio: "" })).rejects.toThrow("уже занято");
-    await b.people.updateProfile({ displayName: "Макс", username: "max_green", bio: "Люблю фикусы" });
+    await b.people.updateProfile({ displayName: "Макс", username: "max_green", bio: "Люблю фикусы", city: " Казань " });
     const again = await demoBackend(storage, clock);
-    expect(await again.profile()).toEqual({ username: "max_green", displayName: "Макс", bio: "Люблю фикусы" });
+    expect(await again.profile()).toEqual({ username: "max_green", displayName: "Макс", bio: "Люблю фикусы", city: "Казань" });
     expect((await again.people.search("макс"))[0].isMe).toBe(true);
   });
 });

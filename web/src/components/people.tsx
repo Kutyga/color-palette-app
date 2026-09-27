@@ -248,6 +248,17 @@ function EditProfileForm({ initial, onDone }: { initial: ProfileUpdate; onDone: 
         </div>
         {fieldError("username")}
       </Field>
+      <Field label="Город" hint="Для объявлений «Барахолки» — только город, без адреса.">
+        <input
+          className={inputClass}
+          value={form.city ?? ""}
+          maxLength={60}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          placeholder="Например, Казань"
+          autoComplete="address-level2"
+        />
+        {fieldError("city")}
+      </Field>
       <Field label="О себе">
         <textarea
           className={cx(inputClass, "min-h-24 resize-y")}

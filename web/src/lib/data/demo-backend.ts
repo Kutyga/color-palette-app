@@ -14,11 +14,22 @@ import type { GardenStats } from "../domain/gamification";
 import type { Location, Plant, Visibility } from "../domain/plant";
 import { EDIT_WINDOW_MS, type DiaryEvent, type DiaryScope, type FeedPost, type HelpFilter, type NewPost, type NewsArticle, type PostComment, type PostUpdate } from "../domain/social";
 import { speciesName, type Species } from "../domain/species";
+import {
+  sameCity,
+  validateListing,
+  type ChatMessage,
+  type Conversation,
+  type Listing,
+  type ListingDraft,
+  type ListingFilter,
+  type ListingKind,
+  type ListingStatus,
+} from "../domain/market";
 import { blobToDataUrl } from "../image";
 import { ALL_SPECIES } from "../knowledge";
 import { initialSchedules } from "./schedules";
 import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../domain/people";
-import type { Backend, GardenRepository, PeopleRepository, PlantDraft, Profile, SocialRepository } from "./types";
+import type { Backend, ChatRepository, GardenRepository, MarketRepository, PeopleRepository, PlantDraft, Profile, SocialRepository } from "./types";
 
 interface PlantRec {
   id: string;
@@ -52,6 +63,44 @@ export interface DemoState {
   following: string[];
   /** Свой профиль в демо-режиме (по умолчанию — «Гость»). */
   profile?: Profile;
+  /** «Барахолка» и переписка; в старых сохранённых демо-данных их нет. */
+  listings?: ListingRec[];
+  conversations?: ConversationRec[];
+  messages?: MessageRec[];
+  blocked?: string[];
+}
+
+interface ListingRec {
+  id: string;
+  sellerId: string;
+  kind: ListingKind;
+  speciesSlug: string | null;
+  title: string;
+  description: string;
+  priceRub: number | null;
+  swapFor: string | null;
+  city: string;
+  delivery: boolean;
+  photoUrl: string | null;
+  status: ListingStatus;
+  createdAt: string;
+  deleted?: boolean;
+}
+
+interface ConversationRec {
+  id: string;
+  listingId: string;
+  otherId: string;
+  iAmSeller: boolean;
+  readAt: string | null;
+}
+
+interface MessageRec {
+  id: string;
+  conversationId: string;
+  fromMe: boolean;
+  body: string;
+  createdAt: string;
 }
 
 const ME = "me";
@@ -340,7 +389,7 @@ const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followe
   },
 ];
 const demoId = (username: string) => `demo-${username}`;
-const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null };
+const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null, city: "Москва" };
 
 /** Записи дневников: автор, растение, вид, событие, текст, «поддержали». */
 const SAMPLE_DIARIES: [string, string, string, DiaryEvent, string, number][] = [
@@ -654,9 +703,266 @@ export class DemoPeople implements PeopleRepository {
     const invalid = validateProfile(update);
     if (invalid) throw new Error(invalid.message);
     if (DEMO_PEOPLE.some((d) => d.username === update.username)) throw new Error(`Имя @${update.username} уже занято — выберите другое`);
-    this.state.profile = { username: update.username, displayName: update.displayName.trim(), bio: update.bio.trim() || null };
+    const prev = this.state.profile ?? DEFAULT_PROFILE;
+    this.state.profile = {
+      username: update.username,
+      displayName: update.displayName.trim(),
+      bio: update.bio.trim() || null,
+      city: update.city !== undefined ? update.city.trim() || null : (prev.city ?? null),
+    };
     this.persist();
     return this.state.profile;
+  }
+}
+
+const personOf = (userId: string) => DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
+
+/** Объявления демо-садоводов: автор, тип, вид, название, описание, цена, обмен на, город, доставка. */
+const SAMPLE_LISTINGS: [string, ListingKind, string, string, string, number | null, string | null, string, boolean][] = [
+  ["anna.green", "sell", "monstera-deliciosa", "Укоренённая детка монстеры", "Три листа, уже с воздушными корнями. В горшке 9 см на ароидной смеси.", 700, null, "Москва", false],
+  ["succulove", "free", "kalanchoe-daigremontiana", "Детки каланхоэ Дегремона", "Отдам сколько нужно — растут сами. Возьмите свою баночку 🙂", null, null, "Москва", false],
+  ["orchid.mood", "swap", "hoya-carnosa", "Черенки хойи мясистой", "Два черенка по 2 узла, укоренены в воде.", null, "На любую бегонию или строманту", "Казань", true],
+  ["fikus_papa", "wanted", "stromanthe-thalia", "Ищу строманту «Триостар»", "Можно небольшую, готов забрать сам по Москве.", null, null, "Москва", false],
+  ["anna.green", "sell", "begonia-maculata", "Бегония пятнистая, 30 см", "Пышная, цветёт. Отдаю из-за переезда. Горшок в подарок.", 1500, null, "Москва", true],
+];
+
+const AUTO_REPLY = "Здравствуйте! Да, ещё актуально 🌿 Когда вам удобно?";
+
+/** «Барахолка» в браузере. */
+export class DemoMarket implements MarketRepository {
+  constructor(
+    private state: DemoState,
+    private persist: () => void,
+    private clock: () => Date = () => new Date(),
+  ) {}
+
+  private get recs() {
+    return (this.state.listings ??= []);
+  }
+
+  private toListing(r: ListingRec): Listing {
+    const person = personOf(r.sellerId);
+    const me = this.state.profile ?? DEFAULT_PROFILE;
+    const sp = ALL_SPECIES.find((x) => x.slug === r.speciesSlug) ?? null;
+    return {
+      id: r.id,
+      sellerId: r.sellerId,
+      sellerName: r.sellerId === ME ? me.username : (person?.username ?? "sadovod"),
+      sellerDisplayName: r.sellerId === ME ? (me.displayName ?? "Вы") : (person?.displayName ?? "Садовод"),
+      kind: r.kind,
+      speciesId: sp?.id ?? null,
+      title: r.title,
+      description: r.description,
+      priceRub: r.priceRub,
+      swapFor: r.swapFor,
+      city: r.city,
+      delivery: r.delivery,
+      photoUrls: r.photoUrl ? [r.photoUrl] : [],
+      status: r.status,
+      createdAt: new Date(r.createdAt),
+      mine: r.sellerId === ME,
+    };
+  }
+
+  private sorted(list: ListingRec[]) {
+    return list.map((r) => this.toListing(r)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async listings(f: ListingFilter) {
+    const blocked = this.state.blocked ?? [];
+    return this.sorted(
+      this.recs.filter(
+        (r) =>
+          !r.deleted &&
+          r.status !== "closed" &&
+          !blocked.includes(r.sellerId) &&
+          (f.kind === "all" || r.kind === f.kind) &&
+          (!f.city || sameCity(r.city, f.city)) &&
+          (!f.deliveryOnly || r.delivery),
+      ),
+    );
+  }
+
+  async listing(id: string) {
+    const r = this.recs.find((x) => x.id === id && !x.deleted);
+    return r ? this.toListing(r) : null;
+  }
+
+  async myListings() {
+    return this.sorted(this.recs.filter((r) => r.sellerId === ME && !r.deleted));
+  }
+
+  private async apply(r: ListingRec, d: ListingDraft) {
+    const invalid = validateListing(d, !!d.photo || !!r.photoUrl);
+    if (invalid) throw new Error(invalid.message);
+    r.kind = d.kind;
+    r.title = d.title.trim();
+    r.description = d.description.trim();
+    r.speciesSlug = ALL_SPECIES.find((x) => x.id === d.speciesId)?.slug ?? null;
+    r.priceRub = d.kind === "sell" ? d.priceRub : null;
+    r.swapFor = d.kind === "swap" ? d.swapFor.trim() || null : null;
+    r.city = d.city.trim();
+    r.delivery = d.delivery;
+    if (d.photo) r.photoUrl = await blobToDataUrl(d.photo);
+  }
+
+  async createListing(d: ListingDraft) {
+    if (this.recs.filter((r) => r.sellerId === ME && !r.deleted && r.status !== "closed").length >= 20) {
+      throw new Error("Не больше 20 открытых объявлений — закройте проданные");
+    }
+    const r: ListingRec = {
+      id: crypto.randomUUID(),
+      sellerId: ME,
+      kind: d.kind,
+      speciesSlug: null,
+      title: "",
+      description: "",
+      priceRub: null,
+      swapFor: null,
+      city: "",
+      delivery: false,
+      photoUrl: null,
+      status: "active",
+      createdAt: this.clock().toISOString(),
+    };
+    await this.apply(r, d);
+    this.recs.push(r);
+    this.persist();
+    return this.toListing(r);
+  }
+
+  async updateListing(id: string, d: ListingDraft) {
+    const r = this.recs.find((x) => x.id === id && x.sellerId === ME);
+    if (!r) throw new Error("Объявление не найдено");
+    await this.apply(r, d);
+    this.persist();
+    return this.toListing(r);
+  }
+
+  async setStatus(id: string, status: ListingStatus) {
+    const r = this.recs.find((x) => x.id === id && x.sellerId === ME);
+    if (r) r.status = status;
+    this.persist();
+  }
+
+  async deleteListing(id: string) {
+    const r = this.recs.find((x) => x.id === id && x.sellerId === ME);
+    if (r) r.deleted = true;
+    this.persist();
+  }
+
+  async report() {}
+}
+
+/** Переписка в браузере: продавец из демо отвечает сам, чтобы было видно, как работает чат. */
+export class DemoChat implements ChatRepository {
+  private listeners = new Map<string, Set<(m: ChatMessage) => void>>();
+
+  constructor(
+    private state: DemoState,
+    private persist: () => void,
+    private clock: () => Date = () => new Date(),
+    private replyDelayMs = 1200,
+  ) {}
+
+  private get convs() {
+    return (this.state.conversations ??= []);
+  }
+
+  private get msgs() {
+    return (this.state.messages ??= []);
+  }
+
+  private toMessage(m: MessageRec): ChatMessage {
+    return { id: m.id, conversationId: m.conversationId, mine: m.fromMe, body: m.body, createdAt: new Date(m.createdAt) };
+  }
+
+  async conversations(): Promise<Conversation[]> {
+    const blocked = this.state.blocked ?? [];
+    return this.convs
+      .map((c) => {
+        const listing = (this.state.listings ?? []).find((l) => l.id === c.listingId);
+        const person = personOf(c.otherId);
+        const thread = this.msgs.filter((m) => m.conversationId === c.id);
+        const last = thread.at(-1);
+        return {
+          id: c.id,
+          listingId: c.listingId,
+          listingTitle: listing?.title ?? null,
+          listingKind: listing?.kind ?? null,
+          listingStatus: listing?.status ?? null,
+          listingPhotoUrl: listing?.photoUrl ?? null,
+          iAmSeller: c.iAmSeller,
+          otherId: c.otherId,
+          otherName: person?.username ?? "sadovod",
+          otherDisplayName: person?.displayName ?? "Садовод",
+          lastMessage: last?.body ?? null,
+          lastMessageAt: new Date(last?.createdAt ?? 0),
+          lastFromMe: last?.fromMe ?? false,
+          unread: !!last && !last.fromMe && (!c.readAt || last.createdAt > c.readAt),
+          blocked: blocked.includes(c.otherId),
+        };
+      })
+      .sort((a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime());
+  }
+
+  async start(listingId: string) {
+    const listing = (this.state.listings ?? []).find((l) => l.id === listingId && !l.deleted);
+    if (!listing) throw new Error("Объявление не найдено");
+    if (listing.sellerId === ME) throw new Error("Это ваше объявление");
+    const existing = this.convs.find((c) => c.listingId === listingId);
+    if (existing) return existing.id;
+    if ((this.state.blocked ?? []).includes(listing.sellerId)) throw new Error("Написать этому садоводу нельзя");
+    const c: ConversationRec = { id: crypto.randomUUID(), listingId, otherId: listing.sellerId, iAmSeller: false, readAt: null };
+    this.convs.push(c);
+    this.persist();
+    return c.id;
+  }
+
+  async messages(conversationId: string) {
+    return this.msgs.filter((m) => m.conversationId === conversationId).map((m) => this.toMessage(m));
+  }
+
+  private push(conversationId: string, body: string, fromMe: boolean) {
+    const m: MessageRec = { id: crypto.randomUUID(), conversationId, fromMe, body, createdAt: this.clock().toISOString() };
+    this.msgs.push(m);
+    this.persist();
+    return this.toMessage(m);
+  }
+
+  async send(conversationId: string, body: string) {
+    const c = this.convs.find((x) => x.id === conversationId);
+    if (!c) throw new Error("Чат не найден");
+    if ((this.state.blocked ?? []).includes(c.otherId)) throw new Error("Написать нельзя: собеседник заблокирован");
+    const text = body.trim();
+    if (!text) throw new Error("Пустое сообщение");
+    const firstFromMe = !this.msgs.some((m) => m.conversationId === conversationId && m.fromMe);
+    const mine = this.push(conversationId, text, true);
+    if (firstFromMe) {
+      setTimeout(() => {
+        const reply = this.push(conversationId, AUTO_REPLY, false);
+        this.listeners.get(conversationId)?.forEach((fn) => fn(reply));
+      }, this.replyDelayMs);
+    }
+    return mine;
+  }
+
+  async markRead(conversationId: string) {
+    const c = this.convs.find((x) => x.id === conversationId);
+    if (c) c.readAt = this.clock().toISOString();
+    this.persist();
+  }
+
+  subscribe(conversationId: string, onMessage: (m: ChatMessage) => void) {
+    const set = this.listeners.get(conversationId) ?? new Set();
+    set.add(onMessage);
+    this.listeners.set(conversationId, set);
+    return () => void set.delete(onMessage);
+  }
+
+  async block(userId: string) {
+    this.state.blocked = [...new Set([...(this.state.blocked ?? []), userId])];
+    this.persist();
   }
 }
 
@@ -731,6 +1037,26 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
   });
 }
 
+/** Объявления в «Барахолке» — досеиваются и в старые демо-данные. */
+function seedListings(state: DemoState, now: Date) {
+  if (state.listings) return;
+  state.listings = SAMPLE_LISTINGS.map(([author, kind, slug, title, description, priceRub, swapFor, city, delivery], i) => ({
+    id: `demo-listing-${i}`,
+    sellerId: demoId(author),
+    kind,
+    speciesSlug: slug,
+    title,
+    description,
+    priceRub,
+    swapFor,
+    city,
+    delivery,
+    photoUrl: null,
+    status: "active" as const,
+    createdAt: new Date(now.getTime() - (2 + i * 5) * 3_600_000).toISOString(),
+  }));
+}
+
 export async function demoBackend(storage: DemoStorage, clock: () => Date = () => new Date()): Promise<Backend> {
   let state = storage.load();
   if (!state || state.version !== 1) {
@@ -740,12 +1066,18 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
   }
   const s = state;
   const persist = () => storage.save(s);
+  if (!s.listings) {
+    seedListings(s, clock());
+    persist();
+  }
   return {
     mode: "demo",
     garden: new DemoGarden(s, persist, clock),
     social: new DemoSocial(s, persist, clock),
     people: new DemoPeople(s, persist),
+    market: new DemoMarket(s, persist, clock),
+    chat: new DemoChat(s, persist, clock),
     identifier: null,
-    profile: async () => s.profile ?? DEFAULT_PROFILE,
+    profile: async () => ({ ...DEFAULT_PROFILE, ...s.profile }),
   };
 }

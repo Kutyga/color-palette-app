@@ -29,6 +29,8 @@ export interface ProfileUpdate {
   displayName: string;
   username: string;
   bio: string;
+  /** Город — для объявлений «Барахолки». Пустая строка — не указан. */
+  city?: string;
 }
 
 type Row = Record<string, unknown>;
@@ -63,6 +65,7 @@ export function validateProfile(p: ProfileUpdate): { field: keyof ProfileUpdate;
   if (!USERNAME_RE.test(p.username))
     return { field: "username", message: "3–30 символов: латинские строчные буквы, цифры и _" };
   if (p.bio.length > 500) return { field: "bio", message: "О себе — до 500 символов" };
+  if ((p.city ?? "").trim().length > 60) return { field: "city", message: "Город — до 60 символов" };
   return null;
 }
 

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
+import type { ListingFilter } from "./domain/market";
 import type { DiaryScope, HelpFilter } from "./domain/social";
 
 /** Все запросы данных сайта. Кэш сбрасывается при входе, выходе и смене демо-режима. */
@@ -155,4 +156,30 @@ export function useFollow() {
       qc.invalidateQueries({ queryKey: ["feed"] });
     },
   });
+}
+
+export function useListings(filter: ListingFilter) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["market", "list", filter], queryFn: () => b.market.listings(filter) });
+}
+
+export function useMyListings() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["market", "mine"], queryFn: () => b.market.myListings() });
+}
+
+export function useListing(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["market", "one", id], queryFn: () => b.market.listing(id!), enabled: !!id });
+}
+
+/** Список чатов; обновляется раз в 30 секунд — для значка непрочитанных. */
+export function useConversations() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["chat", "list"], queryFn: () => b.chat.conversations(), refetchInterval: 30_000 });
+}
+
+export function useMessages(conversationId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["chat", "messages", conversationId], queryFn: () => b.chat.messages(conversationId!), enabled: !!conversationId });
 }

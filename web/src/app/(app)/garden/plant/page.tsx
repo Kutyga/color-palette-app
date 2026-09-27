@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Sun, Trash2 } from "lucide-react";
+import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Sun, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -161,6 +161,14 @@ function PlantView({ id }: { id: string }) {
               className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
             >
               <BookOpen className="size-4" aria-hidden /> Дневник
+            </Link>
+          </div>
+          <div className="mt-2 flex gap-2">
+            <Link
+              href={`/market/new/?plant=${plant.id}`}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
+            >
+              <Tag className="size-4" aria-hidden /> Продать, отдать или обменять
             </Link>
           </div>
         </div>
