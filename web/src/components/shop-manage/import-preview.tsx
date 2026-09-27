@@ -10,7 +10,7 @@ import { FileSpreadsheet, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useBackend } from "@/components/session";
 import { Button, Card, cx, inputClass, useToast } from "@/components/ui";
-import { IMPORT_FIELDS, rowsToProducts, speciesMatcher, type ColumnMapping, type ImportField } from "@/lib/domain/shop";
+import { IMPORT_FIELDS, rowsToProducts, speciesMatcher, type ColumnMapping, type ImportField } from "@/lib/domain/price-list";
 import { speciesName } from "@/lib/domain/species";
 import { plural } from "@/lib/format";
 import { ALL_SPECIES } from "@/lib/knowledge";

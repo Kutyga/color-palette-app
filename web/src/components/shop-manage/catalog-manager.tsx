@@ -9,7 +9,8 @@ import { Download, FileSpreadsheet, Search, Trash2, Upload } from "lucide-react"
 import { useRef, useState } from "react";
 import { useBackend } from "@/components/session";
 import { Button, Card, ErrorNote, Spinner, cx, inputClass, useToast } from "@/components/ui";
-import { TEMPLATE_CSV, guessMapping, productsToCsv, type Shop, type ShopProduct } from "@/lib/domain/shop";
+import { TEMPLATE_CSV, guessMapping, productsToCsv } from "@/lib/domain/price-list";
+import type { Shop, ShopProduct } from "@/lib/domain/shop";
 import { speciesName } from "@/lib/domain/species";
 import { download, readTable } from "@/lib/files";
 import { plural } from "@/lib/format";

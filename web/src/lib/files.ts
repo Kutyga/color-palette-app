@@ -1,5 +1,5 @@
 /** Файлы на устройстве пользователя: скачивание выгрузки и чтение прайса (CSV или Excel). */
-import { parseCsv } from "./domain/shop";
+import { parseCsv } from "./domain/price-list";
 
 /** Скачивает текст как файл (CSV — с BOM уже внутри текста). */
 export function download(name: string, text: string) {

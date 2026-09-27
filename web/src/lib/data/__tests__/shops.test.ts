@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   TEMPLATE_CSV,
-  INN_REQUIRED,
   guessMapping,
-  isValidInn,
   parseCsv,
   parseInStock,
   parseNumber,
@@ -11,11 +9,8 @@ import {
   rowsToProducts,
   slugifyTitle,
   speciesMatcher,
-  validateShop,
-  emptyShopDraft,
-  withUtm,
-  type ShopDraft,
-} from "../../domain/shop";
+} from "../../domain/price-list";
+import { INN_REQUIRED, isValidInn, validateShop, emptyShopDraft, withUtm, type ShopDraft } from "../../domain/shop";
 import { ALL_SPECIES, speciesById } from "../../knowledge";
 import { demoBackend, memoryDemoStorage, type DemoState, type DemoStorage } from "../demo";
 import { SpeciesIds } from "../supabase/shared";
