@@ -1,3 +1,5 @@
+/** Люди: профиль садовода, поиск и подписки в демо-режиме. */
+
 import { describe, expect, it } from "vitest";
 import { demoBackend, memoryDemoStorage } from "../../data/demo";
 import { normalizeUsername, personFromRow, prettyUsername, validateProfile } from "../people";

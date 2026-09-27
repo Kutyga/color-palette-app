@@ -1,3 +1,5 @@
+/** Предметная логика: интервалы ухода, достижения, распознавание, поиск, форматирование, окно правки записи. */
+
 import { describe, expect, it } from "vitest";
 import { plural, relativeDay } from "../../format";
 import { adjustUserFactor, baseWaterInterval, effectiveIntervalDays, nextDue, taskBucket } from "../care";

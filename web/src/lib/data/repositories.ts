@@ -1,3 +1,8 @@
+/**
+ * Контракты слоя данных: что умеет каждый репозиторий. Их реализуют Supabase (data/supabase) и демо (data/demo), экраны зависят
+ * только от интерфейсов.
+ */
+
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
 import type { PhotoDiagnosis } from "../domain/diagnosis";
 import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";

@@ -1,3 +1,5 @@
+/** Демо-бэкенд: уход и график, сообщество, растение в воде, журнал и места, сохранение состояния. */
+
 import { describe, expect, it } from "vitest";
 import { demoBackend, memoryDemoStorage } from "../demo";
 

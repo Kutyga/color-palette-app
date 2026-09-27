@@ -261,6 +261,7 @@ export const CAUSES: Cause[] = [
   },
 ];
 
+/** Причина из справочника по id (им же отвечает Gemini). */
 export const causeById = (id: string) => CAUSES.find((c) => c.id === id) ?? null;
 
 export interface CauseMatch {
@@ -368,4 +369,5 @@ export function describeEppo(g: DiseaseGuess): { name: string; cause: Cause | nu
 const MIN_DISEASE_SCORE = 0.15;
 export const confidentGuesses = (list: DiseaseGuess[]) => list.filter((g) => g.score >= MIN_DISEASE_SCORE);
 
+/** Страница болезни или вредителя в базе EPPO. */
 export const eppoHref = (code: string) => `https://gd.eppo.int/taxon/${encodeURIComponent(code)}`;

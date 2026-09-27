@@ -1,3 +1,5 @@
+/** Барахолка: правила формы объявления, объявления и переписка в демо-режиме. */
+
 import { describe, expect, it } from "vitest";
 import { priceLabel, sameCity, validateListing, type ListingDraft } from "../../domain/market";
 import { demoBackend, memoryDemoStorage } from "../demo";

@@ -1,3 +1,5 @@
+/** Корневой макет: метаданные, цвет темы и провайдеры сессии и данных. */
+
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/session";
 import { ToastProvider } from "@/components/ui";

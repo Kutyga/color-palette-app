@@ -1,5 +1,7 @@
 "use client";
 
+/** Сообщество: дневники, «Помощь», новости и переходы к людям и барахолке. */
+
 import { MessageCircleQuestion, NotebookPen, Tag, UserSearch, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";

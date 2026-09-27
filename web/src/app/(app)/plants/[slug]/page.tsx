@@ -1,3 +1,5 @@
+/** Страница вида из базы знаний: уход, грунт, токсичность и «Где купить». Собирается заранее для каждого вида. */
+
 import { Droplet, Droplets, FlaskConical, PawPrint, Plus, Sun, Thermometer, Wind } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";

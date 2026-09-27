@@ -1,5 +1,7 @@
 "use client";
 
+/** Профиль садовода: о себе, подписки и открытые растения. */
+
 import { ChevronLeft, Lock, Sprout, UserX } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";

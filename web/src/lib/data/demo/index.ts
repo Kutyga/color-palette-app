@@ -15,6 +15,10 @@ import { DemoSocial } from "./social";
 import { type DemoStorage, emptyState } from "./state";
 import { DemoWishlist } from "./wishlist";
 
+/**
+ * Демо-бэкенд: все репозитории работают в браузере поверх одного состояния.
+ * clock подменяется в тестах, чтобы сроки ухода не зависели от текущей даты.
+ */
 export async function demoBackend(storage: DemoStorage, clock: () => Date = () => new Date()): Promise<Backend> {
   let state = storage.load();
   if (!state || state.version !== 1) {

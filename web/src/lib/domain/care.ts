@@ -1,3 +1,5 @@
+/** Уход: виды ухода, свет и горшки, расчёт интервала с поправками и сроков, задачи на день. */
+
 import { DAY_MS, startOfDay } from "../time";
 
 /** Виды ухода. Значения совпадают с enum `care_type` в Postgres. */
@@ -49,12 +51,14 @@ function seasonFactor(month: number, hemisphere: Hemisphere = "N"): number {
   return 1.0;
 }
 
+/** Терракота испаряет влагу через стенки — сохнет быстрее; пластик и стекло — медленнее. */
 function potFactor(material?: PotMaterial | null): number {
   if (material === "terracotta") return 0.85;
   if (material === "plastic" || material === "glass") return 1.1;
   return 1.0;
 }
 
+/** Чем меньше света, тем медленнее растение пьёт. */
 function lightFactor(light?: LightLevel | null): number {
   switch (light) {
     case "low":
@@ -74,6 +78,10 @@ function round(value: number, digits: 1 | 2): number {
   return Math.round(value * p + 1e-9) / p;
 }
 
+/**
+ * Фактический интервал ухода: базовый × личная поправка × (для полива) сезон, горшок и свет.
+ * Та же формула работает в базе (supabase/migrations/*_care_logic.sql) — результаты должны совпадать.
+ */
 export function effectiveIntervalDays(opts: {
   type: CareType;
   intervalDays: number;
@@ -94,6 +102,7 @@ export function effectiveIntervalDays(opts: {
   return days < MIN_INTERVAL_DAYS ? MIN_INTERVAL_DAYS : days;
 }
 
+/** Следующий срок: последнее выполнение + интервал (с точностью до секунды, как в базе). */
 export function nextDue(lastDone: Date, intervalDays: number): Date {
   return new Date(lastDone.getTime() + Math.round(intervalDays * 86_400) * 1000);
 }
@@ -144,6 +153,7 @@ export interface CareTask {
 
 export type TaskBucket = "overdue" | "today" | "soon";
 
+/** В какой раздел «Сегодня» попадает задача: просрочено, сегодня или скоро. */
 export function taskBucket(task: CareTask, now: Date): TaskBucket {
   const today = startOfDay(now);
   if (task.dueAt < today) return "overdue";

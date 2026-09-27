@@ -103,6 +103,7 @@ export interface MessageRec {
 
 export const ME = "me";
 
+/** Даты в состоянии хранятся строками ISO — так оно переживает JSON. */
 export const iso = (d: Date | null) => (d ? d.toISOString() : null);
 
 export const toDate = (s: string | null) => (s ? new Date(s) : null);
@@ -113,6 +114,7 @@ export interface DemoStorage {
   save(state: DemoState): void;
 }
 
+/** Состояние демо в localStorage браузера; повреждённое или недоступное — как пустое. */
 export const localDemoStorage = (key = "moi-sad-demo"): DemoStorage => ({
   load() {
     try {
@@ -131,11 +133,13 @@ export const localDemoStorage = (key = "moi-sad-demo"): DemoStorage => ({
   },
 });
 
+/** Состояние в памяти — для тестов. */
 export const memoryDemoStorage = (): DemoStorage => {
   let saved: DemoState | null = null;
   return { load: () => saved, save: (s) => void (saved = structuredClone(s)) };
 };
 
+/** Состояние до первого запуска: пусто, данные примера добавляет seed. */
 export const emptyState = (): DemoState => ({
   version: 1,
   plants: [],

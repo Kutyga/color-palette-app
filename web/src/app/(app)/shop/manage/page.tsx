@@ -1,5 +1,7 @@
 "use client";
 
+/** Кабинет магазина: анкета, статус проверки и каталог (части — в components/shop-manage). */
+
 import { useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { CatalogManager } from "@/components/shop-manage/catalog-manager";

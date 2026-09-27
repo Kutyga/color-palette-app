@@ -1,5 +1,7 @@
 "use client";
 
+/** Настройки уведомлений: напоминания о поливе в браузере (web push). */
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellOff, Share } from "lucide-react";
 import { useEffect, useState } from "react";

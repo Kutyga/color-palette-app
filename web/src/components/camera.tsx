@@ -1,5 +1,7 @@
 "use client";
 
+/** Съёмка камерой устройства: полноэкранный видоискатель и поле «фото» для форм. */
+
 import { Camera, RefreshCw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 

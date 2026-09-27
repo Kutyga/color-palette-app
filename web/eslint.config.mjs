@@ -1,10 +1,12 @@
+/**
+ * Правила кода сайта: рекомендации Next.js и TypeScript плюс строгие правила проекта.
+ * Форматированием занимается Prettier (npm run format), поэтому его правила ESLint отключены.
+ */
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier";
 
-// Правила кода сайта: рекомендации Next.js и TypeScript плюс строгие правила проекта.
-// Форматированием занимается Prettier (npm run format), поэтому его правила ESLint отключены.
 export default defineConfig([
   ...nextVitals,
   ...nextTs,

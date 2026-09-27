@@ -1,5 +1,7 @@
 "use client";
 
+/** Новости о растениях: лента с фильтром по языкам и переводом заголовков. */
+
 import { Languages, Newspaper, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

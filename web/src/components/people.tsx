@@ -1,5 +1,7 @@
 "use client";
 
+/** Люди: строка профиля, подписка, шапка профиля, открытые растения и правка профиля. */
+
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, Leaf, Pencil, UserPlus, Users } from "lucide-react";
 import Link from "next/link";

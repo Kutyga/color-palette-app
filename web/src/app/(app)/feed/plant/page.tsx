@@ -1,5 +1,7 @@
 "use client";
 
+/** Дневник одного растения: все записи хозяина в хронологическом порядке. */
+
 import { BookOpen, ChevronLeft, NotebookPen } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

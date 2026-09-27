@@ -1,5 +1,7 @@
 "use client";
 
+/** Новое объявление барахолки: продать, отдать или обменять растение. */
+
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";

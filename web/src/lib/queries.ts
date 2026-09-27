@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Хуки данных для экранов: запросы и изменения через TanStack Query поверх выбранного бэкенда.
+ * Ключ запроса начинается с раздела («plants», «feed», «shops»…) — по нему изменения сбрасывают кэш.
+ * Весь кэш сбрасывается при входе, выходе и смене демо-режима.
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
@@ -8,7 +14,9 @@ import type { ListingFilter } from "./domain/market";
 import type { DiaryScope, HelpFilter } from "./domain/social";
 import { startOfDay } from "./time";
 
-/** Все запросы данных сайта. Кэш сбрасывается при входе, выходе и смене демо-режима. */
+// ---------------------------------------------------------------------------
+// Коллекция и уход
+// ---------------------------------------------------------------------------
 
 export function usePlants() {
   const b = useBackend();
@@ -32,6 +40,7 @@ export function useTasks() {
   });
 }
 
+/** Что уже сделано сегодня — для колец прогресса. */
 export function useDoneToday() {
   const b = useBackend();
   return useQuery({
@@ -64,6 +73,10 @@ export function useStats() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Профиль и сообщество
+// ---------------------------------------------------------------------------
 
 export function useProfile() {
   const b = useBackend();
@@ -163,6 +176,10 @@ export function useFollow() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Барахолка и сообщения
+// ---------------------------------------------------------------------------
 
 export function useListings(filter: ListingFilter) {
   const b = useBackend();

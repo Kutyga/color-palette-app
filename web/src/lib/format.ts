@@ -1,3 +1,5 @@
+/** Форматирование для интерфейса: склонение чисел, относительные даты, интервалы. */
+
 import { DAY_MS, startOfDay } from "./time";
 
 /** Русское склонение: plural(3, "растение", "растения", "растений") → «растения». */
@@ -39,8 +41,10 @@ export function timeAgo(date: Date, now = new Date()): string {
   return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 }
 
+/** «понедельник, 27 сентября» */
 export const formatDate = (d: Date) => d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
 
+/** «27 сент.» */
 export const formatShortDate = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 
 /** «каждые 7 дн.» / «каждые 6,5 дн.» */

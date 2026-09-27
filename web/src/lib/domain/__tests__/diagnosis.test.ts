@@ -1,3 +1,5 @@
+/** Диагностика: согласованность справочника, подбор причин по симптомам, коды EPPO и отсев слабых догадок. */
+
 import { describe, expect, it } from "vitest";
 import { CAUSE_IDS } from "../../../../../supabase/functions/identify-plant/gemini";
 import { CAUSES, SYMPTOMS, confidentGuesses, describeEppo, diagnose } from "../diagnosis";

@@ -1,5 +1,7 @@
 "use client";
 
+/** Администратор: очередь заявок магазинов — подтвердить, отклонить или скрыть с пояснением. */
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import Link from "next/link";

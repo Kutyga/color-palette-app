@@ -74,6 +74,7 @@ export const EMPTY_STATS: GardenStats = {
   shopSpecies: 0,
 };
 
+/** Ответ RPC со статистикой → GardenStats; отсутствующие счётчики — нули. */
 export function statsFromRow(j: Record<string, unknown>): GardenStats {
   const v = (k: string) => Number(j[k] ?? 0);
   return {
@@ -577,6 +578,7 @@ export interface AchievementProgress {
   fraction: number;
 }
 
+/** Прогресс по каждому достижению: сколько набрано и получено ли. */
 export function evaluateAchievements(stats: GardenStats): AchievementProgress[] {
   return ACHIEVEMENTS.map((a) => {
     const current = a.metric(stats);
@@ -619,6 +621,7 @@ export interface LevelProgress {
   xpToNext: number;
 }
 
+/** Уровень садовода по опыту и сколько осталось до следующего. */
 export function levelFor(stats: GardenStats): LevelProgress {
   const xp = experience(stats);
   let index = 0;

@@ -1,3 +1,5 @@
+/** Грунт: состав смесей, фото и грунт в карточке вида. */
+
 import { describe, expect, it } from "vitest";
 import { SOIL_MATERIALS, componentVolumes, phLabel, soilMixFromRow, soilParticles } from "../soil";
 import { speciesFromRow } from "../species";

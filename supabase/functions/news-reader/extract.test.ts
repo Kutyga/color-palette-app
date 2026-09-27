@@ -1,3 +1,5 @@
+/** Тесты извлечения статьи: чистый текст, заголовки и картинки из HTML (deno test). */
+
 import { assertEquals, assert } from "jsr:@std/assert@1";
 import { absoluteUrl, extractArticle } from "./extract.ts";
 

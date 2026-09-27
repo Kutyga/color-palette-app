@@ -1,5 +1,7 @@
 "use client";
 
+/** Сообщения: список переписок по объявлениям. */
+
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { RequireSession } from "@/components/app-shell";

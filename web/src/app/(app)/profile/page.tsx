@@ -1,5 +1,7 @@
 "use client";
 
+/** Мой профиль: данные, подписки, магазин, список «Хочу», уведомления и выход. */
+
 import { ChevronRight, LogOut, Pencil, Search, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

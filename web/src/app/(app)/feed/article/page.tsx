@@ -1,5 +1,7 @@
 "use client";
 
+/** Новость целиком: текст статьи в режиме чтения, перевод и обсуждение. */
+
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ExternalLink, Languages } from "lucide-react";
 import Link from "next/link";

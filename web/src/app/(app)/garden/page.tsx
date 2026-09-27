@@ -1,5 +1,7 @@
 "use client";
 
+/** Коллекция: все растения пользователя со статусом полива. */
+
 import { Plus, Sprout } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";

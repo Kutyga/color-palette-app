@@ -1,5 +1,7 @@
 "use client";
 
+/** Каталог видов: поиск, подборки и карточки видов с пометкой «безопасно для животных». */
+
 import { PawPrint, Search, SearchX } from "lucide-react";
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";

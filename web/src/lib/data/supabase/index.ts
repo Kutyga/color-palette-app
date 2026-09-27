@@ -16,6 +16,7 @@ import { SupabaseShops } from "./shops";
 import { SupabaseSocial } from "./social";
 import { SupabaseWishlist } from "./wishlist";
 
+/** Бэкенд на Supabase для вошедшего пользователя uid; справочник id видов общий для всех репозиториев. */
 export function supabaseBackend(db: SupabaseClient, uid: string): Backend {
   const species = new SpeciesIds(db);
   return {

@@ -1,3 +1,5 @@
+/** Вид растения из базы знаний: профиль ухода, фото, поиск по названиям, подборки. */
+
 import type { LightLevel } from "./care";
 
 export interface CareProfile {

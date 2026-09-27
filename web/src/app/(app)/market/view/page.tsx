@@ -1,5 +1,7 @@
 "use client";
 
+/** Объявление барахолки: фото, условия, связь с автором, жалоба. */
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Flag, Leaf, MapPin, MessageCircle, Pencil, Store, Trash2, Truck } from "lucide-react";
 import Link from "next/link";

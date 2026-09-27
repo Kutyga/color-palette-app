@@ -1,5 +1,7 @@
 "use client";
 
+/** Перевод новостей встроенным переводчиком браузера и настройки ленты новостей. */
+
 import { useEffect, useState } from "react";
 
 /**
@@ -17,6 +19,7 @@ interface TranslatorStatic {
 const api = (): TranslatorStatic | null =>
   typeof self !== "undefined" && "Translator" in self ? (self as unknown as { Translator: TranslatorStatic }).Translator : null;
 
+/** Есть ли в браузере встроенный переводчик (Translator API, Chrome 138+). */
 export const hasBrowserTranslator = () => api() !== null;
 
 const cache = new Map<string, Promise<BrowserTranslator | null>>();
@@ -85,6 +88,7 @@ export interface NewsPrefs {
 const PREFS_KEY = "moi-sad-news";
 export const DEFAULT_NEWS_PREFS: NewsPrefs = { langs: [], target: "ru", autoTranslate: true };
 
+/** Настройки ленты новостей из localStorage; при ошибке — значения по умолчанию. */
 export function loadNewsPrefs(): NewsPrefs {
   try {
     return { ...DEFAULT_NEWS_PREFS, ...JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}") };
@@ -93,6 +97,7 @@ export function loadNewsPrefs(): NewsPrefs {
   }
 }
 
+/** Сохранить настройки ленты; недоступный localStorage (приватный режим) не мешает работе. */
 export function saveNewsPrefs(p: NewsPrefs) {
   try {
     localStorage.setItem(PREFS_KEY, JSON.stringify(p));

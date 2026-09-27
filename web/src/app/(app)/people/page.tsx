@@ -1,5 +1,7 @@
 "use client";
 
+/** Поиск садоводов по имени и городу. */
+
 import { Search, SearchX } from "lucide-react";
 import { useDeferredValue, useState } from "react";
 import { RequireSession } from "@/components/app-shell";

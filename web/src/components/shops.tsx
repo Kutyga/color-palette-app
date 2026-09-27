@@ -1,5 +1,7 @@
 "use client";
 
+/** Магазины в приложении: список, «Где купить» на странице вида, «Хочу», карточка своего магазина. */
+
 import { BadgeCheck, ChevronRight, ExternalLink, Heart, LogIn, MapPin, ShieldCheck, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { SHOP_STATUS, sizeLabel, withUtm, type Offer, type Shop, type ShopStatus } from "@/lib/domain/shop";

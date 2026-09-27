@@ -65,6 +65,7 @@ export const DEMO_PEOPLE: {
   },
 ];
 
+/** id демо-садовода по его username. */
 export const demoId = (username: string) => `demo-${username}`;
 
 export const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", bio: null, city: "Москва", isAdmin: false };
@@ -112,6 +113,7 @@ export const SAMPLE_QUESTIONS: [string, string, string, [string, string][], numb
   ],
 ];
 
+/** Демо-садовод по id или undefined. */
 export const personOf = (userId: string) => DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
 
 /** Объявления демо-садоводов: автор, тип, вид, название, описание, цена, обмен на, город, доставка. */

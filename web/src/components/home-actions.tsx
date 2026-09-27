@@ -1,5 +1,7 @@
 "use client";
 
+/** Кнопки главной: вход, демо-режим; вошедшего пользователя сразу ведём в приложение. */
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

@@ -1,3 +1,5 @@
+/** Грунтовые смеси: рецепты, схема слоёв и подходящие виды. */
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SoilSchematic } from "@/components/soil-schematic";

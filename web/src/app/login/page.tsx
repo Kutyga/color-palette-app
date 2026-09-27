@@ -1,5 +1,7 @@
 "use client";
 
+/** Вход по ссылке из письма (без пароля). */
+
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";

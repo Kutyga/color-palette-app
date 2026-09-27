@@ -1,5 +1,7 @@
 "use client";
 
+/** «Сегодня»: задачи ухода на день, кольца прогресса и серия дней без пропусков. */
+
 import { Check, Flame, PartyPopper, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";

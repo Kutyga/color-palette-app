@@ -1,3 +1,5 @@
+/** Магазины: анкета, разбор прайса, «Где купить», проверка администратором. */
+
 import { describe, expect, it } from "vitest";
 import {
   TEMPLATE_CSV,

@@ -1,3 +1,5 @@
+/** Сквозные тесты сайта в демо-режиме: основные сценарии на телефоне и компьютере (Playwright). */
+
 import { expect, test, type Page } from "@playwright/test";
 
 /** Ошибки JavaScript на странице — повод уронить тест. */

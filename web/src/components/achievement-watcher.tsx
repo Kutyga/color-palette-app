@@ -1,5 +1,7 @@
 "use client";
 
+/** Следит за статистикой и поздравляет всплывающим сообщением с новым достижением. */
+
 import { useEffect, useRef } from "react";
 import { evaluateAchievements } from "@/lib/domain/gamification";
 import { useStats } from "@/lib/queries";

@@ -1,5 +1,7 @@
 "use client";
 
+/** «Что с растением?»: разбор фото нейросетями (Gemini и Pl@ntNet) и подбор причин по симптомам. */
+
 import { useMutation } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, ChevronLeft, ExternalLink, MessageCircleQuestion, Search, Sparkles, Stethoscope } from "lucide-react";
 import Link from "next/link";

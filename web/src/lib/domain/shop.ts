@@ -45,6 +45,7 @@ export interface ShopDraft {
   delivery: boolean;
 }
 
+/** Пустая анкета нового магазина; город подставляется из профиля. */
 export const emptyShopDraft = (city = ""): ShopDraft => ({
   name: "",
   description: "",
@@ -57,6 +58,7 @@ export const emptyShopDraft = (city = ""): ShopDraft => ({
   delivery: false,
 });
 
+/** Анкета для правки существующего магазина. */
 export const shopToDraft = (s: Shop): ShopDraft => ({
   name: s.name,
   description: s.description,
@@ -136,6 +138,7 @@ export function normalizeWebsite(v: string): string | null {
   return /^https?:\/\//i.test(s) ? s : `https://${s}`;
 }
 
+/** Проверка анкеты перед отправкой: первая ошибка с полем, к которому она относится, или null. */
 export function validateShop(d: ShopDraft): { field: keyof ShopDraft; message: string } | null {
   const name = d.name.trim();
   if (name.length < 2 || name.length > 80) return { field: "name", message: "Название — от 2 до 80 символов" };
@@ -176,6 +179,7 @@ export function withUtm(url: string, campaign: "where_to_buy" | "storefront"): s
   }
 }
 
+/** Ссылка для звонка: только цифры и «+». */
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
 
 // ---------------------------------------------------------------------------

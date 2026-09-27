@@ -1,5 +1,7 @@
 "use client";
 
+/** Переписка по объявлению: сообщения, фото, отметка о прочтении. */
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Flag, MessageCircle, MoreHorizontal, Send, ShieldOff } from "lucide-react";
 import Link from "next/link";

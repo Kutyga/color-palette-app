@@ -1,5 +1,7 @@
 "use client";
 
+/** Вопрос из «Помощи» с ответами садоводов. */
+
 import { ChevronLeft, MessageCircleQuestion } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";

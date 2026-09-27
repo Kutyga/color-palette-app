@@ -1,5 +1,7 @@
 "use client";
 
+/** Каркас приложения: логотип, навигация (сбоку на компьютере, снизу на телефоне), проверка входа. */
+
 import { BookOpen, CalendarCheck, LogIn, MessageCircle, Plus, Sprout, Trophy, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";

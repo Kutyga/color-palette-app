@@ -1,5 +1,7 @@
 "use client";
 
+/** Схема грунтовой смеси: слои компонентов в горшке и краткая сводка. */
+
 import { Layers } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";

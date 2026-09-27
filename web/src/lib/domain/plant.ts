@@ -1,3 +1,5 @@
+/** Растение в коллекции: модель, видимость для других, статус полива. */
+
 import { DAY_MS, startOfDay } from "../time";
 import type { CareEvent, CareSchedule, LightLevel, PotMaterial } from "./care";
 
@@ -87,6 +89,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
   };
 }
 
+/** Путь к обложке растения в хранилище (из вложенного select cover:plant_photos). */
 export const coverPathOf = (r: Row) => (r.cover as { storage_path?: string } | null)?.storage_path ?? null;
 
 export type PlantStatus = "ok" | "soon" | "overdue";

@@ -1,3 +1,5 @@
+/** Сборка Next.js: статический экспорт для GitHub Pages (путь сайта — из NEXT_PUBLIC_BASE_PATH). */
+
 import type { NextConfig } from "next";
 
 // Статический сайт: собирается в out/ и размещается на любом хостинге (GitHub Pages, Vercel,

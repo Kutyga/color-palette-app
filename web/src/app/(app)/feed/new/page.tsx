@@ -1,5 +1,7 @@
 "use client";
 
+/** Новая запись: запись в дневник растения или вопрос в «Помощь». */
+
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageCircleQuestion, NotebookPen, Sprout } from "lucide-react";
 import Link from "next/link";

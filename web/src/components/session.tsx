@@ -1,5 +1,7 @@
 "use client";
 
+/** Сессия и данные: выбор бэкенда (Supabase или демо), кэш запросов, контекст для компонентов. */
+
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { hasBackend } from "@/lib/config";

@@ -1,5 +1,7 @@
 "use client";
 
+/** Витрина магазина: контакты, часы работы, доставка и каталог с поиском. */
+
 import { ChevronLeft, Clock, ExternalLink, Globe, Leaf, MapPin, Phone, Search, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

@@ -1,5 +1,7 @@
 "use client";
 
+/** Барахолка: лента объявлений с фильтрами, бейджи и жалоба на объявление. */
+
 import { MapPin, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
