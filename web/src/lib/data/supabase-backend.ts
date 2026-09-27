@@ -38,6 +38,7 @@ import {
   type ProductInput,
   type ShopDraft,
   type ShopStatus,
+  MAX_PRODUCTS,
 } from "../domain/shop";
 import type {
   Backend,
@@ -881,7 +882,7 @@ export class SupabaseShops implements ShopRepository {
 
   async products(shopId: string) {
     const [rows, slugOf] = await Promise.all([
-      this.db.from("shop_products").select(PRODUCT_FIELDS).eq("shop_id", shopId).order("title").limit(5000),
+      this.db.from("shop_products").select(PRODUCT_FIELDS).eq("shop_id", shopId).order("title").limit(MAX_PRODUCTS),
       this.species.slugs(),
     ]);
     return (check(rows) as Row[]).map((r) => ({ ...productFromRow(r), speciesId: slugOf(r.species_id as string | null) }));
@@ -940,7 +941,7 @@ export class SupabaseShops implements ShopRepository {
   async myStats() {
     const shop = await this.myShop();
     if (!shop) return { hasShop: 0, shopVerified: 0, products: 0, shopSpecies: 0 };
-    const rows = check(await this.db.from("shop_products").select("species_id").eq("shop_id", shop.id).limit(5000)) as Row[];
+    const rows = check(await this.db.from("shop_products").select("species_id").eq("shop_id", shop.id).limit(MAX_PRODUCTS)) as Row[];
     return {
       hasShop: 1,
       shopVerified: shop.status === "verified" ? 1 : 0,

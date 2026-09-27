@@ -12,7 +12,7 @@ export const LISTING_KINDS = {
   wanted: { label: "Ищу", short: "Ищу", emoji: "🔎" },
 } as const;
 export type ListingKind = keyof typeof LISTING_KINDS;
-export const isListingKind = (v: unknown): v is ListingKind => typeof v === "string" && v in LISTING_KINDS;
+const isListingKind = (v: unknown): v is ListingKind => typeof v === "string" && v in LISTING_KINDS;
 
 export type ListingStatus = "active" | "reserved" | "closed";
 export const LISTING_STATUS: Record<ListingStatus, string> = {

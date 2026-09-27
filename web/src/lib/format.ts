@@ -1,3 +1,5 @@
+import { DAY_MS, startOfDay } from "./time";
+
 /** Русское склонение: plural(3, "растение", "растения", "растений") → «растения». */
 export function plural(n: number, one: string, few: string, many: string): string {
   const mod10 = n % 10;
@@ -7,12 +9,9 @@ export function plural(n: number, one: string, few: string, many: string): strin
   return many;
 }
 
-const DAY = 86_400_000;
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-
 /** «сегодня», «вчера», «3 дня назад», «завтра», «через 5 дней». */
 export function relativeDay(date: Date, now = new Date()): string {
-  const diff = Math.round((startOfDay(date) - startOfDay(now)) / DAY);
+  const diff = Math.round((startOfDay(date).getTime() - startOfDay(now).getTime()) / DAY_MS);
   if (diff === 0) return "сегодня";
   if (diff === -1) return "вчера";
   if (diff === 1) return "завтра";

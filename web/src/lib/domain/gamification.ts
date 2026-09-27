@@ -585,7 +585,7 @@ export function evaluateAchievements(stats: GardenStats): AchievementProgress[] 
 }
 
 /** Уровни садовника — от «Семечка» до «Хранителя джунглей». */
-export const LEVELS = [
+const LEVELS = [
   { number: 1, title: "Семечко", minXp: 0 },
   { number: 2, title: "Росточек", minXp: 100 },
   { number: 3, title: "Юный садовник", minXp: 300 },

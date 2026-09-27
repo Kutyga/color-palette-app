@@ -9,7 +9,7 @@ import { cx } from "./ui";
 const fmt = (n: number) => n.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
 
 /** Полоса пропорций: каждый компонент — отрезок своей ширины и цвета. */
-export function SoilBar({ mix, className }: { mix: SoilMix; className?: string }) {
+function SoilBar({ mix, className }: { mix: SoilMix; className?: string }) {
   return (
     <div
       className={cx("ring-separator flex h-4 overflow-hidden rounded-full ring-1", className)}

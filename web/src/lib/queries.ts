@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
 import type { GardenStats } from "./domain/gamification";
+import { startOfDay } from "./time";
 import type { ListingFilter } from "./domain/market";
 import type { DiaryScope, HelpFilter } from "./domain/social";
 
@@ -35,10 +36,7 @@ export function useDoneToday() {
   const b = useBackend();
   return useQuery({
     queryKey: ["done-today"],
-    queryFn: () => {
-      const d = new Date();
-      return b.garden.careEventsSince(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
-    },
+    queryFn: () => b.garden.careEventsSince(startOfDay(new Date())),
   });
 }
 

@@ -75,15 +75,7 @@ export function PersonRow({ person, onOpen }: { person: PersonCard; onOpen?: () 
 }
 
 /** Список подписчиков или подписок в шторке. */
-export function PeopleListSheet({
-  kind,
-  person,
-  onClose,
-}: {
-  kind: "followers" | "following" | null;
-  person: PersonCard;
-  onClose: () => void;
-}) {
+function PeopleListSheet({ kind, person, onClose }: { kind: "followers" | "following" | null; person: PersonCard; onClose: () => void }) {
   const list = usePeopleList(kind ?? "followers", kind ? person.id : null);
   const title = kind === "following" ? "Подписки" : "Подписчики";
   return (

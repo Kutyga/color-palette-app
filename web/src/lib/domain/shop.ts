@@ -239,7 +239,7 @@ const csvCell = (v: string | number | null) => {
 };
 
 /** CSV для Excel: «;», BOM — чтобы кириллица открылась без «кракозябр». */
-export function toCsv(rows: (string | number | null)[][]): string {
+function toCsv(rows: (string | number | null)[][]): string {
   return "﻿" + rows.map((r) => r.map(csvCell).join(";")).join("\r\n") + "\r\n";
 }
 

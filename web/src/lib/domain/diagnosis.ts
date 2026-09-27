@@ -365,7 +365,7 @@ export function describeEppo(g: DiseaseGuess): { name: string; cause: Cause | nu
  * Ниже этой уверенности догадки сервиса — шум: на здоровой монстере Pl@ntNet выдаёт
  * случайные болезни с 3–8 %. Такие результаты не показываем.
  */
-export const MIN_DISEASE_SCORE = 0.15;
+const MIN_DISEASE_SCORE = 0.15;
 export const confidentGuesses = (list: DiseaseGuess[]) => list.filter((g) => g.score >= MIN_DISEASE_SCORE);
 
 export const eppoHref = (code: string) => `https://gd.eppo.int/taxon/${encodeURIComponent(code)}`;

@@ -1,18 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  BookOpen,
-  CircleCheck,
-  Leaf,
-  MessageCircle,
-  MessageCircleQuestion,
-  MoreHorizontal,
-  Pencil,
-  Send,
-  Sprout,
-  Trash2,
-} from "lucide-react";
+import { BookOpen, CircleCheck, Leaf, MessageCircle, MoreHorizontal, Pencil, Send, Sprout, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { FollowButton as PersonFollowButton, personHref } from "./people";
@@ -51,8 +40,8 @@ function useSupport(post: FeedPost) {
 /** Профиль автора: свой — страница профиля, чужой — страница садовода. */
 const authorHref = (p: { mine: boolean; authorName: string }) => (p.mine ? "/profile/" : personHref(p.authorName));
 
-export const questionHref = (id: string) => `/feed/question/?id=${encodeURIComponent(id)}`;
-export const plantDiaryHref = (plantId: string) => `/feed/plant/?id=${encodeURIComponent(plantId)}`;
+const questionHref = (id: string) => `/feed/question/?id=${encodeURIComponent(id)}`;
+const plantDiaryHref = (plantId: string) => `/feed/plant/?id=${encodeURIComponent(plantId)}`;
 
 function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number }) {
   return (
@@ -73,7 +62,7 @@ function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number }) {
  * Меню своей публикации: «Редактировать» — первый час после публикации, «Удалить» — всегда.
  * onDeleted — куда уйти, если публикация была открыта отдельной страницей.
  */
-export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
+function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();
@@ -244,7 +233,7 @@ function SpeciesLink({ speciesId, className }: { speciesId: string | null; class
   );
 }
 
-export function EventBadge({ event }: { event: FeedPost["event"] }) {
+function EventBadge({ event }: { event: FeedPost["event"] }) {
   if (!event) return null;
   const e = DIARY_EVENTS[event];
   return (
@@ -315,7 +304,7 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
 }
 
 /** Статус вопроса: решён / есть ответы / ждёт ответа. */
-export function QuestionStatus({ post }: { post: FeedPost }) {
+function QuestionStatus({ post }: { post: FeedPost }) {
   if (post.solvedCommentId) {
     return (
       <span className="bg-leaf/12 text-leaf inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
@@ -555,5 +544,3 @@ export function CommentsSheet({ postId, onClose }: { postId: string | null; onCl
     </Sheet>
   );
 }
-
-export const QuestionIcon = MessageCircleQuestion;

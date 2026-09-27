@@ -1,3 +1,4 @@
+import { DAY_MS, startOfDay } from "../time";
 import type { CareEvent, CareSchedule, LightLevel, PotMaterial } from "./care";
 
 export const VISIBILITIES = {
@@ -93,8 +94,8 @@ export type PlantStatus = "ok" | "soon" | "overdue";
 /** Статус для точки в углу карточки: просрочено / полив сегодня-завтра / всё хорошо. */
 export function plantStatus(p: Pick<Plant, "nextWaterAt">, now: Date): PlantStatus {
   if (!p.nextWaterAt) return "ok";
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = startOfDay(now);
   if (p.nextWaterAt < today) return "overdue";
-  if (p.nextWaterAt.getTime() < today.getTime() + 2 * 86_400_000) return "soon";
+  if (p.nextWaterAt.getTime() < today.getTime() + 2 * DAY_MS) return "soon";
   return "ok";
 }

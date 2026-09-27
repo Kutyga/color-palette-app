@@ -45,8 +45,10 @@ import {
   type ShopDraft,
   type ShopProduct,
   type ShopStatus,
+  MAX_PRODUCTS,
 } from "../domain/shop";
 import { blobToDataUrl } from "../image";
+import { DAY_MS, HOUR_MS, startOfDay } from "../time";
 import { ALL_SPECIES } from "../knowledge";
 import { initialSchedules } from "./schedules";
 import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../domain/people";
@@ -402,7 +404,7 @@ export class DemoGarden implements GardenRepository {
       if (!last || at > last) {
         let factor = s.userFactor;
         if (s.autoAdjust && last) {
-          factor = adjustUserFactor(factor, this.intervalAt(s, last), (at.getTime() - last.getTime()) / 86_400_000);
+          factor = adjustUserFactor(factor, this.intervalAt(s, last), (at.getTime() - last.getTime()) / DAY_MS);
         }
         this.state.schedules[i] = this.computeDue({ ...s, userFactor: factor, lastDoneAt: at.toISOString() });
       }
@@ -419,17 +421,17 @@ export class DemoGarden implements GardenRepository {
     const events = this.state.events.map((e) => ({ ...e, at: new Date(e.performedAt) }));
     const plantSpecies = this.state.plants.map((p) => this.speciesOf(p)).filter((s): s is Species => !!s);
     const count = (t: CareType) => events.filter((e) => e.type === t).length;
-    const dayKey = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayKey = (d: Date) => startOfDay(d).getTime();
     const days = [...new Set(events.map((e) => dayKey(e.at)))].sort((a, b) => a - b);
     let best = 0;
     let run = 0;
     let prev: number | null = null;
     for (const d of days) {
-      run = prev !== null && Math.round((d - prev) / 3_600_000) === 24 ? run + 1 : 1;
+      run = prev !== null && Math.round((d - prev) / HOUR_MS) === 24 ? run + 1 : 1;
       best = Math.max(best, run);
       prev = d;
     }
-    const alive = prev !== null && Math.round((dayKey(this.clock()) - prev) / 3_600_000) <= 24;
+    const alive = prev !== null && Math.round((dayKey(this.clock()) - prev) / HOUR_MS) <= 24;
     return {
       ...EMPTY_STATS,
       plants: this.state.plants.length,
@@ -781,7 +783,7 @@ export class DemoSocial implements SocialRepository {
         url: `/plants/${s.slug}/`,
         title: `${speciesName(s)}: ${s.care?.tipsRu[0] ?? "как ухаживать"}`,
         sourceName: "База знаний «Подоконника»",
-        publishedAt: new Date(now - (i + 1) * 5 * 3_600_000),
+        publishedAt: new Date(now - (i + 1) * 5 * HOUR_MS),
         summary: s.descriptionRu,
         imageUrl: null,
         speciesIds: [s.id],
@@ -1300,7 +1302,7 @@ export class DemoShops implements ShopRepository {
 
   async importProducts(rows: ProductInput[], replace: boolean): Promise<ImportResult> {
     const shop = this.mine();
-    if (rows.length > 5000) throw new Error("Не больше 5000 строк за раз");
+    if (rows.length > MAX_PRODUCTS) throw new Error(`Не больше ${MAX_PRODUCTS} строк за раз`);
     const list = (this.catalog[shop.id] ??= []);
     const byExt = new Map(list.map((p) => [p.externalId, p]));
     const result = { inserted: 0, updated: 0, deleted: 0 };
@@ -1310,7 +1312,7 @@ export class DemoShops implements ShopRepository {
         Object.assign(cur, row);
         result.updated++;
       } else {
-        if (list.length >= 5000) throw new Error("В каталоге не больше 5000 товаров");
+        if (list.length >= MAX_PRODUCTS) throw new Error(`В каталоге не больше ${MAX_PRODUCTS} товаров`);
         const p = { id: crypto.randomUUID(), ...row };
         list.push(p);
         byExt.set(p.externalId, p);
@@ -1466,8 +1468,8 @@ function seedShops(state: DemoState, now: Date) {
     delivery,
     status: "verified" as const,
     reviewNote: null,
-    createdAt: new Date(now.getTime() - (30 + i) * 86_400_000).toISOString(),
-    verifiedAt: new Date(now.getTime() - (29 + i) * 86_400_000).toISOString(),
+    createdAt: new Date(now.getTime() - (30 + i) * DAY_MS).toISOString(),
+    verifiedAt: new Date(now.getTime() - (29 + i) * DAY_MS).toISOString(),
   }));
   state.products = {};
   for (const [shop, externalId, title, slug, priceRub, potCm, heightCm] of SAMPLE_PRODUCTS) {
@@ -1527,7 +1529,7 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
   await garden.logCare(osya.id, "mist", { performedAt: ago(2, 7) });
   await garden.logCare(robert.id, "fertilize", { performedAt: ago(1, 19) });
 
-  const hours = (h: number) => new Date(now.getTime() - h * 3_600_000).toISOString();
+  const hours = (h: number) => new Date(now.getTime() - h * HOUR_MS).toISOString();
   const speciesId = (slug: string) => ALL_SPECIES.find((s) => s.slug === slug)?.id ?? null;
   SAMPLE_DIARIES.forEach(([author, plant, slug, event, text, likes], i) => {
     const id = `demo-post-${i}`;
@@ -1601,7 +1603,7 @@ function seedListings(state: DemoState, now: Date) {
     delivery,
     photoUrl: null,
     status: "active" as const,
-    createdAt: new Date(now.getTime() - (2 + i * 5) * 3_600_000).toISOString(),
+    createdAt: new Date(now.getTime() - (2 + i * 5) * HOUR_MS).toISOString(),
   }));
 }
 

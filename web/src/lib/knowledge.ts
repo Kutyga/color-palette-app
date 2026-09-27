@@ -1,7 +1,7 @@
 import soilRows from "@/data/soil-mixes.json";
 import rows from "@/data/species.json";
 import { soilMixFromRow, type SoilMix } from "./domain/soil";
-import { searchLocal, speciesFromRow, speciesMatches, type Species } from "./domain/species";
+import { searchLocal, speciesFromRow, type Species } from "./domain/species";
 
 /**
  * База знаний из снимка src/data/species.json (обновляется при сборке скриптом
@@ -22,7 +22,7 @@ export const plantPhotoUrl = (p: { photoUrl: string | null; speciesSlug: string 
 /** Справочник грунтов из снимка src/data/soil-mixes.json. */
 export const ALL_SOIL_MIXES: SoilMix[] = (soilRows as Record<string, unknown>[]).map(soilMixFromRow);
 const mixBySlug = new Map(ALL_SOIL_MIXES.map((m) => [m.slug, m]));
-export const soilMixBySlug = (slug: string | null | undefined) => (slug ? (mixBySlug.get(slug) ?? null) : null);
+const soilMixBySlug = (slug: string | null | undefined) => (slug ? (mixBySlug.get(slug) ?? null) : null);
 export const soilMixFor = (s: Species | null | undefined) => soilMixBySlug(s?.care?.soilMixSlug);
 /** Виды, которым подходит этот грунт. */
 export const speciesForMix = (slug: string) => ALL_SPECIES.filter((s) => s.care?.soilMixSlug === slug);
@@ -63,5 +63,3 @@ export function searchSpecies(query: string, all: Species[] = ALL_SPECIES): Spec
     .sort((a, b) => b.score - a.score)
     .map((x) => x.s);
 }
-
-export { speciesMatches };

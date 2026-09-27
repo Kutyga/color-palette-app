@@ -67,8 +67,7 @@ export function useTranslated(texts: string[], source: string | null, target: st
     return () => {
       cancelled = true;
     };
-    // key описывает texts, source и target
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- key уже описывает texts, source и target
   }, [key, active]);
 
   if (!active) return { texts, state: "off" as TranslateState };

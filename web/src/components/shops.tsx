@@ -252,7 +252,7 @@ export function ShopsList() {
 }
 
 /** Фото товара: своё из каталога или фото вида. */
-export const productPhoto = (p: { imageUrl: string | null; speciesId: string | null }) =>
+const productPhoto = (p: { imageUrl: string | null; speciesId: string | null }) =>
   p.imageUrl ?? speciesById(p.speciesId)?.image?.url ?? null;
 
 export function ProductPhoto({

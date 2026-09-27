@@ -33,7 +33,7 @@ export function KindBadge({ kind, className }: { kind: ListingKind; className?: 
 }
 
 /** Плитка объявления в сетке. */
-export function ListingCard({ listing: l }: { listing: Listing }) {
+function ListingCard({ listing: l }: { listing: Listing }) {
   const sp = speciesById(l.speciesId);
   return (
     <li>

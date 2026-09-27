@@ -55,7 +55,7 @@ export function personFromRow(r: Row): PersonCard {
   };
 }
 
-export const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
+const USERNAME_RE = /^[a-z0-9_]{3,30}$/;
 
 /** Проверка формы профиля; null — всё в порядке, иначе текст ошибки для поля. */
 export function validateProfile(p: ProfileUpdate): { field: keyof ProfileUpdate; message: string } | null {

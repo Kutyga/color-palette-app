@@ -1,3 +1,5 @@
+import { DAY_MS, startOfDay } from "../time";
+
 /** Виды ухода. Значения совпадают с enum `care_type` в Postgres. */
 export const CARE_TYPES = {
   water: { label: "Полив", action: "Полить" },
@@ -32,30 +34,28 @@ export type PotMaterial = keyof typeof POT_MATERIALS;
 
 export type Hemisphere = "N" | "S";
 
-const DAY_MS = 86_400_000;
-
 /**
  * Расчёт интервалов ухода. Повторяет SQL-функции из
  * supabase/migrations/20260924133411_care_logic.sql — менять синхронно.
  * Сервер — источник истины; клиент считает то же самое для демо-режима.
  */
-export const MIN_INTERVAL_DAYS = 0.5;
+const MIN_INTERVAL_DAYS = 0.5;
 
 /** Зима — период покоя (поливаем реже), лето — активный рост (чаще). */
-export function seasonFactor(month: number, hemisphere: Hemisphere = "N"): number {
+function seasonFactor(month: number, hemisphere: Hemisphere = "N"): number {
   const m = hemisphere === "S" ? ((month + 5) % 12) + 1 : month;
   if (m === 12 || m === 1 || m === 2) return 1.4;
   if (m >= 6 && m <= 8) return 0.85;
   return 1.0;
 }
 
-export function potFactor(material?: PotMaterial | null): number {
+function potFactor(material?: PotMaterial | null): number {
   if (material === "terracotta") return 0.85;
   if (material === "plastic" || material === "glass") return 1.1;
   return 1.0;
 }
 
-export function lightFactor(light?: LightLevel | null): number {
+function lightFactor(light?: LightLevel | null): number {
   switch (light) {
     case "low":
       return 1.25;
@@ -111,14 +111,6 @@ export function adjustUserFactor(current: number, expectedDays: number, actualDa
 /** Базовый интервал полива из базы знаний: летнее значение, приведённое к межсезонью. */
 export function baseWaterInterval(summerIntervalDays: number): number {
   return round(summerIntervalDays / 0.85, 1);
-}
-
-export function startOfDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-export function daysBetween(a: Date, b: Date): number {
-  return (b.getTime() - a.getTime()) / DAY_MS;
 }
 
 export interface CareSchedule {
