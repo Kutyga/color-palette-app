@@ -6,7 +6,6 @@
 
 import { Loader2 } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-
 import { cx } from "./cx";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";

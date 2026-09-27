@@ -14,7 +14,6 @@ import {
   type ShopStatus,
 } from "../../domain/shop";
 import type { ShopRepository } from "../repositories";
-
 import { type Row, type SpeciesIds, check } from "./shared";
 
 const SHOP_FIELDS =

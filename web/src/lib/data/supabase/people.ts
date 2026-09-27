@@ -5,7 +5,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../../domain/people";
 import { coverPathOf } from "../../domain/plant";
 import type { PeopleRepository, Profile } from "../repositories";
-
 import { PLANT_BUCKET, PROFILE_FIELDS, type Row, check, profileFromRow, signedUrls } from "./shared";
 
 export class SupabasePeople implements PeopleRepository {

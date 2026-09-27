@@ -4,7 +4,6 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Backend } from "../repositories";
-
 import { SupabaseChat } from "./chat";
 import { SupabaseGarden } from "./garden";
 import { PlantNetIdentifier } from "./identifier";

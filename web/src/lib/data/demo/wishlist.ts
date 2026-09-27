@@ -2,7 +2,6 @@
  * Список «Хочу купить» в браузере.
  */
 import type { WishlistRepository } from "../repositories";
-
 import type { DemoState } from "./state";
 
 export class DemoWishlist implements WishlistRepository {

@@ -8,7 +8,6 @@ import { coverPathOf, plantFromRow, type Location } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
-
 import { PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls } from "./shared";
 
 export class SupabaseGarden implements GardenRepository {

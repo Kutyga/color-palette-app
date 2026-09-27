@@ -16,7 +16,6 @@ import { blobToDataUrl } from "../../image";
 import { ALL_SPECIES } from "../../knowledge";
 import { HOUR_MS } from "../../time";
 import type { SocialRepository } from "../repositories";
-
 import { DEFAULT_PROFILE, DEMO_PEOPLE, demoId } from "./fixtures";
 import { type CommentRec, type DemoState, ME, type PostRec } from "./state";
 

@@ -4,7 +4,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { listingFromRow, validateListing, type ListingDraft, type ListingFilter, type ListingStatus } from "../../domain/market";
 import type { MarketRepository } from "../repositories";
-
 import { LISTING_BUCKET, type Row, type SpeciesIds, check, signedUrls } from "./shared";
 
 const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, display_name)";
