@@ -12,10 +12,39 @@ const SUMMARY_LIMIT = 500;
 
 /** Ключевые слова «про растения» — для общих научных лент (filter_keywords = true). */
 export const PLANT_KEYWORDS = [
-  "растени", "цвет", "цвето", "сад", "огород", "орхиде", "кактус", "суккулент", "фикус", "монстер",
-  "полив", "удобрен", "пересад", "листь", "ботани", "семен", "рассад",
-  "plant", "flower", "garden", "botan", "orchid", "cactus", "succulent", "houseplant", "seed",
-  "leaf", "leaves", "fern", "moss", "tree", "pollinat", "photosynth",
+  "растени",
+  "цвет",
+  "цвето",
+  "сад",
+  "огород",
+  "орхиде",
+  "кактус",
+  "суккулент",
+  "фикус",
+  "монстер",
+  "полив",
+  "удобрен",
+  "пересад",
+  "листь",
+  "ботани",
+  "семен",
+  "рассад",
+  "plant",
+  "flower",
+  "garden",
+  "botan",
+  "orchid",
+  "cactus",
+  "succulent",
+  "houseplant",
+  "seed",
+  "leaf",
+  "leaves",
+  "fern",
+  "moss",
+  "tree",
+  "pollinat",
+  "photosynth",
 ];
 
 export function parseFeed(xml: string): FeedItem[] {
@@ -58,11 +87,7 @@ function link(block: string): string | null {
 }
 
 function image(block: string, description: string | null): string | null {
-  for (const re of [
-    /<media:content\b([^>]*)>/i,
-    /<media:thumbnail\b([^>]*)>/i,
-    /<enclosure\b([^>]*type=["']image[^>]*)>/i,
-  ]) {
+  for (const re of [/<media:content\b([^>]*)>/i, /<media:thumbnail\b([^>]*)>/i, /<enclosure\b([^>]*type=["']image[^>]*)>/i]) {
     const m = re.exec(block);
     const url = m ? attr(m[1], "url") : null;
     if (url && /^https?:\/\//i.test(url)) return decodeEntities(url);
@@ -90,16 +115,26 @@ function unwrapCdata(s: string): string {
 export function cleanText(s: string | null): string {
   if (!s) return "";
   const decoded = decodeEntities(unwrapCdata(s));
-  return decodeEntities(
-    decoded
-      .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, " ")
-      .replace(/<[^>]+>/g, " "),
-  ).replace(/\s+/g, " ").trim();
+  return decodeEntities(decoded.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " "))
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 const NAMED_ENTITIES: Record<string, string> = {
-  mdash: "—", ndash: "–", laquo: "«", raquo: "»", hellip: "…", rsquo: "’", lsquo: "‘",
-  ldquo: "“", rdquo: "”", bdquo: "„", copy: "©", deg: "°", times: "×", middot: "·",
+  mdash: "—",
+  ndash: "–",
+  laquo: "«",
+  raquo: "»",
+  hellip: "…",
+  rsquo: "’",
+  lsquo: "‘",
+  ldquo: "“",
+  rdquo: "”",
+  bdquo: "„",
+  copy: "©",
+  deg: "°",
+  times: "×",
+  middot: "·",
 };
 
 function decodeEntities(s: string): string {

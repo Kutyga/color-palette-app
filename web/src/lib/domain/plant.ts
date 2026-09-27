@@ -77,7 +77,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
     locationName: location?.name ?? null,
     lightLevel: location?.light_level ?? null,
     potMaterial: (r.pot_material as PotMaterial | null) ?? null,
-    visibility: ((r.visibility as Visibility | null) ?? "followers"),
+    visibility: (r.visibility as Visibility | null) ?? "followers",
     notes: (r.notes as string | null) ?? null,
     inWater,
     nextWaterAt: water?.next_due_at ? new Date(water.next_due_at) : null,
@@ -86,7 +86,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
   };
 }
 
-export const coverPathOf = (r: Row) => ((r.cover as { storage_path?: string } | null)?.storage_path ?? null);
+export const coverPathOf = (r: Row) => (r.cover as { storage_path?: string } | null)?.storage_path ?? null;
 
 export type PlantStatus = "ok" | "soon" | "overdue";
 

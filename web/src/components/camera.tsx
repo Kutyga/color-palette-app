@@ -19,7 +19,8 @@ function cameraError(e: unknown): string {
   const name = e instanceof DOMException ? e.name : "";
   if (name === "NotAllowedError" || name === "SecurityError")
     return "Нет доступа к камере. Разрешите его в настройках браузера (значок замка рядом с адресом) и попробуйте снова.";
-  if (name === "NotFoundError" || name === "OverconstrainedError") return "Камера не найдена. Откройте сайт на телефоне, чтобы сфотографировать растение.";
+  if (name === "NotFoundError" || name === "OverconstrainedError")
+    return "Камера не найдена. Откройте сайт на телефоне, чтобы сфотографировать растение.";
   if (name === "NotReadableError") return "Камера занята другим приложением. Закройте его и попробуйте снова.";
   return "Не удалось включить камеру.";
 }
@@ -142,20 +143,25 @@ export function CameraField({
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="relative block w-full overflow-hidden rounded-[28px]" aria-label={photoUrl ? "Переснять фото" : "Сфотографировать растение"}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="relative block w-full overflow-hidden rounded-[28px]"
+        aria-label={photoUrl ? "Переснять фото" : "Сфотографировать растение"}
+      >
         {photoUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- локальный предпросмотр снимка */}
             <img src={photoUrl} alt="Фото растения" className={`${aspect} w-full object-cover`} />
-            <span className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold text-label">
+            <span className="glass text-label absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold">
               <Camera className="size-4" aria-hidden /> Переснять
             </span>
           </>
         ) : (
-          <span className={`grid ${aspect} w-full place-items-center bg-muted text-secondary`}>
+          <span className={`grid ${aspect} bg-muted text-secondary w-full place-items-center`}>
             <span className="flex flex-col items-center gap-2 px-6 text-center">
               <Camera className="size-10" strokeWidth={1.5} aria-hidden />
-              <span className="font-medium text-label">Сфотографировать растение</span>
+              <span className="text-label font-medium">Сфотографировать растение</span>
               <span className="text-[13px]">Снимок делается прямо здесь — загрузка из галереи отключена</span>
             </span>
           </span>

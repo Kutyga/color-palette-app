@@ -54,7 +54,7 @@ function Diaries({ onComments }: { onComments: (id: string) => void }) {
               : "Станьте первым — расскажите, что нового у вашего растения."
           }
           action={
-            <Link href="/people/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+            <Link href="/people/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
               Найти садоводов
             </Link>
           }
@@ -92,7 +92,7 @@ function Help() {
           title={filter === "open" ? "Все вопросы решены" : "Вопросов пока нет"}
           message="Что-то не так с растением? Сфотографируйте его и спросите — ответят те, у кого растёт такое же."
           action={
-            <Link href="/feed/new/?type=question" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+            <Link href="/feed/new/?type=question" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
               Задать вопрос
             </Link>
           }
@@ -123,14 +123,18 @@ function HeaderActions() {
           : null;
   return (
     <div className="flex items-center gap-2">
-      <Link href="/people/" aria-label="Садоводы" className="flex size-10 items-center justify-center gap-1.5 rounded-full bg-muted text-[15px] font-semibold sm:size-auto sm:px-4 sm:py-2">
+      <Link
+        href="/people/"
+        aria-label="Садоводы"
+        className="bg-muted flex size-10 items-center justify-center gap-1.5 rounded-full text-[15px] font-semibold sm:size-auto sm:px-4 sm:py-2"
+      >
         <UserSearch className="size-5 sm:size-4" aria-hidden /> <span className="hidden sm:inline">Садоводы</span>
       </Link>
       {action && (
         <Link
           href={action.href}
           aria-label={action.label}
-          className="flex size-10 items-center justify-center gap-1.5 rounded-full bg-leaf text-[15px] font-semibold text-white sm:size-auto sm:px-4 sm:py-2"
+          className="bg-leaf flex size-10 items-center justify-center gap-1.5 rounded-full text-[15px] font-semibold text-white sm:size-auto sm:px-4 sm:py-2"
         >
           <action.icon className="size-5 sm:size-4" aria-hidden /> <span className="hidden sm:inline">{action.label}</span>
         </Link>
@@ -147,7 +151,7 @@ function FeedInner() {
   return (
     <>
       <div className="mb-4">
-        <div className="no-scrollbar flex overflow-x-auto rounded-full bg-muted p-1 sm:inline-flex" role="tablist">
+        <div className="no-scrollbar bg-muted flex overflow-x-auto rounded-full p-1 sm:inline-flex" role="tablist">
           {TABS.map((t) => (
             <button
               key={t.id}

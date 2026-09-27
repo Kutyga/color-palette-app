@@ -73,12 +73,30 @@ describe("состав грунта", () => {
 describe("фото и грунт в карточке вида", () => {
   it("берёт фото, автора и грунт из строки", () => {
     const s = speciesFromRow({
-      id: "x", slug: "x", latin_name: "X y", common_names: {}, synonyms: [], description: {},
-      image_url: "https://upload.wikimedia.org/a.jpg", image_credit: "Автор", image_license: "CC BY-SA 4.0",
+      id: "x",
+      slug: "x",
+      latin_name: "X y",
+      common_names: {},
+      synonyms: [],
+      description: {},
+      image_url: "https://upload.wikimedia.org/a.jpg",
+      image_credit: "Автор",
+      image_license: "CC BY-SA 4.0",
       image_source_url: "https://commons.wikimedia.org/wiki/File:A.jpg",
-      care_profiles: { water_interval_summer: 7, water_interval_winter: 14, tips: {}, soil_mix_slug: "aroid", soil_note: { ru: "Больше коры" } },
+      care_profiles: {
+        water_interval_summer: 7,
+        water_interval_winter: 14,
+        tips: {},
+        soil_mix_slug: "aroid",
+        soil_note: { ru: "Больше коры" },
+      },
     });
-    expect(s.image).toEqual({ url: "https://upload.wikimedia.org/a.jpg", credit: "Автор", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:A.jpg" });
+    expect(s.image).toEqual({
+      url: "https://upload.wikimedia.org/a.jpg",
+      credit: "Автор",
+      license: "CC BY-SA 4.0",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:A.jpg",
+    });
     expect(s.care?.soilMixSlug).toBe("aroid");
     expect(s.care?.soilNoteRu).toBe("Больше коры");
     expect(speciesFromRow({ slug: "y", latin_name: "Y", common_names: {}, care_profiles: null }).image).toBeNull();

@@ -35,13 +35,13 @@ const URGENCY: Record<Cause["urgency"], { label: string; tone: string }> = {
 function CauseCard({ cause, note }: { cause: Cause; note?: string }) {
   const u = URGENCY[cause.urgency];
   return (
-    <li className="rounded-[20px] bg-surface p-5">
+    <li className="bg-surface rounded-[20px] p-5">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[17px] font-semibold">{cause.title}</h3>
         <span className={cx("rounded-full px-2.5 py-0.5 text-[12px] font-semibold", u.tone)}>{u.label}</span>
       </div>
-      {note && <p className="mt-1 text-[13px] text-secondary">{note}</p>}
-      <p className="mt-2 text-[15px] text-secondary">{cause.about}</p>
+      {note && <p className="text-secondary mt-1 text-[13px]">{note}</p>}
+      <p className="text-secondary mt-2 text-[15px]">{cause.about}</p>
       <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[15px]">
         {cause.steps.map((s) => (
           <li key={s}>{s}</li>
@@ -57,16 +57,21 @@ function GuessList({ guesses }: { guesses: DiseaseGuess[] }) {
       {guesses.map((g) => {
         const d = describeEppo(g);
         return (
-          <li key={g.eppo} className="rounded-2xl bg-muted p-4">
+          <li key={g.eppo} className="bg-muted rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <span className="flex-1 font-semibold">{d.name}</span>
-              <span className="text-[15px] font-semibold text-secondary">{Math.round(g.score * 100)}%</span>
+              <span className="text-secondary text-[15px] font-semibold">{Math.round(g.score * 100)}%</span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface">
-              <div className="h-full rounded-full bg-alert" style={{ width: `${Math.max(4, Math.round(g.score * 100))}%` }} />
+            <div className="bg-surface mt-2 h-1.5 overflow-hidden rounded-full">
+              <div className="bg-alert h-full rounded-full" style={{ width: `${Math.max(4, Math.round(g.score * 100))}%` }} />
             </div>
             {d.cause && <p className="mt-2 text-[15px]">{d.cause.steps[0]}</p>}
-            <a href={eppoHref(g.eppo)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-leaf">
+            <a
+              href={eppoHref(g.eppo)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-leaf mt-2 inline-flex items-center gap-1 text-[13px] font-medium"
+            >
               Подробнее (EPPO {g.eppo}) <ExternalLink className="size-3.5" aria-hidden />
             </a>
           </li>
@@ -83,26 +88,26 @@ function AiVerdict({ ai }: { ai: AiDiagnosis }) {
     <section aria-label="Разбор по фото" className="mt-4 space-y-3">
       <div className={cx("rounded-2xl p-4", tone)}>
         <p className="flex items-center gap-2 font-semibold">
-          {ai.healthy ? <CheckCircle2 className="size-5 text-leaf" aria-hidden /> : <Sparkles className="size-5 text-alert" aria-hidden />}
+          {ai.healthy ? <CheckCircle2 className="text-leaf size-5" aria-hidden /> : <Sparkles className="text-alert size-5" aria-hidden />}
           {!ai.isPlant ? "На фото не видно растения" : ai.healthy ? "Выглядит здоровым" : "Что видно на фото"}
         </p>
-        {ai.plant && ai.isPlant && <p className="mt-1 text-[13px] text-secondary">Похоже на: {ai.plant}</p>}
+        {ai.plant && ai.isPlant && <p className="text-secondary mt-1 text-[13px]">Похоже на: {ai.plant}</p>}
         {ai.summary && <p className="mt-2 text-[15px]">{ai.summary}</p>}
       </div>
       {ai.problems.map((p) => {
         const cause = causeById(p.cause);
         return (
-          <div key={p.title} className="rounded-2xl bg-surface p-4 ring-1 ring-separator">
+          <div key={p.title} className="bg-surface ring-separator rounded-2xl p-4 ring-1">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="flex-1 text-[17px] font-semibold">{p.title}</h3>
-              <span className="text-[15px] font-semibold text-secondary">{Math.round(p.confidence * 100)}%</span>
+              <span className="text-secondary text-[15px] font-semibold">{Math.round(p.confidence * 100)}%</span>
             </div>
             {cause && (
               <span className={cx("mt-1 inline-block rounded-full px-2.5 py-0.5 text-[12px] font-semibold", URGENCY[cause.urgency].tone)}>
                 {URGENCY[cause.urgency].label}
               </span>
             )}
-            {p.evidence && <p className="mt-2 text-[15px] text-secondary">Что видно: {p.evidence}</p>}
+            {p.evidence && <p className="text-secondary mt-2 text-[15px]">Что видно: {p.evidence}</p>}
             {cause && (
               <ol className="mt-2 list-decimal space-y-1 pl-5 text-[15px]">
                 {cause.steps.map((step) => (
@@ -131,9 +136,11 @@ function PhotoCheck({ plantHint }: { plantHint: string | null }) {
   return (
     <Card className="p-5">
       <h2 className="text-[19px] font-semibold">По фото</h2>
-      <p className="mt-1 text-[15px] text-secondary">Снимите поражённый лист крупно и при хорошем свете.</p>
+      <p className="text-secondary mt-1 text-[15px]">Снимите поражённый лист крупно и при хорошем свете.</p>
       {!backend.identifier ? (
-        <p className="mt-3 rounded-2xl bg-muted px-4 py-3 text-[15px] text-secondary">Распознавание болезней по фото работает после регистрации. Отметьте симптомы ниже.</p>
+        <p className="bg-muted text-secondary mt-3 rounded-2xl px-4 py-3 text-[15px]">
+          Распознавание болезней по фото работает после регистрации. Отметьте симптомы ниже.
+        </p>
       ) : (
         <>
           <div className="mt-4">
@@ -151,25 +158,26 @@ function PhotoCheck({ plantHint }: { plantHint: string | null }) {
               <Button className="mt-3 w-full" loading={check.isPending} onClick={() => check.mutate(photo.blob)}>
                 <Search className="size-4" aria-hidden /> Проверить фото
               </Button>
-              <p className="mt-2 text-[12px] text-secondary">Фото отправится на анализ в Pl@ntNet и Google Gemini.</p>
+              <p className="text-secondary mt-2 text-[12px]">Фото отправится на анализ в Pl@ntNet и Google Gemini.</p>
             </>
           )}
-          {check.error && <p className="mt-3 text-[15px] text-alert">{check.error.message}</p>}
+          {check.error && <p className="text-alert mt-3 text-[15px]">{check.error.message}</p>}
           {result?.ai && <AiVerdict ai={result.ai} />}
           {result && result.guesses.length > 0 && (
             <div className="mt-4">
-              <p className="text-[13px] font-medium text-secondary">{result.ai ? "Pl@ntNet также нашёл" : "Pl@ntNet нашёл"}</p>
+              <p className="text-secondary text-[13px] font-medium">{result.ai ? "Pl@ntNet также нашёл" : "Pl@ntNet нашёл"}</p>
               <GuessList guesses={result.guesses} />
             </div>
           )}
           {nothing && (
-            <p className="mt-3 rounded-2xl bg-muted px-4 py-3 text-[15px]">
+            <p className="bg-muted mt-3 rounded-2xl px-4 py-3 text-[15px]">
               Явных признаков болезни на фото не нашли. Если что-то беспокоит — снимите поражённое место крупнее или отметьте симптомы ниже.
             </p>
           )}
           {result && !nothing && (
-            <p className="mt-3 flex gap-2 text-[13px] text-secondary">
-              <AlertTriangle className="size-4 shrink-0" aria-hidden /> Разбор делают нейросети — это подсказка, а не диагноз. Сверьтесь с симптомами ниже.
+            <p className="text-secondary mt-3 flex gap-2 text-[13px]">
+              <AlertTriangle className="size-4 shrink-0" aria-hidden /> Разбор делают нейросети — это подсказка, а не диагноз. Сверьтесь с
+              симптомами ниже.
             </p>
           )}
         </>
@@ -186,10 +194,10 @@ function SymptomCheck() {
     <section aria-label="По симптомам" className="space-y-4">
       <Card className="p-5">
         <h2 className="text-[19px] font-semibold">По симптомам</h2>
-        <p className="mt-1 text-[15px] text-secondary">Отметьте всё, что видите, — подскажем вероятные причины и что делать.</p>
+        <p className="text-secondary mt-1 text-[15px]">Отметьте всё, что видите, — подскажем вероятные причины и что делать.</p>
         {(Object.keys(SYMPTOM_GROUPS) as SymptomGroup[]).map((g) => (
           <div key={g} className="mt-4" role="group" aria-label={SYMPTOM_GROUPS[g]}>
-            <p className="mb-2 text-[13px] font-medium text-secondary">{SYMPTOM_GROUPS[g]}</p>
+            <p className="text-secondary mb-2 text-[13px] font-medium">{SYMPTOM_GROUPS[g]}</p>
             <div className="flex flex-wrap gap-2">
               {SYMPTOMS.filter((s) => s.group === g).map((s) => (
                 <Chip key={s.id} active={picked.includes(s.id)} onClick={() => toggle(s.id)}>
@@ -220,15 +228,15 @@ function Diagnose() {
   const plant = details.data?.plant ?? null;
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      {plantId && details.isPending ? <Spinner /> : plant && <p className="px-1 text-[15px] text-secondary">Растение: {plant.nickname}</p>}
+      {plantId && details.isPending ? <Spinner /> : plant && <p className="text-secondary px-1 text-[15px]">Растение: {plant.nickname}</p>}
       <PhotoCheck plantHint={plant ? [plant.nickname, plant.speciesName].filter(Boolean).join(", ") : null} />
       <SymptomCheck />
       <Card className="flex items-center gap-4 p-5">
-        <MessageCircleQuestion className="size-6 shrink-0 text-leaf" aria-hidden />
+        <MessageCircleQuestion className="text-leaf size-6 shrink-0" aria-hidden />
         <p className="flex-1 text-[15px]">Не уверены? Спросите садоводов — у кого-то наверняка было так же.</p>
         <Link
           href={`/feed/new/?type=question${plantId ? `&plant=${encodeURIComponent(plantId)}` : ""}`}
-          className="shrink-0 rounded-full bg-leaf px-4 py-2 text-[15px] font-semibold text-white"
+          className="bg-leaf shrink-0 rounded-full px-4 py-2 text-[15px] font-semibold text-white"
         >
           Спросить
         </Link>
@@ -241,11 +249,11 @@ export default function DiagnosePage() {
   return (
     <>
       <div className="pt-4">
-        <Link href="/garden/" className="inline-flex items-center gap-1 text-[15px] font-medium text-leaf">
+        <Link href="/garden/" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
           <ChevronLeft className="size-5" aria-hidden /> Коллекция
         </Link>
       </div>
-      <PageHeader title="Что с растением?" actions={<Stethoscope className="size-7 text-alert" aria-hidden />} />
+      <PageHeader title="Что с растением?" actions={<Stethoscope className="text-alert size-7" aria-hidden />} />
       <RequireSession>
         <Suspense fallback={<Spinner />}>
           <Diagnose />

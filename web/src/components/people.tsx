@@ -61,9 +61,9 @@ export function PersonRow({ person, onOpen }: { person: PersonCard; onOpen?: () 
         <span className="min-w-0">
           <span className="block truncate font-semibold">
             {person.displayName}
-            {person.isMe && <span className="ml-1.5 font-normal text-secondary">· вы</span>}
+            {person.isMe && <span className="text-secondary ml-1.5 font-normal">· вы</span>}
           </span>
-          <span className="block truncate text-[13px] text-secondary">
+          <span className="text-secondary block truncate text-[13px]">
             @{person.username} · {person.plants} {plural(person.plants, "растение", "растения", "растений")}
             {person.followsMe && !person.isMe ? " · подписан(а) на вас" : ""}
           </span>
@@ -99,7 +99,7 @@ export function PeopleListSheet({
           message={person.isMe ? "Найдите садоводов в поиске и подпишитесь — их растения появятся в ленте." : ""}
         />
       ) : (
-        <ul className="divide-y divide-separator">
+        <ul className="divide-separator divide-y">
           {list.data.map((p) => (
             <PersonRow key={p.id} person={p} onOpen={onClose} />
           ))}
@@ -116,11 +116,11 @@ export function ProfileHeader({ person, action }: { person: PersonCard; action?:
     const body = (
       <>
         <span className="block text-[20px] font-bold tabular-nums">{value.toLocaleString("ru-RU")}</span>
-        <span className="block text-[13px] text-secondary">{label}</span>
+        <span className="text-secondary block text-[13px]">{label}</span>
       </>
     );
     return onClick ? (
-      <button type="button" onClick={onClick} className="flex-1 rounded-2xl py-2 hover:bg-muted">
+      <button type="button" onClick={onClick} className="hover:bg-muted flex-1 rounded-2xl py-2">
         {body}
       </button>
     ) : (
@@ -128,12 +128,12 @@ export function ProfileHeader({ person, action }: { person: PersonCard; action?:
     );
   };
   return (
-    <section className="rounded-[20px] bg-surface p-5">
+    <section className="bg-surface rounded-[20px] p-5">
       <div className="flex items-center gap-4">
         <Avatar name={person.displayName} size={72} />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[24px] leading-tight font-bold">{person.displayName}</h1>
-          <p className="truncate text-secondary">@{person.username}</p>
+          <p className="text-secondary truncate">@{person.username}</p>
         </div>
       </div>
       {person.bio && <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line">{person.bio}</p>}
@@ -155,16 +155,16 @@ export function PublicPlantsGrid({ plants }: { plants: PublicPlant[] }) {
       {plants.map((p) => {
         const sp = speciesBySlug(p.speciesSlug);
         return (
-          <li key={p.id} className="overflow-hidden rounded-[20px] bg-surface">
+          <li key={p.id} className="bg-surface overflow-hidden rounded-[20px]">
             <PlantPhoto src={p.photoUrl ?? sp?.image?.url} seed={p.id} alt={p.nickname} className="aspect-square w-full" iconSize={36} />
             <div className="p-3">
               <p className="truncate font-semibold">{p.nickname}</p>
               {sp ? (
-                <Link href={`/plants/${sp.slug}/`} className="flex items-center gap-1 truncate text-[13px] text-secondary hover:text-leaf">
+                <Link href={`/plants/${sp.slug}/`} className="text-secondary hover:text-leaf flex items-center gap-1 truncate text-[13px]">
                   <Leaf className="size-3.5 shrink-0" aria-hidden /> {speciesName(sp)}
                 </Link>
               ) : (
-                <p className="text-[13px] text-secondary">Вид не указан</p>
+                <p className="text-secondary text-[13px]">Вид не указан</p>
               )}
             </div>
           </li>
@@ -175,15 +175,7 @@ export function PublicPlantsGrid({ plants }: { plants: PublicPlant[] }) {
 }
 
 /** Редактирование своего профиля: имя, @username, «О себе». */
-export function EditProfileSheet({
-  open,
-  onClose,
-  initial,
-}: {
-  open: boolean;
-  onClose: () => void;
-  initial: ProfileUpdate;
-}) {
+export function EditProfileSheet({ open, onClose, initial }: { open: boolean; onClose: () => void; initial: ProfileUpdate }) {
   return (
     <Sheet open={open} onClose={onClose} title="Редактировать профиль">
       {open && <EditProfileForm initial={initial} onDone={onClose} />}
@@ -210,14 +202,17 @@ function EditProfileForm({ initial, onDone }: { initial: ProfileUpdate; onDone: 
       toast("Профиль сохранён");
       onDone();
     } catch (err) {
-      setError({ field: /username|занято/i.test(String(err)) ? "username" : null, message: err instanceof Error ? err.message : String(err) });
+      setError({
+        field: /username|занято/i.test(String(err)) ? "username" : null,
+        message: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setSaving(false);
     }
   }
 
   const fieldError = (f: keyof ProfileUpdate) =>
-    error?.field === f ? <span className="mt-1 block text-[13px] text-alert">{error.message}</span> : null;
+    error?.field === f ? <span className="text-alert mt-1 block text-[13px]">{error.message}</span> : null;
 
   return (
     <form onSubmit={submit} className="space-y-4">
@@ -233,8 +228,8 @@ function EditProfileForm({ initial, onDone }: { initial: ProfileUpdate; onDone: 
         {fieldError("displayName")}
       </Field>
       <Field label="Имя пользователя" hint="По нему вас найдут в поиске. Латинские буквы, цифры и _.">
-        <div className="flex items-center rounded-xl bg-muted focus-within:ring-2 focus-within:ring-leaf">
-          <span className="pl-4 text-[17px] text-secondary">@</span>
+        <div className="bg-muted focus-within:ring-leaf flex items-center rounded-xl focus-within:ring-2">
+          <span className="text-secondary pl-4 text-[17px]">@</span>
           <input
             className="w-full bg-transparent px-1 py-3 text-[17px] outline-none"
             value={form.username}
@@ -269,7 +264,7 @@ function EditProfileForm({ initial, onDone }: { initial: ProfileUpdate; onDone: 
         />
         {fieldError("bio")}
       </Field>
-      {error && error.field === null && <p className="text-[15px] text-alert">{error.message}</p>}
+      {error && error.field === null && <p className="text-alert text-[15px]">{error.message}</p>}
       <Button type="submit" className="w-full" loading={saving}>
         <Pencil className="size-4" aria-hidden /> Сохранить
       </Button>

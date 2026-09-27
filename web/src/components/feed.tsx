@@ -1,7 +1,18 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, CircleCheck, Leaf, MessageCircle, MessageCircleQuestion, MoreHorizontal, Pencil, Send, Sprout, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  CircleCheck,
+  Leaf,
+  MessageCircle,
+  MessageCircleQuestion,
+  MoreHorizontal,
+  Pencil,
+  Send,
+  Sprout,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { FollowButton as PersonFollowButton, personHref } from "./people";
@@ -49,7 +60,7 @@ function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number }) {
       <Avatar name={post.authorDisplayName} size={size} />
       <span className="min-w-0">
         <span className="block truncate font-semibold">{post.authorDisplayName}</span>
-        <time className="block text-[13px] text-secondary" dateTime={post.createdAt.toISOString()}>
+        <time className="text-secondary block text-[13px]" dateTime={post.createdAt.toISOString()}>
           {timeAgo(post.createdAt)}
           {post.editedAt && " · изменено"}
         </time>
@@ -94,28 +105,36 @@ export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () =
           setMode("menu");
         }}
         aria-label="Действия с публикацией"
-        className="grid size-9 shrink-0 place-items-center rounded-full text-secondary hover:bg-muted"
+        className="text-secondary hover:bg-muted grid size-9 shrink-0 place-items-center rounded-full"
       >
         <MoreHorizontal className="size-5" />
       </button>
       <Sheet open={mode === "menu"} onClose={closeIf("menu")} title={post.kind === "question" ? "Мой вопрос" : "Моя запись"}>
         <div className="space-y-2 pb-2">
           {left > 0 ? (
-            <button type="button" onClick={() => setMode("edit")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left">
-              <Pencil className="size-5 text-leaf" aria-hidden />
+            <button
+              type="button"
+              onClick={() => setMode("edit")}
+              className="bg-muted flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left"
+            >
+              <Pencil className="text-leaf size-5" aria-hidden />
               <span className="flex-1">
                 <span className="block font-semibold">Редактировать</span>
-                <span className="block text-[13px] text-secondary">
+                <span className="text-secondary block text-[13px]">
                   Ещё {minutes} {plural(minutes, "минуту", "минуты", "минут")}
                 </span>
               </span>
             </button>
           ) : (
-            <p className="rounded-2xl bg-muted px-4 py-3.5 text-[15px] text-secondary">
+            <p className="bg-muted text-secondary rounded-2xl px-4 py-3.5 text-[15px]">
               Редактировать можно в течение часа после публикации — это время прошло.
             </p>
           )}
-          <button type="button" onClick={() => setMode("delete")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left font-semibold text-alert">
+          <button
+            type="button"
+            onClick={() => setMode("delete")}
+            className="bg-muted text-alert flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left font-semibold"
+          >
             <Trash2 className="size-5" aria-hidden /> Удалить {what}
           </button>
         </div>
@@ -169,7 +188,7 @@ function EditPostForm({ post, onDone }: { post: FeedPost; onDone: () => void }) 
     >
       {!isQuestion && (
         <fieldset>
-          <legend className="mb-2 text-[13px] font-medium text-secondary">Что произошло</legend>
+          <legend className="text-secondary mb-2 text-[13px] font-medium">Что произошло</legend>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(DIARY_EVENTS) as DiaryEvent[]).map((k) => (
               <Chip key={k} active={event === k} onClick={() => setEvent(k)}>
@@ -219,7 +238,7 @@ function SpeciesLink({ speciesId, className }: { speciesId: string | null; class
   const sp = speciesById(speciesId);
   if (!sp) return null;
   return (
-    <Link href={`/plants/${sp.slug}/`} className={cx("inline-flex min-w-0 items-center gap-1 text-secondary hover:text-leaf", className)}>
+    <Link href={`/plants/${sp.slug}/`} className={cx("text-secondary hover:text-leaf inline-flex min-w-0 items-center gap-1", className)}>
       <Leaf className="size-3.5 shrink-0" aria-hidden /> <span className="truncate">{speciesName(sp)}</span>
     </Link>
   );
@@ -229,7 +248,7 @@ export function EventBadge({ event }: { event: FeedPost["event"] }) {
   if (!event) return null;
   const e = DIARY_EVENTS[event];
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-leaf/12 px-3 py-1 text-[13px] font-semibold text-leaf">
+    <span className="bg-leaf/12 text-leaf inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold">
       <span aria-hidden>{e.emoji}</span> {e.label}
     </span>
   );
@@ -239,7 +258,7 @@ export function EventBadge({ event }: { event: FeedPost["event"] }) {
 export function DiaryCard({ post, onComments, showPlantLink = true }: { post: FeedPost; onComments: () => void; showPlantLink?: boolean }) {
   const support = useSupport(post);
   return (
-    <article className="overflow-hidden rounded-[20px] bg-surface" aria-label={`Запись: ${post.authorDisplayName}`}>
+    <article className="bg-surface overflow-hidden rounded-[20px]" aria-label={`Запись: ${post.authorDisplayName}`}>
       <header className="flex items-center gap-3 px-4 pt-4">
         <AuthorLine post={post} />
         <FollowAuthor post={post} />
@@ -251,7 +270,13 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
         <SpeciesLink speciesId={post.speciesId} className="text-[13px]" />
       </div>
       {post.photoUrl && (
-        <PlantPhoto src={post.photoUrl} seed={post.id} alt={post.plantName ?? "Фото растения"} className="mt-3 aspect-[4/3] w-full" iconSize={48} />
+        <PlantPhoto
+          src={post.photoUrl}
+          seed={post.id}
+          alt={post.plantName ?? "Фото растения"}
+          className="mt-3 aspect-[4/3] w-full"
+          iconSize={48}
+        />
       )}
       {post.text && <p className="px-4 pt-3 text-[15px] leading-relaxed whitespace-pre-line">{post.text}</p>}
       <footer className="flex items-center gap-2 px-3 pt-3 pb-3">
@@ -272,14 +297,14 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
           type="button"
           onClick={onComments}
           aria-label="Комментарии"
-          className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-[13px] font-semibold"
+          className="bg-muted inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold"
         >
           <MessageCircle className="size-4" aria-hidden /> {post.commentCount}
         </button>
         {showPlantLink && post.plantId && (
           <Link
             href={plantDiaryHref(post.plantId)}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-leaf hover:bg-muted"
+            className="text-leaf hover:bg-muted ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold"
           >
             <BookOpen className="size-4" aria-hidden /> Дневник растения
           </Link>
@@ -293,16 +318,16 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
 export function QuestionStatus({ post }: { post: FeedPost }) {
   if (post.solvedCommentId) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-leaf/12 px-2.5 py-0.5 text-[12px] font-semibold text-leaf">
+      <span className="bg-leaf/12 text-leaf inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
         <CircleCheck className="size-3.5" aria-hidden /> Решено
       </span>
     );
   }
   if (post.commentCount === 0) {
-    return <span className="rounded-full bg-soil/15 px-2.5 py-0.5 text-[12px] font-semibold text-soil">Ждёт ответа</span>;
+    return <span className="bg-soil/15 text-soil rounded-full px-2.5 py-0.5 text-[12px] font-semibold">Ждёт ответа</span>;
   }
   return (
-    <span className="rounded-full bg-water/15 px-2.5 py-0.5 text-[12px] font-semibold text-water">
+    <span className="bg-water/15 text-water rounded-full px-2.5 py-0.5 text-[12px] font-semibold">
       {post.commentCount} {plural(post.commentCount, "ответ", "ответа", "ответов")}
     </span>
   );
@@ -312,20 +337,22 @@ export function QuestionStatus({ post }: { post: FeedPost }) {
 export function QuestionRow({ post }: { post: FeedPost }) {
   return (
     <li>
-      <Link href={questionHref(post.id)} className="flex gap-3 rounded-[20px] bg-surface p-4 transition hover:brightness-[0.98]">
+      <Link href={questionHref(post.id)} className="bg-surface flex gap-3 rounded-[20px] p-4 transition hover:brightness-[0.98]">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <QuestionStatus post={post} />
             {speciesById(post.speciesId) && (
-              <span className="truncate text-[13px] text-secondary">{speciesName(speciesById(post.speciesId)!)}</span>
+              <span className="text-secondary truncate text-[13px]">{speciesName(speciesById(post.speciesId)!)}</span>
             )}
           </div>
           <p className="mt-2 line-clamp-3 text-[15px] leading-snug font-medium">{post.text}</p>
-          <p className="mt-2 text-[13px] text-secondary">
+          <p className="text-secondary mt-2 text-[13px]">
             {post.authorDisplayName} · {timeAgo(post.createdAt)}
           </p>
         </div>
-        {post.photoUrl && <PlantPhoto src={post.photoUrl} seed={post.id} alt="Фото к вопросу" className="size-20 shrink-0 rounded-2xl" iconSize={24} />}
+        {post.photoUrl && (
+          <PlantPhoto src={post.photoUrl} seed={post.id} alt="Фото к вопросу" className="size-20 shrink-0 rounded-2xl" iconSize={24} />
+        )}
       </Link>
     </li>
   );
@@ -334,7 +361,7 @@ export function QuestionRow({ post }: { post: FeedPost }) {
 /** Полный вопрос: фото, текст, вид — наверху страницы вопроса. */
 export function QuestionHeader({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
   return (
-    <article className="overflow-hidden rounded-[20px] bg-surface">
+    <article className="bg-surface overflow-hidden rounded-[20px]">
       <header className="flex items-center gap-3 px-4 pt-4">
         <AuthorLine post={post} />
         <QuestionStatus post={post} />
@@ -378,7 +405,9 @@ export function Answers({ post }: { post: FeedPost }) {
       <h2 className="mt-6 mb-3 text-[20px] font-bold">
         {list.length ? `${list.length} ${plural(list.length, "ответ", "ответа", "ответов")}` : "Ответов пока нет"}
       </h2>
-      {list.length === 0 && <p className="mb-4 text-secondary">Знаете, в чём дело? Помогите — ответ увидят все, кто держит это растение.</p>}
+      {list.length === 0 && (
+        <p className="text-secondary mb-4">Знаете, в чём дело? Помогите — ответ увидят все, кто держит это растение.</p>
+      )}
       <ul className="space-y-3">
         {list.map((c) => (
           <AnswerItem
@@ -396,7 +425,13 @@ export function Answers({ post }: { post: FeedPost }) {
   );
 }
 
-function AnswerItem({ comment: c, best, canMark, onMark, onDelete }: {
+function AnswerItem({
+  comment: c,
+  best,
+  canMark,
+  onMark,
+  onDelete,
+}: {
   comment: PostComment;
   best: boolean;
   canMark: boolean;
@@ -404,9 +439,9 @@ function AnswerItem({ comment: c, best, canMark, onMark, onDelete }: {
   onDelete: () => void;
 }) {
   return (
-    <li className={cx("rounded-[20px] bg-surface p-4", best && "ring-2 ring-leaf")}>
+    <li className={cx("bg-surface rounded-[20px] p-4", best && "ring-leaf ring-2")}>
       {best && (
-        <p className="mb-2 inline-flex items-center gap-1 text-[13px] font-semibold text-leaf">
+        <p className="text-leaf mb-2 inline-flex items-center gap-1 text-[13px] font-semibold">
           <CircleCheck className="size-4" aria-hidden /> Лучший ответ
         </p>
       )}
@@ -420,13 +455,13 @@ function AnswerItem({ comment: c, best, canMark, onMark, onDelete }: {
           </p>
           <p className="mt-1 text-[15px] leading-relaxed whitespace-pre-line">{c.text}</p>
           {canMark && (
-            <button type="button" onClick={onMark} className="mt-2 text-[13px] font-semibold text-leaf">
+            <button type="button" onClick={onMark} className="text-leaf mt-2 text-[13px] font-semibold">
               {best ? "Снять отметку" : "Это лучший ответ"}
             </button>
           )}
         </div>
         {c.mine && (
-          <button onClick={onDelete} aria-label="Удалить ответ" className="self-start text-secondary hover:text-alert">
+          <button onClick={onDelete} aria-label="Удалить ответ" className="text-secondary hover:text-alert self-start">
             <Trash2 className="size-4" />
           </button>
         )}
@@ -462,7 +497,12 @@ function ReplyForm({ postId, placeholder, label, onSent }: { postId: string; pla
         maxLength={1000}
         aria-label={label}
       />
-      <button type="submit" disabled={!text.trim() || add.isPending} className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf text-white disabled:opacity-40" aria-label="Отправить">
+      <button
+        type="submit"
+        disabled={!text.trim() || add.isPending}
+        className="bg-leaf grid size-12 shrink-0 place-items-center rounded-full text-white disabled:opacity-40"
+        aria-label="Отправить"
+      >
         <Send className="size-5" />
       </button>
     </form>
@@ -494,7 +534,7 @@ export function CommentsSheet({ postId, onClose }: { postId: string | null; onCl
                   <b className="mr-1.5">{c.authorDisplayName}</b>
                   {c.text}
                 </p>
-                <p className="text-[12px] text-secondary">{timeAgo(c.createdAt)}</p>
+                <p className="text-secondary text-[12px]">{timeAgo(c.createdAt)}</p>
               </div>
               {c.mine && (
                 <button onClick={() => remove.mutate(c.id)} aria-label="Удалить комментарий" className="text-secondary hover:text-alert">
@@ -505,10 +545,10 @@ export function CommentsSheet({ postId, onClose }: { postId: string | null; onCl
           ))}
         </ul>
       ) : (
-        <p className="py-6 text-center text-secondary">Будьте первым, кто оставит комментарий.</p>
+        <p className="text-secondary py-6 text-center">Будьте первым, кто оставит комментарий.</p>
       )}
       {postId && (
-        <div className="sticky bottom-0 bg-surface pb-1">
+        <div className="bg-surface sticky bottom-0 pb-1">
           <ReplyForm postId={postId} placeholder="Комментарий…" label="Текст комментария" onSent={refresh} />
         </div>
       )}

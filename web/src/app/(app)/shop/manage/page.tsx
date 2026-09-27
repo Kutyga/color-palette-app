@@ -64,18 +64,35 @@ function ShopForm({ shop, onDone }: { shop: Shop | null; onDone?: () => void }) 
     if (invalid) return setError(invalid);
     save.mutate();
   }
-  const err = (f: keyof ShopDraft) => (error?.field === f ? <span className="mt-1 block text-[13px] text-alert">{error.message}</span> : null);
+  const err = (f: keyof ShopDraft) =>
+    error?.field === f ? <span className="text-alert mt-1 block text-[13px]">{error.message}</span> : null;
   return (
     <form onSubmit={submit} className="space-y-4" noValidate>
       <Field label="Название магазина">
-        <input className={inputClass} value={draft.name} onChange={(e) => set({ name: e.target.value })} maxLength={80} autoComplete="organization" />
+        <input
+          className={inputClass}
+          value={draft.name}
+          onChange={(e) => set({ name: e.target.value })}
+          maxLength={80}
+          autoComplete="organization"
+        />
         {err("name")}
       </Field>
       <Field
         label={INN_REQUIRED ? "ИНН" : "ИНН (необязательно)"}
-        hint={INN_REQUIRED ? "Для проверки: сверяем с ЕГРЮЛ/ЕГРИП. Показывается на витрине." : "Если укажете — покажем на витрине и ускорим проверку."}
+        hint={
+          INN_REQUIRED
+            ? "Для проверки: сверяем с ЕГРЮЛ/ЕГРИП. Показывается на витрине."
+            : "Если укажете — покажем на витрине и ускорим проверку."
+        }
       >
-        <input className={inputClass} value={draft.inn} onChange={(e) => set({ inn: e.target.value.replace(/\D/g, "") })} inputMode="numeric" maxLength={12} />
+        <input
+          className={inputClass}
+          value={draft.inn}
+          onChange={(e) => set({ inn: e.target.value.replace(/\D/g, "") })}
+          inputMode="numeric"
+          maxLength={12}
+        />
         {err("inn")}
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -88,25 +105,55 @@ function ShopForm({ shop, onDone }: { shop: Shop | null; onDone?: () => void }) 
           {err("address")}
         </Field>
         <Field label="Телефон">
-          <input className={inputClass} value={draft.phone} onChange={(e) => set({ phone: e.target.value })} inputMode="tel" maxLength={30} autoComplete="tel" />
+          <input
+            className={inputClass}
+            value={draft.phone}
+            onChange={(e) => set({ phone: e.target.value })}
+            inputMode="tel"
+            maxLength={30}
+            autoComplete="tel"
+          />
           {err("phone")}
         </Field>
         <Field label="Сайт">
-          <input className={inputClass} value={draft.website} onChange={(e) => set({ website: e.target.value })} inputMode="url" placeholder="example.ru" maxLength={300} />
+          <input
+            className={inputClass}
+            value={draft.website}
+            onChange={(e) => set({ website: e.target.value })}
+            inputMode="url"
+            placeholder="example.ru"
+            maxLength={300}
+          />
           {err("website")}
         </Field>
       </div>
       <Field label="Часы работы">
-        <input className={inputClass} value={draft.hours} onChange={(e) => set({ hours: e.target.value })} placeholder="Ежедневно 10:00–21:00" maxLength={100} />
+        <input
+          className={inputClass}
+          value={draft.hours}
+          onChange={(e) => set({ hours: e.target.value })}
+          placeholder="Ежедневно 10:00–21:00"
+          maxLength={100}
+        />
         {err("hours")}
       </Field>
       <Field label="О магазине">
-        <textarea className={cx(inputClass, "min-h-24")} value={draft.description} onChange={(e) => set({ description: e.target.value })} maxLength={1000} />
+        <textarea
+          className={cx(inputClass, "min-h-24")}
+          value={draft.description}
+          onChange={(e) => set({ description: e.target.value })}
+          maxLength={1000}
+        />
         {err("description")}
       </Field>
-      <label className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+      <label className="bg-muted flex items-center justify-between gap-3 rounded-xl px-4 py-3">
         <span className="text-[15px] font-medium">Есть доставка в другие города</span>
-        <input type="checkbox" className="size-5 accent-[var(--leaf)]" checked={draft.delivery} onChange={(e) => set({ delivery: e.target.checked })} />
+        <input
+          type="checkbox"
+          className="size-5 accent-[var(--leaf)]"
+          checked={draft.delivery}
+          onChange={(e) => set({ delivery: e.target.checked })}
+        />
       </label>
       <div className="flex gap-2">
         {onDone && shop && (
@@ -135,20 +182,23 @@ function StatusCard({ shop, onEdit }: { shop: Shop; onEdit: () => void }) {
   return (
     <Card className="p-5">
       <div className="flex items-start gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-leaf/10 text-leaf">
+        <span className="bg-leaf/10 text-leaf grid size-12 shrink-0 place-items-center rounded-2xl">
           {shop.status === "verified" ? <BadgeCheck className="size-6" aria-hidden /> : <Store className="size-6" aria-hidden />}
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center gap-2 text-[19px] font-semibold">
             <span className="truncate">{shop.name}</span> <ShopStatusPill status={shop.status} />
           </p>
-          <p className="mt-1 text-[15px] text-secondary">{STATUS_TEXT[shop.status]}</p>
-          {shop.reviewNote && <p className="mt-2 rounded-xl bg-muted px-3 py-2 text-[15px]">Комментарий модератора: {shop.reviewNote}</p>}
-          {isDemo && shop.status === "pending" && <p className="mt-2 text-[13px] text-secondary">В демо-режиме заявки не проверяются.</p>}
+          <p className="text-secondary mt-1 text-[15px]">{STATUS_TEXT[shop.status]}</p>
+          {shop.reviewNote && <p className="bg-muted mt-2 rounded-xl px-3 py-2 text-[15px]">Комментарий модератора: {shop.reviewNote}</p>}
+          {isDemo && shop.status === "pending" && <p className="text-secondary mt-2 text-[13px]">В демо-режиме заявки не проверяются.</p>}
         </div>
       </div>
       <div className="mt-4 flex gap-2">
-        <Link href={shopHref(shop.id)} className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-muted text-[15px] font-semibold">
+        <Link
+          href={shopHref(shop.id)}
+          className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center rounded-full text-[15px] font-semibold"
+        >
           Открыть витрину
         </Link>
         <Button variant="secondary" className="flex-1" onClick={onEdit}>
@@ -255,10 +305,10 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
   return (
     <Card className="space-y-5 p-5">
       <div className="flex items-center gap-3">
-        <FileSpreadsheet className="size-6 text-leaf" aria-hidden />
+        <FileSpreadsheet className="text-leaf size-6" aria-hidden />
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{state.fileName}</p>
-          <p className="text-[13px] text-secondary">
+          <p className="text-secondary text-[13px]">
             {state.rows.length} {plural(state.rows.length, "строка", "строки", "строк")} без заголовка
           </p>
         </div>
@@ -272,7 +322,7 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {(Object.keys(IMPORT_FIELDS) as ImportField[]).map((f) => (
             <label key={f} className="flex items-center gap-2 text-[15px]">
-              <span className="w-28 shrink-0 text-secondary">{IMPORT_FIELDS[f].label}</span>
+              <span className="text-secondary w-28 shrink-0">{IMPORT_FIELDS[f].label}</span>
               <select
                 className={cx(inputClass, "py-2 text-[15px]")}
                 value={state.mapping[f] ?? ""}
@@ -291,7 +341,7 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
         </div>
       </section>
 
-      <p className="rounded-xl bg-muted px-4 py-3 text-[15px]" role="status">
+      <p className="bg-muted rounded-xl px-4 py-3 text-[15px]" role="status">
         Готово к загрузке: <b>{ok.length}</b> · вид определён у <b>{matched}</b>
         {errors.length > 0 && (
           <>
@@ -301,7 +351,7 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
         )}
       </p>
       {errors.length > 0 && (
-        <ul className="space-y-1 text-[13px] text-alert">
+        <ul className="text-alert space-y-1 text-[13px]">
           {errors.slice(0, 5).map((r) => (
             <li key={r.line}>
               Строка {r.line}: {r.error}
@@ -314,14 +364,21 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
       <section aria-label="Сопоставление видов">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-[15px] font-semibold">Виды растений</h3>
-          <label className="flex items-center gap-2 text-[13px] text-secondary">
-            <input type="checkbox" className="accent-[var(--leaf)]" checked={onlyUnmatched} onChange={(e) => setOnlyUnmatched(e.target.checked)} />
+          <label className="text-secondary flex items-center gap-2 text-[13px]">
+            <input
+              type="checkbox"
+              className="accent-[var(--leaf)]"
+              checked={onlyUnmatched}
+              onChange={(e) => setOnlyUnmatched(e.target.checked)}
+            />
             Только без вида
           </label>
         </div>
-        <p className="mt-1 text-[13px] text-secondary">По виду товар попадает в «Где купить» и в уведомления тем, кто добавил растение в «Хочу».</p>
+        <p className="text-secondary mt-1 text-[13px]">
+          По виду товар попадает в «Где купить» и в уведомления тем, кто добавил растение в «Хочу».
+        </p>
         {shown.length ? (
-          <ul className="mt-2 divide-y divide-separator">
+          <ul className="divide-separator mt-2 divide-y">
             {shown.map((r) => (
               <li key={r.line} className="flex flex-col gap-1 py-2 sm:flex-row sm:items-center sm:gap-3">
                 <span className="min-w-0 flex-1 truncate text-[15px]">
@@ -345,19 +402,31 @@ function ImportPreview({ state, setState, onClose }: { state: ImportState; setSt
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-[15px] text-secondary">Все виды определены ✓</p>
+          <p className="text-secondary mt-2 text-[15px]">Все виды определены ✓</p>
         )}
       </section>
 
-      <label className="flex items-start gap-3 rounded-xl bg-muted px-4 py-3">
-        <input type="checkbox" className="mt-1 size-5 shrink-0 accent-[var(--leaf)]" checked={state.replace} onChange={(e) => setState({ ...state, replace: e.target.checked })} />
+      <label className="bg-muted flex items-start gap-3 rounded-xl px-4 py-3">
+        <input
+          type="checkbox"
+          className="mt-1 size-5 shrink-0 accent-[var(--leaf)]"
+          checked={state.replace}
+          onChange={(e) => setState({ ...state, replace: e.target.checked })}
+        />
         <span>
           <span className="block text-[15px] font-medium">Удалить товары, которых нет в файле</span>
-          <span className="block text-[13px] text-secondary">Для полного прайса. Без галочки — только добавим новые и обновим цены по артикулу.</span>
+          <span className="text-secondary block text-[13px]">
+            Для полного прайса. Без галочки — только добавим новые и обновим цены по артикулу.
+          </span>
         </span>
       </label>
 
-      <Button className="w-full" disabled={!ok.length || state.mapping.title == null} loading={upload.isPending} onClick={() => upload.mutate()}>
+      <Button
+        className="w-full"
+        disabled={!ok.length || state.mapping.title == null}
+        loading={upload.isPending}
+        onClick={() => upload.mutate()}
+      >
         <Upload className="size-4" aria-hidden /> Загрузить {ok.length} {plural(ok.length, "товар", "товара", "товаров")}
       </Button>
     </Card>
@@ -378,7 +447,7 @@ function ProductRow({ product: p, shopId }: { product: ShopProduct; shopId: stri
     qc.invalidateQueries({ queryKey: ["shops"] });
     qc.invalidateQueries({ queryKey: ["stats"] });
   };
-      qc.invalidateQueries({ queryKey: ["stats"] });
+  qc.invalidateQueries({ queryKey: ["stats"] });
   // Галочка отзывается сразу (локально), затем значение уже лежит в кэше каталога — без мигания.
   const [stockUi, setStockUi] = useState<boolean | null>(null);
   const stock = useMutation({
@@ -399,16 +468,22 @@ function ProductRow({ product: p, shopId }: { product: ShopProduct; shopId: stri
     <li className="flex items-center gap-3 py-3">
       <div className="min-w-0 flex-1">
         <p className="truncate text-[15px] font-medium">{p.title}</p>
-        <p className="truncate text-[13px] text-secondary">
-          {p.priceRub == null ? "без цены" : `${p.priceRub.toLocaleString("ru-RU")} ₽`} · {sp ? speciesName(sp) : "вид не указан"} · арт. {p.externalId}
+        <p className="text-secondary truncate text-[13px]">
+          {p.priceRub == null ? "без цены" : `${p.priceRub.toLocaleString("ru-RU")} ₽`} · {sp ? speciesName(sp) : "вид не указан"} · арт.{" "}
+          {p.externalId}
         </p>
       </div>
-      <label className="flex shrink-0 items-center gap-1.5 text-[13px] text-secondary">
-        <input type="checkbox" className="size-5 accent-[var(--leaf)]" checked={stockUi ?? p.inStock}
+      <label className="text-secondary flex shrink-0 items-center gap-1.5 text-[13px]">
+        <input
+          type="checkbox"
+          className="size-5 accent-[var(--leaf)]"
+          checked={stockUi ?? p.inStock}
           onChange={(e) => {
             setStockUi(e.target.checked);
             stock.mutate(e.target.checked);
-          }} aria-label={`В наличии: ${p.title}`} />
+          }}
+          aria-label={`В наличии: ${p.title}`}
+        />
         <span className="hidden sm:inline">В наличии</span>
       </label>
       {confirm ? (
@@ -421,7 +496,12 @@ function ProductRow({ product: p, shopId }: { product: ShopProduct; shopId: stri
           </Button>
         </span>
       ) : (
-        <button type="button" onClick={() => setConfirm(true)} aria-label={`Удалить «${p.title}»`} className="grid size-9 shrink-0 place-items-center rounded-full text-secondary hover:bg-muted hover:text-alert">
+        <button
+          type="button"
+          onClick={() => setConfirm(true)}
+          aria-label={`Удалить «${p.title}»`}
+          className="text-secondary hover:bg-muted hover:text-alert grid size-9 shrink-0 place-items-center rounded-full"
+        >
           <Trash2 className="size-4" />
         </button>
       )}
@@ -465,11 +545,18 @@ function CatalogManager({ shop }: { shop: Shop }) {
         <ImportPreview state={importing} setState={setImporting} onClose={() => setImporting(null)} />
       ) : (
         <Card className="p-5">
-          <p className="text-[15px] text-secondary">
-            Загрузите прайс из Excel (.xlsx) или CSV: название, цена, наличие, артикул. Вид растения определим сами — останется проверить. Повторная загрузка обновит цены и
-            наличие по артикулу.
+          <p className="text-secondary text-[15px]">
+            Загрузите прайс из Excel (.xlsx) или CSV: название, цена, наличие, артикул. Вид растения определим сами — останется проверить.
+            Повторная загрузка обновит цены и наличие по артикулу.
           </p>
-          <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,text/csv" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} aria-label="Файл прайса" />
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,.xlsx,.xls,text/csv"
+            className="hidden"
+            onChange={(e) => onFile(e.target.files?.[0])}
+            aria-label="Файл прайса"
+          />
           <div className="mt-4 flex flex-wrap gap-2">
             <Button loading={reading} onClick={() => fileRef.current?.click()}>
               <Upload className="size-4" aria-hidden /> Загрузить прайс
@@ -480,7 +567,12 @@ function CatalogManager({ shop }: { shop: Shop }) {
             <Button
               variant="secondary"
               disabled={!list.length}
-              onClick={() => download(`katalog-${new Date().toISOString().slice(0, 10)}.csv`, productsToCsv(list, (id) => speciesById(id)?.latinName ?? null))}
+              onClick={() =>
+                download(
+                  `katalog-${new Date().toISOString().slice(0, 10)}.csv`,
+                  productsToCsv(list, (id) => speciesById(id)?.latinName ?? null),
+                )
+              }
             >
               <Download className="size-4" aria-hidden /> Выгрузить
             </Button>
@@ -494,7 +586,7 @@ function CatalogManager({ shop }: { shop: Shop }) {
         ) : products.error ? (
           <ErrorNote error={products.error} onRetry={() => products.refetch()} />
         ) : !list.length ? (
-          <p className="py-6 text-center text-secondary">Товаров пока нет</p>
+          <p className="text-secondary py-6 text-center">Товаров пока нет</p>
         ) : (
           <>
             <div className="flex items-center gap-3 py-2">
@@ -502,16 +594,24 @@ function CatalogManager({ shop }: { shop: Shop }) {
                 {list.length} {plural(list.length, "товар", "товара", "товаров")}
               </p>
               <label className="relative ml-auto block w-full max-w-64">
-                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-secondary" aria-hidden />
-                <input className={cx(inputClass, "py-2 pl-9 text-[15px]")} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Название или артикул" aria-label="Поиск товара" />
+                <Search className="text-secondary pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" aria-hidden />
+                <input
+                  className={cx(inputClass, "py-2 pl-9 text-[15px]")}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Название или артикул"
+                  aria-label="Поиск товара"
+                />
               </label>
             </div>
-            <ul className="divide-y divide-separator" aria-label="Товары">
+            <ul className="divide-separator divide-y" aria-label="Товары">
               {filtered.slice(0, 100).map((p) => (
                 <ProductRow key={p.id} product={p} shopId={shop.id} />
               ))}
             </ul>
-            {filtered.length > 100 && <p className="py-2 text-center text-[13px] text-secondary">Показаны 100 из {filtered.length} — уточните поиск</p>}
+            {filtered.length > 100 && (
+              <p className="text-secondary py-2 text-center text-[13px]">Показаны 100 из {filtered.length} — уточните поиск</p>
+            )}
           </>
         )}
       </Card>
@@ -525,14 +625,15 @@ function Intro() {
   return (
     <Card className="p-5">
       <p className="text-[19px] font-semibold">Магазин в «Подоконнике» — бесплатно</p>
-      <ul className="mt-3 space-y-2 text-[15px] text-secondary">
+      <ul className="text-secondary mt-3 space-y-2 text-[15px]">
         <li>🏪 Витрина с каталогом, ценами и контактами</li>
         <li>📍 Ваши товары в блоке «Где купить» на страницах растений — сначала покупателям из вашего города</li>
         <li>🔔 Уведомление тем, кто добавил растение в «Хочу», когда оно появится у вас или подешевеет</li>
         <li>📄 Каталог загружается из Excel или CSV и выгружается обратно</li>
       </ul>
-      <p className="mt-3 text-[13px] text-secondary">
-        Для значка ✓ проверяем магазин вручную — обычно за 1–2 дня. Деньги через приложение не проходят: покупатель переходит на ваш сайт или звонит.
+      <p className="text-secondary mt-3 text-[13px]">
+        Для значка ✓ проверяем магазин вручную — обычно за 1–2 дня. Деньги через приложение не проходят: покупатель переходит на ваш сайт
+        или звонит.
       </p>
     </Card>
   );

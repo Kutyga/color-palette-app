@@ -7,7 +7,11 @@ describe("«Что с растением?»", () => {
     const ids = new Set(SYMPTOMS.map((s) => s.id));
     expect(ids.size).toBe(SYMPTOMS.length);
     for (const c of CAUSES) for (const s of c.symptoms) expect(ids.has(s), `${c.id}: ${s}`).toBe(true);
-    for (const s of SYMPTOMS) expect(CAUSES.some((c) => c.symptoms.includes(s.id)), s.id).toBe(true);
+    for (const s of SYMPTOMS)
+      expect(
+        CAUSES.some((c) => c.symptoms.includes(s.id)),
+        s.id,
+      ).toBe(true);
   });
 
   it("мокрая земля + запах + тёмный стебель → корневая гниль первой", () => {
@@ -25,7 +29,10 @@ describe("«Что с растением?»", () => {
   });
 
   it("код EPPO: знакомый — по-русски и с советом, род — по первым буквам, незнакомый — как есть", () => {
-    expect(describeEppo({ eppo: "TETRUR", score: 0.8, name: "Tetranychus urticae" })).toMatchObject({ name: "Паутинный клещ", cause: { id: "spider_mite" } });
+    expect(describeEppo({ eppo: "TETRUR", score: 0.8, name: "Tetranychus urticae" })).toMatchObject({
+      name: "Паутинный клещ",
+      cause: { id: "spider_mite" },
+    });
     expect(describeEppo({ eppo: "BOTRAL", score: 0.5, name: "Botrytis" })).toMatchObject({ name: "Серая гниль" });
     expect(describeEppo({ eppo: "ZZZZZZ", score: 0.5, name: "Unknown blight" })).toEqual({ name: "Unknown blight", cause: null });
   });

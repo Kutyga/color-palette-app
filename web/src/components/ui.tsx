@@ -85,18 +85,10 @@ export function Button({
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cx("rounded-[20px] bg-surface", className)}>{children}</div>;
+  return <div className={cx("bg-surface rounded-[20px]", className)}>{children}</div>;
 }
 
-export function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active?: boolean;
-  onClick?: () => void;
-  children: ReactNode;
-}) {
+export function Chip({ active, onClick, children }: { active?: boolean; onClick?: () => void; children: ReactNode }) {
   return (
     <button
       type="button"
@@ -243,21 +235,37 @@ export function PlantPhoto({
   }
   const [a, b] = GRADIENTS[hash(seed) % GRADIENTS.length];
   return (
-    <div className={cx("grid place-items-center", className)} style={{ background: `linear-gradient(135deg, ${a}, ${b})` }} role="img" aria-label={alt}>
+    <div
+      className={cx("grid place-items-center", className)}
+      style={{ background: `linear-gradient(135deg, ${a}, ${b})` }}
+      role="img"
+      aria-label={alt}
+    >
       <Leaf size={iconSize} className="text-white/85" strokeWidth={1.6} aria-hidden />
     </div>
   );
 }
 
 /** Подпись к фото с Wikimedia Commons — CC BY / CC BY-SA требуют указать автора и лицензию. */
-export function PhotoCredit({ image, className }: { image: { credit: string | null; license: string | null; sourceUrl: string | null }; className?: string }) {
+export function PhotoCredit({
+  image,
+  className,
+}: {
+  image: { credit: string | null; license: string | null; sourceUrl: string | null };
+  className?: string;
+}) {
   const text = [image.credit ? `Фото: ${image.credit}` : "Фото", image.license, "Wikimedia Commons"].filter(Boolean).join(" · ");
   return image.sourceUrl ? (
-    <a href={image.sourceUrl} target="_blank" rel="noopener noreferrer" className={cx("text-[12px] text-secondary hover:text-label", className)}>
+    <a
+      href={image.sourceUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cx("text-secondary hover:text-label text-[12px]", className)}
+    >
       {text}
     </a>
   ) : (
-    <span className={cx("text-[12px] text-secondary", className)}>{text}</span>
+    <span className={cx("text-secondary text-[12px]", className)}>{text}</span>
   );
 }
 
@@ -287,11 +295,11 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center px-6 py-14 text-center">
-      <div className="mb-4 grid size-20 place-items-center rounded-full bg-muted">
-        <Icon className="size-9 text-leaf" strokeWidth={1.6} aria-hidden />
+      <div className="bg-muted mb-4 grid size-20 place-items-center rounded-full">
+        <Icon className="text-leaf size-9" strokeWidth={1.6} aria-hidden />
       </div>
       <h2 className="text-[20px] font-semibold">{title}</h2>
-      {message && <p className="mt-2 max-w-sm text-[15px] text-secondary">{message}</p>}
+      {message && <p className="text-secondary mt-2 max-w-sm text-[15px]">{message}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   );
@@ -299,7 +307,7 @@ export function EmptyState({
 
 export function Spinner({ label = "Загрузка…" }: { label?: string }) {
   return (
-    <div className="grid place-items-center py-16 text-secondary" role="status">
+    <div className="text-secondary grid place-items-center py-16" role="status">
       <Loader2 className="size-7 animate-spin" aria-hidden />
       <span className="sr-only">{label}</span>
     </div>
@@ -308,9 +316,9 @@ export function Spinner({ label = "Загрузка…" }: { label?: string }) {
 
 export function ErrorNote({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   return (
-    <div className="mx-auto my-10 max-w-md rounded-[20px] bg-surface p-6 text-center" role="alert">
+    <div className="bg-surface mx-auto my-10 max-w-md rounded-[20px] p-6 text-center" role="alert">
       <p className="font-semibold">Не удалось загрузить</p>
-      <p className="mt-1 text-[15px] text-secondary">{error instanceof Error ? error.message : String(error)}</p>
+      <p className="text-secondary mt-1 text-[15px]">{error instanceof Error ? error.message : String(error)}</p>
       {onRetry && (
         <Button variant="secondary" className="mt-4" onClick={onRetry}>
           Повторить
@@ -324,7 +332,7 @@ export function PageHeader({ eyebrow, title, actions }: { eyebrow?: string; titl
   return (
     <header className="flex items-end justify-between gap-4 pt-6 pb-4">
       <div>
-        {eyebrow && <p className="text-[13px] font-semibold uppercase tracking-wide text-secondary first-letter:uppercase">{eyebrow}</p>}
+        {eyebrow && <p className="text-secondary text-[13px] font-semibold tracking-wide uppercase first-letter:uppercase">{eyebrow}</p>}
         <h1 className="large-title">{title}</h1>
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
@@ -342,17 +350,7 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 }
 
 /** Модальное окно: снизу на телефоне (как лист iOS), по центру на компьютере. */
-export function Sheet({
-  open,
-  onClose,
-  title,
-  children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  children: ReactNode;
-}) {
+export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -366,13 +364,13 @@ export function Sheet({
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-label={title}
-      className="m-0 mt-auto w-full max-w-none rounded-t-[28px] bg-surface p-0 text-label backdrop:bg-black/40 backdrop:backdrop-blur-sm sm:m-auto sm:max-w-lg sm:rounded-[28px]"
+      className="bg-surface text-label m-0 mt-auto w-full max-w-none rounded-t-[28px] p-0 backdrop:bg-black/40 backdrop:backdrop-blur-sm sm:m-auto sm:max-w-lg sm:rounded-[28px]"
     >
       {open && (
-        <div className="flex max-h-[85vh] flex-col animate-slide-up">
+        <div className="animate-slide-up flex max-h-[85vh] flex-col">
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
             <h2 className="text-[20px] font-semibold">{title}</h2>
-            <button onClick={onClose} className="grid size-9 place-items-center rounded-full bg-muted" aria-label="Закрыть">
+            <button onClick={onClose} className="bg-muted grid size-9 place-items-center rounded-full" aria-label="Закрыть">
               <X className="size-4" />
             </button>
           </div>
@@ -399,9 +397,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={show}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex flex-col items-center gap-2 px-4 md:bottom-8" aria-live="polite">
+      <div
+        className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex flex-col items-center gap-2 px-4 md:bottom-8"
+        aria-live="polite"
+      >
         {toasts.map((t) => (
-          <div key={t.id} className="animate-slide-up rounded-full bg-label px-5 py-3 text-[15px] font-medium text-bg shadow-lg">
+          <div key={t.id} className="animate-slide-up bg-label text-bg rounded-full px-5 py-3 text-[15px] font-medium shadow-lg">
             {t.text}
           </div>
         ))}
@@ -417,9 +418,9 @@ export function Field({ label, children, hint, group }: { label: string; childre
   const Tag = group ? "div" : "label";
   return (
     <Tag className="block" {...(group ? { role: "group", "aria-label": label } : {})}>
-      <span className="mb-1.5 block text-[13px] font-medium text-secondary">{label}</span>
+      <span className="text-secondary mb-1.5 block text-[13px] font-medium">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-[13px] text-secondary">{hint}</span>}
+      {hint && <span className="text-secondary mt-1 block text-[13px]">{hint}</span>}
     </Tag>
   );
 }
@@ -431,5 +432,9 @@ const noopSubscribe = () => () => {};
 
 /** true только в браузере: даты и «сейчас» не должны попадать в заранее собранный HTML. */
 export function useIsClient() {
-  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
 }

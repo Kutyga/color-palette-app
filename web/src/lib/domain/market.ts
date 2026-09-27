@@ -96,10 +96,7 @@ export function priceLabel(l: Pick<Listing, "kind" | "priceRub">): string {
 }
 
 /** Проверка формы объявления; null — всё в порядке. */
-export function validateListing(
-  d: Omit<ListingDraft, "photo">,
-  hasPhoto: boolean,
-): { field: keyof ListingDraft; message: string } | null {
+export function validateListing(d: Omit<ListingDraft, "photo">, hasPhoto: boolean): { field: keyof ListingDraft; message: string } | null {
   const title = d.title.trim();
   if (title.length < 3) return { field: "title", message: "Название — хотя бы 3 символа" };
   if (title.length > 80) return { field: "title", message: "Название — до 80 символов" };

@@ -62,7 +62,10 @@ describe("импорт каталога", () => {
       ["A1", 'Фикус "Робуста"', "1 290,00 ₽"],
       ["A2", "Две\nстроки", "990"],
     ]);
-    expect(parseCsv("sku,title\n1,Monstera")).toEqual([["sku", "title"], ["1", "Monstera"]]);
+    expect(parseCsv("sku,title\n1,Monstera")).toEqual([
+      ["sku", "title"],
+      ["1", "Monstera"],
+    ]);
   });
 
   it("числа и наличие в любом виде", () => {
@@ -95,7 +98,14 @@ describe("импорт каталога", () => {
     const [header, ...rows] = parseCsv(TEMPLATE_CSV);
     const parsed = rowsToProducts(rows, guessMapping(header), match);
     expect(parsed.map((p) => p.error)).toEqual([null, null, null]);
-    expect(parsed[0]).toMatchObject({ externalId: "MON-24", speciesId: "monstera-deliciosa", priceRub: 3490, inStock: true, potCm: 24, heightCm: 100 });
+    expect(parsed[0]).toMatchObject({
+      externalId: "MON-24",
+      speciesId: "monstera-deliciosa",
+      priceRub: 3490,
+      inStock: true,
+      potCm: 24,
+      heightCm: 100,
+    });
     expect(parsed[1]).toMatchObject({ speciesId: "zamioculcas-zamiifolia", inStock: true });
     expect(parsed[2]).toMatchObject({ speciesId: "goeppertia-orbifolia", inStock: false });
   });
@@ -120,7 +130,20 @@ describe("импорт каталога", () => {
 
   it("выгрузка читается обратно тем же импортом", () => {
     const csv = productsToCsv(
-      [{ id: "1", externalId: "A;1", title: 'Фикус "Робуста"', speciesId: "ficus-elastica", priceRub: 3290, inStock: false, potCm: 21, heightCm: 90, url: null, imageUrl: null }],
+      [
+        {
+          id: "1",
+          externalId: "A;1",
+          title: 'Фикус "Робуста"',
+          speciesId: "ficus-elastica",
+          priceRub: 3290,
+          inStock: false,
+          potCm: 21,
+          heightCm: 90,
+          url: null,
+          imageUrl: null,
+        },
+      ],
       (id) => speciesById(id)?.latinName ?? null,
     );
     const [header, ...rows] = parseCsv(csv);
@@ -151,7 +174,17 @@ describe("магазины в демо-режиме", () => {
     await expect(b.shops.saveShop({ ...draft, inn: "12345" })).rejects.toThrow(/ИНН/);
     expect((await b.shops.saveShop({ ...draft, inn: "" })).inn).toBeNull();
 
-    const row = { externalId: "M1", title: "Монстера", speciesId: "monstera-deliciosa", priceRub: 100, inStock: true, potCm: null, heightCm: null, url: null, imageUrl: null };
+    const row = {
+      externalId: "M1",
+      title: "Монстера",
+      speciesId: "monstera-deliciosa",
+      priceRub: 100,
+      inStock: true,
+      potCm: null,
+      heightCm: null,
+      url: null,
+      imageUrl: null,
+    };
     expect(await b.shops.importProducts([row, { ...row, externalId: "M2" }], false)).toEqual({ inserted: 2, updated: 0, deleted: 0 });
     expect(await b.shops.importProducts([{ ...row, priceRub: 90 }], true)).toEqual({ inserted: 0, updated: 1, deleted: 1 });
     const products = await b.shops.products(shop.id);
@@ -175,7 +208,19 @@ describe("магазины в демо-режиме", () => {
     expect((await b.shops.reviewQueue())[0]).toMatchObject({ id: shop.id, status: "pending" });
     await b.shops.review(shop.id, "verified", "");
     await b.shops.importProducts(
-      [{ externalId: "M1", title: "Монстера", speciesId: "monstera-deliciosa", priceRub: 100, inStock: true, potCm: null, heightCm: null, url: null, imageUrl: null }],
+      [
+        {
+          externalId: "M1",
+          title: "Монстера",
+          speciesId: "monstera-deliciosa",
+          priceRub: 100,
+          inStock: true,
+          potCm: null,
+          heightCm: null,
+          url: null,
+          imageUrl: null,
+        },
+      ],
       false,
     );
     expect((await b.shops.whereToBuy("monstera-deliciosa", "Москва"))[0]).toMatchObject({ shopId: shop.id, priceRub: 100 });

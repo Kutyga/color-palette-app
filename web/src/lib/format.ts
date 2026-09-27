@@ -40,8 +40,7 @@ export function timeAgo(date: Date, now = new Date()): string {
   return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 }
 
-export const formatDate = (d: Date) =>
-  d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
+export const formatDate = (d: Date) => d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
 
 export const formatShortDate = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 

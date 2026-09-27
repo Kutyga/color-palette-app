@@ -6,7 +6,16 @@ import type { AiDiagnosis, PhotoDiagnosis } from "../domain/diagnosis";
 import type { Prediction } from "../domain/identification";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../domain/people";
 import { coverPathOf, plantFromRow, type Location } from "../domain/plant";
-import { commentFromRow, newsFromRow, postFromRow, type DiaryScope, type HelpFilter, type NewPost, type PostUpdate, type ReaderArticle } from "../domain/social";
+import {
+  commentFromRow,
+  newsFromRow,
+  postFromRow,
+  type DiaryScope,
+  type HelpFilter,
+  type NewPost,
+  type PostUpdate,
+  type ReaderArticle,
+} from "../domain/social";
 import { careFromRow } from "../domain/species";
 import { blobToBase64 } from "../image";
 import { initialSchedules } from "./schedules";
@@ -20,7 +29,16 @@ import {
   type ListingFilter,
   type ListingStatus,
 } from "../domain/market";
-import { offerFromRow, productFromRow, shopFromRow, normalizeWebsite, validateShop, type ProductInput, type ShopDraft, type ShopStatus } from "../domain/shop";
+import {
+  offerFromRow,
+  productFromRow,
+  shopFromRow,
+  normalizeWebsite,
+  validateShop,
+  type ProductInput,
+  type ShopDraft,
+  type ShopStatus,
+} from "../domain/shop";
 import type {
   Backend,
   ChatRepository,
@@ -101,9 +119,7 @@ export class SpeciesIds {
 async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();
   const { data } = await db.storage.from(bucket).createSignedUrls(paths, 3600);
-  return new Map(
-    (data ?? []).flatMap((s) => (s.signedUrl && s.path ? [[s.path, s.signedUrl] as [string, string]] : [])),
-  );
+  return new Map((data ?? []).flatMap((s) => (s.signedUrl && s.path ? [[s.path, s.signedUrl] as [string, string]] : [])));
 }
 
 /**
@@ -111,10 +127,17 @@ async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): 
  * делают триггеры (см. supabase/migrations).
  */
 export class SupabaseGarden implements GardenRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+  ) {}
 
   private async withPhotos(rows: Row[]) {
-    const urls = await signedUrls(this.db, PLANT_BUCKET, rows.map(coverPathOf).filter((p): p is string => !!p));
+    const urls = await signedUrls(
+      this.db,
+      PLANT_BUCKET,
+      rows.map(coverPathOf).filter((p): p is string => !!p),
+    );
     return rows.map((r) => plantFromRow(r, urls.get(coverPathOf(r) ?? "") ?? null));
   }
 
@@ -206,22 +229,24 @@ export class SupabaseGarden implements GardenRepository {
   }
 
   async myLocations(): Promise<Location[]> {
-    const rows = check(
-      await this.db.from("locations").select().eq("owner_id", this.uid).is("deleted_at", null).order("name"),
-    ) as Row[];
+    const rows = check(await this.db.from("locations").select().eq("owner_id", this.uid).is("deleted_at", null).order("name")) as Row[];
     return rows.map((r) => ({ id: r.id as string, name: r.name as string, lightLevel: (r.light_level as never) ?? null }));
   }
 
   async addLocation(name: string, light: Location["lightLevel"]) {
-    const r = check(
-      await this.db.from("locations").insert({ id: crypto.randomUUID(), name, light_level: light }).select().single(),
-    ) as Row;
+    const r = check(await this.db.from("locations").insert({ id: crypto.randomUUID(), name, light_level: light }).select().single()) as Row;
     return { id: r.id as string, name: r.name as string, lightLevel: (r.light_level as never) ?? null };
   }
 
   async updateLocation(id: string, name: string, light: Location["lightLevel"]) {
     const r = check(
-      await this.db.from("locations").update({ name: name.trim(), light_level: light }).eq("id", id).eq("owner_id", this.uid).select().single(),
+      await this.db
+        .from("locations")
+        .update({ name: name.trim(), light_level: light })
+        .eq("id", id)
+        .eq("owner_id", this.uid)
+        .select()
+        .single(),
     ) as Row;
     return { id: r.id as string, name: r.name as string, lightLevel: (r.light_level as never) ?? null };
   }
@@ -262,14 +287,23 @@ export class SupabaseGarden implements GardenRepository {
   async stats() {
     const [row, inWater] = await Promise.all([
       this.db.rpc("my_garden_stats"),
-      this.db.from("plants").select("id", { count: "exact", head: true }).eq("owner_id", this.uid).eq("in_water", true).is("deleted_at", null),
+      this.db
+        .from("plants")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", this.uid)
+        .eq("in_water", true)
+        .is("deleted_at", null),
     ]);
     return { ...statsFromRow(check(row) as Row), inWater: inWater.count ?? 0 };
   }
 }
 
 export class SupabaseSocial implements SocialRepository {
-  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+    private species: SpeciesIds,
+  ) {}
 
   /** Подписанные ссылки на фото и отметка «мне нравится». */
   private async hydrate(rows: Row[]) {
@@ -375,7 +409,13 @@ export class SupabaseSocial implements SocialRepository {
   async updatePost(id: string, update: PostUpdate) {
     const patch: Row = { text: update.text };
     if (update.event !== undefined) patch.event = update.event;
-    const { data, error } = await this.db.from("posts").update(patch).eq("id", id).eq("author_id", this.uid).select(POST_SELECT).maybeSingle();
+    const { data, error } = await this.db
+      .from("posts")
+      .update(patch)
+      .eq("id", id)
+      .eq("author_id", this.uid)
+      .select(POST_SELECT)
+      .maybeSingle();
     if (error) throw new Error(/часа/.test(error.message) ? "Прошло больше часа — публикацию уже нельзя изменить" : error.message);
     if (!data) throw new Error("Публикация не найдена");
     return (await this.hydrate([data as Row]))[0];
@@ -404,13 +444,7 @@ export class SupabaseSocial implements SocialRepository {
 
   async comments(postId: string) {
     const rows = check(
-      await this.db
-        .from("comments")
-        .select(COMMENT_SELECT)
-        .eq("post_id", postId)
-        .is("deleted_at", null)
-        .order("created_at")
-        .limit(200),
+      await this.db.from("comments").select(COMMENT_SELECT).eq("post_id", postId).is("deleted_at", null).order("created_at").limit(200),
     ) as Row[];
     return rows.map((r) => commentFromRow(r, this.uid));
   }
@@ -453,7 +487,10 @@ export class SupabaseSocial implements SocialRepository {
 
 /** Pl@ntNet через Edge Function identify-plant (квота 20 в день на пользователя). */
 export class SupabasePeople implements PeopleRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+  ) {}
 
   async search(query: string) {
     const rows = check(await this.db.rpc("search_people", { q: query.trim(), lim: 30 })) as Row[];
@@ -483,7 +520,11 @@ export class SupabasePeople implements PeopleRepository {
         .is("deleted_at", null)
         .order("created_at", { ascending: false }),
     ) as Row[];
-    const urls = await signedUrls(this.db, PLANT_BUCKET, rows.map(coverPathOf).filter((p): p is string => !!p));
+    const urls = await signedUrls(
+      this.db,
+      PLANT_BUCKET,
+      rows.map(coverPathOf).filter((p): p is string => !!p),
+    );
     return rows.map((r) => ({
       id: r.id as string,
       nickname: r.nickname as string,
@@ -552,13 +593,21 @@ const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, dis
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 export class SupabaseMarket implements MarketRepository {
-  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+    private species: SpeciesIds,
+  ) {}
 
   private async hydrate(rows: Row[]) {
     const paths = rows.flatMap((r) => (r.photo_paths as string[] | null) ?? []);
     const [urls, slugOf] = await Promise.all([signedUrls(this.db, LISTING_BUCKET, paths), this.species.slugs()]);
     return rows.map((r) => ({
-      ...listingFromRow(r, ((r.photo_paths as string[] | null) ?? []).map((p) => urls.get(p)).filter((u): u is string => !!u), this.uid),
+      ...listingFromRow(
+        r,
+        ((r.photo_paths as string[] | null) ?? []).map((p) => urls.get(p)).filter((u): u is string => !!u),
+        this.uid,
+      ),
       speciesId: slugOf(r.species_id as string | null),
     }));
   }
@@ -572,13 +621,20 @@ export class SupabaseMarket implements MarketRepository {
   }
 
   async listing(id: string) {
-    const row = check(await this.db.from("listings").select(LISTING_SELECT).eq("id", id).is("deleted_at", null).maybeSingle()) as Row | null;
+    const row = check(
+      await this.db.from("listings").select(LISTING_SELECT).eq("id", id).is("deleted_at", null).maybeSingle(),
+    ) as Row | null;
     return row ? (await this.hydrate([row]))[0] : null;
   }
 
   async myListings() {
     const rows = check(
-      await this.db.from("listings").select(LISTING_SELECT).eq("seller_id", this.uid).is("deleted_at", null).order("created_at", { ascending: false }),
+      await this.db
+        .from("listings")
+        .select(LISTING_SELECT)
+        .eq("seller_id", this.uid)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false }),
     ) as Row[];
     return this.hydrate(rows);
   }
@@ -608,7 +664,11 @@ export class SupabaseMarket implements MarketRepository {
   async createListing(d: ListingDraft) {
     const id = crypto.randomUUID();
     const row = check(
-      await this.db.from("listings").insert({ id, ...(await this.fields(id, d, [])) }).select(LISTING_SELECT).single(),
+      await this.db
+        .from("listings")
+        .insert({ id, ...(await this.fields(id, d, [])) })
+        .select(LISTING_SELECT)
+        .single(),
     ) as Row;
     return (await this.hydrate([row]))[0];
   }
@@ -651,11 +711,18 @@ export class SupabaseMarket implements MarketRepository {
 }
 
 export class SupabaseChat implements ChatRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+  ) {}
 
   async conversations() {
     const rows = check(await this.db.rpc("my_conversations")) as Row[];
-    const urls = await signedUrls(this.db, LISTING_BUCKET, rows.map((r) => r.listing_photo as string | null).filter((p): p is string => !!p));
+    const urls = await signedUrls(
+      this.db,
+      LISTING_BUCKET,
+      rows.map((r) => r.listing_photo as string | null).filter((p): p is string => !!p),
+    );
     return rows.map((r) => conversationFromRow(r, urls.get((r.listing_photo as string | null) ?? "") ?? null));
   }
 
@@ -705,7 +772,10 @@ export class SupabaseChat implements ChatRepository {
 }
 
 export class SupabaseNotifications implements NotificationsRepository {
-  constructor(private db: SupabaseClient, private uid: string) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+  ) {}
 
   async publicKey() {
     const { data, error } = await this.db.functions.invoke("push", { body: { action: "config" } });
@@ -715,7 +785,12 @@ export class SupabaseNotifications implements NotificationsRepository {
 
   async subscribe(sub: { endpoint: string; p256dh: string; auth: string }, userAgent: string) {
     check(
-      await this.db.rpc("save_push_subscription", { p_endpoint: sub.endpoint, p_p256dh: sub.p256dh, p_auth: sub.auth, p_user_agent: userAgent }),
+      await this.db.rpc("save_push_subscription", {
+        p_endpoint: sub.endpoint,
+        p_p256dh: sub.p256dh,
+        p_auth: sub.auth,
+        p_user_agent: userAgent,
+      }),
     );
   }
 
@@ -725,7 +800,11 @@ export class SupabaseNotifications implements NotificationsRepository {
 
   async settings(): Promise<NotificationSettings> {
     const r = check(
-      await this.db.from("profiles").select("notify_care, notify_messages, notify_community, notify_wishlist, reminder_time, timezone").eq("id", this.uid).single(),
+      await this.db
+        .from("profiles")
+        .select("notify_care, notify_messages, notify_community, notify_wishlist, reminder_time, timezone")
+        .eq("id", this.uid)
+        .single(),
     ) as Row;
     return {
       care: Boolean(r.notify_care),
@@ -749,12 +828,17 @@ export class SupabaseNotifications implements NotificationsRepository {
   }
 }
 
-const SHOP_FIELDS = "id, owner_id, name, description, inn, city, address, hours, phone, website, delivery, status, review_note, created_at, verified_at";
+const SHOP_FIELDS =
+  "id, owner_id, name, description, inn, city, address, hours, phone, website, delivery, status, review_note, created_at, verified_at";
 const PRODUCT_FIELDS = "id, external_id, title, species_id, price_rub, in_stock, pot_cm, height_cm, url, image_url";
 const IMPORT_CHUNK = 1000;
 
 export class SupabaseShops implements ShopRepository {
-  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+    private species: SpeciesIds,
+  ) {}
 
   async myShop() {
     const row = check(await this.db.from("shops").select(SHOP_FIELDS).eq("owner_id", this.uid).maybeSingle()) as Row | null;
@@ -823,7 +907,9 @@ export class SupabaseShops implements ShopRepository {
     }
     const total = { inserted: 0, updated: 0, deleted: 0 };
     for (let i = 0; i < payload.length; i += IMPORT_CHUNK) {
-      const r = (check(await this.db.rpc("shop_import_products", { p_rows: payload.slice(i, i + IMPORT_CHUNK), p_replace: false })) as Row[])[0] ?? {};
+      const r =
+        (check(await this.db.rpc("shop_import_products", { p_rows: payload.slice(i, i + IMPORT_CHUNK), p_replace: false })) as Row[])[0] ??
+        {};
       total.inserted += Number(r.inserted ?? 0);
       total.updated += Number(r.updated ?? 0);
     }
@@ -869,7 +955,11 @@ export class SupabaseShops implements ShopRepository {
 }
 
 export class SupabaseWishlist implements WishlistRepository {
-  constructor(private db: SupabaseClient, private uid: string, private species: SpeciesIds) {}
+  constructor(
+    private db: SupabaseClient,
+    private uid: string,
+    private species: SpeciesIds,
+  ) {}
 
   async list() {
     const [rows, slugOf] = await Promise.all([

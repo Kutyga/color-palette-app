@@ -5,9 +5,7 @@
 import { Readability } from "npm:@mozilla/readability@0.6.0";
 import { parseHTML } from "npm:linkedom@0.18.12";
 
-export type Block =
-  | { type: "p" | "h" | "li" | "quote"; text: string }
-  | { type: "img"; src: string; alt: string };
+export type Block = { type: "p" | "h" | "li" | "quote"; text: string } | { type: "img"; src: string; alt: string };
 
 export interface ReaderArticle {
   title: string;

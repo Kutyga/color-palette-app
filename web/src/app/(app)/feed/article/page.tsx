@@ -35,9 +35,25 @@ function Blocks({ blocks, texts, lang }: { blocks: ReaderBlock[]; texts: string[
           );
         }
         const text = texts[i++] ?? b.text;
-        if (b.type === "h") return <h2 key={k} className="pt-2 text-[22px] font-semibold">{text}</h2>;
-        if (b.type === "li") return <p key={k} className="flex gap-3"><span className="mt-3 size-1.5 shrink-0 rounded-full bg-leaf" />{text}</p>;
-        if (b.type === "quote") return <blockquote key={k} className="border-l-4 border-leaf pl-4 italic text-secondary">{text}</blockquote>;
+        if (b.type === "h")
+          return (
+            <h2 key={k} className="pt-2 text-[22px] font-semibold">
+              {text}
+            </h2>
+          );
+        if (b.type === "li")
+          return (
+            <p key={k} className="flex gap-3">
+              <span className="bg-leaf mt-3 size-1.5 shrink-0 rounded-full" />
+              {text}
+            </p>
+          );
+        if (b.type === "quote")
+          return (
+            <blockquote key={k} className="border-leaf text-secondary border-l-4 pl-4 italic">
+              {text}
+            </blockquote>
+          );
         return <p key={k}>{text}</p>;
       })}
     </div>
@@ -59,10 +75,10 @@ function Reader({ id }: { id: string }) {
 
   return (
     <article className="mx-auto max-w-2xl pt-4">
-      <Link href="/feed/?tab=news" className="inline-flex items-center gap-1 text-[17px] text-leaf">
+      <Link href="/feed/?tab=news" className="text-leaf inline-flex items-center gap-1 text-[17px]">
         <ChevronLeft className="size-5" aria-hidden /> Новости
       </Link>
-      <p className="mt-6 text-[13px] text-secondary">
+      <p className="text-secondary mt-6 text-[13px]">
         {reader.data?.siteName ?? meta?.sourceName}
         {meta && ` · ${timeAgo(meta.publishedAt)}`}
         {reader.data?.byline && ` · ${reader.data.byline}`}
@@ -77,7 +93,7 @@ function Reader({ id }: { id: string }) {
             href={translatedUrl(url, prefs.target)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full bg-leaf px-4 py-2 text-[15px] font-semibold text-white"
+            className="bg-leaf inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-semibold text-white"
           >
             <Languages className="size-4" aria-hidden /> Открыть в переводе
           </a>
@@ -87,16 +103,15 @@ function Reader({ id }: { id: string }) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-[15px] font-semibold"
+            className="bg-muted inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-semibold"
           >
             <ExternalLink className="size-4" aria-hidden /> Сайт источника
           </a>
         )}
       </div>
       {foreign && (
-        <p className="mt-3 text-[13px] text-secondary">
-          Язык статьи: {NEWS_LANGUAGES[lang] ?? lang}.{" "}
-          {state === "working" && "Переводим…"}
+        <p className="text-secondary mt-3 text-[13px]">
+          Язык статьи: {NEWS_LANGUAGES[lang] ?? lang}. {state === "working" && "Переводим…"}
           {state === "done" && `Переведено браузером на ${NEWS_LANGUAGES[prefs.target]?.toLowerCase() ?? prefs.target}.`}
           {(state === "unsupported" || (state === "off" && !hasBrowserTranslator())) &&
             "Браузер не переводит сам — нажмите «Открыть в переводе» или воспользуйтесь переводом страницы в меню браузера."}
@@ -109,9 +124,9 @@ function Reader({ id }: { id: string }) {
         ) : reader.data ? (
           <Blocks blocks={blocks} texts={state === "done" ? texts.slice(1) : []} lang={shownLang} />
         ) : (
-          <div className="rounded-[20px] bg-surface p-5">
+          <div className="bg-surface rounded-[20px] p-5">
             <p className="font-semibold">Текст статьи здесь недоступен</p>
-            <p className="mt-1 text-[15px] text-secondary">
+            <p className="text-secondary mt-1 text-[15px]">
               {reader.error
                 ? "Сайт источника не отдал статью — откройте её по кнопке выше."
                 : "В демо-режиме статьи открываются на сайте источника."}
@@ -126,7 +141,7 @@ function Reader({ id }: { id: string }) {
 
 function ArticleInner() {
   const id = useSearchParams().get("id");
-  if (!id) return <p className="pt-10 text-center text-secondary">Статья не найдена</p>;
+  if (!id) return <p className="text-secondary pt-10 text-center">Статья не найдена</p>;
   return <Reader id={id} />;
 }
 

@@ -249,7 +249,10 @@ test("демо: растение в воде не просит полива; у�
   await page.goto("/today/");
   await expect(page.getByText("Монстера Мося").first()).toBeVisible();
   await page.goto("/garden/");
-  await page.getByRole("link", { name: /Монстера Мося/ }).first().click();
+  await page
+    .getByRole("link", { name: /Монстера Мося/ })
+    .first()
+    .click();
   await page.waitForURL("**/garden/plant/**");
   await expect(page.getByRole("button", { name: "Полить" })).toBeVisible();
   await page.getByRole("checkbox", { name: "Растёт в воде" }).check();
@@ -451,7 +454,8 @@ test("демо: магазины — «Где купить», «Хочу», ви
   await expect(page.getByText("На проверке")).toBeVisible();
 
   // Прайс в CSV из Excel: «;», вид определяется по названию, один — вручную.
-  const csv = "Артикул;Наименование;Цена;Остаток\nA1;Монстера деликатесная 17/60;2 100;3\nA2;Хойя Керри сердечко;450;0\nA3;Кашпо белое 20 см;900;5\n";
+  const csv =
+    "Артикул;Наименование;Цена;Остаток\nA1;Монстера деликатесная 17/60;2 100;3\nA2;Хойя Керри сердечко;450;0\nA3;Кашпо белое 20 см;900;5\n";
   await page.getByLabel("Файл прайса").setInputFiles({ name: "price.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
   await expect(page.getByRole("status")).toContainText("Готово к загрузке: 3 · вид определён у 1");
   await page.getByLabel("Вид для «Хойя Керри сердечко»").selectOption({ label: "Хойя мясистая (Hoya carnosa)" });
@@ -494,7 +498,10 @@ test("демо: «Что с растением?» — симптомы, прич
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/garden/");
-  await page.getByRole("link", { name: /Калатея Ося/ }).first().click();
+  await page
+    .getByRole("link", { name: /Калатея Ося/ })
+    .first()
+    .click();
   await page.waitForURL("**/garden/plant/**");
   await page.getByRole("link", { name: /Проверить болезни/ }).click();
   await page.waitForURL("**/garden/diagnose/**");
@@ -502,7 +509,10 @@ test("демо: «Что с растением?» — симптомы, прич
   await expect(page.getByText("Распознавание болезней по фото работает после регистрации.")).toBeVisible();
   await page.getByRole("button", { name: "Тонкая паутинка, мелкие светлые точки на листьях" }).click();
   await page.getByRole("button", { name: "Листья скручиваются" }).click();
-  const causes = page.getByRole("list", { name: "Вероятные причины" }).getByRole("listitem").filter({ has: page.getByRole("heading") });
+  const causes = page
+    .getByRole("list", { name: "Вероятные причины" })
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("heading") });
   await expect(causes.first()).toContainText("Паутинный клещ");
   await expect(causes.first()).toContainText("Действуйте сегодня");
   await expect(causes.first()).toContainText("Совпадает симптомов: 2 из 2");

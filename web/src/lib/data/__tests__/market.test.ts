@@ -39,7 +39,10 @@ describe("демо: барахолка и сообщения", () => {
   it("фильтры, своё объявление и его статусы", async () => {
     const b = await demoBackend(memoryDemoStorage(), clock);
     expect((await b.market.listings({ kind: "all", city: "Москва", deliveryOnly: false })).length).toBe(4);
-    expect((await b.market.listings({ kind: "all", city: null, deliveryOnly: true })).map((l) => l.city).sort()).toEqual(["Казань", "Москва"]);
+    expect((await b.market.listings({ kind: "all", city: null, deliveryOnly: true })).map((l) => l.city).sort()).toEqual([
+      "Казань",
+      "Москва",
+    ]);
     expect((await b.market.listings({ kind: "free", city: null, deliveryOnly: false }))[0].title).toMatch(/каланхоэ/);
 
     // «Ищу» — без фото (в Node нет FileReader для снимка).

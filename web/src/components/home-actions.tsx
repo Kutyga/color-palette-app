@@ -24,7 +24,7 @@ export function HomeActions() {
     <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
       <Link
         href="/login/?mode=signup"
-        className="inline-flex min-h-12 items-center rounded-full bg-leaf px-7 text-[17px] font-semibold text-white hover:brightness-110"
+        className="bg-leaf inline-flex min-h-12 items-center rounded-full px-7 text-[17px] font-semibold text-white hover:brightness-110"
       >
         Начать бесплатно
       </Link>

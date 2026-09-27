@@ -8,10 +8,7 @@ import { supabaseBackend } from "@/lib/data/supabase-backend";
 import type { Backend } from "@/lib/data/types";
 import { supabase } from "@/lib/supabase";
 
-export type SessionState =
-  | { status: "loading" }
-  | { status: "guest" }
-  | { status: "ready"; backend: Backend; email: string | null };
+export type SessionState = { status: "loading" } | { status: "guest" } | { status: "ready"; backend: Backend; email: string | null };
 
 interface SessionApi {
   session: SessionState;
@@ -53,9 +50,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
     };
 
     const offline = async () =>
-      readDemoFlag()
-        ? apply({ status: "ready", backend: await demoBackend(localDemoStorage()), email: null })
-        : apply({ status: "guest" });
+      readDemoFlag() ? apply({ status: "ready", backend: await demoBackend(localDemoStorage()), email: null }) : apply({ status: "guest" });
 
     if (!hasBackend) {
       void offline();

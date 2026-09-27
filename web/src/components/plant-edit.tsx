@@ -44,14 +44,21 @@ function LocationEditor({ location, onDone }: { location: Location; onDone: () =
   });
   return (
     <form
-      className="space-y-3 rounded-2xl bg-muted p-3"
+      className="bg-muted space-y-3 rounded-2xl p-3"
       aria-label={`Изменить место «${location.name}»`}
       onSubmit={(e) => {
         e.preventDefault();
         if (name.trim()) save.mutate();
       }}
     >
-      <input className={cx(inputClass, "bg-surface")} value={name} onChange={(e) => setName(e.target.value)} maxLength={60} aria-label="Название места" autoFocus />
+      <input
+        className={cx(inputClass, "bg-surface")}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        maxLength={60}
+        aria-label="Название места"
+        autoFocus
+      />
       <div className="flex flex-wrap gap-2" role="group" aria-label="Свет">
         {(Object.keys(LIGHT_LEVELS) as LightLevel[]).map((k) => (
           <Chip key={k} active={light === k} onClick={() => setLight(k)}>
@@ -69,17 +76,22 @@ function LocationEditor({ location, onDone }: { location: Location; onDone: () =
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setConfirmDelete(false)}>
               Отмена
             </Button>
-            <Button type="button" variant="danger" className="flex-1 bg-surface" loading={remove.isPending} onClick={() => remove.mutate()}>
+            <Button type="button" variant="danger" className="bg-surface flex-1" loading={remove.isPending} onClick={() => remove.mutate()}>
               Удалить
             </Button>
           </div>
         </div>
       ) : (
         <div className="flex gap-2">
-          <button type="button" onClick={() => setConfirmDelete(true)} aria-label="Удалить место" className="grid size-11 shrink-0 place-items-center rounded-full bg-surface text-alert">
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            aria-label="Удалить место"
+            className="bg-surface text-alert grid size-11 shrink-0 place-items-center rounded-full"
+          >
             <Trash2 className="size-5" />
           </button>
-          <Button type="button" variant="secondary" className="flex-1 bg-surface" onClick={onDone}>
+          <Button type="button" variant="secondary" className="bg-surface flex-1" onClick={onDone}>
             Отмена
           </Button>
           <Button type="submit" className="flex-1" loading={save.isPending} disabled={!name.trim()}>
@@ -135,31 +147,31 @@ export function LocationSheet({
               </div>
             ) : (
               <>
-            <button
-              type="button"
-              disabled={save.isPending}
-              onClick={() => save.mutate(l.id)}
-              className={cx(
-                "flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-left",
-                current === l.id ? "bg-leaf/12 font-semibold" : "bg-muted",
-              )}
-            >
-              <span className="flex-1">
-                <span className="block">{l.name}</span>
-                {l.lightLevel && <span className="block text-[13px] font-normal text-secondary">{LIGHT_LEVELS[l.lightLevel]}</span>}
-              </span>
-              {current === l.id && <Check className="size-5 text-leaf" aria-hidden />}
-            </button>
-            {l.id && (
-              <button
-                type="button"
-                onClick={() => setEditing(l.id)}
-                aria-label={`Изменить место «${l.name}»`}
-                className="grid size-11 shrink-0 place-items-center rounded-full bg-muted text-secondary hover:text-label"
-              >
-                <Pencil className="size-4" />
-              </button>
-            )}
+                <button
+                  type="button"
+                  disabled={save.isPending}
+                  onClick={() => save.mutate(l.id)}
+                  className={cx(
+                    "flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-left",
+                    current === l.id ? "bg-leaf/12 font-semibold" : "bg-muted",
+                  )}
+                >
+                  <span className="flex-1">
+                    <span className="block">{l.name}</span>
+                    {l.lightLevel && <span className="text-secondary block text-[13px] font-normal">{LIGHT_LEVELS[l.lightLevel]}</span>}
+                  </span>
+                  {current === l.id && <Check className="text-leaf size-5" aria-hidden />}
+                </button>
+                {l.id && (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(l.id)}
+                    aria-label={`Изменить место «${l.name}»`}
+                    className="bg-muted text-secondary hover:text-label grid size-11 shrink-0 place-items-center rounded-full"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                )}
               </>
             )}
           </li>
@@ -197,7 +209,7 @@ export function LocationSheet({
         <button
           type="button"
           onClick={() => setAdding({ name: "", light: "bright_indirect" })}
-          className="mt-3 mb-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-separator py-3 font-semibold text-leaf"
+          className="border-separator text-leaf mt-3 mb-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed py-3 font-semibold"
         >
           <Plus className="size-4" aria-hidden /> Новое место
         </button>
@@ -225,17 +237,27 @@ export function DeleteEventButton({ eventId, label }: { eventId: string; label: 
   });
   if (!confirm) {
     return (
-      <button type="button" onClick={() => setConfirm(true)} aria-label={`Удалить отметку «${label}»`} className="grid size-8 place-items-center rounded-full text-secondary hover:bg-muted hover:text-alert">
+      <button
+        type="button"
+        onClick={() => setConfirm(true)}
+        aria-label={`Удалить отметку «${label}»`}
+        className="text-secondary hover:bg-muted hover:text-alert grid size-8 place-items-center rounded-full"
+      >
         <Trash2 className="size-4" />
       </button>
     );
   }
   return (
     <span className="flex items-center gap-1">
-      <button type="button" onClick={() => remove.mutate()} disabled={remove.isPending} className="rounded-full bg-alert px-3 py-1 text-[13px] font-semibold text-white">
+      <button
+        type="button"
+        onClick={() => remove.mutate()}
+        disabled={remove.isPending}
+        className="bg-alert rounded-full px-3 py-1 text-[13px] font-semibold text-white"
+      >
         Удалить
       </button>
-      <button type="button" onClick={() => setConfirm(false)} className="rounded-full bg-muted px-3 py-1 text-[13px] font-semibold">
+      <button type="button" onClick={() => setConfirm(false)} className="bg-muted rounded-full px-3 py-1 text-[13px] font-semibold">
         Нет
       </button>
     </span>

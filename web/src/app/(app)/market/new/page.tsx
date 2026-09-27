@@ -20,7 +20,7 @@ function SpeciesPicker({ value, onChange }: { value: string | null; onChange: (i
   const selected = speciesById(value);
   if (selected) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
+      <div className="bg-muted flex items-center gap-2 rounded-xl px-4 py-3">
         <span className="flex-1 text-[17px]">{speciesName(selected)}</span>
         <button type="button" onClick={() => onChange(null)} aria-label="Убрать вид" className="text-secondary">
           <X className="size-5" />
@@ -31,12 +31,18 @@ function SpeciesPicker({ value, onChange }: { value: string | null; onChange: (i
   const hits = query.trim().length >= 2 ? searchLocal(ALL_SPECIES, query).slice(0, 6) : [];
   return (
     <div>
-      <input className={inputClass} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Монстера, хойя…" aria-label="Вид растения" />
+      <input
+        className={inputClass}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Монстера, хойя…"
+        aria-label="Вид растения"
+      />
       {hits.length > 0 && (
-        <ul className="mt-2 overflow-hidden rounded-xl bg-muted">
+        <ul className="bg-muted mt-2 overflow-hidden rounded-xl">
           {hits.map((s) => (
             <li key={s.id}>
-              <button type="button" onClick={() => onChange(s.id)} className="w-full px-4 py-2.5 text-left text-[15px] hover:bg-surface">
+              <button type="button" onClick={() => onChange(s.id)} className="hover:bg-surface w-full px-4 py-2.5 text-left text-[15px]">
                 {speciesName(s)} <span className="text-secondary italic">{s.latinName}</span>
               </button>
             </li>
@@ -89,13 +95,14 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
     }
   }
 
-  const fieldError = (f: keyof ListingDraft) => (error?.field === f ? <span className="mt-1 block text-[13px] text-alert">{error.message}</span> : null);
+  const fieldError = (f: keyof ListingDraft) =>
+    error?.field === f ? <span className="text-alert mt-1 block text-[13px]">{error.message}</span> : null;
   const wanted = draft.kind === "wanted";
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-xl space-y-5">
       <fieldset>
-        <legend className="mb-2 text-[13px] font-medium text-secondary">Тип объявления</legend>
+        <legend className="text-secondary mb-2 text-[13px] font-medium">Тип объявления</legend>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(LISTING_KINDS) as ListingKind[]).map((k) => (
             <Chip key={k} active={draft.kind === k} onClick={() => set({ kind: k })}>
@@ -112,15 +119,27 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
           </div>
         ) : null}
         <div className={cx(existing?.photoUrls[0] && !photo && "mt-2")}>
-          <CameraField aspect="aspect-[4/3]" photoUrl={photo?.url ?? null} onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })} />
+          <CameraField
+            aspect="aspect-[4/3]"
+            photoUrl={photo?.url ?? null}
+            onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })}
+          />
         </div>
-        <p className="mt-2 text-center text-[13px] text-secondary">
-          {wanted ? "Фото не обязательно — можно показать, какое растение ищете." : "Только снимок с камеры: покупатель видит настоящее растение, а не картинку из интернета."}
+        <p className="text-secondary mt-2 text-center text-[13px]">
+          {wanted
+            ? "Фото не обязательно — можно показать, какое растение ищете."
+            : "Только снимок с камеры: покупатель видит настоящее растение, а не картинку из интернета."}
         </p>
         {fieldError("photo")}
       </div>
       <Field label="Название">
-        <input className={inputClass} value={draft.title} maxLength={80} onChange={(e) => set({ title: e.target.value })} placeholder={wanted ? "Ищу хойю керри" : "Укоренённая детка монстеры"} />
+        <input
+          className={inputClass}
+          value={draft.title}
+          maxLength={80}
+          onChange={(e) => set({ title: e.target.value })}
+          placeholder={wanted ? "Ищу хойю керри" : "Укоренённая детка монстеры"}
+        />
         {fieldError("title")}
       </Field>
       <Field label="Вид растения" group>
@@ -143,7 +162,13 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
       )}
       {draft.kind === "swap" && (
         <Field label="Меняю на">
-          <input className={inputClass} value={draft.swapFor} maxLength={200} onChange={(e) => set({ swapFor: e.target.value })} placeholder="Любую бегонию или строманту" />
+          <input
+            className={inputClass}
+            value={draft.swapFor}
+            maxLength={200}
+            onChange={(e) => set({ swapFor: e.target.value })}
+            placeholder="Любую бегонию или строманту"
+          />
           {fieldError("swapFor")}
         </Field>
       )}
@@ -158,14 +183,26 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
         {fieldError("description")}
       </Field>
       <Field label="Город" hint="Только город — адрес обсудите в личных сообщениях.">
-        <input className={inputClass} value={draft.city} maxLength={60} onChange={(e) => set({ city: e.target.value })} placeholder="Казань" autoComplete="address-level2" />
+        <input
+          className={inputClass}
+          value={draft.city}
+          maxLength={60}
+          onChange={(e) => set({ city: e.target.value })}
+          placeholder="Казань"
+          autoComplete="address-level2"
+        />
         {fieldError("city")}
       </Field>
-      <label className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+      <label className="bg-muted flex items-center justify-between gap-3 rounded-xl px-4 py-3">
         <span className="text-[17px]">Могу отправить доставкой</span>
-        <input type="checkbox" className="size-5 accent-[var(--leaf)]" checked={draft.delivery} onChange={(e) => set({ delivery: e.target.checked })} />
+        <input
+          type="checkbox"
+          className="size-5 accent-[var(--leaf)]"
+          checked={draft.delivery}
+          onChange={(e) => set({ delivery: e.target.checked })}
+        />
       </label>
-      {error?.field === null && <p className="text-[15px] text-alert">{error.message}</p>}
+      {error?.field === null && <p className="text-alert text-[15px]">{error.message}</p>}
       <Button type="submit" className="min-h-12 w-full" loading={saving}>
         {existing ? "Сохранить" : "Опубликовать"}
       </Button>

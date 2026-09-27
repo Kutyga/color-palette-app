@@ -109,13 +109,19 @@ function PlantView({ id }: { id: string }) {
 
   return (
     <div className="pt-4">
-      <Link href="/garden/" className="inline-flex items-center gap-1 text-[17px] text-leaf">
+      <Link href="/garden/" className="text-leaf inline-flex items-center gap-1 text-[17px]">
         <ChevronLeft className="size-5" aria-hidden /> Коллекция
       </Link>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         <div className="relative">
-          <PlantPhoto src={plant.photoUrl ?? species?.image?.url} seed={plant.id} alt={plant.nickname} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+          <PlantPhoto
+            src={plant.photoUrl ?? species?.image?.url}
+            seed={plant.id}
+            alt={plant.nickname}
+            className="aspect-square w-full rounded-[28px]"
+            iconSize={72}
+          />
           {!plant.photoUrl && species?.image && (
             <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>
           )}
@@ -133,11 +139,11 @@ function PlantView({ id }: { id: string }) {
         <div>
           <h1 className="text-[40px] leading-tight font-bold tracking-tight">{plant.nickname}</h1>
           {species ? (
-            <Link href={`/plants/${species.slug}/`} className="text-[17px] text-secondary hover:text-leaf">
+            <Link href={`/plants/${species.slug}/`} className="text-secondary hover:text-leaf text-[17px]">
               {plant.speciesName} · <i>{species.latinName}</i>
             </Link>
           ) : (
-            <p className="text-[17px] text-secondary">{plant.speciesName ?? "Вид не указан"}</p>
+            <p className="text-secondary text-[17px]">{plant.speciesName ?? "Вид не указан"}</p>
           )}
 
           <div className="mt-5 grid grid-cols-3 gap-2">
@@ -148,16 +154,16 @@ function PlantView({ id }: { id: string }) {
                   type="button"
                   onClick={() => setLocationOpen(true)}
                   aria-label={`Место: ${value}. Изменить`}
-                  className="rounded-2xl bg-surface p-3 text-left transition hover:brightness-95"
+                  className="bg-surface rounded-2xl p-3 text-left transition hover:brightness-95"
                 >
                   <Icon className="size-4" style={{ color }} aria-hidden />
-                  <p className="mt-2 text-[12px] text-secondary">{label} · изменить</p>
+                  <p className="text-secondary mt-2 text-[12px]">{label} · изменить</p>
                   <p className="text-[15px] leading-tight font-semibold">{value}</p>
                 </button>
               ) : (
-                <div key={label} className="rounded-2xl bg-surface p-3">
+                <div key={label} className="bg-surface rounded-2xl p-3">
                   <Icon className="size-4" style={{ color }} aria-hidden />
-                  <p className="mt-2 text-[12px] text-secondary">{label}</p>
+                  <p className="text-secondary mt-2 text-[12px]">{label}</p>
                   <p className="text-[15px] leading-tight font-semibold">{value}</p>
                 </div>
               ),
@@ -165,19 +171,19 @@ function PlantView({ id }: { id: string }) {
           </div>
 
           {plant.inWater ? (
-            <p className="mt-5 rounded-2xl bg-water/10 px-4 py-3 text-[15px]">
-              💧 Растёт в воде — поливать не нужно. Меняйте воду раз в 5–7 дней на отстоянную комнатной температуры и следите, чтобы
-              вода не зеленела.
+            <p className="bg-water/10 mt-5 rounded-2xl px-4 py-3 text-[15px]">
+              💧 Растёт в воде — поливать не нужно. Меняйте воду раз в 5–7 дней на отстоянную комнатной температуры и следите, чтобы вода не
+              зеленела.
             </p>
           ) : (
-            <Button className="mt-5 min-h-13 w-full bg-water text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
+            <Button className="bg-water mt-5 min-h-13 w-full text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
               <Droplet className="size-5" aria-hidden /> Полить
             </Button>
           )}
-          <label className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+          <label className="bg-muted mt-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">
             <span>
               <span className="block text-[15px] font-medium">Растёт в воде</span>
-              <span className="block text-[13px] text-secondary">Черенок в стакане или гидропоника</span>
+              <span className="text-secondary block text-[13px]">Черенок в стакане или гидропоника</span>
             </span>
             <input
               type="checkbox"
@@ -207,27 +213,27 @@ function PlantView({ id }: { id: string }) {
           <div className="mt-2 flex gap-2">
             <Link
               href={`/feed/new/?type=diary&plant=${plant.id}`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
+              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
             >
               <NotebookPen className="size-4" aria-hidden /> Запись в дневник
             </Link>
             <Link
               href={`/feed/plant/?id=${plant.id}`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
+              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
             >
               <BookOpen className="size-4" aria-hidden /> Дневник
             </Link>
           </div>
           <Link
             href={`/garden/diagnose/?plant=${plant.id}`}
-            className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-full bg-alert/10 text-[15px] font-semibold text-alert"
+            className="bg-alert/10 text-alert mt-2 flex min-h-11 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
           >
             <Stethoscope className="size-4" aria-hidden /> Что-то не так? Проверить болезни
           </Link>
           <div className="mt-2 flex gap-2">
             <Link
               href={`/market/new/?plant=${plant.id}`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-muted text-[15px] font-semibold"
+              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
             >
               <Tag className="size-4" aria-hidden /> Продать, отдать или обменять
             </Link>
@@ -236,7 +242,7 @@ function PlantView({ id }: { id: string }) {
       </div>
 
       <SectionTitle>График ухода</SectionTitle>
-      <ul className="divide-y divide-separator rounded-[20px] bg-surface">
+      <ul className="divide-separator bg-surface divide-y rounded-[20px]">
         {schedules.map((s) => {
           const Icon = CARE_ICONS[s.type];
           return (
@@ -244,31 +250,33 @@ function PlantView({ id }: { id: string }) {
               <Icon className="size-5" style={{ color: CARE_COLORS[s.type] }} aria-hidden />
               <div className="flex-1">
                 <p className="font-medium">{CARE_TYPES[s.type].label}</p>
-                <p className="text-[13px] text-secondary">{everyDays(effectiveDays(s, plant, now))}</p>
+                <p className="text-secondary text-[13px]">{everyDays(effectiveDays(s, plant, now))}</p>
               </div>
-              <p className="text-[15px] text-secondary">{s.nextDueAt ? relativeDay(s.nextDueAt, now) : "—"}</p>
+              <p className="text-secondary text-[15px]">{s.nextDueAt ? relativeDay(s.nextDueAt, now) : "—"}</p>
             </li>
           );
         })}
       </ul>
-      <p className="mt-2 text-[13px] text-secondary">
-        Интервал учитывает сезон, горшок{plant.potMaterial ? ` (${POT_MATERIALS[plant.potMaterial].toLowerCase()})` : ""}, свет и то, как вы поливаете на
-        самом деле.
+      <p className="text-secondary mt-2 text-[13px]">
+        Интервал учитывает сезон, горшок{plant.potMaterial ? ` (${POT_MATERIALS[plant.potMaterial].toLowerCase()})` : ""}, свет и то, как вы
+        поливаете на самом деле.
       </p>
 
       <SectionTitle>Журнал</SectionTitle>
-      {events.length > 0 && <p className="-mt-1 mb-2 text-[13px] text-secondary">Отметили по ошибке? Удалите отметку — график вернётся как был.</p>}
+      {events.length > 0 && (
+        <p className="text-secondary -mt-1 mb-2 text-[13px]">Отметили по ошибке? Удалите отметку — график вернётся как был.</p>
+      )}
       {events.length === 0 ? (
-        <p className="rounded-[20px] bg-surface p-4 text-secondary">Пока пусто — отметьте первый полив.</p>
+        <p className="bg-surface text-secondary rounded-[20px] p-4">Пока пусто — отметьте первый полив.</p>
       ) : (
-        <ul className="divide-y divide-separator rounded-[20px] bg-surface" aria-label="Журнал ухода">
+        <ul className="divide-separator bg-surface divide-y rounded-[20px]" aria-label="Журнал ухода">
           {events.slice(0, 20).map((e) => {
             const Icon = CARE_ICONS[e.type];
             return (
               <li key={e.id} className="flex items-center gap-3 py-2 pr-2 pl-4">
                 <Icon className="size-4" style={{ color: CARE_COLORS[e.type] }} aria-hidden />
                 <span className="flex-1">{CARE_TYPES[e.type].label}</span>
-                <span className="text-[15px] text-secondary">
+                <span className="text-secondary text-[15px]">
                   {formatShortDate(e.performedAt)}, {e.performedAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                 </span>
                 <DeleteEventButton eventId={e.id} label={CARE_TYPES[e.type].label} />
@@ -289,17 +297,17 @@ function PlantView({ id }: { id: string }) {
         <>
           <SectionTitle
             action={
-              <Link href={`/plants/${species.slug}/`} className="flex items-center gap-1 text-[15px] font-semibold text-leaf">
+              <Link href={`/plants/${species.slug}/`} className="text-leaf flex items-center gap-1 text-[15px] font-semibold">
                 <BookOpen className="size-4" aria-hidden /> Всё о виде
               </Link>
             }
           >
             Советы
           </SectionTitle>
-          <ul className="space-y-2 rounded-[20px] bg-surface p-4">
+          <ul className="bg-surface space-y-2 rounded-[20px] p-4">
             {species.care.tipsRu.map((t) => (
               <li key={t} className="flex gap-3 text-[15px]">
-                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-leaf" aria-hidden /> {t}
+                <span className="bg-leaf mt-2 size-1.5 shrink-0 rounded-full" aria-hidden /> {t}
               </li>
             ))}
           </ul>
@@ -317,7 +325,7 @@ function PlantView({ id }: { id: string }) {
           {CARE_TYPE_ORDER.map((t) => {
             const Icon = CARE_ICONS[t];
             return (
-              <button key={t} onClick={() => mark(t)} className="flex items-center gap-3 rounded-2xl bg-muted p-4 text-left font-medium">
+              <button key={t} onClick={() => mark(t)} className="bg-muted flex items-center gap-3 rounded-2xl p-4 text-left font-medium">
                 <Icon className="size-5" style={{ color: CARE_COLORS[t] }} aria-hidden /> {CARE_TYPES[t].label}
               </button>
             );
@@ -331,7 +339,7 @@ function PlantView({ id }: { id: string }) {
           <Button variant="secondary" className="flex-1" onClick={() => setConfirmDelete(false)}>
             Отмена
           </Button>
-          <Button className="flex-1 bg-alert" loading={remove.isPending} onClick={() => remove.mutate()}>
+          <Button className="bg-alert flex-1" loading={remove.isPending} onClick={() => remove.mutate()}>
             Удалить
           </Button>
         </div>

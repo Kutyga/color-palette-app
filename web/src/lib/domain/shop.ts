@@ -46,7 +46,15 @@ export interface ShopDraft {
 }
 
 export const emptyShopDraft = (city = ""): ShopDraft => ({
-  name: "", description: "", inn: "", city, address: "", hours: "", phone: "", website: "", delivery: false,
+  name: "",
+  description: "",
+  inn: "",
+  city,
+  address: "",
+  hours: "",
+  phone: "",
+  website: "",
+  delivery: false,
 });
 
 export const shopToDraft = (s: Shop): ShopDraft => ({
@@ -139,10 +147,13 @@ export function validateShop(d: ShopDraft): { field: keyof ShopDraft; message: s
   if (d.description.length > 1000) return { field: "description", message: "Описание — до 1000 символов" };
   if (d.address.length > 200) return { field: "address", message: "Адрес — до 200 символов" };
   if (d.hours.length > 100) return { field: "hours", message: "Часы работы — до 100 символов" };
-  if (d.phone.trim() && !/^[+\d][\d\s()-]{5,29}$/.test(d.phone.trim())) return { field: "phone", message: "Телефон — цифры, пробелы, скобки и дефисы" };
+  if (d.phone.trim() && !/^[+\d][\d\s()-]{5,29}$/.test(d.phone.trim()))
+    return { field: "phone", message: "Телефон — цифры, пробелы, скобки и дефисы" };
   const site = normalizeWebsite(d.website);
-  if (site && (site.length > 300 || !/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(site))) return { field: "website", message: "Проверьте адрес сайта" };
-  if (!d.phone.trim() && !site && !d.address.trim()) return { field: "phone", message: "Оставьте хотя бы один способ связи: телефон, сайт или адрес" };
+  if (site && (site.length > 300 || !/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(site)))
+    return { field: "website", message: "Проверьте адрес сайта" };
+  if (!d.phone.trim() && !site && !d.address.trim())
+    return { field: "phone", message: "Оставьте хотя бы один способ связи: телефон, сайт или адрес" };
   return null;
 }
 
@@ -335,9 +346,39 @@ export function speciesMatcher(all: Species[]) {
 /** «Монстера деликатесная 24/100» → «monstera-delikatesnaya-24-100» — если в файле нет артикула. */
 export function slugifyTitle(title: string): string {
   const map: Record<string, string> = {
-    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m",
-    н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "ts", ч: "ch", ш: "sh", щ: "sch",
-    ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya",
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "g",
+    д: "d",
+    е: "e",
+    ё: "e",
+    ж: "zh",
+    з: "z",
+    и: "i",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    х: "h",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "sch",
+    ъ: "",
+    ы: "y",
+    ь: "",
+    э: "e",
+    ю: "yu",
+    я: "ya",
   };
   return [...title.toLowerCase()]
     .map((c) => map[c] ?? c)
@@ -355,7 +396,8 @@ export interface ParsedRow extends ProductInput {
 }
 
 const cellText = (v: unknown) => (v == null ? "" : v instanceof Date ? v.toISOString().slice(0, 10) : String(v)).trim();
-const httpUrl = (v: string, httpsOnly = false) => (v && (httpsOnly ? /^https:\/\//i : /^https?:\/\//i).test(v) && v.length <= 500 ? v : null);
+const httpUrl = (v: string, httpsOnly = false) =>
+  v && (httpsOnly ? /^https:\/\//i : /^https?:\/\//i).test(v) && v.length <= 500 ? v : null;
 const positive = (n: number | null, max: number) => (n != null && n > 0 && n < max ? n : null);
 
 /** Строки файла → товары для импорта; ошибочные помечены и не загружаются. */
@@ -400,7 +442,15 @@ export function productsToCsv(products: ShopProduct[], latinOf: (speciesId: stri
   return toCsv([
     EXPORT_HEADER,
     ...products.map((p) => [
-      p.externalId, p.title, latinOf(p.speciesId) ?? "", p.priceRub, p.inStock ? "да" : "нет", p.potCm, p.heightCm, p.url ?? "", p.imageUrl ?? "",
+      p.externalId,
+      p.title,
+      latinOf(p.speciesId) ?? "",
+      p.priceRub,
+      p.inStock ? "да" : "нет",
+      p.potCm,
+      p.heightCm,
+      p.url ?? "",
+      p.imageUrl ?? "",
     ]),
   ]);
 }

@@ -5,8 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "Подоконник — уход за комнатными растениями", template: "%s · Подоконник" },
-  description:
-    "Коллекция растений с напоминаниями о поливе, база знаний по 244 комнатным растениям, лента садоводов и достижения.",
+  description: "Коллекция растений с напоминаниями о поливе, база знаний по 244 комнатным растениям, лента садоводов и достижения.",
   applicationName: "Подоконник",
   manifest: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/manifest.webmanifest`,
   icons: { icon: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/icon.svg` },

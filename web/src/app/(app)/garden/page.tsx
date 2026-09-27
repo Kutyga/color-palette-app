@@ -20,7 +20,7 @@ function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="text-center">
       <p className="text-[22px] font-bold">{value}</p>
-      <p className="text-[13px] text-secondary">{label}</p>
+      <p className="text-secondary text-[13px]">{label}</p>
     </div>
   );
 }
@@ -41,7 +41,7 @@ function Collection() {
         title="Коллекция пока пуста"
         message="Добавьте растение — по фото или из базы знаний."
         action={
-          <Link href="/garden/new/" className="rounded-full bg-leaf px-6 py-3 font-semibold text-white">
+          <Link href="/garden/new/" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Добавить растение
           </Link>
         }
@@ -56,7 +56,7 @@ function Collection() {
 
   return (
     <>
-      <div className="grid grid-cols-3 rounded-[20px] bg-surface py-4">
+      <div className="bg-surface grid grid-cols-3 rounded-[20px] py-4">
         <Stat value={n} label={plural(n, "растение", "растения", "растений")} />
         <Stat value={places} label={plural(places, "место", "места", "мест")} />
         <Stat value={streak} label={`${plural(streak, "день", "дня", "дней")} заботы`} />
@@ -81,7 +81,13 @@ function Collection() {
           return (
             <li key={p.id}>
               <Link href={`/garden/plant/?id=${p.id}`} className="group relative block aspect-square overflow-hidden">
-                <PlantPhoto src={plantPhotoUrl(p)} seed={p.id} alt={p.nickname} className="size-full transition group-hover:scale-105" iconSize={40} />
+                <PlantPhoto
+                  src={plantPhotoUrl(p)}
+                  seed={p.id}
+                  alt={p.nickname}
+                  className="size-full transition group-hover:scale-105"
+                  iconSize={40}
+                />
                 <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pt-8 pb-2.5 text-white">
                   <span className="block truncate text-[15px] font-semibold">{p.nickname}</span>
                   {p.speciesName && <span className="block truncate text-[12px] opacity-80">{p.speciesName}</span>}
@@ -105,7 +111,7 @@ function Collection() {
         <li>
           <Link
             href="/garden/new/"
-            className={cx("grid aspect-square place-items-center bg-muted text-secondary transition hover:text-leaf")}
+            className={cx("bg-muted text-secondary hover:text-leaf grid aspect-square place-items-center transition")}
             aria-label="Добавить растение"
           >
             <Plus className="size-10" strokeWidth={1.5} />

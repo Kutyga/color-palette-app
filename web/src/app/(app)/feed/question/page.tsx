@@ -30,7 +30,7 @@ export default function QuestionPage() {
   return (
     <>
       <div className="pt-4">
-        <Link href="/feed/?tab=help" className="inline-flex items-center gap-1 text-[15px] font-medium text-leaf">
+        <Link href="/feed/?tab=help" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
           <ChevronLeft className="size-5" aria-hidden /> Помощь
         </Link>
       </div>

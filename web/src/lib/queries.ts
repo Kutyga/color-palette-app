@@ -118,8 +118,7 @@ export function useLogCare() {
   const b = useBackend();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ plantId, type }: { plantId: string; type: CareType }) =>
-      b.garden.logCare(plantId, type, { id: crypto.randomUUID() }),
+    mutationFn: ({ plantId, type }: { plantId: string; type: CareType }) => b.garden.logCare(plantId, type, { id: crypto.randomUUID() }),
     onSuccess: (_d, { plantId }) => {
       for (const key of [["tasks"], ["done-today"], ["plants"], ["plant", plantId], ["stats"]]) qc.invalidateQueries({ queryKey: key });
     },
@@ -190,7 +189,11 @@ export function useConversations() {
 
 export function useMessages(conversationId: string | null) {
   const b = useBackend();
-  return useQuery({ queryKey: ["chat", "messages", conversationId], queryFn: () => b.chat.messages(conversationId!), enabled: !!conversationId });
+  return useQuery({
+    queryKey: ["chat", "messages", conversationId],
+    queryFn: () => b.chat.messages(conversationId!),
+    enabled: !!conversationId,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +243,9 @@ export function useSetWished() {
     mutationFn: ({ speciesId, wanted }: { speciesId: string; wanted: boolean }) => b.wishlist.set(speciesId, wanted),
     onMutate: ({ speciesId, wanted }) => {
       const prev = qc.getQueryData<string[]>(["wishlist"]);
-      qc.setQueryData<string[]>(["wishlist"], (l = []) => (wanted ? [speciesId, ...l.filter((x) => x !== speciesId)] : l.filter((x) => x !== speciesId)));
+      qc.setQueryData<string[]>(["wishlist"], (l = []) =>
+        wanted ? [speciesId, ...l.filter((x) => x !== speciesId)] : l.filter((x) => x !== speciesId),
+      );
       return { prev };
     },
     onError: (_e, _v, ctx) => qc.setQueryData(["wishlist"], ctx?.prev),

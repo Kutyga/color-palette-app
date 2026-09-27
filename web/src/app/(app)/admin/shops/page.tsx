@@ -34,11 +34,11 @@ function ShopReview({ shop: s }: { shop: Shop }) {
   return (
     <Card className="p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <Link href={shopHref(s.id)} className="text-[19px] font-semibold hover:text-leaf">
+        <Link href={shopHref(s.id)} className="hover:text-leaf text-[19px] font-semibold">
           {s.name}
         </Link>
         <ShopStatusPill status={s.status} />
-        <span className="ml-auto text-[13px] text-secondary">заявка {timeAgo(s.createdAt)}</span>
+        <span className="text-secondary ml-auto text-[13px]">заявка {timeAgo(s.createdAt)}</span>
       </div>
       <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
         <dt className="text-secondary">ИНН</dt>
@@ -47,13 +47,23 @@ function ShopReview({ shop: s }: { shop: Shop }) {
             <span className="text-secondary">не указан</span>
           ) : (
             <>
-          <span className="font-mono">{s.inn}</span>
-          <a href={`https://www.rusprofile.ru/search?query=${s.inn}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-medium text-leaf">
-            Rusprofile <ExternalLink className="size-3.5" aria-hidden />
-          </a>
-          <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-medium text-leaf">
-            ЕГРЮЛ <ExternalLink className="size-3.5" aria-hidden />
-          </a>
+              <span className="font-mono">{s.inn}</span>
+              <a
+                href={`https://www.rusprofile.ru/search?query=${s.inn}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-leaf inline-flex items-center gap-1 text-[13px] font-medium"
+              >
+                Rusprofile <ExternalLink className="size-3.5" aria-hidden />
+              </a>
+              <a
+                href="https://egrul.nalog.ru/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-leaf inline-flex items-center gap-1 text-[13px] font-medium"
+              >
+                ЕГРЮЛ <ExternalLink className="size-3.5" aria-hidden />
+              </a>
             </>
           )}
         </dd>
@@ -80,7 +90,7 @@ function ShopReview({ shop: s }: { shop: Shop }) {
           </>
         )}
       </dl>
-      {s.description && <p className="mt-2 text-[15px] whitespace-pre-line text-secondary">{s.description}</p>}
+      {s.description && <p className="text-secondary mt-2 text-[15px] whitespace-pre-line">{s.description}</p>}
       <textarea
         className={cx(inputClass, "mt-3 min-h-16 text-[15px]")}
         value={note}
@@ -91,7 +101,13 @@ function ShopReview({ shop: s }: { shop: Shop }) {
       />
       <div className="mt-3 flex flex-wrap gap-2">
         {ACTIONS.filter((a) => a.status !== s.status).map((a) => (
-          <Button key={a.status} variant={a.variant} className="flex-1" loading={review.isPending && review.variables === a.status} onClick={() => review.mutate(a.status)}>
+          <Button
+            key={a.status}
+            variant={a.variant}
+            className="flex-1"
+            loading={review.isPending && review.variables === a.status}
+            onClick={() => review.mutate(a.status)}
+          >
             {a.label}
           </Button>
         ))}
@@ -106,7 +122,8 @@ function Queue() {
   const queue = useReviewQueue(isAdmin);
   const [filter, setFilter] = useState<ShopStatus | "all">("pending");
   if (profile.isPending) return <Spinner />;
-  if (!isAdmin) return <EmptyState icon={ShieldCheck} title="Только для администратора" message="Эта страница нужна для проверки магазинов." />;
+  if (!isAdmin)
+    return <EmptyState icon={ShieldCheck} title="Только для администратора" message="Эта страница нужна для проверки магазинов." />;
   if (queue.isPending) return <Spinner />;
   if (queue.error) return <ErrorNote error={queue.error} onRetry={() => queue.refetch()} />;
   const count = (st: ShopStatus) => queue.data.filter((s) => s.status === st).length;
@@ -123,7 +140,11 @@ function Queue() {
           Все · {queue.data.length}
         </Chip>
       </div>
-      {shown.length ? shown.map((s) => <ShopReview key={s.id} shop={s} />) : <p className="py-10 text-center text-secondary">Здесь пусто</p>}
+      {shown.length ? (
+        shown.map((s) => <ShopReview key={s.id} shop={s} />)
+      ) : (
+        <p className="text-secondary py-10 text-center">Здесь пусто</p>
+      )}
     </div>
   );
 }

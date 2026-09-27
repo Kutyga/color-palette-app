@@ -28,13 +28,18 @@ function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (
   const [query, setQuery] = useState("");
   if (value) {
     return (
-      <div className="flex items-center gap-3 rounded-2xl bg-muted p-3">
+      <div className="bg-muted flex items-center gap-3 rounded-2xl p-3">
         <PlantPhoto src={value.image?.url} seed={value.slug} alt="" className="size-12 rounded-xl" iconSize={20} />
         <div className="min-w-0 flex-1">
           <p className="font-semibold">{speciesName(value)}</p>
-          <p className="truncate text-[13px] text-secondary italic">{value.latinName}</p>
+          <p className="text-secondary truncate text-[13px] italic">{value.latinName}</p>
         </div>
-        <button type="button" onClick={() => onChange(null)} className="grid size-9 place-items-center rounded-full bg-surface" aria-label="Сменить вид">
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className="bg-surface grid size-9 place-items-center rounded-full"
+          aria-label="Сменить вид"
+        >
           <X className="size-4" />
         </button>
       </div>
@@ -44,7 +49,7 @@ function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (
   return (
     <div>
       <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-secondary" aria-hidden />
+        <Search className="text-secondary pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2" aria-hidden />
         <input
           className={`${inputClass} pl-12`}
           value={query}
@@ -54,22 +59,26 @@ function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (
         />
       </div>
       {results.length > 0 && (
-        <ul className="mt-2 divide-y divide-separator overflow-hidden rounded-2xl bg-muted">
+        <ul className="divide-separator bg-muted mt-2 divide-y overflow-hidden rounded-2xl">
           {results.map((s) => (
             <li key={s.slug}>
-              <button type="button" onClick={() => onChange(s)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface">
+              <button
+                type="button"
+                onClick={() => onChange(s)}
+                className="hover:bg-surface flex w-full items-center gap-3 px-4 py-3 text-left"
+              >
                 <span className="flex-1">
                   <span className="block font-medium">{speciesName(s)}</span>
-                  <span className="block text-[13px] text-secondary italic">{s.latinName}</span>
+                  <span className="text-secondary block text-[13px] italic">{s.latinName}</span>
                 </span>
-                <ChevronRight className="size-4 text-secondary" aria-hidden />
+                <ChevronRight className="text-secondary size-4" aria-hidden />
               </button>
             </li>
           ))}
         </ul>
       )}
       {query.trim() && results.length === 0 && (
-        <p className="mt-2 text-[15px] text-secondary">Такого вида нет в базе — растение можно добавить и без вида.</p>
+        <p className="text-secondary mt-2 text-[15px]">Такого вида нет в базе — растение можно добавить и без вида.</p>
       )}
     </div>
   );
@@ -77,23 +86,33 @@ function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (
 
 function IdentifyResults({ candidates, onPick }: { candidates: IdentificationCandidate[]; onPick: (c: IdentificationCandidate) => void }) {
   if (!candidates.length) {
-    return <p className="text-secondary">Не удалось узнать растение. Снимите лист или цветок крупно при хорошем свете — или выберите вид вручную.</p>;
+    return (
+      <p className="text-secondary">
+        Не удалось узнать растение. Снимите лист или цветок крупно при хорошем свете — или выберите вид вручную.
+      </p>
+    );
   }
   return (
     <>
-      <p className="text-[13px] text-secondary">По данным Pl@ntNet. Проверьте по фото в базе знаний.</p>
+      <p className="text-secondary text-[13px]">По данным Pl@ntNet. Проверьте по фото в базе знаний.</p>
       <ul className="mt-3 space-y-1">
         {candidates.map((c) => {
           const exact = c.species && !c.genusOnly;
           return (
             <li key={c.latinName}>
-              <button type="button" onClick={() => onPick(c)} className="flex w-full items-center gap-3 rounded-2xl p-2 text-left hover:bg-muted">
+              <button
+                type="button"
+                onClick={() => onPick(c)}
+                className="hover:bg-muted flex w-full items-center gap-3 rounded-2xl p-2 text-left"
+              >
                 <ProgressRing progress={c.score} color={exact ? "var(--leaf)" : "var(--water)"} size={44} stroke={5}>
                   <span className="text-[11px] font-semibold">{c.percent}%</span>
                 </ProgressRing>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-semibold">{exact ? speciesName(c.species!) : (c.commonName ?? capitalizeLatin(c.latinName))}</span>
-                  <span className="block truncate text-[13px] text-secondary italic">
+                  <span className="block font-semibold">
+                    {exact ? speciesName(c.species!) : (c.commonName ?? capitalizeLatin(c.latinName))}
+                  </span>
+                  <span className="text-secondary block truncate text-[13px] italic">
                     {!c.species
                       ? `${c.commonName ? `${capitalizeLatin(c.latinName)} · ` : ""}нет в базе знаний — добавим с этим названием`
                       : c.genusOnly
@@ -101,7 +120,7 @@ function IdentifyResults({ candidates, onPick }: { candidates: IdentificationCan
                         : capitalizeLatin(c.latinName)}
                   </span>
                 </span>
-                <ChevronRight className="size-4 text-secondary" aria-hidden />
+                <ChevronRight className="text-secondary size-4" aria-hidden />
               </button>
             </li>
           );
@@ -180,7 +199,8 @@ function NewPlantForm() {
         locationId: location,
         potMaterial: pot || null,
         visibility,
-        lastWateredAt: inWater || lastWatered == null ? null : new Date(today.getFullYear(), today.getMonth(), today.getDate() - lastWatered, 10),
+        lastWateredAt:
+          inWater || lastWatered == null ? null : new Date(today.getFullYear(), today.getMonth(), today.getDate() - lastWatered, 10),
         inWater,
       });
       try {
@@ -210,11 +230,11 @@ function NewPlantForm() {
         />
         {photo && backend.identifier && (
           <Button type="button" variant="secondary" className="mt-3 w-full" onClick={identify} loading={identifying}>
-            <ScanSearch className="size-5 text-leaf" aria-hidden /> {identifying ? "Распознаём…" : "Распознать растение"}
+            <ScanSearch className="text-leaf size-5" aria-hidden /> {identifying ? "Распознаём…" : "Распознать растение"}
           </Button>
         )}
         {photo && !backend.identifier && (
-          <p className="mt-3 text-center text-[13px] text-secondary">Распознавание по фото доступно после регистрации.</p>
+          <p className="text-secondary mt-3 text-center text-[13px]">Распознавание по фото доступно после регистрации.</p>
         )}
       </div>
 
@@ -223,7 +243,14 @@ function NewPlantForm() {
           <SpeciesPicker value={species} onChange={pickSpecies} />
         </Field>
         <Field label="Имя">
-          <input className={inputClass} required maxLength={60} value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Например, Монстера Мося" />
+          <input
+            className={inputClass}
+            required
+            maxLength={60}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="Например, Монстера Мося"
+          />
         </Field>
         <Field label="Где стоит" group>
           {newLocation ? (
@@ -254,7 +281,9 @@ function NewPlantForm() {
               className={inputClass}
               aria-label="Где стоит"
               value={locationId}
-              onChange={(e) => (e.target.value === "__new" ? setNewLocation({ name: "", light: "bright_indirect" }) : setLocationId(e.target.value))}
+              onChange={(e) =>
+                e.target.value === "__new" ? setNewLocation({ name: "", light: "bright_indirect" }) : setLocationId(e.target.value)
+              }
             >
               <option value="">Не указано</option>
               {locations.data?.map((l) => (
@@ -288,34 +317,39 @@ function NewPlantForm() {
             </select>
           </Field>
         </div>
-        <label className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+        <label className="bg-muted flex items-center justify-between gap-3 rounded-xl px-4 py-3">
           <span>
             <span className="block text-[17px]">💧 Растёт в воде</span>
-            <span className="block text-[13px] text-secondary">Черенок в стакане или гидропоника — полив не нужен</span>
+            <span className="text-secondary block text-[13px]">Черенок в стакане или гидропоника — полив не нужен</span>
           </span>
-          <input type="checkbox" className="size-5 shrink-0 accent-[var(--water)]" checked={inWater} onChange={(e) => setInWater(e.target.checked)} />
+          <input
+            type="checkbox"
+            className="size-5 shrink-0 accent-[var(--water)]"
+            checked={inWater}
+            onChange={(e) => setInWater(e.target.checked)}
+          />
         </label>
         {!inWater && (
-        <Field label="Последний полив" group>
-          <div className="flex flex-wrap gap-2">
-            {LAST_WATERED.map((o) => (
-              <button
-                key={o.label}
-                type="button"
-                onClick={() => setLastWatered(o.days)}
-                aria-pressed={lastWatered === o.days}
-                className={`rounded-full px-4 py-2 text-[15px] ${lastWatered === o.days ? "bg-label text-bg" : "bg-muted"}`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </Field>
+          <Field label="Последний полив" group>
+            <div className="flex flex-wrap gap-2">
+              {LAST_WATERED.map((o) => (
+                <button
+                  key={o.label}
+                  type="button"
+                  onClick={() => setLastWatered(o.days)}
+                  aria-pressed={lastWatered === o.days}
+                  className={`rounded-full px-4 py-2 text-[15px] ${lastWatered === o.days ? "bg-label text-bg" : "bg-muted"}`}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </Field>
         )}
-        <Button type="submit" className="w-full min-h-12 text-[17px]" loading={saving} disabled={!nickname.trim() || !photo}>
+        <Button type="submit" className="min-h-12 w-full text-[17px]" loading={saving} disabled={!nickname.trim() || !photo}>
           Добавить в коллекцию
         </Button>
-        {!photo && <p className="text-center text-[13px] text-secondary">Чтобы добавить растение, сфотографируйте его у себя дома.</p>}
+        {!photo && <p className="text-secondary text-center text-[13px]">Чтобы добавить растение, сфотографируйте его у себя дома.</p>}
       </div>
 
       <Sheet open={candidates !== null} onClose={() => setCandidates(null)} title="Похоже на">

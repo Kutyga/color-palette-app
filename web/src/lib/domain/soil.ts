@@ -72,7 +72,7 @@ export interface SoilMix {
 }
 
 type Row = Record<string, unknown>;
-const ru = <T>(v: unknown, fallback: T): T => ((v as { ru?: T } | null)?.ru ?? fallback);
+const ru = <T>(v: unknown, fallback: T): T => (v as { ru?: T } | null)?.ru ?? fallback;
 
 /** Неизвестные компоненты отбрасываем — схема рисует только то, что умеет. */
 export function soilMixFromRow(r: Row): SoilMix {

@@ -12,7 +12,17 @@ import {
 } from "../domain/care";
 import { EMPTY_STATS, type GardenStats, type ShopStats } from "../domain/gamification";
 import type { Location, Plant, Visibility } from "../domain/plant";
-import { EDIT_WINDOW_MS, type DiaryEvent, type DiaryScope, type FeedPost, type HelpFilter, type NewPost, type NewsArticle, type PostComment, type PostUpdate } from "../domain/social";
+import {
+  EDIT_WINDOW_MS,
+  type DiaryEvent,
+  type DiaryScope,
+  type FeedPost,
+  type HelpFilter,
+  type NewPost,
+  type NewsArticle,
+  type PostComment,
+  type PostUpdate,
+} from "../domain/social";
 import { speciesName, type Species } from "../domain/species";
 import {
   sameCity,
@@ -25,7 +35,17 @@ import {
   type ListingKind,
   type ListingStatus,
 } from "../domain/market";
-import { normalizeWebsite, validateShop, type ImportResult, type Offer, type ProductInput, type Shop, type ShopDraft, type ShopProduct, type ShopStatus } from "../domain/shop";
+import {
+  normalizeWebsite,
+  validateShop,
+  type ImportResult,
+  type Offer,
+  type ProductInput,
+  type Shop,
+  type ShopDraft,
+  type ShopProduct,
+  type ShopStatus,
+} from "../domain/shop";
 import { blobToDataUrl } from "../image";
 import { ALL_SPECIES } from "../knowledge";
 import { initialSchedules } from "./schedules";
@@ -59,8 +79,15 @@ type ScheduleRec = Dated<CareSchedule, "lastDoneAt" | "nextDueAt">;
 // prevDoneAt / prevFactor — каким был график до отметки (для отмены, как в базе).
 type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string; prevDoneAt?: string | null; prevFactor?: number };
 // Поля дневника и вопросов необязательны: в сохранённых раньше демо-данных их нет.
-type PostRec = Omit<FeedPost, "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId" | "editedAt"> &
-  Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & { createdAt: string; authorDisplayName?: string; editedAt?: string | null };
+type PostRec = Omit<
+  FeedPost,
+  "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId" | "editedAt"
+> &
+  Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & {
+    createdAt: string;
+    authorDisplayName?: string;
+    editedAt?: string | null;
+  };
 type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName"> & { createdAt: string; authorDisplayName?: string };
 
 export interface DemoState {
@@ -157,7 +184,14 @@ export const memoryDemoStorage = (): DemoStorage => {
 };
 
 const emptyState = (): DemoState => ({
-  version: 1, plants: [], locations: [], schedules: [], events: [], photos: {}, posts: [], comments: [],
+  version: 1,
+  plants: [],
+  locations: [],
+  schedules: [],
+  events: [],
+  photos: {},
+  posts: [],
+  comments: [],
   following: ["demo-anna.green", "demo-orchid.mood"],
 });
 
@@ -377,9 +411,7 @@ export class DemoGarden implements GardenRepository {
   }
 
   async careEventsSince(since: Date) {
-    return this.state.events
-      .map((e) => ({ ...e, performedAt: new Date(e.performedAt) }))
-      .filter((e) => e.performedAt >= since);
+    return this.state.events.map((e) => ({ ...e, performedAt: new Date(e.performedAt) })).filter((e) => e.performedAt >= since);
   }
 
   /** Аналог RPC my_garden_stats. */
@@ -439,14 +471,26 @@ export class DemoGarden implements GardenRepository {
 }
 
 /** Вымышленные садоводы демо-режима: их можно найти, открыть профиль и растения, подписаться. */
-const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followers: number; followsMe: boolean; plants: [string, string][] }[] = [
+const DEMO_PEOPLE: {
+  username: string;
+  displayName: string;
+  bio: string;
+  followers: number;
+  followsMe: boolean;
+  plants: [string, string][];
+}[] = [
   {
     username: "anna.green",
     displayName: "Анна",
     bio: "Ароидные и калатеи. Подоконники на север — и всё растёт.",
     followers: 1840,
     followsMe: false,
-    plants: [["Монстера Бублик", "monstera-deliciosa"], ["Калатея Ося", "goeppertia-orbifolia"], ["Сингониум", "syngonium-podophyllum"], ["Филодендрон Пинк", "philodendron-erubescens"]],
+    plants: [
+      ["Монстера Бублик", "monstera-deliciosa"],
+      ["Калатея Ося", "goeppertia-orbifolia"],
+      ["Сингониум", "syngonium-podophyllum"],
+      ["Филодендрон Пинк", "philodendron-erubescens"],
+    ],
   },
   {
     username: "fikus_papa",
@@ -454,7 +498,11 @@ const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followe
     bio: "Фикусы всех мастей. Роберт — мой первый.",
     followers: 932,
     followsMe: true,
-    plants: [["Роберт", "ficus-elastica"], ["Лира", "ficus-lyrata"], ["Бенджи", "ficus-benjamina"]],
+    plants: [
+      ["Роберт", "ficus-elastica"],
+      ["Лира", "ficus-lyrata"],
+      ["Бенджи", "ficus-benjamina"],
+    ],
   },
   {
     username: "succulove",
@@ -462,7 +510,12 @@ const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followe
     bio: "Кактусы, литопсы и немного терпения.",
     followers: 457,
     followsMe: true,
-    plants: [["Денежка", "crassula-ovata"], ["Камешки", "lithops-lesliei"], ["Алоэ", "aloe-vera"], ["Эхеверия", "echeveria-elegans"]],
+    plants: [
+      ["Денежка", "crassula-ovata"],
+      ["Камешки", "lithops-lesliei"],
+      ["Алоэ", "aloe-vera"],
+      ["Эхеверия", "echeveria-elegans"],
+    ],
   },
   {
     username: "orchid.mood",
@@ -470,7 +523,10 @@ const DEMO_PEOPLE: { username: string; displayName: string; bio: string; followe
     bio: "Фаленопсисы цветут третий раз подряд.",
     followers: 2110,
     followsMe: false,
-    plants: [["Луна", "phalaenopsis-hybrid"], ["Дендробиум", "dendrobium-nobile"]],
+    plants: [
+      ["Луна", "phalaenopsis-hybrid"],
+      ["Дендробиум", "dendrobium-nobile"],
+    ],
   },
 ];
 const demoId = (username: string) => `demo-${username}`;
@@ -478,7 +534,14 @@ const DEFAULT_PROFILE: Profile = { username: "gost", displayName: "Гость", 
 
 /** Записи дневников: автор, растение, вид, событие, текст, «поддержали». */
 const SAMPLE_DIARIES: [string, string, string, DiaryEvent, string, number][] = [
-  ["anna.green", "Монстера Бублик", "monstera-deliciosa", "new_leaf", "Седьмой резной лист за лето. Секрет — опора из кокоса и терпение.", 128],
+  [
+    "anna.green",
+    "Монстера Бублик",
+    "monstera-deliciosa",
+    "new_leaf",
+    "Седьмой резной лист за лето. Секрет — опора из кокоса и терпение.",
+    128,
+  ],
   ["fikus_papa", "Роберт", "ficus-elastica", "progress", "Год назад был черенком в стакане. Теперь выше кота.", 93],
   ["succulove", "Денежка", "crassula-ovata", "repot", "Пересадила в терракоту на смесь для суккулентов с пемзой. Корни здоровые!", 45],
   ["orchid.mood", "Луна", "phalaenopsis-hybrid", "bloom", "Третье цветение подряд! Полив погружением раз в неделю.", 211],
@@ -496,7 +559,13 @@ const SAMPLE_QUESTIONS: [string, string, string, [string, string][], number | nu
     ],
     0,
   ],
-  ["succulove", "goeppertia-orbifolia", "Калатея сворачивает листья днём. Стоит в метре от окна на восток. Это от света или от воздуха?", [], null],
+  [
+    "succulove",
+    "goeppertia-orbifolia",
+    "Калатея сворачивает листья днём. Стоит в метре от окна на восток. Это от света или от воздуха?",
+    [],
+    null,
+  ],
   [
     "orchid.mood",
     "phalaenopsis-hybrid",
@@ -642,7 +711,14 @@ export class DemoSocial implements SocialRepository {
   }
 
   async addComment(postId: string, text: string) {
-    const c: CommentRec = { id: crypto.randomUUID(), postId, authorName: (this.state.profile ?? DEFAULT_PROFILE).username, text, createdAt: this.clock().toISOString(), mine: true };
+    const c: CommentRec = {
+      id: crypto.randomUUID(),
+      postId,
+      authorName: (this.state.profile ?? DEFAULT_PROFILE).username,
+      text,
+      createdAt: this.clock().toISOString(),
+      mine: true,
+    };
     this.state.comments.push(c);
     this.bump(postId, 1);
     this.persist();
@@ -788,9 +864,19 @@ export class DemoPeople implements PeopleRepository {
 
   async plantsOf(userId: string): Promise<PublicPlant[]> {
     if (userId === ME)
-      return this.state.plants.map((p) => ({ id: p.id, nickname: p.nickname, speciesSlug: p.speciesSlug, photoUrl: this.state.photos[p.id] ?? null }));
+      return this.state.plants.map((p) => ({
+        id: p.id,
+        nickname: p.nickname,
+        speciesSlug: p.speciesSlug,
+        photoUrl: this.state.photos[p.id] ?? null,
+      }));
     const person = DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
-    return (person?.plants ?? []).map(([nickname, slug], i) => ({ id: `${userId}-plant-${i}`, nickname, speciesSlug: slug, photoUrl: null }));
+    return (person?.plants ?? []).map(([nickname, slug], i) => ({
+      id: `${userId}-plant-${i}`,
+      nickname,
+      speciesSlug: slug,
+      photoUrl: null,
+    }));
   }
 
   async updateProfile(update: ProfileUpdate): Promise<Profile> {
@@ -814,11 +900,61 @@ const personOf = (userId: string) => DEMO_PEOPLE.find((d) => demoId(d.username) 
 
 /** Объявления демо-садоводов: автор, тип, вид, название, описание, цена, обмен на, город, доставка. */
 const SAMPLE_LISTINGS: [string, ListingKind, string, string, string, number | null, string | null, string, boolean][] = [
-  ["anna.green", "sell", "monstera-deliciosa", "Укоренённая детка монстеры", "Три листа, уже с воздушными корнями. В горшке 9 см на ароидной смеси.", 700, null, "Москва", false],
-  ["succulove", "free", "kalanchoe-daigremontiana", "Детки каланхоэ Дегремона", "Отдам сколько нужно — растут сами. Возьмите свою баночку 🙂", null, null, "Москва", false],
-  ["orchid.mood", "swap", "hoya-carnosa", "Черенки хойи мясистой", "Два черенка по 2 узла, укоренены в воде.", null, "На любую бегонию или строманту", "Казань", true],
-  ["fikus_papa", "wanted", "stromanthe-thalia", "Ищу строманту «Триостар»", "Можно небольшую, готов забрать сам по Москве.", null, null, "Москва", false],
-  ["anna.green", "sell", "begonia-maculata", "Бегония пятнистая, 30 см", "Пышная, цветёт. Отдаю из-за переезда. Горшок в подарок.", 1500, null, "Москва", true],
+  [
+    "anna.green",
+    "sell",
+    "monstera-deliciosa",
+    "Укоренённая детка монстеры",
+    "Три листа, уже с воздушными корнями. В горшке 9 см на ароидной смеси.",
+    700,
+    null,
+    "Москва",
+    false,
+  ],
+  [
+    "succulove",
+    "free",
+    "kalanchoe-daigremontiana",
+    "Детки каланхоэ Дегремона",
+    "Отдам сколько нужно — растут сами. Возьмите свою баночку 🙂",
+    null,
+    null,
+    "Москва",
+    false,
+  ],
+  [
+    "orchid.mood",
+    "swap",
+    "hoya-carnosa",
+    "Черенки хойи мясистой",
+    "Два черенка по 2 узла, укоренены в воде.",
+    null,
+    "На любую бегонию или строманту",
+    "Казань",
+    true,
+  ],
+  [
+    "fikus_papa",
+    "wanted",
+    "stromanthe-thalia",
+    "Ищу строманту «Триостар»",
+    "Можно небольшую, готов забрать сам по Москве.",
+    null,
+    null,
+    "Москва",
+    false,
+  ],
+  [
+    "anna.green",
+    "sell",
+    "begonia-maculata",
+    "Бегония пятнистая, 30 см",
+    "Пышная, цветёт. Отдаю из-за переезда. Горшок в подарок.",
+    1500,
+    null,
+    "Москва",
+    true,
+  ],
 ];
 
 const AUTO_REPLY = "Здравствуйте! Да, ещё актуально 🌿 Когда вам удобно?";
@@ -1121,7 +1257,15 @@ export class DemoShops implements ShopRepository {
     };
     let r = this.recs.find((x) => x.ownerId === ME);
     if (!r) {
-      r = { id: crypto.randomUUID(), ownerId: ME, ...fields, status: "pending", reviewNote: null, createdAt: this.clock().toISOString(), verifiedAt: null };
+      r = {
+        id: crypto.randomUUID(),
+        ownerId: ME,
+        ...fields,
+        status: "pending",
+        reviewNote: null,
+        createdAt: this.clock().toISOString(),
+        verifiedAt: null,
+      };
       this.recs.push(r);
     } else {
       // Как триггер shops_guard: новые реквизиты проверенного магазина — снова на проверку.
@@ -1268,8 +1412,26 @@ export class DemoWishlist implements WishlistRepository {
 
 /** Проверенные демо-магазины: название, ИНН, город, адрес, телефон, сайт, доставка, описание. */
 const SAMPLE_SHOPS: [string, string, string, string, string, string, boolean, string][] = [
-  ["Зелёная комната", "7707083893", "Москва", "ул. Садовая, 12", "+7 495 123-45-67", "https://example.ru/green-room", true, "Тропические растения из питомников Голландии. Доставка по Москве и области."],
-  ["Ботаника на Литейном", "7736207543", "Санкт-Петербург", "Литейный пр., 40", "+7 812 765-43-21", "https://example.ru/botanika", true, "Ароидные, калатеи и редкие сорта. Отправляем по всей России."],
+  [
+    "Зелёная комната",
+    "7707083893",
+    "Москва",
+    "ул. Садовая, 12",
+    "+7 495 123-45-67",
+    "https://example.ru/green-room",
+    true,
+    "Тропические растения из питомников Голландии. Доставка по Москве и области.",
+  ],
+  [
+    "Ботаника на Литейном",
+    "7736207543",
+    "Санкт-Петербург",
+    "Литейный пр., 40",
+    "+7 812 765-43-21",
+    "https://example.ru/botanika",
+    true,
+    "Ароидные, калатеи и редкие сорта. Отправляем по всей России.",
+  ],
 ];
 
 /** Каталоги демо-магазинов: магазин, артикул, название, вид, цена, горшок, высота. */
@@ -1332,10 +1494,31 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
   const room = await garden.addLocation("Гостиная", "bright_indirect");
   const kitchen = await garden.addLocation("Кухня", "medium");
   const bedroom = await garden.addLocation("Спальня", "medium");
-  const mosya = await garden.addPlant({ nickname: "Монстера Мося", speciesSlug: "monstera-deliciosa", locationId: room.id, potMaterial: "plastic", lastWateredAt: ago(11) });
-  const shchuchka = await garden.addPlant({ nickname: "Щучка", speciesSlug: "dracaena-trifasciata", locationId: kitchen.id, potMaterial: "ceramic" });
-  const robert = await garden.addPlant({ nickname: "Фикус Роберт", speciesSlug: "ficus-elastica", locationId: room.id, potMaterial: "ceramic" });
-  const osya = await garden.addPlant({ nickname: "Калатея Ося", speciesSlug: "goeppertia-orbifolia", locationId: bedroom.id, potMaterial: "plastic" });
+  const mosya = await garden.addPlant({
+    nickname: "Монстера Мося",
+    speciesSlug: "monstera-deliciosa",
+    locationId: room.id,
+    potMaterial: "plastic",
+    lastWateredAt: ago(11),
+  });
+  const shchuchka = await garden.addPlant({
+    nickname: "Щучка",
+    speciesSlug: "dracaena-trifasciata",
+    locationId: kitchen.id,
+    potMaterial: "ceramic",
+  });
+  const robert = await garden.addPlant({
+    nickname: "Фикус Роберт",
+    speciesSlug: "ficus-elastica",
+    locationId: room.id,
+    potMaterial: "ceramic",
+  });
+  const osya = await garden.addPlant({
+    nickname: "Калатея Ося",
+    speciesSlug: "goeppertia-orbifolia",
+    locationId: bedroom.id,
+    potMaterial: "plastic",
+  });
   // Неделя ухода: серия дней и журнал в карточках.
   await garden.logCare(shchuchka.id, "water", { performedAt: ago(6) });
   await garden.logCare(robert.id, "water", { performedAt: ago(5) });
@@ -1366,7 +1549,14 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
       likedByMe: false,
     });
     state.comments.push(
-      { id: `${id}-c1`, postId: id, authorName: "fikus_papa", text: "Какая красота! Чем подкармливаете?", createdAt: hours(2), mine: false },
+      {
+        id: `${id}-c1`,
+        postId: id,
+        authorName: "fikus_papa",
+        text: "Какая красота! Чем подкармливаете?",
+        createdAt: hours(2),
+        mine: false,
+      },
       { id: `${id}-c2`, postId: id, authorName: "succulove", text: "Сохранила себе в вишлист 🌿", createdAt: hours(0.7), mine: false },
     );
   });

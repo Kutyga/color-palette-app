@@ -34,16 +34,29 @@ function ChatMenu({ conv }: { conv: Conversation }) {
   });
   return (
     <>
-      <button type="button" onClick={() => setMode("menu")} aria-label="Действия с чатом" className="grid size-9 shrink-0 place-items-center rounded-full text-secondary hover:bg-muted">
+      <button
+        type="button"
+        onClick={() => setMode("menu")}
+        aria-label="Действия с чатом"
+        className="text-secondary hover:bg-muted grid size-9 shrink-0 place-items-center rounded-full"
+      >
         <MoreHorizontal className="size-5" />
       </button>
       <Sheet open={mode === "menu"} onClose={closeIf("menu")} title={conv.otherDisplayName}>
         <div className="space-y-2 pb-2">
-          <button type="button" onClick={() => setMode("report")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left font-semibold">
+          <button
+            type="button"
+            onClick={() => setMode("report")}
+            className="bg-muted flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left font-semibold"
+          >
             <Flag className="size-5" aria-hidden /> Пожаловаться
           </button>
           {!conv.blocked && (
-            <button type="button" onClick={() => setMode("block")} className="flex w-full items-center gap-3 rounded-2xl bg-muted px-4 py-3.5 text-left font-semibold text-alert">
+            <button
+              type="button"
+              onClick={() => setMode("block")}
+              className="bg-muted text-alert flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left font-semibold"
+            >
               <ShieldOff className="size-5" aria-hidden /> Заблокировать
             </button>
           )}
@@ -75,16 +88,18 @@ function Bubbles({ messages }: { messages: ChatMessage[] }) {
         const showDay = i === 0 || day !== dayLabel(messages[i - 1].createdAt);
         return (
           <li key={m.id}>
-            {showDay && <p className="my-3 text-center text-[12px] text-secondary">{day}</p>}
+            {showDay && <p className="text-secondary my-3 text-center text-[12px]">{day}</p>}
             <div className={cx("flex", m.mine ? "justify-end" : "justify-start")}>
               <p
                 className={cx(
                   "max-w-[80%] rounded-[20px] px-3.5 py-2 text-[15px] leading-snug whitespace-pre-line",
-                  m.mine ? "rounded-br-md bg-leaf text-white" : "rounded-bl-md bg-surface",
+                  m.mine ? "bg-leaf rounded-br-md text-white" : "bg-surface rounded-bl-md",
                 )}
               >
                 {m.body}
-                <span className={cx("ml-2 inline-block translate-y-0.5 text-[11px]", m.mine ? "text-white/70" : "text-secondary")}>{timeLabel(m.createdAt)}</span>
+                <span className={cx("ml-2 inline-block translate-y-0.5 text-[11px]", m.mine ? "text-white/70" : "text-secondary")}>
+                  {timeLabel(m.createdAt)}
+                </span>
               </p>
             </div>
           </li>
@@ -149,23 +164,27 @@ function Chat() {
           <Avatar name={conv.otherDisplayName} size={40} />
           <span className="min-w-0">
             <span className="block truncate font-semibold">{conv.otherDisplayName}</span>
-            <span className="block truncate text-[13px] text-secondary">{conv.iAmSeller ? "Покупатель" : "Продавец"}</span>
+            <span className="text-secondary block truncate text-[13px]">{conv.iAmSeller ? "Покупатель" : "Продавец"}</span>
           </span>
         </Link>
         <ChatMenu conv={conv} />
       </header>
       {conv.listingId && (
-        <Link href={listingHref(conv.listingId)} className="mb-3 flex items-center gap-3 rounded-2xl bg-surface p-2.5">
+        <Link href={listingHref(conv.listingId)} className="bg-surface mb-3 flex items-center gap-3 rounded-2xl p-2.5">
           <PlantPhoto src={conv.listingPhotoUrl} seed={conv.listingId} alt="" className="size-12 shrink-0 rounded-xl" iconSize={18} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[15px] font-semibold">{conv.listingTitle ?? "Объявление"}</span>
-            <span className="block text-[12px] text-secondary">
-              {conv.listingStatus === "closed" ? "Объявление закрыто" : conv.listingStatus === "reserved" ? "Забронировано" : "Открыть объявление"}
+            <span className="text-secondary block text-[12px]">
+              {conv.listingStatus === "closed"
+                ? "Объявление закрыто"
+                : conv.listingStatus === "reserved"
+                  ? "Забронировано"
+                  : "Открыть объявление"}
             </span>
           </span>
         </Link>
       )}
-      <p className="mb-3 rounded-2xl bg-muted px-4 py-2.5 text-[12px] text-secondary">
+      <p className="bg-muted text-secondary mb-3 rounded-2xl px-4 py-2.5 text-[12px]">
         Не переводите предоплату незнакомым и не сообщайте коды из СМС. Встречайтесь в людных местах.
       </p>
       {messages.error ? (
@@ -173,13 +192,15 @@ function Chat() {
       ) : messages.data?.length ? (
         <Bubbles messages={messages.data} />
       ) : (
-        <p className="py-6 text-center text-secondary">Напишите первое сообщение — например, когда удобно забрать растение.</p>
+        <p className="text-secondary py-6 text-center">Напишите первое сообщение — например, когда удобно забрать растение.</p>
       )}
       <div ref={endRef} />
       {conv.blocked ? (
-        <p className="mt-4 rounded-2xl bg-muted px-4 py-3 text-center text-secondary">Переписка закрыта: один из вас заблокировал другого.</p>
+        <p className="bg-muted text-secondary mt-4 rounded-2xl px-4 py-3 text-center">
+          Переписка закрыта: один из вас заблокировал другого.
+        </p>
       ) : (
-        <form onSubmit={submit} className="sticky bottom-0 mt-4 flex items-end gap-2 bg-bg pt-2 pb-2">
+        <form onSubmit={submit} className="bg-bg sticky bottom-0 mt-4 flex items-end gap-2 pt-2 pb-2">
           <textarea
             className={cx(inputClass, "max-h-40 min-h-12 resize-none")}
             rows={1}
@@ -192,7 +213,7 @@ function Chat() {
           <button
             type="submit"
             disabled={!text.trim() || send.isPending}
-            className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf text-white disabled:opacity-40"
+            className="bg-leaf grid size-12 shrink-0 place-items-center rounded-full text-white disabled:opacity-40"
             aria-label="Отправить"
           >
             <Send className="size-5" />
@@ -207,7 +228,7 @@ export default function ChatPage() {
   return (
     <>
       <div className="pt-4 pb-3">
-        <Link href="/messages/" className="inline-flex items-center gap-1 text-[15px] font-medium text-leaf">
+        <Link href="/messages/" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
           <ChevronLeft className="size-5" aria-hidden /> Сообщения
         </Link>
       </div>

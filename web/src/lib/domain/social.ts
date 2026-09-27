@@ -99,9 +99,7 @@ export interface NewsArticle {
 }
 
 /** Текст статьи для чтения на сайте (Edge Function news-reader). */
-export type ReaderBlock =
-  | { type: "p" | "h" | "li" | "quote"; text: string }
-  | { type: "img"; src: string; alt: string };
+export type ReaderBlock = { type: "p" | "h" | "li" | "quote"; text: string } | { type: "img"; src: string; alt: string };
 
 export interface ReaderArticle {
   url: string;

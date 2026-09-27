@@ -34,7 +34,7 @@ function Profile() {
               <Button variant="secondary" onClick={() => setEditing(true)}>
                 <Pencil className="size-4" aria-hidden /> Редактировать профиль
               </Button>
-              <Link href="/people/" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-muted px-5 font-semibold">
+              <Link href="/people/" className="bg-muted inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold">
                 <Search className="size-4" aria-hidden /> Найти садоводов
               </Link>
             </>
@@ -44,30 +44,35 @@ function Profile() {
         <Spinner />
       )}
       {session.status === "ready" && (isDemo || session.email) && (
-        <p className="px-1 text-[13px] text-secondary">{isDemo ? "Демо-режим" : `Вход: ${session.email}`}</p>
+        <p className="text-secondary px-1 text-[13px]">{isDemo ? "Демо-режим" : `Вход: ${session.email}`}</p>
       )}
       {profile.data && (
         <EditProfileSheet
           open={editing}
           onClose={() => setEditing(false)}
-          initial={{ displayName: profile.data.displayName ?? "", username: profile.data.username, bio: profile.data.bio ?? "", city: profile.data.city ?? "" }}
+          initial={{
+            displayName: profile.data.displayName ?? "",
+            username: profile.data.username,
+            bio: profile.data.bio ?? "",
+            city: profile.data.city ?? "",
+          }}
         />
       )}
 
       {stats.data && lp && (
-        <Link href="/achievements/" className="flex items-center gap-4 rounded-[20px] bg-surface p-5">
-          <Trophy className="size-6 text-soil" aria-hidden />
+        <Link href="/achievements/" className="bg-surface flex items-center gap-4 rounded-[20px] p-5">
+          <Trophy className="text-soil size-6" aria-hidden />
           <div className="flex-1">
             <p className="font-semibold">
               Уровень {lp.level.number} · {lp.level.title}
             </p>
-            <p className="text-[15px] text-secondary">
+            <p className="text-secondary text-[15px]">
               {stats.data.plants} {plural(stats.data.plants, "растение", "растения", "растений")} · {stats.data.careEvents}{" "}
               {plural(stats.data.careEvents, "отметка", "отметки", "отметок")} ухода · {stats.data.posts}{" "}
               {plural(stats.data.posts, "публикация", "публикации", "публикаций")}
             </p>
           </div>
-          <ChevronRight className="size-5 text-secondary" aria-hidden />
+          <ChevronRight className="text-secondary size-5" aria-hidden />
         </Link>
       )}
 
@@ -78,10 +83,10 @@ function Profile() {
       {isDemo && (
         <Card className="p-5">
           <p className="font-semibold">Данные демо-режима хранятся только в этом браузере</p>
-          <p className="mt-1 text-[15px] text-secondary">
+          <p className="text-secondary mt-1 text-[15px]">
             Зарегистрируйтесь, чтобы растения синхронизировались между телефоном и компьютером и чтобы работало распознавание по фото.
           </p>
-          <Link href="/login/?mode=signup" className="mt-4 inline-flex rounded-full bg-leaf px-5 py-2.5 font-semibold text-white">
+          <Link href="/login/?mode=signup" className="bg-leaf mt-4 inline-flex rounded-full px-5 py-2.5 font-semibold text-white">
             Зарегистрироваться
           </Link>
         </Card>
@@ -89,7 +94,7 @@ function Profile() {
 
       <Button
         variant="danger"
-        className="w-full bg-surface"
+        className="bg-surface w-full"
         onClick={async () => {
           await signOut();
           router.replace("/");
