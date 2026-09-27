@@ -1,111 +1,35 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Camera, ChevronLeft, Droplet, MapPin, MoreHorizontal, NotebookPen, Stethoscope, Sun, Tag, Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
-import { RequireSession } from "@/components/app-shell";
-import { CameraCapture } from "@/components/camera";
-import { DeleteEventButton, LocationSheet } from "@/components/plant-edit";
-import { useBackend } from "@/components/session";
-import { SoilSummary } from "@/components/soil-schematic";
-import { Button, CARE_COLORS, CARE_ICONS, ErrorNote, PlantPhoto, SectionTitle, Sheet, Spinner, useToast } from "@/components/ui";
-import {
-  CARE_TYPES,
-  CARE_TYPE_ORDER,
-  LIGHT_LEVELS,
-  POT_MATERIALS,
-  effectiveIntervalDays,
-  type CareSchedule,
-  type CareType,
-} from "@/lib/domain/care";
-import type { Plant, PlantDetails } from "@/lib/domain/plant";
-import { everyDays, formatShortDate, relativeDay } from "@/lib/format";
-import { soilMixFor, speciesBySlug } from "@/lib/knowledge";
-import { useLogCare, usePlantDetails } from "@/lib/queries";
+/** Карточка растения: страница собирает блоки из components/plant-card. */
 
-function effectiveDays(s: CareSchedule, plant: Plant, now: Date) {
-  return effectiveIntervalDays({
-    type: s.type,
-    intervalDays: s.intervalDays,
-    userFactor: s.userFactor,
-    autoAdjust: s.autoAdjust,
-    month: now.getMonth() + 1,
-    pot: plant.potMaterial,
-    light: plant.lightLevel,
-  });
-}
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
+import { RequireSession } from "@/components/app-shell";
+import {
+  CareActions,
+  CareJournal,
+  CareScheduleList,
+  DeletePlantButton,
+  PlantFacts,
+  PlantHero,
+  PlantLinks,
+  SpeciesNotes,
+} from "@/components/plant-card";
+import { ErrorNote, SectionTitle, Spinner } from "@/components/ui";
+import { speciesBySlug } from "@/lib/knowledge";
+import { usePlantDetails } from "@/lib/queries";
 
 function PlantView({ id }: { id: string }) {
   const details = usePlantDetails(id);
-  const backend = useBackend();
-  const logCare = useLogCare();
-  const qc = useQueryClient();
-  const toast = useToast();
-  const router = useRouter();
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [locationOpen, setLocationOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  // Одно «сейчас» на всю карточку: сроки в фактах и в графике считаются от одного момента.
   const now = useMemo(() => new Date(), []);
-
-  const photo = useMutation({
-    mutationFn: async (blob: Blob) => backend.garden.setPlantPhoto(id, blob),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["plant", id] });
-      qc.invalidateQueries({ queryKey: ["plants"] });
-    },
-    onError: (e) => toast(`Не удалось загрузить фото: ${e.message}`),
-  });
-
-  const water_ = useMutation({
-    mutationFn: (inWater: boolean) => backend.garden.setInWater(id, inWater),
-    onSuccess: (_d, inWater) => {
-      qc.setQueryData<PlantDetails>(["plant", id], (d) => (d ? { ...d, plant: { ...d.plant, inWater } } : d));
-      for (const key of ["plant", "plants", "tasks", "stats"]) qc.invalidateQueries({ queryKey: [key] });
-      toast(inWater ? "Растёт в воде — полив больше не напоминаем" : "Полив снова в графике");
-    },
-    onError: (e) => toast(`Не удалось сохранить: ${e.message}`),
-    onSettled: () => setInWaterUi(null),
-  });
-  // Переключатель отзывается сразу, не дожидаясь ответа и перезагрузки карточки.
-  const [inWaterUi, setInWaterUi] = useState<boolean | null>(null);
-
-  const remove = useMutation({
-    mutationFn: () => backend.garden.deletePlant(id),
-    onSuccess: () => {
-      for (const key of ["plants", "tasks", "stats"]) qc.invalidateQueries({ queryKey: [key] });
-      toast("Растение удалено из коллекции");
-      router.replace("/garden/");
-    },
-  });
 
   if (details.isPending) return <Spinner />;
   if (details.error) return <ErrorNote error={details.error} onRetry={() => details.refetch()} />;
   const { plant, schedules, events } = details.data;
   const species = speciesBySlug(plant.speciesSlug);
-  const soil = soilMixFor(species);
-  const water = schedules.find((s) => s.type === "water");
-
-  async function mark(type: CareType) {
-    setMoreOpen(false);
-    try {
-      await logCare.mutateAsync({ plantId: id, type });
-      toast(`${CARE_TYPES[type].label}: ${plant.nickname} — готово`);
-    } catch (e) {
-      toast(`Не удалось сохранить: ${e instanceof Error ? e.message : e}`);
-    }
-  }
-
-  const facts = [
-    plant.inWater
-      ? { icon: Droplet, label: "Полив", value: "не нужен — в воде", color: "var(--water)" }
-      : { icon: Droplet, label: "Полить", value: water?.nextDueAt ? relativeDay(water.nextDueAt, now) : "—", color: "var(--water)" },
-    { icon: Sun, label: "Свет", value: plant.lightLevel ? LIGHT_LEVELS[plant.lightLevel] : "не указан", color: "var(--soil)" },
-    { icon: MapPin, label: "Место", value: plant.locationName ?? "не указано", color: "var(--leaf)" },
-  ];
-  const quickTypes = schedules.map((s) => s.type).filter((t) => t !== "water");
 
   return (
     <div className="pt-4">
@@ -114,28 +38,7 @@ function PlantView({ id }: { id: string }) {
       </Link>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
-        <div className="relative">
-          <PlantPhoto
-            src={plant.photoUrl ?? species?.image?.url}
-            seed={plant.id}
-            alt={plant.nickname}
-            className="aspect-square w-full rounded-[28px]"
-            iconSize={72}
-          />
-          {!plant.photoUrl && species?.image && (
-            <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>
-          )}
-          <button
-            onClick={() => setCameraOpen(true)}
-            className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold"
-            disabled={photo.isPending}
-          >
-            <Camera className="size-4" aria-hidden /> {photo.isPending ? "Загружаем…" : plant.photoUrl ? "Переснять" : "Сфотографировать"}
-          </button>
-          {/* Только съёмка камерой: фото из галереи и интернета в коллекцию не загружаются. */}
-          <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(blob) => photo.mutate(blob)} />
-        </div>
-
+        <PlantHero plant={plant} species={species} />
         <div>
           <h1 className="text-[40px] leading-tight font-bold tracking-tight">{plant.nickname}</h1>
           {species ? (
@@ -145,205 +48,21 @@ function PlantView({ id }: { id: string }) {
           ) : (
             <p className="text-secondary text-[17px]">{plant.speciesName ?? "Вид не указан"}</p>
           )}
-
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            {facts.map(({ icon: Icon, label, value, color }) =>
-              label === "Место" ? (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setLocationOpen(true)}
-                  aria-label={`Место: ${value}. Изменить`}
-                  className="bg-surface rounded-2xl p-3 text-left transition hover:brightness-95"
-                >
-                  <Icon className="size-4" style={{ color }} aria-hidden />
-                  <p className="text-secondary mt-2 text-[12px]">{label} · изменить</p>
-                  <p className="text-[15px] leading-tight font-semibold">{value}</p>
-                </button>
-              ) : (
-                <div key={label} className="bg-surface rounded-2xl p-3">
-                  <Icon className="size-4" style={{ color }} aria-hidden />
-                  <p className="text-secondary mt-2 text-[12px]">{label}</p>
-                  <p className="text-[15px] leading-tight font-semibold">{value}</p>
-                </div>
-              ),
-            )}
-          </div>
-
-          {plant.inWater ? (
-            <p className="bg-water/10 mt-5 rounded-2xl px-4 py-3 text-[15px]">
-              💧 Растёт в воде — поливать не нужно. Меняйте воду раз в 5–7 дней на отстоянную комнатной температуры и следите, чтобы вода не
-              зеленела.
-            </p>
-          ) : (
-            <Button className="bg-water mt-5 min-h-13 w-full text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
-              <Droplet className="size-5" aria-hidden /> Полить
-            </Button>
-          )}
-          <label className="bg-muted mt-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">
-            <span>
-              <span className="block text-[15px] font-medium">Растёт в воде</span>
-              <span className="text-secondary block text-[13px]">Черенок в стакане или гидропоника</span>
-            </span>
-            <input
-              type="checkbox"
-              className="size-5 shrink-0 accent-[var(--water)]"
-              checked={inWaterUi ?? plant.inWater}
-              disabled={water_.isPending}
-              onChange={(e) => {
-                setInWaterUi(e.target.checked);
-                water_.mutate(e.target.checked);
-              }}
-              aria-label="Растёт в воде"
-            />
-          </label>
-          <div className="mt-2 flex gap-2">
-            {quickTypes.map((t) => {
-              const Icon = CARE_ICONS[t];
-              return (
-                <Button key={t} variant="secondary" className="flex-1" onClick={() => mark(t)}>
-                  <Icon className="size-4" style={{ color: CARE_COLORS[t] }} aria-hidden /> {CARE_TYPES[t].action}
-                </Button>
-              );
-            })}
-            <Button variant="secondary" onClick={() => setMoreOpen(true)} aria-label="Другой уход">
-              <MoreHorizontal className="size-5" />
-            </Button>
-          </div>
-          <div className="mt-2 flex gap-2">
-            <Link
-              href={`/feed/new/?type=diary&plant=${plant.id}`}
-              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
-            >
-              <NotebookPen className="size-4" aria-hidden /> Запись в дневник
-            </Link>
-            <Link
-              href={`/feed/plant/?id=${plant.id}`}
-              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
-            >
-              <BookOpen className="size-4" aria-hidden /> Дневник
-            </Link>
-          </div>
-          <Link
-            href={`/garden/diagnose/?plant=${plant.id}`}
-            className="bg-alert/10 text-alert mt-2 flex min-h-11 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
-          >
-            <Stethoscope className="size-4" aria-hidden /> Что-то не так? Проверить болезни
-          </Link>
-          <div className="mt-2 flex gap-2">
-            <Link
-              href={`/market/new/?plant=${plant.id}`}
-              className="bg-muted inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full text-[15px] font-semibold"
-            >
-              <Tag className="size-4" aria-hidden /> Продать, отдать или обменять
-            </Link>
-          </div>
+          <PlantFacts plant={plant} water={schedules.find((s) => s.type === "water")} now={now} />
+          <CareActions plant={plant} schedules={schedules} />
+          <PlantLinks plantId={plant.id} />
         </div>
       </div>
 
       <SectionTitle>График ухода</SectionTitle>
-      <ul className="divide-separator bg-surface divide-y rounded-[20px]">
-        {schedules.map((s) => {
-          const Icon = CARE_ICONS[s.type];
-          return (
-            <li key={s.id} className="flex items-center gap-3 px-4 py-3">
-              <Icon className="size-5" style={{ color: CARE_COLORS[s.type] }} aria-hidden />
-              <div className="flex-1">
-                <p className="font-medium">{CARE_TYPES[s.type].label}</p>
-                <p className="text-secondary text-[13px]">{everyDays(effectiveDays(s, plant, now))}</p>
-              </div>
-              <p className="text-secondary text-[15px]">{s.nextDueAt ? relativeDay(s.nextDueAt, now) : "—"}</p>
-            </li>
-          );
-        })}
-      </ul>
-      <p className="text-secondary mt-2 text-[13px]">
-        Интервал учитывает сезон, горшок{plant.potMaterial ? ` (${POT_MATERIALS[plant.potMaterial].toLowerCase()})` : ""}, свет и то, как вы
-        поливаете на самом деле.
-      </p>
+      <CareScheduleList plant={plant} schedules={schedules} now={now} />
 
       <SectionTitle>Журнал</SectionTitle>
-      {events.length > 0 && (
-        <p className="text-secondary -mt-1 mb-2 text-[13px]">Отметили по ошибке? Удалите отметку — график вернётся как был.</p>
-      )}
-      {events.length === 0 ? (
-        <p className="bg-surface text-secondary rounded-[20px] p-4">Пока пусто — отметьте первый полив.</p>
-      ) : (
-        <ul className="divide-separator bg-surface divide-y rounded-[20px]" aria-label="Журнал ухода">
-          {events.slice(0, 20).map((e) => {
-            const Icon = CARE_ICONS[e.type];
-            return (
-              <li key={e.id} className="flex items-center gap-3 py-2 pr-2 pl-4">
-                <Icon className="size-4" style={{ color: CARE_COLORS[e.type] }} aria-hidden />
-                <span className="flex-1">{CARE_TYPES[e.type].label}</span>
-                <span className="text-secondary text-[15px]">
-                  {formatShortDate(e.performedAt)}, {e.performedAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-                <DeleteEventButton eventId={e.id} label={CARE_TYPES[e.type].label} />
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <CareJournal events={events} />
 
-      {soil && species && (
-        <>
-          <SectionTitle>Грунт для пересадки</SectionTitle>
-          <SoilSummary mix={soil} href={`/plants/${species.slug}/#soil`} />
-        </>
-      )}
+      {species && <SpeciesNotes species={species} />}
 
-      {species?.care && species.care.tipsRu.length > 0 && (
-        <>
-          <SectionTitle
-            action={
-              <Link href={`/plants/${species.slug}/`} className="text-leaf flex items-center gap-1 text-[15px] font-semibold">
-                <BookOpen className="size-4" aria-hidden /> Всё о виде
-              </Link>
-            }
-          >
-            Советы
-          </SectionTitle>
-          <ul className="bg-surface space-y-2 rounded-[20px] p-4">
-            {species.care.tipsRu.map((t) => (
-              <li key={t} className="flex gap-3 text-[15px]">
-                <span className="bg-leaf mt-2 size-1.5 shrink-0 rounded-full" aria-hidden /> {t}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      <Button variant="danger" className="mt-8" onClick={() => setConfirmDelete(true)}>
-        <Trash2 className="size-4" aria-hidden /> Удалить из коллекции
-      </Button>
-
-      <LocationSheet open={locationOpen} onClose={() => setLocationOpen(false)} plantId={plant.id} current={plant.locationId} />
-
-      <Sheet open={moreOpen} onClose={() => setMoreOpen(false)} title="Отметить уход">
-        <div className="grid grid-cols-2 gap-2">
-          {CARE_TYPE_ORDER.map((t) => {
-            const Icon = CARE_ICONS[t];
-            return (
-              <button key={t} onClick={() => mark(t)} className="bg-muted flex items-center gap-3 rounded-2xl p-4 text-left font-medium">
-                <Icon className="size-5" style={{ color: CARE_COLORS[t] }} aria-hidden /> {CARE_TYPES[t].label}
-              </button>
-            );
-          })}
-        </div>
-      </Sheet>
-
-      <Sheet open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Удалить растение?">
-        <p className="text-secondary">«{plant.nickname}» пропадёт из коллекции вместе с графиком ухода.</p>
-        <div className="mt-6 flex gap-2">
-          <Button variant="secondary" className="flex-1" onClick={() => setConfirmDelete(false)}>
-            Отмена
-          </Button>
-          <Button className="bg-alert flex-1" loading={remove.isPending} onClick={() => remove.mutate()}>
-            Удалить
-          </Button>
-        </div>
-      </Sheet>
+      <DeletePlantButton plant={plant} />
     </div>
   );
 }

@@ -1,14 +1,16 @@
 "use client";
 
+/** Место растения: выбор, новое место, правка названия и света, удаление. */
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useBackend } from "@/components/session";
+import { Button, Chip, Sheet, cx, inputClass, useToast } from "@/components/ui";
 import { LIGHT_LEVELS, type LightLevel } from "@/lib/domain/care";
 import type { Location } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
 import { useLocations, usePlants } from "@/lib/queries";
-import { useBackend } from "./session";
-import { Button, Chip, Sheet, cx, inputClass, useToast } from "./ui";
 
 /** Правка места: название, свет, удаление (растения остаются без места). */
 function LocationEditor({ location, onDone }: { location: Location; onDone: () => void }) {
@@ -215,51 +217,5 @@ export function LocationSheet({
         </button>
       )}
     </Sheet>
-  );
-}
-
-/** Кнопка удаления ошибочной отметки в журнале — с подтверждением прямо в строке. */
-export function DeleteEventButton({ eventId, label }: { eventId: string; label: string }) {
-  const backend = useBackend();
-  const qc = useQueryClient();
-  const toast = useToast();
-  const [confirm, setConfirm] = useState(false);
-  const remove = useMutation({
-    mutationFn: () => backend.garden.deleteCareEvent(eventId),
-    onSuccess: () => {
-      for (const key of ["plant", "plants", "tasks", "done-today", "stats"]) qc.invalidateQueries({ queryKey: [key] });
-      toast(`Отметка «${label}» удалена`);
-    },
-    onError: (e) => {
-      setConfirm(false);
-      toast(e.message);
-    },
-  });
-  if (!confirm) {
-    return (
-      <button
-        type="button"
-        onClick={() => setConfirm(true)}
-        aria-label={`Удалить отметку «${label}»`}
-        className="text-secondary hover:bg-muted hover:text-alert grid size-8 place-items-center rounded-full"
-      >
-        <Trash2 className="size-4" />
-      </button>
-    );
-  }
-  return (
-    <span className="flex items-center gap-1">
-      <button
-        type="button"
-        onClick={() => remove.mutate()}
-        disabled={remove.isPending}
-        className="bg-alert rounded-full px-3 py-1 text-[13px] font-semibold text-white"
-      >
-        Удалить
-      </button>
-      <button type="button" onClick={() => setConfirm(false)} className="bg-muted rounded-full px-3 py-1 text-[13px] font-semibold">
-        Нет
-      </button>
-    </span>
   );
 }
