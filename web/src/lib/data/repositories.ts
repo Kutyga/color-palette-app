@@ -4,6 +4,7 @@
  */
 
 import type { CareEvent, CareTask, CareType, LightLevel } from "../domain/care";
+import type { Contest, ContestDraft, ContestParticipant } from "../domain/contest";
 import type { PhotoDiagnosis } from "../domain/diagnosis";
 import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
@@ -190,6 +191,20 @@ export interface WishlistRepository {
   set(speciesId: string, wanted: boolean): Promise<void>;
 }
 
+/** Конкурсы: розыгрыши с проверяемой жеребьёвкой. */
+export interface ContestRepository {
+  /** Идущие и недавно закончившиеся; закреплённые — первыми. */
+  contests(): Promise<Contest[]>;
+  contest(id: string): Promise<Contest | null>;
+  /** Участники — список открыт всем. */
+  participants(id: string): Promise<ContestParticipant[]>;
+  create(draft: ContestDraft): Promise<Contest>;
+  join(id: string): Promise<void>;
+  leave(id: string): Promise<void>;
+  /** Организатор — пока никто не участвует, администратор — всегда. */
+  cancel(id: string): Promise<void>;
+}
+
 export interface Backend {
   mode: "demo" | "live";
   garden: GardenRepository;
@@ -197,6 +212,7 @@ export interface Backend {
   people: PeopleRepository;
   market: MarketRepository;
   chat: ChatRepository;
+  contests: ContestRepository;
   shops: ShopRepository;
   wishlist: WishlistRepository;
   notifications: NotificationsRepository | null;

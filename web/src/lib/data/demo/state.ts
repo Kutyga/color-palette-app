@@ -3,6 +3,7 @@
  * и хранилища (localStorage в браузере, память — в тестах).
  */
 import type { CareEvent, CareSchedule, PotMaterial } from "../../domain/care";
+import type { Contest } from "../../domain/contest";
 import type { ListingKind, ListingStatus } from "../../domain/market";
 import type { Location, Visibility } from "../../domain/plant";
 import type { Shop, ShopProduct } from "../../domain/shop";
@@ -57,6 +58,7 @@ export interface DemoState {
   profile?: Profile;
   /** «Барахолка» и переписка; в старых сохранённых демо-данных их нет. */
   listings?: ListingRec[];
+  contests?: ContestRec[];
   conversations?: ConversationRec[];
   messages?: MessageRec[];
   blocked?: string[];
@@ -85,9 +87,28 @@ export interface ListingRec {
   deleted?: boolean;
 }
 
+export interface ContestEntryRec {
+  userId: string;
+  createdAt: string;
+  place: number | null;
+}
+
+/** Секрет лежит рядом, но наружу отдаётся только после итогов — как в базе. */
+export type ContestRec = Omit<
+  Contest,
+  "endsAt" | "createdAt" | "participants" | "joined" | "mine" | "organizerName" | "organizerDisplayName"
+> & {
+  endsAt: string;
+  createdAt: string;
+  secret: string;
+  entries: ContestEntryRec[];
+};
+
 export interface ConversationRec {
   id: string;
-  listingId: string;
+  listingId: string | null;
+  /** Чат победителя розыгрыша с организатором. */
+  contestId?: string;
   otherId: string;
   iAmSeller: boolean;
   readAt: string | null;

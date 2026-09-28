@@ -33,16 +33,17 @@ export class DemoChat implements ChatRepository {
     return this.convs
       .map((c) => {
         const listing = (this.state.listings ?? []).find((l) => l.id === c.listingId);
+        const contest = c.contestId ? (this.state.contests ?? []).find((x) => x.id === c.contestId) : undefined;
         const person = personOf(c.otherId);
         const thread = this.msgs.filter((m) => m.conversationId === c.id);
         const last = thread.at(-1);
         return {
           id: c.id,
           listingId: c.listingId,
-          listingTitle: listing?.title ?? null,
+          listingTitle: listing?.title ?? (contest ? `🎉 ${contest.title}` : null),
           listingKind: listing?.kind ?? null,
           listingStatus: listing?.status ?? null,
-          listingPhotoUrl: listing?.photoUrl ?? null,
+          listingPhotoUrl: listing?.photoUrl ?? contest?.photoUrl ?? null,
           iAmSeller: c.iAmSeller,
           otherId: c.otherId,
           otherName: person?.username ?? "sadovod",

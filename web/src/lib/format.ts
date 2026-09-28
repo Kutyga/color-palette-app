@@ -54,3 +54,13 @@ export function everyDays(days: number): string {
 }
 
 export const MONTHS_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+
+/** Сколько осталось до даты: «2 дн. 5 ч», «3 ч 20 мин», «10 мин». */
+export function timeLeft(to: Date, now = new Date()): string {
+  const min = Math.max(0, Math.ceil((to.getTime() - now.getTime()) / 60_000));
+  const days = Math.floor(min / 1440);
+  const hours = Math.floor((min % 1440) / 60);
+  if (days > 0) return hours ? `${days} дн. ${hours} ч` : `${days} дн.`;
+  if (hours > 0) return min % 60 ? `${hours} ч ${min % 60} мин` : `${hours} ч`;
+  return `${min} мин`;
+}

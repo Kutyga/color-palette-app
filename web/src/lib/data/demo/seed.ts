@@ -1,11 +1,13 @@
 /**
  * Заполнение демо-режима стартовыми данными, чтобы экраны не были пустыми.
  */
+import { sha256Hex } from "../../domain/contest";
 import { ALL_SPECIES } from "../../knowledge";
 import { DAY_MS, HOUR_MS } from "../../time";
+import { DEMO_ADMIN, finishContest, newSecret } from "./contests";
 import { SAMPLE_DIARIES, SAMPLE_LISTINGS, SAMPLE_PRODUCTS, SAMPLE_QUESTIONS, SAMPLE_SHOPS, demoId } from "./fixtures";
 import { DemoGarden } from "./garden";
-import type { DemoState } from "./state";
+import type { ContestRec, DemoState } from "./state";
 
 /** Магазины досеиваются и в старые демо-данные. */
 export function seedShops(state: DemoState, now: Date) {
@@ -161,4 +163,83 @@ export function seedListings(state: DemoState, now: Date) {
     status: "active" as const,
     createdAt: new Date(now.getTime() - (2 + i * 5) * HOUR_MS).toISOString(),
   }));
+}
+
+/** Демо-розыгрыши: закреплённый от «Подоконника», идущий от садовода и уже закончившийся. */
+export async function seedContests(state: DemoState, now: Date) {
+  if (state.contests) return;
+  const at = (days: number) => new Date(now.getTime() + days * DAY_MS).toISOString();
+  const entries = (users: string[]) =>
+    users.map((u, i) => ({ userId: demoId(u), createdAt: new Date(now.getTime() - (i + 1) * HOUR_MS).toISOString(), place: null }));
+  const contest = async (
+    id: string,
+    organizerId: string,
+    fields: Pick<ContestRec, "title" | "prize" | "description" | "city" | "delivery" | "winnersCount" | "pinned">,
+    endsInDays: number,
+    users: string[],
+  ): Promise<ContestRec> => {
+    const secret = newSecret();
+    return {
+      id,
+      organizerId,
+      ...fields,
+      photoUrl: null,
+      endsAt: at(endsInDays),
+      status: "active",
+      seedHash: await sha256Hex(secret),
+      seed: null,
+      secret,
+      createdAt: at(endsInDays - 7),
+      entries: entries(users),
+    };
+  };
+  state.contests = [
+    await contest(
+      "demo-contest-autumn",
+      DEMO_ADMIN,
+      {
+        title: "Осенний розыгрыш «Подоконника»",
+        prize: "Три набора: грунт для ароидных и керамический горшок",
+        description: "Три победителя получат набор с доставкой по России. Участвовать может каждый, у кого есть растение в коллекции.",
+        city: "Москва",
+        delivery: true,
+        winnersCount: 3,
+        pinned: true,
+      },
+      5,
+      ["anna.green", "fikus_papa", "succulove", "orchid.mood"],
+    ),
+    await contest(
+      "demo-contest-monstera",
+      demoId("anna.green"),
+      {
+        title: "Черенок монстеры",
+        prize: "Укоренённый черенок Monstera deliciosa",
+        description: "Отдам в хорошие руки, встреча у метро «Сокол».",
+        city: "Москва",
+        delivery: false,
+        winnersCount: 1,
+        pinned: false,
+      },
+      2,
+      ["fikus_papa", "orchid.mood"],
+    ),
+  ];
+  const finished = await contest(
+    "demo-contest-aloe",
+    demoId("fikus_papa"),
+    {
+      title: "Детки алоэ",
+      prize: "Две детки алоэ вера",
+      description: "Разыгрываю двух деток, отправлю почтой.",
+      city: "Санкт-Петербург",
+      delivery: true,
+      winnersCount: 1,
+      pinned: false,
+    },
+    -2,
+    ["anna.green", "succulove", "orchid.mood"],
+  );
+  await finishContest(state, finished);
+  state.contests.push(finished);
 }

@@ -16,7 +16,7 @@
 | База знаний | `species` | Нужна только для перевода slug ↔ uuid (`SpeciesIds`); сами карточки — из снимка при сборке |
 | Сообщество | `posts`, `comments`, `likes`, `follows`, `blocks`, `reports` | Правка своей записи — в течение часа; окно проверяет база |
 | Люди | `profiles`, `profile_cards` | `profile_cards` — представление с публичными полями и счётчиками |
-| Барахолка и чат | `listings`, `messages` | Новые сообщения приходят через Realtime-канал `chat:<id>` |
+| Барахолка и чат | `listings`, `messages`, `contests` | Новые сообщения приходят через Realtime-канал `chat:<id>` |
 | Магазины | `shops`, `shop_products`, `wishlist_items` | Статус магазина меняет только администратор (RPC `review_shop`) |
 | Уведомления | `push_subscriptions` | Запись — через RPC `save_push_subscription` |
 
@@ -35,6 +35,9 @@
 | `where_to_buy(p_species, p_city)` | «Где купить»: свой город первым, чужие — только с доставкой |
 | `review_shop(p_shop, p_status, p_note)` | Решение администратора по заявке магазина |
 | `save_push_subscription(p_endpoint, p_p256dh, p_auth, p_user_agent)` | Подписка браузера на Web Push |
+| `join_contest(p_contest)`, `leave_contest(p_contest)` | Участие в розыгрыше; условия (возраст аккаунта, растение со своим фото, город) проверяет функция |
+| `cancel_contest(p_contest)` | Отмена: организатор — пока нет участников, администратор — всегда |
+| `contest_participants(p_contest)` | Участники и места победителей — список открыт всем |
 
 ## Хранилище
 

@@ -280,6 +280,7 @@ create policy plants_delete on plants for delete to authenticated
 | Растение в воде, Web Push | `plants.in_water`, `push_subscriptions`, `private.push_queue`, `private.care_reminder_log` | `*_water_culture_and_push.sql` |
 | Магазины | `shops`, `shop_products`, `private.wishlist_alert_log` | `*_shops.sql` |
 | Квоты распознавания | `private.identify_usage` | `*_identify_quota.sql` |
+| Розыгрыши | `contests`, `contest_entries`, `private.contest_seeds`, `conversations.contest_id` | `*_contests.sql` |
 
 Таблицы в схеме `private` из браузера недоступны: с ними работают только триггеры,
 RPC и Edge Functions.
