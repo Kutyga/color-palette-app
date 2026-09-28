@@ -9,7 +9,7 @@
 //        если один из них не ответил, возвращается результат другого.
 //
 // Ключ Pl@ntNet хранится в Vault (plantnet_api_key) и читается RPC get_plantnet_key.
-// Квоты: 20 распознаваний в день на пользователя и 450 на проект (у Pl@ntNet — 500).
+// Квоты: лимит на пользователя временно снят; общий — 450 в день на проект (у Pl@ntNet — 500).
 // Деплой: supabase functions deploy identify-plant --no-verify-jwt (пользователя проверяет сама функция).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -26,8 +26,9 @@ import {
 } from "./gemini.ts";
 import { decodeBase64Image, ORGANS, type Organ, plantnetDiseasesUrl, plantnetUrl, toDiseases, toIdentifications } from "./plantnet.ts";
 
-const USER_DAILY_LIMIT = 20;
 const TOTAL_DAILY_LIMIT = 450;
+// Временно без отдельного лимита на пользователя; вернуть 20, когда понадобится.
+const USER_DAILY_LIMIT = TOTAL_DAILY_LIMIT;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const SERVICE_USER = "00000000-0000-0000-0000-00000000000f"; // проверочные вызовы по секрету
 
