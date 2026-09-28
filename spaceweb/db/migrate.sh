@@ -69,17 +69,18 @@ step "Принудительный RLS и пропуск для security definer
 dst -f "$HERE/harden.sql" >/dev/null
 
 step "Сверка числа строк"
-tables=$(psql "$SRC_URL" -XAt -c "select string_agg(format('%I.%I', schemaname, relname), ' ' order by schemaname, relname)
-                                  from pg_stat_user_tables where schemaname in ('public', 'private')")
-count_sql=""
-for t in $tables; do count_sql+="select '$t', count(*) from $t union all "; done
-count_sql+="select 'auth.users', count(*) from auth.users union all select 'storage.objects', count(*) from storage.objects"
-psql "$SRC_URL" -XAt -F ' ' -c "$count_sql" | sort > "$WORK/src.counts"
+# Сравниваем с выгрузкой, а не с живой базой: пока идёт перенос, в Supabase появляются новые записи
+# (например, новости по расписанию), и счёт «сейчас» разошёлся бы с тем, что перенесено.
+awk '/^COPY /{t=$2; n=0; next} /^\\\.$/{if (t != "") print t, n; t=""; next} t != ""{n++}' "$WORK/data.sql" > "$WORK/src.counts"
+echo "auth.users $(grep -c '^insert into auth.users' "$WORK/extras.sql")" >> "$WORK/src.counts"
+echo "storage.objects $(grep -c '^insert into storage.objects' "$WORK/extras.sql")" >> "$WORK/src.counts"
+sort -o "$WORK/src.counts" "$WORK/src.counts"
+count_sql=$(awk '{printf "%sselect %s, count(*) from %s", (NR > 1 ? " union all " : ""), "\x27" $1 "\x27", $1}' "$WORK/src.counts")
 dst -At -F ' ' -c "set application_name = 'podokonnik-rls-bypass'; $count_sql" | sort > "$WORK/dst.counts"
 if diff "$WORK/src.counts" "$WORK/dst.counts" > "$WORK/counts.diff"; then
   echo "совпадает: $(wc -l < "$WORK/src.counts") таблиц, $(awk '{s += $2} END {print s}' "$WORK/src.counts") строк"
 else
-  echo "Расхождения (слева Supabase, справа SpaceWeb):" >&2
+  echo "Расхождения (слева выгрузка из Supabase, справа SpaceWeb):" >&2
   cat "$WORK/counts.diff" >&2
   exit 1
 fi
