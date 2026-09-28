@@ -1,0 +1,69 @@
+name: db-spaceweb
+
+# Перенос базы из Supabase в PostgreSQL на SpaceWeb (spaceweb/db/migrate.sh): схема, данные,
+# пользователи с паролями, метаданные фото, секреты, расписание, правила доступа.
+# Сайт при этом продолжает работать на Supabase — эта база ему пока не нужна.
+#
+# Нужно (Settings → Secrets and variables → Actions):
+#   Secrets: SUPABASE_DB_URL — строка подключения к Supabase (Connect → Session pooler или прямая);
+#            SPACEWEB_DB_PASSWORD — пароль базы SpaceWeb.
+#   Variables (необязательно, по умолчанию — значения из панели SpaceWeb):
+#            SPACEWEB_DB_HOST, SPACEWEB_DB_PORT, SPACEWEB_DB_NAME, SPACEWEB_DB_USER.
+#
+# Запуск: Actions → db-spaceweb → Run workflow. Галочка «reset» — очистить базу SpaceWeb и
+# перенести заново. Когда сайт переключён на SpaceWeb (api.live), перенос откажется работать.
+on:
+  workflow_dispatch:
+    inputs:
+      reset:
+        description: "Очистить базу SpaceWeb и перенести заново"
+        type: boolean
+        default: false
+  # Репетиции переноса из рабочей ветки, пока сайт на Supabase.
+  push:
+    branches: [claude/relaxed-euler-8qpsqr]
+    paths: ["spaceweb/db/**", ".github/workflows/db-spaceweb.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-spaceweb
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # pg_dump должен быть не старше сервера: у Supabase и SpaceWeb — PostgreSQL 17.
+      - name: Клиент PostgreSQL 17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common >/dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-client-17 >/dev/null
+          /usr/lib/postgresql/17/bin/pg_dump --version
+      - name: Перенос
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PGPASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          DB_HOST: ${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }}
+          DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5433' }}
+          DB_NAME: ${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }}
+          DB_USER: ${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }}
+          RESET_INPUT: ${{ github.event_name == 'push' || inputs.reset }}
+        run: |
+          export PG_BIN=/usr/lib/postgresql/17/bin
+          [ -n "$SUPABASE_DB_URL" ] || { echo "::error::Нет секрета SUPABASE_DB_URL"; exit 1; }
+          [ -n "$PGPASSWORD" ] || { echo "::error::Нет секрета SPACEWEB_DB_PASSWORD"; exit 1; }
+          # Пароль Supabase из строки подключения тоже скрываем в логах.
+          echo "::add-mask::$(python3 -c 'import sys, urllib.parse as u; print(u.urlsplit(sys.argv[1].strip()).password or "")' "$SUPABASE_DB_URL")"
+          for url in $(python3 spaceweb/db/source_url.py "$SUPABASE_DB_URL"); do
+            if "$PG_BIN/psql" "$url" -XAtc 'select 1' >/dev/null 2>&1; then SRC_URL=$url; break; fi
+          done
+          [ -n "${SRC_URL:-}" ] || { echo "::error::Не удалось подключиться к Supabase — проверьте SUPABASE_DB_URL"; exit 1; }
+          export SRC_URL
+          export DST_URL="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER connect_timeout=15"
+          [ "$RESET_INPUT" = true ] && export RESET=yes
+          bash spaceweb/db/migrate.sh
