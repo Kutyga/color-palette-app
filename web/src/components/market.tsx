@@ -10,6 +10,7 @@ import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
 import { useListings, useMyListings, useProfile } from "@/lib/queries";
+import { ContestsList, PinnedContestBanner } from "./contests";
 import { useBackend } from "./session";
 import { ShopsList } from "./shops";
 import { Chip, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, cx, useToast } from "./ui";
@@ -69,10 +70,11 @@ function ListingCard({ listing: l }: { listing: Listing }) {
   );
 }
 
-type MarketView = ListingFilter["kind"] | "mine" | "shops";
+type MarketView = ListingFilter["kind"] | "mine" | "shops" | "contests";
 
 const KIND_FILTERS: { id: MarketView; label: string }[] = [
   { id: "all", label: "Все" },
+  { id: "contests", label: "🎉 Конкурсы" },
   { id: "sell", label: "🏷️ Продаю" },
   { id: "free", label: "🎁 Даром" },
   { id: "swap", label: "🔄 Обмен" },
@@ -151,6 +153,7 @@ export function Market() {
       <p className="bg-muted text-secondary mb-3 rounded-2xl px-4 py-3 text-[13px]">
         Сделки — напрямую между садоводами, приложение не берёт деньги. Не переводите предоплату незнакомым и встречайтесь в людных местах.
       </p>
+      {kind !== "contests" && <PinnedContestBanner />}
       <div className="no-scrollbar -mx-4 mb-2 flex gap-2 overflow-x-auto px-4">
         {KIND_FILTERS.map((f) => (
           <Chip key={f.id} active={kind === f.id} onClick={() => setKind(f.id)}>
@@ -158,7 +161,7 @@ export function Market() {
           </Chip>
         ))}
       </div>
-      {kind !== "mine" && kind !== "shops" && (
+      {kind !== "mine" && kind !== "shops" && kind !== "contests" && (
         <div className="no-scrollbar -mx-4 mb-4 flex items-center gap-2 overflow-x-auto px-4">
           {myCity ? (
             <>
@@ -179,7 +182,15 @@ export function Market() {
           </Chip>
         </div>
       )}
-      {kind === "mine" ? <MineList /> : kind === "shops" ? <ShopsList /> : <Results filter={{ kind, city, deliveryOnly }} />}
+      {kind === "mine" ? (
+        <MineList />
+      ) : kind === "shops" ? (
+        <ShopsList />
+      ) : kind === "contests" ? (
+        <ContestsList />
+      ) : (
+        <Results filter={{ kind, city, deliveryOnly }} />
+      )}
     </div>
   );
 }

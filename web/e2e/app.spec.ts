@@ -522,3 +522,39 @@ test("демо: «Что с растением?» — симптомы, прич
   await page.waitForURL("**/feed/new/**type=question**");
   expect(errors).toEqual([]);
 });
+
+test("демо: розыгрыши — закреплённый конкурс, участие, проверка честности, свой розыгрыш", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/feed/?tab=market");
+  // Закреплённый конкурс «Подоконника» виден над объявлениями.
+  await expect(page.getByRole("link", { name: /Закреплённый розыгрыш: Осенний розыгрыш/ })).toBeVisible();
+
+  await page.getByRole("button", { name: "🎉 Конкурсы" }).click();
+  const list = page.getByRole("list", { name: "Розыгрыши" });
+  await expect(list.getByRole("link").first()).toContainText("Осенний розыгрыш");
+  await list.getByRole("link", { name: /Черенок монстеры/ }).click();
+  await page.waitForURL("**/market/contest/**");
+  await page.getByRole("button", { name: "Участвую" }).click();
+  await expect(page.getByText("Вы участвуете — удачи! 🍀")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Не участвовать" })).toBeVisible();
+  await expect(page.getByText("Отпечаток секрета (SHA-256)")).toBeVisible();
+
+  // Законченный розыгрыш: секрет раскрыт, итоги пересчитываются в браузере.
+  await page.goto("/market/contest/?id=demo-contest-aloe");
+  await expect(page.getByRole("heading", { name: "Победители" })).toBeVisible();
+  await page.getByRole("button", { name: "Проверить итоги" }).click();
+  await expect(page.getByText("Проверено: секрет совпадает с отпечатком, победители посчитаны верно")).toBeVisible();
+
+  // Свой розыгрыш.
+  await page.goto("/market/contest/new/");
+  await page.getByLabel("Название").fill("Детка хойи");
+  await page.getByLabel("Приз", { exact: true }).fill("Хойя керри в горшке 7 см");
+  await page.getByRole("button", { name: "Начать розыгрыш" }).click();
+  await page.waitForURL("**/market/contest/?id=**");
+  await expect(page.getByRole("heading", { name: "Детка хойи" })).toBeVisible();
+  await expect(page.getByText("Это ваш розыгрыш")).toBeVisible();
+  await page.getByRole("button", { name: "Отменить розыгрыш" }).click();
+  await expect(page.getByText("Розыгрыш отменён")).toBeVisible();
+  expect(errors).toEqual([]);
+});

@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Backend } from "../repositories";
 import { SupabaseChat } from "./chat";
+import { SupabaseContests } from "./contests";
 import { SupabaseGarden } from "./garden";
 import { PlantNetIdentifier } from "./identifier";
 import { SupabaseMarket } from "./market";
@@ -25,6 +26,7 @@ export function supabaseBackend(db: SupabaseClient, uid: string): Backend {
     people: new SupabasePeople(db, uid),
     market: new SupabaseMarket(db, uid, species),
     chat: new SupabaseChat(db, uid),
+    contests: new SupabaseContests(db, uid),
     shops: new SupabaseShops(db, uid, species),
     wishlist: new SupabaseWishlist(db, uid, species),
     notifications: new SupabaseNotifications(db, uid),

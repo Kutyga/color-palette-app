@@ -765,6 +765,175 @@ do $$ begin
 exception when insufficient_privilege then null;
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- Конкурсы: условия участия и честная жеребьёвка.
+-- Дина проводит розыгрыш в Москве без доставки, участвуют Егор и Лев.
+-- Хасан из Казани, Ваня зарегистрировался вчера, у Яны нет растений — им нельзя.
+-- ---------------------------------------------------------------------------
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d1', 'dina@example.com', '{}'),
+  ('00000000-0000-0000-0000-0000000000d2', 'egor@example.com', '{}'),
+  ('00000000-0000-0000-0000-0000000000d6', 'lev@example.com', '{}'),
+  ('00000000-0000-0000-0000-0000000000d7', 'hasan@example.com', '{}'),
+  ('00000000-0000-0000-0000-0000000000d8', 'vanya@example.com', '{}'),
+  ('00000000-0000-0000-0000-0000000000d9', 'yana@example.com', '{}');
+
+update public.profiles set created_at = now() - interval '30 days', city = 'Москва'
+ where id::text like '00000000-0000-0000-0000-0000000000d%';
+update public.profiles set city = 'Казань' where id = '00000000-0000-0000-0000-0000000000d7';
+update public.profiles set created_at = now() - interval '1 day' where id = '00000000-0000-0000-0000-0000000000d8';
+
+-- У всех, кроме Яны, — растение со своим фото.
+do $$
+declare u uuid; pl uuid; ph uuid;
+begin
+  for u in select id from public.profiles
+            where id::text like '00000000-0000-0000-0000-0000000000d%'
+              and id <> '00000000-0000-0000-0000-0000000000d9' loop
+    pl := gen_random_uuid(); ph := gen_random_uuid();
+    insert into public.plants (id, owner_id, nickname) values (pl, u, 'Фикус');
+    insert into public.plant_photos (id, plant_id, uploaded_by, storage_path) values (ph, pl, u, u || '/' || pl || '/p.jpg');
+    update public.plants set cover_photo_id = ph where id = pl;
+  end loop;
+end $$;
+
+do $$ begin
+  -- Эталон совпадает с web/src/lib/domain/__tests__/contest.test.ts: браузер пересчитывает итог так же.
+  assert private.draw_uniform('podokonnik-test-seed', '00000000-0000-0000-0000-0000000000d2') = 0.3729562971773789,
+         'равномерное число из секрета — как в браузере';
+end $$;
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d1';
+insert into public.contests (id, title, prize, city, ends_at)
+values ('60000000-0000-0000-0000-000000000001', 'Черенок монстеры', 'Укоренённый черенок', 'Москва', now() + interval '3 days');
+
+do $$ begin
+  assert (select not pinned and status = 'active' and seed is null and seed_hash ~ '^[0-9a-f]{64}$'
+            from public.contests where id = '60000000-0000-0000-0000-000000000001'),
+         'розыгрыш садовода не закреплён, секрет скрыт, хеш опубликован';
+  begin
+    insert into public.contests (title, prize, city, ends_at) values ('Второй', 'Приз', 'Москва', now() + interval '2 days');
+    raise exception 'второй одновременный розыгрыш не должен создаваться';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.contests (title, prize, city, ends_at) values ('Долгий', 'Приз', 'Москва', now() + interval '60 days');
+    raise exception 'розыгрыш дольше 30 дней не должен создаваться';
+  exception when check_violation then null;
+  end;
+  begin
+    perform public.join_contest('60000000-0000-0000-0000-000000000001');
+    raise exception 'организатор не участвует в своём розыгрыше';
+  exception when check_violation then null;
+  end;
+  begin
+    perform seed from private.contest_seeds;
+    raise exception 'секрет не должен читаться из браузера';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d2';
+select public.join_contest('60000000-0000-0000-0000-000000000001');
+select public.join_contest('60000000-0000-0000-0000-000000000001'); -- повтор ничего не ломает
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d6';
+select public.join_contest('60000000-0000-0000-0000-000000000001');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d7';
+do $$ begin
+  perform public.join_contest('60000000-0000-0000-0000-000000000001');
+  raise exception 'без доставки участвуют только из того же города';
+exception when check_violation then null;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d8';
+do $$ begin
+  perform public.join_contest('60000000-0000-0000-0000-000000000001');
+  raise exception 'аккаунт младше 7 дней не участвует';
+exception when check_violation then null;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d9';
+do $$ begin
+  perform public.join_contest('60000000-0000-0000-0000-000000000001');
+  raise exception 'без растения со своим фото не участвуют';
+exception when check_violation then null;
+end $$;
+
+do $$ begin
+  assert (select count(*) from public.contest_participants('60000000-0000-0000-0000-000000000001')) = 2,
+         'участники видны всем';
+  begin
+    perform public.cancel_contest('60000000-0000-0000-0000-000000000001');
+    raise exception 'чужой розыгрыш не отменить';
+  exception when check_violation then null;
+  end;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d1';
+do $$ begin
+  perform public.cancel_contest('60000000-0000-0000-0000-000000000001');
+  raise exception 'розыгрыш с участниками организатор не отменяет';
+exception when check_violation then null;
+end $$;
+
+-- Время вышло: итоги подводит сервер.
+reset role;
+update public.contests set ends_at = now() - interval '1 minute' where id = '60000000-0000-0000-0000-000000000001';
+do $$
+declare c public.contests; expected uuid;
+begin
+  assert private.finish_due_contests() = 1, 'подведён один розыгрыш';
+  select * into c from public.contests where id = '60000000-0000-0000-0000-000000000001';
+  assert c.status = 'finished' and c.seed is not null, 'итоги подведены, секрет раскрыт';
+  assert encode(sha256(convert_to(c.seed, 'UTF8')), 'hex') = c.seed_hash, 'раскрытый секрет совпадает с опубликованным хешем';
+  select user_id into expected from public.contest_entries
+   where contest_id = c.id
+   order by private.draw_uniform(c.seed, user_id) desc, user_id limit 1;
+  assert (select user_id from public.contest_entries where contest_id = c.id and place = 1) = expected,
+         'победитель — наибольшее u: шансы равны';
+  assert (select count(*) from public.contest_entries where contest_id = c.id and place is not null) = 1, 'один победитель';
+  assert exists (select 1 from public.conversations where contest_id = c.id and buyer_id = expected
+                   and seller_id = '00000000-0000-0000-0000-0000000000d1'), 'чат победителя с организатором';
+  assert private.finish_due_contests() = 0, 'повторно не подводится';
+end $$;
+
+-- Победитель видит чат с названием розыгрыша; присоединиться к закончившемуся нельзя.
+set role authenticated;
+select set_config('request.jwt.claim.sub', (select user_id::text from public.contest_entries where place = 1), false);
+do $$ begin
+  assert exists (select 1 from public.my_conversations() where listing_title = '🎉 Черенок монстеры'), 'чат розыгрыша в списке';
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d6';
+do $$ begin
+  perform public.leave_contest('60000000-0000-0000-0000-000000000001');
+  assert (select count(*) from public.contest_entries where contest_id = '60000000-0000-0000-0000-000000000001') = 2,
+         'после итогов выйти нельзя';
+end $$;
+
+-- Администратор: конкурсы закреплены, одновременно можно несколько, отменить может любой.
+reset role;
+update public.profiles set is_admin = true where id = '00000000-0000-0000-0000-0000000000d6';
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d6';
+insert into public.contests (id, title, prize, city, delivery, ends_at) values
+  ('60000000-0000-0000-0000-000000000002', 'Весенний розыгрыш', 'Набор грунтов', 'Москва', true, now() + interval '7 days'),
+  ('60000000-0000-0000-0000-000000000003', 'Осенний розыгрыш', 'Горшок', 'Москва', true, now() + interval '7 days');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d7';
+select public.join_contest('60000000-0000-0000-0000-000000000002'); -- с доставкой — из любого города
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d6';
+select public.cancel_contest('60000000-0000-0000-0000-000000000002');
+do $$ begin
+  assert (select bool_and(pinned) from public.contests where organizer_id = '00000000-0000-0000-0000-0000000000d6'),
+         'конкурсы администратора закреплены';
+  assert (select status from public.contests where id = '60000000-0000-0000-0000-000000000002') = 'cancelled',
+         'администратор отменяет розыгрыш с участниками';
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d7';
+do $$ begin
+  assert not exists (select 1 from public.contests where id = '60000000-0000-0000-0000-000000000002'),
+         'отменённый розыгрыш виден только организатору и администратору';
+end $$;
+
 reset role;
 
 -- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)

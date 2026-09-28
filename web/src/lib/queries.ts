@@ -270,3 +270,22 @@ export function useSetWished() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Конкурсы
+// ---------------------------------------------------------------------------
+
+export function useContests() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["contests", "list"], queryFn: () => b.contests.contests() });
+}
+
+export function useContest(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["contests", "one", id], queryFn: () => b.contests.contest(id!), enabled: !!id });
+}
+
+export function useContestParticipants(id: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["contests", "participants", id], queryFn: () => b.contests.participants(id!), enabled: !!id });
+}

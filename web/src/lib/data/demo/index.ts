@@ -4,11 +4,12 @@
  */
 import type { Backend } from "../repositories";
 import { DemoChat } from "./chat";
+import { DemoContests } from "./contests";
 import { DEFAULT_PROFILE } from "./fixtures";
 import { DemoGarden } from "./garden";
 import { DemoMarket } from "./market";
 import { DemoPeople } from "./people";
-import { seedDemo, seedListings, seedShops } from "./seed";
+import { seedContests, seedDemo, seedListings, seedShops } from "./seed";
 import { DemoShops } from "./shops";
 import { DemoSocial } from "./social";
 import { type DemoStorage, emptyState } from "./state";
@@ -27,9 +28,10 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
   }
   const s = state;
   const persist = () => storage.save(s);
-  if (!s.listings || !s.shops) {
+  if (!s.listings || !s.shops || !s.contests) {
     seedListings(s, clock());
     seedShops(s, clock());
+    await seedContests(s, clock());
     persist();
   }
   return {
@@ -39,6 +41,7 @@ export async function demoBackend(storage: DemoStorage, clock: () => Date = () =
     people: new DemoPeople(s, persist),
     market: new DemoMarket(s, persist, clock),
     chat: new DemoChat(s, persist, clock),
+    contests: new DemoContests(s, persist, clock),
     shops: new DemoShops(s, persist, clock),
     wishlist: new DemoWishlist(s, persist),
     notifications: null,
