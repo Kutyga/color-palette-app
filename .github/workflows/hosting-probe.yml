@@ -55,4 +55,23 @@ jobs:
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then echo "Секрет SUPABASE_DB_URL: НЕТ"; exit 0; fi
           sudo apt-get install -y -qq postgresql-client >/dev/null
-          psql "$SUPABASE_DB_URL" -XAtc "select 'Supabase: подключение есть, ' || version(); select 'размер базы: ' || pg_size_pretty(pg_database_size(current_database())); select 'пользователей: ' || count(*) from auth.users; select 'файлов: ' || count(*) || ', ' || pg_size_pretty(coalesce(sum((metadata->>'size')::bigint),0)) from storage.objects" 2>&1 | sed -E 's#postgres(ql)?://[^ ]*#<url>#g' | head -n 3
+          # Прямой адрес db.<ref>.supabase.co доступен только по IPv6, которого у GitHub нет:
+          # такой URL переводим на пулер (IPv4) того же региона — пробуем оба варианта имени.
+          urls=$(python3 - <<'PY'
+          import os, urllib.parse as u
+          url = os.environ["SUPABASE_DB_URL"].strip()
+          p = u.urlsplit(url)
+          host = p.hostname or ""
+          if host.startswith("db.") and host.endswith(".supabase.co"):
+              ref = host.split(".")[1]
+              pw = p.password or ""
+              for n in ("aws-0", "aws-1"):
+                  print(f"postgresql://postgres.{ref}:{pw}@{n}-eu-central-1.pooler.supabase.com:5432/postgres")
+          else:
+              print(url)
+          PY
+          )
+          for url in $urls; do
+            out=$(psql "$url" -XAtc "select 'Supabase: подключение есть, ' || version(); select 'размер базы: ' || pg_size_pretty(pg_database_size(current_database())); select 'пользователей: ' || count(*) from auth.users; select 'файлов: ' || count(*) || ', ' || pg_size_pretty(coalesce(sum((metadata->>'size')::bigint),0)) from storage.objects" 2>&1) && { echo "$out"; exit 0; }
+            echo "$out" | sed -E 's#postgres(ql)?://[^ ]*#<url>#g' | head -n 2
+          done
