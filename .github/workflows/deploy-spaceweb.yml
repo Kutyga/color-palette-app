@@ -2,7 +2,8 @@ name: deploy-spaceweb
 
 # Публикует сайт на хостинг SpaceWeb по SSH при изменениях в main — рядом с GitHub Pages.
 # Сайт собирается для корня домена. Рядом, в папку api/, выкладывается PHP-API (spaceweb/api).
-# Куда смотрит сайт — Supabase или свой API — решает отметка api.live (cutover-spaceweb).
+# Сайт работает на Supabase. Свой PHP-API и база SpaceWeb включаются, только если задана переменная
+# SITE_BACKEND=spaceweb (после cutover-spaceweb); без неё выкладка базу SpaceWeb не трогает.
 #
 # Нужно один раз (Settings → Secrets and variables → Actions):
 #   Variables: SPACEWEB_HOST — SSH-сервер из панели SpaceWeb;
@@ -39,8 +40,8 @@ jobs:
     if: vars.SPACEWEB_HOST != ''
     runs-on: ubuntu-latest
     env:
-      # API выкладывается, только когда задан пароль базы SpaceWeb.
-      API_ENABLED: ${{ secrets.SPACEWEB_DB_PASSWORD != '' }}
+      # Свой API — только при SITE_BACKEND=spaceweb и заданном пароле базы SpaceWeb.
+      API_ENABLED: ${{ vars.SITE_BACKEND == 'spaceweb' && secrets.SPACEWEB_DB_PASSWORD != '' }}
     defaults:
       run:
         working-directory: web
@@ -54,9 +55,9 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      # Куда смотрит сайт: после переключения (отметка api.live в базе SpaceWeb) — на свой API /api,
-      # до него — на Supabase. Не удалось проверить базу при заданном пароле — выкладка останавливается:
-      # гадать нельзя, иначе сайт начнёт писать не туда.
+      # Куда смотрит сайт: по умолчанию — на Supabase, база SpaceWeb не нужна. При SITE_BACKEND=spaceweb —
+      # на свой API /api, если в базе SpaceWeb стоит отметка api.live. Не удалось проверить базу —
+      # выкладка останавливается: гадать нельзя, иначе сайт начнёт писать не туда.
       - name: Куда смотрит сайт
         id: backend
         env:
@@ -67,7 +68,7 @@ jobs:
           SUPABASE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
         run: |
           live=f
-          if [ -n "$PGPASSWORD" ]; then
+          if [ "$API_ENABLED" = true ]; then
             command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client >/dev/null
             live=$(psql "$DST_URL" -XAtc "select to_regclass('api.live') is not null")
           fi
