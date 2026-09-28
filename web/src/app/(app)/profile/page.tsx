@@ -23,7 +23,9 @@ function Profile() {
   const router = useRouter();
   const isDemo = session.status === "ready" && session.backend.mode === "demo";
   const me = usePerson(profile.data?.username ?? null);
-  const [editing, setEditing] = useState(false);
+  // Ссылка «Заполнить профиль» из условий розыгрыша открывает редактирование сразу (?edit=1).
+  // Профиль рисуется только в браузере (после проверки входа), поэтому window здесь доступен.
+  const [editing, setEditing] = useState(() => new URLSearchParams(window.location.search).get("edit") === "1");
   const lp = stats.data ? levelFor(stats.data) : null;
 
   return (

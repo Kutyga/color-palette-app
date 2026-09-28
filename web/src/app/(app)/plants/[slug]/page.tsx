@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { SpeciesCard } from "@/components/knowledge-browser";
 import { WhereToBuy, WishButton } from "@/components/shops";
 import { SoilSchematic } from "@/components/soil-schematic";
-import { PhotoCredit, PlantPhoto } from "@/components/ui";
+import { LARGE_PHOTO, PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
 import { DIFFICULTY_LABELS, speciesName } from "@/lib/domain/species";
 import { MONTHS_SHORT, plural } from "@/lib/format";
@@ -60,7 +60,14 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
 
       <div className="mt-4 grid gap-8 md:grid-cols-[1fr_1.1fr] md:items-center">
         <figure>
-          <PlantPhoto src={s.image?.url} seed={s.slug} alt={name} className="aspect-square w-full rounded-[28px]" iconSize={72} />
+          <PlantPhoto
+            src={s.image?.url}
+            seed={s.slug}
+            alt={name}
+            className="aspect-square w-full rounded-[28px]"
+            iconSize={72}
+            sizes={LARGE_PHOTO}
+          />
           {s.image && (
             <figcaption className="mt-2 px-1">
               <PhotoCredit image={s.image} />

@@ -3,7 +3,7 @@
 /** Розыгрыш: приз, условия, участие, итоги с проверкой честности и список участников. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Gift, MapPin, Pin, Trophy, Truck, Users } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Circle, Gift, MapPin, Pin, Trophy, Truck, Users } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -11,10 +11,51 @@ import { RequireSession } from "@/components/app-shell";
 import { FairnessCard, ParticipantsList, PhaseLabel, WinnerPanel, WinnersCard } from "@/components/contests";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
-import { Button, Card, EmptyState, ErrorNote, PlantPhoto, SectionTitle, Spinner, useToast } from "@/components/ui";
-import { contestPhase, type Contest } from "@/lib/domain/contest";
+import { Button, Card, EmptyState, ErrorNote, LARGE_PHOTO, PlantPhoto, SectionTitle, Spinner, useToast } from "@/components/ui";
+import { contestChecks, contestPhase, CONTEST_RULES, type Contest } from "@/lib/domain/contest";
 import { plural } from "@/lib/format";
-import { useContest, useContestParticipants, useProfile } from "@/lib/queries";
+import { useContest, useContestParticipants, useProfile, useStats } from "@/lib/queries";
+
+/** Условия участия: что уже выполнено и куда перейти, чтобы выполнить остальное. */
+function Conditions({ contest: c }: { contest: Contest }) {
+  const profile = useProfile();
+  const stats = useStats();
+  if (!profile.data || !stats.data) return null;
+  const checks = contestChecks(c, profile.data, stats.data.posts);
+  if (checks.every((x) => x.ok)) return null;
+  return (
+    <div className="bg-muted rounded-2xl p-4 text-[15px]">
+      <p className="font-semibold">Чтобы участвовать</p>
+      <ul className="mt-2 space-y-2">
+        {checks.map((x) => (
+          <li key={x.label} className="flex items-start gap-2">
+            {x.ok ? (
+              <CheckCircle2 className="text-leaf mt-0.5 size-5 shrink-0" aria-label="Выполнено" />
+            ) : (
+              <Circle className="text-secondary mt-0.5 size-5 shrink-0" aria-label="Не выполнено" />
+            )}
+            <span className="flex flex-1 flex-col">
+              {x.label}
+              {!x.ok && (
+                <span className="mt-1 flex flex-wrap gap-x-4">
+                  {x.links.map((l) => (
+                    <Link key={l.href} href={l.href} className="text-leaf font-medium">
+                      {l.label}
+                    </Link>
+                  ))}
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-secondary mt-3 text-[13px]">
+        Ещё нужно растение со своим фото в коллекции. Без профиля и публикаций участвовать можно через {CONTEST_RULES.minAccountDays} дней
+        после регистрации.
+      </p>
+    </div>
+  );
+}
 
 /** Участвовать, выйти, отменить — в зависимости от роли и этапа. */
 function Actions({ contest: c }: { contest: Contest }) {
@@ -36,6 +77,7 @@ function Actions({ contest: c }: { contest: Contest }) {
   const canCancel = profile.data?.isAdmin || (c.mine && c.participants === 0);
   return (
     <div className="mt-4 space-y-2">
+      {!c.mine && !c.joined && <Conditions contest={c} />}
       {!c.mine &&
         (c.joined ? (
           <Button variant="secondary" className="w-full" loading={act.isPending} onClick={() => act.mutate("leave")}>
@@ -75,7 +117,9 @@ function ContestView({ id }: { id: string }) {
       </Link>
 
       <Card className="overflow-hidden">
-        {c.photoUrl && <PlantPhoto src={c.photoUrl} seed={c.id} alt={c.prize} className="aspect-[4/3] w-full" iconSize={48} />}
+        {c.photoUrl && (
+          <PlantPhoto src={c.photoUrl} seed={c.id} alt={c.prize} className="aspect-[4/3] w-full" iconSize={48} sizes={LARGE_PHOTO} />
+        )}
         <div className="p-5">
           <p className="text-secondary flex items-center gap-1 text-[13px] font-medium">
             {c.pinned && <Pin className="text-leaf size-4" aria-label="Закреплено" />}

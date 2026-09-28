@@ -221,16 +221,15 @@ test("демо: барахолка — фильтры, чат с продавц�
   await page.getByRole("button", { name: "Заблокировать" }).last().click();
   await expect(page.getByText("Переписка закрыта: один из вас заблокировал другого.")).toBeVisible();
 
-  // Своё объявление: только снимок с камеры, цена, статус, удаление.
+  // Своё объявление: фото из файлов (в объявлениях можно), цена, статус, удаление.
   await page.goto("/market/new/");
   await page.getByRole("button", { name: "🏷️ Продаю" }).click();
   await page.getByLabel("Название").fill("Детка хлорофитума");
   await page.getByLabel("Цена, ₽").fill("350");
   await page.getByRole("button", { name: "Опубликовать" }).click();
   await expect(page.getByText("Сфотографируйте растение")).toBeVisible();
-  await expect(page.locator('input[type="file"]')).toHaveCount(0);
-  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
-  await page.getByRole("button", { name: "Снять" }).click();
+  await page.getByLabel("Фото из файлов").setInputFiles("e2e/fixtures/plant.jpg");
+  await expect(page.getByRole("img", { name: "Фото растения" })).toBeVisible();
   await page.getByRole("button", { name: "Опубликовать" }).click();
   await page.waitForURL("**/market/view/**");
   await expect(page.getByText("350 ₽")).toBeVisible();
@@ -558,4 +557,31 @@ test("демо: розыгрыши — закреплённый конкурс, 
   await page.getByRole("button", { name: "Отменить розыгрыш" }).click();
   await expect(page.getByText("Розыгрыш отменён")).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("телефон: подсказка «на экран Домой» — один раз", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "подсказка только на телефоне");
+  // Подсказка прячется от автотестов; здесь проверяем именно её.
+  await page.addInitScript(() => Object.defineProperty(navigator, "webdriver", { get: () => false }));
+  await page.goto("/plants/");
+  const hint = page.getByRole("dialog", { name: "Подоконник на экране Домой" });
+  await expect(hint).toBeVisible({ timeout: 10_000 });
+  await hint.getByRole("tab", { name: "iPhone" }).click();
+  await expect(hint.getByText("Пролистайте и выберите")).toBeVisible();
+  await hint.getByRole("tab", { name: "Android" }).click();
+  await expect(hint.getByText("Нажмите меню ⋮")).toBeVisible();
+  await hint.getByRole("button", { name: "Понятно" }).click();
+  await expect(hint).toBeHidden();
+
+  await page.reload();
+  await page.waitForTimeout(3500);
+  await expect(hint).toBeHidden();
+});
+
+test("вход: ссылка «Забыли пароль?» переключает на восстановление", async ({ page }) => {
+  await page.goto("/login/");
+  test.skip(!(await page.getByRole("button", { name: "Забыли пароль?" }).count()), "сборка без сервера — только демо");
+  await page.getByRole("button", { name: "Забыли пароль?" }).click();
+  await expect(page.getByRole("heading", { name: "Восстановить пароль" })).toBeVisible();
+  await expect(page.getByLabel("Пароль")).toHaveCount(0);
 });

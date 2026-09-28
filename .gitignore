@@ -10,3 +10,6 @@ Thumbs.db
 # Локальные секреты
 .env
 .env.local
+
+# Граф кода от навыка /graphify (строится локально)
+graphify-out/

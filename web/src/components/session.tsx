@@ -5,10 +5,20 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { hasBackend } from "@/lib/config";
-import { demoBackend, localDemoStorage } from "@/lib/data/demo";
 import type { Backend } from "@/lib/data/repositories";
-import { supabaseBackend } from "@/lib/data/supabase";
 import { supabase } from "@/lib/supabase";
+
+// Бэкенды грузятся по требованию: демо-данные не нужны тем, кто вошёл, и наоборот — так первая
+// загрузка любой страницы легче.
+async function loadDemoBackend(): Promise<Backend> {
+  const { demoBackend, localDemoStorage } = await import("@/lib/data/demo");
+  return demoBackend(localDemoStorage());
+}
+
+async function loadSupabaseBackend(userId: string): Promise<Backend> {
+  const { supabaseBackend } = await import("@/lib/data/supabase");
+  return supabaseBackend(supabase(), userId);
+}
 
 export type SessionState = { status: "loading" } | { status: "guest" } | { status: "ready"; backend: Backend; email: string | null };
 
@@ -17,6 +27,9 @@ interface SessionApi {
   startDemo(): Promise<void>;
   /** Выход из аккаунта или из демо-режима. */
   signOut(): Promise<void>;
+  /** Вход по ссылке «сбросить пароль» из письма: сначала нужно задать новый пароль. */
+  passwordRecovery: boolean;
+  finishPasswordRecovery(): void;
 }
 
 const SessionContext = createContext<SessionApi | null>(null);
@@ -41,6 +54,7 @@ function writeDemoFlag(on: boolean) {
 
 function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SessionState>({ status: "loading" });
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -51,25 +65,33 @@ function SessionProvider({ children }: { children: ReactNode }) {
       setSession(next);
     };
 
-    const offline = async () =>
-      readDemoFlag() ? apply({ status: "ready", backend: await demoBackend(localDemoStorage()), email: null }) : apply({ status: "guest" });
+    // Бэкенд подгружается асинхронно: применяем только результат последней смены входа.
+    let generation = 0;
+    const applyLater = (load: () => Promise<SessionState>) => {
+      const mine = ++generation;
+      void load().then((next) => mine === generation && apply(next));
+    };
+    const offline = () =>
+      applyLater(async () => (readDemoFlag() ? { status: "ready", backend: await loadDemoBackend(), email: null } : { status: "guest" }));
 
     if (!hasBackend) {
-      void offline();
+      offline();
       return () => void (cancelled = true);
     }
     const db = supabase();
     let currentUser: string | null | undefined;
     // onAuthStateChange сразу сообщает текущую сессию (INITIAL_SESSION), затем входы и выходы.
-    const { data } = db.auth.onAuthStateChange((_event, s) => {
+    const { data } = db.auth.onAuthStateChange((event, s) => {
+      if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
       const uid = s?.user.id ?? null;
       if (uid === currentUser) return; // обновление токена — пересоздавать ничего не нужно
       currentUser = uid;
       if (s) {
         writeDemoFlag(false); // вошли в настоящий аккаунт — демо больше не нужно
-        apply({ status: "ready", backend: supabaseBackend(db, s.user.id), email: s.user.email ?? null });
+        const user = s.user;
+        applyLater(async () => ({ status: "ready", backend: await loadSupabaseBackend(user.id), email: user.email ?? null }));
       } else {
-        void offline();
+        offline();
       }
     });
     return () => {
@@ -80,7 +102,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
 
   const startDemo = useCallback(async () => {
     writeDemoFlag(true);
-    const backend = await demoBackend(localDemoStorage());
+    const backend = await loadDemoBackend();
     queryClient.clear();
     setSession({ status: "ready", backend, email: null });
   }, [queryClient]);
@@ -95,7 +117,11 @@ function SessionProvider({ children }: { children: ReactNode }) {
     if (hasBackend) await supabase().auth.signOut();
   }, [session, queryClient]);
 
-  const api = useMemo(() => ({ session, startDemo, signOut }), [session, startDemo, signOut]);
+  const finishPasswordRecovery = useCallback(() => setPasswordRecovery(false), []);
+  const api = useMemo(
+    () => ({ session, startDemo, signOut, passwordRecovery, finishPasswordRecovery }),
+    [session, startDemo, signOut, passwordRecovery, finishPasswordRecovery],
+  );
   return <SessionContext.Provider value={api}>{children}</SessionContext.Provider>;
 }
 

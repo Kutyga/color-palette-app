@@ -1,8 +1,8 @@
 "use client";
 
-/** Съёмка камерой устройства: полноэкранный видоискатель и поле «фото» для форм. */
+/** Съёмка камерой устройства: полноэкранный видоискатель и поле «фото» для форм (где можно — и из файлов). */
 
-import { Camera, RefreshCw, X } from "lucide-react";
+import { Camera, ImagePlus, RefreshCw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Кадр с видео — в JPEG не больше maxSide по длинной стороне. */
@@ -28,8 +28,8 @@ function cameraError(e: unknown): string {
 }
 
 /**
- * Съёмка прямо на сайте. Выбора файла из галереи нет намеренно: в коллекцию попадают только
- * растения, сфотографированные у себя дома, а не картинки из интернета.
+ * Съёмка прямо на сайте. В коллекцию попадают только растения, сфотографированные у себя дома,
+ * а не картинки из интернета — поэтому там выбора файла нет (см. CameraField allowFiles).
  */
 export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onClose: () => void; onCapture: (photo: Blob) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -131,18 +131,55 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
   );
 }
 
-/** Кнопка «Сфотографировать» с предпросмотром снимка. */
+/** Фото из файла — тоже в JPEG не больше maxSide по длинной стороне (как снимок с камеры). */
+async function fileToJpeg(file: File, maxSide = 1600, quality = 0.85): Promise<Blob> {
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    throw new Error("Не удалось открыть файл — выберите фото в формате JPEG или PNG.");
+  }
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Не удалось сохранить фото"))), "image/jpeg", quality),
+  );
+}
+
+/**
+ * Кнопка «Сфотографировать» с предпросмотром снимка. С allowFiles — ещё и «Выбрать из файлов»
+ * (объявления, розыгрыши, лента, осмотр). В свою коллекцию фото только с камеры.
+ */
 export function CameraField({
   photoUrl,
   onCapture,
   aspect = "aspect-square",
+  allowFiles = false,
 }: {
   photoUrl: string | null;
   onCapture: (photo: Blob) => void;
   /** Пропорции кадра-предпросмотра. */
   aspect?: string;
+  allowFiles?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function pickFile(file: File | undefined) {
+    if (!file) return;
+    setFileError(null);
+    try {
+      onCapture(await fileToJpeg(file));
+    } catch (e) {
+      setFileError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   return (
     <>
       <button
@@ -164,11 +201,40 @@ export function CameraField({
             <span className="flex flex-col items-center gap-2 px-6 text-center">
               <Camera className="size-10" strokeWidth={1.5} aria-hidden />
               <span className="text-label font-medium">Сфотографировать растение</span>
-              <span className="text-[13px]">Снимок делается прямо здесь — загрузка из галереи отключена</span>
+              <span className="text-[13px]">
+                {allowFiles ? "Или выберите готовое фото из файлов" : "Снимок делается прямо здесь — загрузка из галереи отключена"}
+              </span>
             </span>
           </span>
         )}
       </button>
+      {allowFiles && (
+        <>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="bg-muted mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-full font-semibold"
+          >
+            <ImagePlus className="size-5" aria-hidden /> Выбрать из файлов
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            aria-label="Фото из файлов"
+            onChange={(e) => {
+              void pickFile(e.target.files?.[0]);
+              e.target.value = ""; // тот же файл можно выбрать снова
+            }}
+          />
+          {fileError && (
+            <p className="text-alert mt-2 text-[14px]" role="alert">
+              {fileError}
+            </p>
+          )}
+        </>
+      )}
       <CameraCapture open={open} onClose={() => setOpen(false)} onCapture={onCapture} />
     </>
   );

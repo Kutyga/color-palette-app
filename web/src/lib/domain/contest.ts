@@ -3,11 +3,12 @@
  * участников равны. Проводить розыгрыш может любой садовод (одновременно — один), конкурсы
  * администратора закреплены сверху. Правила и расчёт совпадают с базой: supabase/migrations/*_contests.sql.
  */
+import { sameCity } from "./market";
 import { prettyUsername } from "./people";
 
 /** Правила участия — те же числа проверяет база. */
 export const CONTEST_RULES = {
-  /** Участвовать можно через столько дней после регистрации. */
+  /** Участвовать можно через столько дней после регистрации — или сразу, если профиль заполнен. */
   minAccountDays: 7,
   /** Столько часов у победителя, чтобы подтвердить «Забираю приз»; потом приз переходит следующему. */
   claimHours: 72,
@@ -205,3 +206,44 @@ export const participantFromRow = (r: Row): ContestParticipant => ({
   deliveredAt: dateOrNull(r.delivered_at),
   forfeitedAt: dateOrNull(r.forfeited_at),
 });
+
+/** Профиль заполнен: имя, город и пара слов о себе. С таким профилем участвовать можно сразу после регистрации. */
+export function profileComplete(p: { displayName: string | null; city: string | null; bio: string | null }): boolean {
+  return (p.displayName ?? "").trim().length >= 2 && (p.city ?? "").trim().length > 0 && (p.bio ?? "").trim().length > 0;
+}
+
+export interface ContestCheck {
+  ok: boolean;
+  label: string;
+  /** Куда перейти, чтобы выполнить условие. */
+  links: { href: string; label: string }[];
+}
+
+/**
+ * Условия участия для карточки розыгрыша (окончательно их проверяет сервер).
+ * Без недели ожидания участвует тот, у кого заполнен профиль или есть хотя бы одна публикация.
+ */
+export function contestChecks(
+  c: Pick<Contest, "delivery" | "city">,
+  me: { displayName: string | null; city: string | null; bio: string | null },
+  posts: number,
+): ContestCheck[] {
+  const checks: ContestCheck[] = [
+    {
+      ok: profileComplete(me) || posts > 0,
+      label: "Заполненный профиль (имя, город, пара слов о себе) или хотя бы одна публикация в ленте",
+      links: [
+        { href: "/profile/?edit=1", label: "Заполнить профиль" },
+        { href: "/feed/new/", label: "Написать пост" },
+      ],
+    },
+  ];
+  if (!c.delivery) {
+    checks.push({
+      ok: sameCity(me.city, c.city),
+      label: `Вы из города ${c.city} — приз без доставки`,
+      links: [{ href: "/profile/?edit=1", label: "Указать город" }],
+    });
+  }
+  return checks;
+}

@@ -11,7 +11,7 @@ import { RequireSession } from "@/components/app-shell";
 import { KindBadge, ReportSheet, listingPhoto } from "@/components/market";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
-import { Avatar, Button, EmptyState, ErrorNote, PlantPhoto, Sheet, Spinner, useToast } from "@/components/ui";
+import { Avatar, Button, EmptyState, ErrorNote, LARGE_PHOTO, PlantPhoto, Sheet, Spinner, useToast } from "@/components/ui";
 import { LISTING_STATUS, priceLabel, type Listing, type ListingStatus } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
@@ -146,7 +146,7 @@ function ListingView() {
     <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
       <div>
         <div className="relative overflow-hidden rounded-[28px]">
-          <PlantPhoto src={photo} seed={l.id} alt={l.title} className="aspect-square w-full" iconSize={64} />
+          <PlantPhoto src={photo} seed={l.id} alt={l.title} className="aspect-square w-full" iconSize={64} sizes={LARGE_PHOTO} />
           <KindBadge kind={l.kind} className="absolute top-3 left-3" />
         </div>
         {!l.photoUrls.length && photo && <p className="text-secondary mt-2 text-center text-[13px]">Фото вида из базы знаний</p>}

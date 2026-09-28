@@ -1,8 +1,11 @@
 "use client";
 
-/** Вход и регистрация по email и паролю; новый аккаунт подтверждается по ссылке из письма. */
+/**
+ * Вход и регистрация по email и паролю; новый аккаунт подтверждается по ссылке из письма.
+ * Забытый пароль: письмо со ссылкой ведёт сюда же, и после входа по ней задаётся новый пароль.
+ */
 
-import { MailCheck } from "lucide-react";
+import { KeyRound, MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type FormEvent } from "react";
@@ -19,7 +22,8 @@ function authMessage(e: unknown): string {
   if (/email not confirmed/i.test(m)) return "Почта ещё не подтверждена — откройте ссылку из письма.";
   if (/already registered/i.test(m)) return "Такой пользователь уже есть — войдите.";
   if (/password should be at least/i.test(m)) return "Пароль — минимум 6 символов.";
-  if (/rate limit/i.test(m)) return "Слишком много попыток, подождите минуту.";
+  if (/rate limit|for security purposes/i.test(m)) return "Слишком много попыток, подождите минуту.";
+  if (/different from the old password/i.test(m)) return "Новый пароль должен отличаться от старого.";
   if (/database error saving new user/i.test(m)) return "Это имя уже занято — выберите другое.";
   return m;
 }
@@ -27,20 +31,21 @@ function authMessage(e: unknown): string {
 function LoginForm() {
   const params = useSearchParams();
   const router = useRouter();
-  const { session, startDemo } = useSession();
+  const { session, startDemo, passwordRecovery, finishPasswordRecovery } = useSession();
   const next = params.get("next") ?? "/today/";
-  const [mode, setMode] = useState<"signin" | "signup">(params.get("mode") === "signup" ? "signup" : "signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(params.get("mode") === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resetSentTo, setResetSentTo] = useState<string | null>(null);
 
   const isLive = session.status === "ready" && session.backend.mode === "live";
   useEffect(() => {
-    if (isLive) router.replace(next);
-  }, [isLive, next, router]);
+    if (isLive && !passwordRecovery) router.replace(next);
+  }, [isLive, passwordRecovery, next, router]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -48,7 +53,13 @@ function LoginForm() {
     setError(null);
     try {
       const auth = supabase().auth;
-      if (mode === "signin") {
+      if (mode === "forgot") {
+        const { error } = await auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}${BASE_PATH}/login/`,
+        });
+        if (error) throw error;
+        setResetSentTo(email.trim());
+      } else if (mode === "signin") {
         const { error } = await auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       } else {
@@ -68,6 +79,40 @@ function LoginForm() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (passwordRecovery && isLive) {
+    return (
+      <NewPasswordForm
+        onDone={() => {
+          finishPasswordRecovery();
+          router.replace(next);
+        }}
+      />
+    );
+  }
+
+  if (resetSentTo) {
+    return (
+      <div className="text-center">
+        <MailCheck className="text-leaf mx-auto size-12" aria-hidden />
+        <h1 className="mt-4 text-[28px] font-bold">Проверьте почту</h1>
+        <p className="text-secondary mt-2">
+          Если на <b className="text-label">{resetSentTo}</b> есть аккаунт, туда пришло письмо со ссылкой. Откройте её — и задайте новый
+          пароль. Письма нет несколько минут — загляните в «Спам».
+        </p>
+        <Button
+          variant="secondary"
+          className="mt-6"
+          onClick={() => {
+            setResetSentTo(null);
+            setMode("signin");
+          }}
+        >
+          Вернуться ко входу
+        </Button>
+      </div>
+    );
   }
 
   if (sentTo) {
@@ -94,9 +139,15 @@ function LoginForm() {
 
   return (
     <>
-      <h1 className="text-center text-[28px] font-bold tracking-tight">{mode === "signin" ? "С возвращением" : "Создать аккаунт"}</h1>
+      <h1 className="text-center text-[28px] font-bold tracking-tight">
+        {mode === "signin" ? "С возвращением" : mode === "signup" ? "Создать аккаунт" : "Восстановить пароль"}
+      </h1>
       <p className="text-secondary mt-1 text-center">
-        {mode === "signin" ? "Войдите, чтобы увидеть свой сад" : "Растения синхронизируются между устройствами"}
+        {mode === "signin"
+          ? "Войдите, чтобы увидеть свой сад"
+          : mode === "signup"
+            ? "Растения синхронизируются между устройствами"
+            : "Пришлём на почту ссылку для нового пароля"}
       </p>
 
       {hasBackend ? (
@@ -111,17 +162,31 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </Field>
-          <Field label="Пароль" hint={mode === "signup" ? "Минимум 6 символов" : undefined}>
-            <input
-              className={inputClass}
-              type="password"
-              autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Field>
+          {mode !== "forgot" && (
+            <Field label="Пароль" hint={mode === "signup" ? "Минимум 6 символов" : undefined}>
+              <input
+                className={inputClass}
+                type="password"
+                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
+          )}
+          {mode === "signin" && (
+            <button
+              type="button"
+              className="text-secondary -mt-2 block text-[14px] underline"
+              onClick={() => {
+                setMode("forgot");
+                setError(null);
+              }}
+            >
+              Забыли пароль?
+            </button>
+          )}
           {mode === "signup" && (
             <Field label="Имя в ленте (необязательно)" hint="Латиница, цифры и _, от 3 до 30 символов">
               <input
@@ -139,7 +204,7 @@ function LoginForm() {
             </p>
           )}
           <Button type="submit" loading={busy} className="w-full">
-            {mode === "signin" ? "Войти" : "Зарегистрироваться"}
+            {mode === "signin" ? "Войти" : mode === "signup" ? "Зарегистрироваться" : "Прислать ссылку"}
           </Button>
           <button
             type="button"
@@ -149,7 +214,7 @@ function LoginForm() {
               setError(null);
             }}
           >
-            {mode === "signin" ? "Впервые здесь? Регистрация" : "Уже есть аккаунт? Войти"}
+            {mode === "signin" ? "Впервые здесь? Регистрация" : mode === "signup" ? "Уже есть аккаунт? Войти" : "Вспомнили? Войти"}
           </button>
         </form>
       ) : (
@@ -171,6 +236,73 @@ function LoginForm() {
       >
         Попробовать без регистрации
       </Button>
+    </>
+  );
+}
+
+/** Новый пароль после входа по ссылке из письма «Восстановить пароль». */
+function NewPasswordForm({ onDone }: { onDone: () => void }) {
+  const [password, setPassword] = useState("");
+  const [repeat, setRepeat] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (password !== repeat) {
+      setError("Пароли не совпадают.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const { error } = await supabase().auth.updateUser({ password });
+      if (error) throw error;
+      onDone();
+    } catch (err) {
+      setError(authMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <KeyRound className="text-leaf mx-auto size-12" aria-hidden />
+      <h1 className="mt-4 text-center text-[28px] font-bold tracking-tight">Новый пароль</h1>
+      <p className="text-secondary mt-1 text-center">Придумайте пароль — им вы будете входить дальше</p>
+      <form onSubmit={submit} className="mt-8 space-y-4">
+        <Field label="Новый пароль" hint="Минимум 6 символов">
+          <input
+            className={inputClass}
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Field>
+        <Field label="Ещё раз">
+          <input
+            className={inputClass}
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={6}
+            value={repeat}
+            onChange={(e) => setRepeat(e.target.value)}
+          />
+        </Field>
+        {error && (
+          <p className="bg-alert/10 text-alert rounded-xl px-4 py-3 text-[15px]" role="alert">
+            {error}
+          </p>
+        )}
+        <Button type="submit" loading={busy} className="w-full">
+          Сохранить пароль
+        </Button>
+      </form>
     </>
   );
 }

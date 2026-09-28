@@ -7,7 +7,7 @@ import { Camera } from "lucide-react";
 import { useState } from "react";
 import { CameraCapture } from "@/components/camera";
 import { useBackend } from "@/components/session";
-import { PlantPhoto, useToast } from "@/components/ui";
+import { LARGE_PHOTO, PlantPhoto, useToast } from "@/components/ui";
 import type { Plant } from "@/lib/domain/plant";
 import type { Species } from "@/lib/domain/species";
 
@@ -33,6 +33,7 @@ export function PlantHero({ plant, species }: { plant: Plant; species: Species |
         alt={plant.nickname}
         className="aspect-square w-full rounded-[28px]"
         iconSize={72}
+        sizes={LARGE_PHOTO}
       />
       {!plant.photoUrl && species?.image && (
         <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>

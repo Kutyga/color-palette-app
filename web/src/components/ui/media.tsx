@@ -24,24 +24,52 @@ function hash(s: string) {
 }
 
 /** Фото растения или мягкий градиент с листом, если фото ещё нет. */
+/** sizes для крупного фото во всю ширину карточки (страница растения, объявления, розыгрыша). */
+export const LARGE_PHOTO = "(max-width: 720px) 100vw, 720px";
+
+/** Стандартные ширины миниатюр Wikimedia Commons (другие ширины сервер отдаёт медленнее). */
+const WIKIMEDIA_WIDTHS = [250, 500, 960];
+const WIKIMEDIA_THUMB = /^(https:\/\/[a-z]+\.wikimedia\.org\/.+\/thumb\/.+\/)\d+px-([^/]+)$/;
+
+/** Для миниатюры Wikimedia — набор копий разной ширины, чтобы в списках не грузить большие картинки. */
+function wikimediaSrcSet(src: string): string | undefined {
+  const m = WIKIMEDIA_THUMB.exec(src);
+  return m ? WIKIMEDIA_WIDTHS.map((w) => `${m[1]}${w}px-${m[2]} ${w}w`).join(", ") : undefined;
+}
+
 export function PlantPhoto({
   src,
   seed,
   alt,
   className,
   iconSize = 32,
+  sizes = "240px",
 }: {
   src: string | null | undefined;
   seed: string;
   alt: string;
   className?: string;
   iconSize?: number;
+  /** Ширина картинки на экране (атрибут sizes): по ней браузер выбирает копию нужного размера. */
+  sizes?: string;
 }) {
   // Не загрузилось (нет сети, ссылка устарела) — показываем заглушку вместо «битой» картинки.
   const [failed, setFailed] = useState<string | null>(null);
   if (src && failed !== src) {
-    // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons
-    return <img src={src} alt={alt} className={cx("object-cover", className)} loading="lazy" onError={() => setFailed(src)} />;
+    const srcSet = wikimediaSrcSet(src);
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons
+      <img
+        src={src}
+        srcSet={srcSet}
+        sizes={srcSet ? sizes : undefined}
+        alt={alt}
+        className={cx("object-cover", className)}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(src)}
+      />
+    );
   }
   const [a, b] = GRADIENTS[hash(seed) % GRADIENTS.length];
   return (

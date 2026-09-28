@@ -853,6 +853,20 @@ do $$ begin
   raise exception 'аккаунт младше 7 дней не участвует';
 exception when check_violation then null;
 end $$;
+-- С заполненным профилем новый аккаунт участвует сразу (и может выйти).
+update public.profiles set display_name = 'Ваня', bio = 'Люблю фикусы'
+ where id = '00000000-0000-0000-0000-0000000000d8';
+select public.join_contest('60000000-0000-0000-0000-000000000001');
+do $$ begin
+  assert exists (select 1 from public.contest_entries where contest_id = '60000000-0000-0000-0000-000000000001'
+                   and user_id = '00000000-0000-0000-0000-0000000000d8'), 'заполненный профиль — участие без ожидания';
+end $$;
+select public.leave_contest('60000000-0000-0000-0000-000000000001');
+-- После первой публикации — тоже сразу.
+update public.profiles set bio = null where id = '00000000-0000-0000-0000-0000000000d8';
+insert into public.posts (text) values ('Мой первый пост');
+select public.join_contest('60000000-0000-0000-0000-000000000001');
+select public.leave_contest('60000000-0000-0000-0000-000000000001');
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d9';
 do $$ begin
   perform public.join_contest('60000000-0000-0000-0000-000000000001');

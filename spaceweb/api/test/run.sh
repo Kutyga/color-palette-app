@@ -35,16 +35,20 @@ PODOKONNIK_CONFIG="$WORK/config.php" php -d enable_post_data_reading=0 -S "127.0
 PHP_PID=$!
 for _ in $(seq 50); do curl -sf "http://127.0.0.1:$API_PORT/health" >/dev/null && break; sleep 0.1; done
 
+dst=(psql "$DST_URL" -X -q -v ON_ERROR_STOP=1 -At)
+echo "== До переключения API не отвечает (данные — в Supabase), планировщик молчит"
+code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$API_PORT/rest/v1/species?select=id&limit=1" -H "apikey: x")
+[ "$code" = 503 ] || { echo "до переключения API должен отвечать 503, а не $code" >&2; exit 1; }
+PODOKONNIK_CONFIG="$WORK/config.php" php "$ROOT/spaceweb/api/cron.php" | grep -q "ждёт переключения" \
+  || { echo "до переключения планировщик должен молчать" >&2; exit 1; }
+"${dst[@]}" -c "create table api.live (switched_at timestamptz not null default now())"
+
 API_URL="http://127.0.0.1:$API_PORT" MAIL_LOG="$WORK/mail.log" node "$ROOT/spaceweb/api/test/api.test.mjs" \
   || { echo "--- журнал PHP ---"; grep -v -E "Accepted|Closing" "$WORK/php.log" | tail -n 40; exit 1; }
 node "$ROOT/spaceweb/api/test/webpush.test.mjs"
 node "$ROOT/spaceweb/api/test/news.test.mjs"
 
 echo "== Планировщик (cron.php)"
-dst=(psql "$DST_URL" -X -q -v ON_ERROR_STOP=1 -At)
-PODOKONNIK_CONFIG="$WORK/config.php" php "$ROOT/spaceweb/api/cron.php" | grep -q "ждёт переключения" \
-  || { echo "до переключения планировщик должен молчать" >&2; exit 1; }
-"${dst[@]}" -c "create table api.live (switched_at timestamptz not null default now())"
 # Вызов своей функции через очередь net — как задание рассылки push из Supabase.
 "${dst[@]}" -c "set application_name = 'podokonnik-rls-bypass';
   select net.http_post(url := 'https://old.supabase.co/functions/v1/push',

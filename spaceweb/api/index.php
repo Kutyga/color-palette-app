@@ -36,6 +36,11 @@ try {
         Http::empty(204);
     }
     if (preg_match('#^(auth|rest|storage|functions)/v1/(.+)$#', $path, $m)) {
+        // Пока сайт работает на Supabase (нет отметки api.live), эта копия базы — только резерв:
+        // старые открытые вкладки не должны писать в неё и терять данные.
+        if (Db::value(Db::pdo(), "select to_regclass('api.live') is not null") !== true) {
+            throw new ApiError(503, 'Сайт обновился — перезагрузите страницу', 'site_moved');
+        }
         match ($m[1]) {
             'auth' => Auth::handle($method, $m[2]),
             'rest' => Rest::handle($method, $m[2]),
