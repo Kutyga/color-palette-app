@@ -10,8 +10,9 @@
  */
 final class Functions
 {
-    private const USER_DAILY_LIMIT = 20;
     private const TOTAL_DAILY_LIMIT = 450;
+    // Временно без отдельного лимита на пользователя; вернуть 20, когда понадобится.
+    private const USER_DAILY_LIMIT = self::TOTAL_DAILY_LIMIT;
     private const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
     private const SERVICE_USER = '00000000-0000-0000-0000-00000000000f';
     private const PUSH_SUBJECT = 'https://github.com/Kutyga/color-palette-app';
