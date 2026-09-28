@@ -146,7 +146,7 @@ function ListingView() {
     <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
       <div>
         <div className="relative overflow-hidden rounded-[28px]">
-          <PlantPhoto src={photo} seed={l.id} alt={l.title} className="aspect-square w-full" iconSize={64} sizes={LARGE_PHOTO} />
+          <PlantPhoto src={photo} seed={l.id} alt={l.title} className="aspect-square w-full" iconSize={64} sizes={LARGE_PHOTO} whole />
           <KindBadge kind={l.kind} className="absolute top-3 left-3" />
         </div>
         {!l.photoUrls.length && photo && <p className="text-secondary mt-2 text-center text-[13px]">Фото вида из базы знаний</p>}

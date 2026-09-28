@@ -23,7 +23,6 @@ function hash(s: string) {
   return Math.abs(h);
 }
 
-/** Фото растения или мягкий градиент с листом, если фото ещё нет. */
 /** sizes для крупного фото во всю ширину карточки (страница растения, объявления, розыгрыша). */
 export const LARGE_PHOTO = "(max-width: 720px) 100vw, 720px";
 
@@ -37,6 +36,10 @@ function wikimediaSrcSet(src: string): string | undefined {
   return m ? WIKIMEDIA_WIDTHS.map((w) => `${m[1]}${w}px-${m[2]} ${w}w`).join(", ") : undefined;
 }
 
+/**
+ * Фото растения или мягкий градиент с листом, если фото ещё нет. В списках фото заполняет
+ * рамку (края обрезаются); с whole — показывается целиком, свободное место — размытая копия.
+ */
 export function PlantPhoto({
   src,
   seed,
@@ -44,6 +47,7 @@ export function PlantPhoto({
   className,
   iconSize = 32,
   sizes = "240px",
+  whole = false,
 }: {
   src: string | null | undefined;
   seed: string;
@@ -52,11 +56,40 @@ export function PlantPhoto({
   iconSize?: number;
   /** Ширина картинки на экране (атрибут sizes): по ней браузер выбирает копию нужного размера. */
   sizes?: string;
+  /** Показать фото целиком, без обрезки (крупные фото: карточка растения, объявление, пост). */
+  whole?: boolean;
 }) {
   // Не загрузилось (нет сети, ссылка устарела) — показываем заглушку вместо «битой» картинки.
   const [failed, setFailed] = useState<string | null>(null);
   if (src && failed !== src) {
     const srcSet = wikimediaSrcSet(src);
+    if (whole) {
+      return (
+        <div className={cx("bg-muted relative overflow-hidden", className)}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- фон из той же картинки (браузер берёт её из кэша) */}
+          <img
+            src={src}
+            srcSet={srcSet}
+            sizes={srcSet ? sizes : undefined}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 size-full scale-110 object-cover opacity-50 blur-2xl"
+            loading="lazy"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons */}
+          <img
+            src={src}
+            srcSet={srcSet}
+            sizes={srcSet ? sizes : undefined}
+            alt={alt}
+            className="relative size-full object-contain"
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailed(src)}
+          />
+        </div>
+      );
+    }
     return (
       // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons
       <img

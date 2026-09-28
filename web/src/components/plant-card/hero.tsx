@@ -34,6 +34,7 @@ export function PlantHero({ plant, species }: { plant: Plant; species: Species |
         className="aspect-square w-full rounded-[28px]"
         iconSize={72}
         sizes={LARGE_PHOTO}
+        whole
       />
       {!plant.photoUrl && species?.image && (
         <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>

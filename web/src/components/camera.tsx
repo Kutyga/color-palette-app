@@ -5,13 +5,19 @@
 import { Camera, ImagePlus, RefreshCw, X, Zap, ZapOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Кадр с видео — в JPEG не больше maxSide по длинной стороне. */
-function grabFrame(video: HTMLVideoElement, maxSide = 1600, quality = 0.85): Promise<Blob> {
-  const scale = Math.min(1, maxSide / Math.max(video.videoWidth, video.videoHeight));
+/**
+ * Кадр с видео — ровно та рамка, что видна в видоискателе (по центру, пропорции ratio = ширина/высота),
+ * в JPEG не больше maxSide по длинной стороне. Так снимок не обрезается потом неожиданно.
+ */
+function grabFrame(video: HTMLVideoElement, ratio: number, maxSide = 1600, quality = 0.85): Promise<Blob> {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const [sw, sh] = vw / vh > ratio ? [vh * ratio, vh] : [vw, vw / ratio];
+  const scale = Math.min(1, maxSide / Math.max(sw, sh));
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(video.videoWidth * scale);
-  canvas.height = Math.round(video.videoHeight * scale);
-  canvas.getContext("2d")!.drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.width = Math.round(sw * scale);
+  canvas.height = Math.round(sh * scale);
+  canvas.getContext("2d")!.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, canvas.width, canvas.height);
   return new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Не удалось сохранить снимок"))), "image/jpeg", quality),
   );
@@ -31,7 +37,18 @@ function cameraError(e: unknown): string {
  * Съёмка прямо на сайте. В коллекцию попадают только растения, сфотографированные у себя дома,
  * а не картинки из интернета — поэтому там выбора файла нет (см. CameraField allowFiles).
  */
-export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onClose: () => void; onCapture: (photo: Blob) => void }) {
+export function CameraCapture({
+  open,
+  onClose,
+  onCapture,
+  ratio = 1,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCapture: (photo: Blob) => void;
+  /** Пропорции снимка (ширина/высота): рамка видоискателя и сохранённое фото совпадают. */
+  ratio?: number;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [facing, setFacing] = useState<"environment" | "user">("environment");
@@ -101,7 +118,7 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
     if (!video || !video.videoWidth) return;
     setShooting(true);
     try {
-      const blob = await grabFrame(video);
+      const blob = await grabFrame(video, ratio);
       stop();
       onCapture(blob);
       onClose();
@@ -121,8 +138,14 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
           <X className="size-5" />
         </button>
       </div>
-      <div className="relative min-h-0 flex-1">
-        <video ref={videoRef} playsInline muted className="size-full object-contain" aria-label="Видоискатель" />
+      <div className="relative grid min-h-0 flex-1 place-items-center">
+        {/* Видоискатель — ровно в пропорциях будущего снимка: что в рамке, то и сохранится. */}
+        <div
+          className="relative overflow-hidden rounded-2xl"
+          style={{ aspectRatio: ratio, width: `min(100%, calc((100dvh - 15rem) * ${ratio}))` }}
+        >
+          <video ref={videoRef} playsInline muted className="size-full object-cover" aria-label="Видоискатель" />
+        </div>
         {error && (
           <div className="absolute inset-0 grid place-items-center p-6 text-center">
             <p className="max-w-sm text-[17px]">{error}</p>
@@ -253,7 +276,7 @@ export function CameraField({
         {photoUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- локальный предпросмотр снимка */}
-            <img src={photoUrl} alt="Фото растения" className={`${aspect} w-full object-cover`} />
+            <img src={photoUrl} alt="Фото растения" className={`${aspect} bg-muted w-full object-contain`} />
             <span className="glass text-label absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold">
               <Camera className="size-4" aria-hidden /> Переснять
             </span>
@@ -297,7 +320,7 @@ export function CameraField({
           )}
         </>
       )}
-      <CameraCapture open={open} onClose={() => setOpen(false)} onCapture={onCapture} />
+      <CameraCapture open={open} onClose={() => setOpen(false)} onCapture={onCapture} ratio={aspect.includes("4/3") ? 4 / 3 : 1} />
     </>
   );
 }

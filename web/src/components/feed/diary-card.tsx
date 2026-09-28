@@ -43,6 +43,7 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
           alt={post.plantName ?? "Фото растения"}
           className="mt-3 aspect-[4/3] w-full"
           iconSize={48}
+          whole
         />
       )}
       {post.text && <p className="px-4 pt-3 text-[15px] leading-relaxed whitespace-pre-line">{post.text}</p>}
