@@ -50,10 +50,11 @@ Workflow `.github/workflows/deploy-spaceweb.yml` после каждого из�
 сайт для корня домена и выкладывает его по SSH (`rsync`). GitHub Pages продолжает работать
 параллельно. Один раз:
 
-1. **Ключ для выкладки** — на своём компьютере: `ssh-keygen -t ed25519 -f spaceweb_deploy -N ""`.
-   Содержимое `spaceweb_deploy.pub` добавить в панели SpaceWeb → SSH-доступ (или в
-   `~/.ssh/authorized_keys` на хостинге), содержимое `spaceweb_deploy` — в GitHub как секрет
-   `SPACEWEB_SSH_KEY`. Файл закрытого ключа после этого удалить.
+1. **Доступ по SSH** — проще всего по паролю, можно с телефона: в GitHub (Settings → Secrets and
+   variables → Actions → Secrets) добавить секрет `SPACEWEB_PASSWORD` — пароль SSH из панели
+   SpaceWeb. Надёжнее ключ: `ssh-keygen -t ed25519 -f spaceweb_deploy -N ""` на компьютере,
+   `spaceweb_deploy.pub` — в панель SpaceWeb → SSH-доступ, `spaceweb_deploy` — в секрет
+   `SPACEWEB_SSH_KEY` (если заданы оба, используется ключ).
 2. **Переменные** (Settings → Secrets and variables → Actions → Variables): `SPACEWEB_HOST`,
    `SPACEWEB_USER`, `SPACEWEB_PATH` (папка сайта, например `~/example.ru/public_html`), при
    нестандартном порте — `SPACEWEB_PORT`. Папка должна быть отдельной: лишние файлы в ней удаляются.

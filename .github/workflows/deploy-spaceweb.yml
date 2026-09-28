@@ -8,7 +8,9 @@ name: deploy-spaceweb
 #              SPACEWEB_USER — логин SSH;
 #              SPACEWEB_PATH — папка сайта на хостинге, например ~/example.ru/public_html;
 #              SPACEWEB_PORT — порт SSH, если не 22 (необязательно).
-#   Secret:    SPACEWEB_SSH_KEY — закрытый ключ; открытый добавлен в панели SpaceWeb → SSH-доступ.
+#   Secret:    SPACEWEB_PASSWORD — пароль SSH из панели SpaceWeb (проще всего, можно с телефона)
+#              или SPACEWEB_SSH_KEY — закрытый ключ, открытый добавлен в панели SpaceWeb → SSH-доступ.
+#              Если заданы оба, используется ключ.
 # Пока SPACEWEB_HOST не задан, workflow пропускается.
 #
 # Откат: Actions → deploy-spaceweb → Run workflow, в поле «ref» — коммит или тег прошлой версии.
@@ -52,25 +54,35 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
-      - name: Ключ SSH
+      - name: Доступ по SSH
         env:
           SSH_KEY: ${{ secrets.SPACEWEB_SSH_KEY }}
+          SSH_PASSWORD: ${{ secrets.SPACEWEB_PASSWORD }}
           SSH_HOST: ${{ vars.SPACEWEB_HOST }}
           SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          if [ -n "$SSH_KEY" ]; then
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+            chmod 600 ~/.ssh/id_deploy
+            echo "SSH_CMD=ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT" >> "$GITHUB_ENV"
+          elif [ -n "$SSH_PASSWORD" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq sshpass >/dev/null
+            # sshpass -e читает пароль из переменной SSHPASS — в командной строке и логах его нет.
+            echo "SSH_CMD=sshpass -e ssh -p $SSH_PORT -o PubkeyAuthentication=no" >> "$GITHUB_ENV"
+          else
+            echo "::error::Задайте секрет SPACEWEB_PASSWORD или SPACEWEB_SSH_KEY"
+            exit 1
+          fi
       # Отправляются только изменённые файлы; --delete убирает файлы старых версий,
       # сертификаты (.well-known) не трогаем. Папка сайта должна быть только под «Подоконник».
       - name: Выкладка
         env:
           SSH_HOST: ${{ vars.SPACEWEB_HOST }}
           SSH_USER: ${{ vars.SPACEWEB_USER }}
-          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
           TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
         run: |
-          rsync -rltz --delete --exclude ".well-known/" \
-            -e "ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT" \
+          rsync -rltz --delete --exclude ".well-known/" -e "$SSH_CMD" \
             out/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
