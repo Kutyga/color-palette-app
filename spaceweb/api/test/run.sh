@@ -36,4 +36,26 @@ PHP_PID=$!
 for _ in $(seq 50); do curl -sf "http://127.0.0.1:$API_PORT/health" >/dev/null && break; sleep 0.1; done
 
 API_URL="http://127.0.0.1:$API_PORT" MAIL_LOG="$WORK/mail.log" node "$ROOT/spaceweb/api/test/api.test.mjs" \
-  || { echo "--- журнал PHP ---"; tail -n 40 "$WORK/php.log"; exit 1; }
+  || { echo "--- журнал PHP ---"; grep -v -E "Accepted|Closing" "$WORK/php.log" | tail -n 40; exit 1; }
+node "$ROOT/spaceweb/api/test/webpush.test.mjs"
+node "$ROOT/spaceweb/api/test/news.test.mjs"
+
+echo "== Планировщик (cron.php)"
+dst=(psql "$DST_URL" -X -q -v ON_ERROR_STOP=1 -At)
+PODOKONNIK_CONFIG="$WORK/config.php" php "$ROOT/spaceweb/api/cron.php" | grep -q "ждёт переключения" \
+  || { echo "до переключения планировщик должен молчать" >&2; exit 1; }
+"${dst[@]}" -c "create table api.live (switched_at timestamptz not null default now())"
+# Вызов своей функции через очередь net — как задание рассылки push из Supabase.
+"${dst[@]}" -c "set application_name = 'podokonnik-rls-bypass';
+  select net.http_post(url := 'https://old.supabase.co/functions/v1/push',
+    headers := jsonb_build_object('x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'push_send_secret')),
+    body := '{\"action\":\"send\"}'::jsonb)" >/dev/null
+PODOKONNIK_CONFIG="$WORK/config.php" php "$ROOT/spaceweb/api/cron.php"
+jobs=$("${dst[@]}" -c "select string_agg(jobname || '=' || coalesce(last_status, 'не запускалось'), ' ' order by jobname) from cron.job")
+queue=$("${dst[@]}" -c "select string_agg(status_code::text || coalesce(':' || error, ''), ' ') from net.http_request_queue")
+echo "задания: $jobs; очередь: $queue"
+case "$jobs" in *failed*|*не\ запускалось*) echo "задания не выполнились" >&2; exit 1 ;; esac
+[ "$queue" = 200 ] || { echo "очередь net не разобрана" >&2; exit 1; }
+# Второй запуск в ту же минуту ничего не повторяет.
+PODOKONNIK_CONFIG="$WORK/config.php" php "$ROOT/spaceweb/api/cron.php" | grep -q '"jobs":\[\]' || { echo "повторный запуск" >&2; exit 1; }
+echo "cron: OK"

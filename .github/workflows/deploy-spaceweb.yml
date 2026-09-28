@@ -160,7 +160,24 @@ jobs:
         env:
           DB_PASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
           SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
         run: |
+          # Планировщик: PHP для командной строки с драйвером PostgreSQL и пробный запуск cron.php.
+          cron_php=""
+          for v in 8.5 8.4 8.3; do
+            if $SSH_CMD "$SSH_USER@$SSH_HOST" "php$v -r 'exit(extension_loaded(\"pdo_pgsql\") ? 0 : 1);'" 2>/dev/null; then
+              cron_php="/usr/bin/php$v"; break
+            fi
+          done
+          if [ -n "$cron_php" ]; then
+            echo "cron.php: $($SSH_CMD "$SSH_USER@$SSH_HOST" "$cron_php $TARGET_DIR/api/cron.php" 2>&1 | tail -n 1)"
+            echo "Команда для планировщика в панели SpaceWeb (каждую минуту): $cron_php $TARGET_DIR/api/cron.php"
+          else
+            echo "::warning::На хостинге нет PHP для командной строки с pdo_pgsql — планировщик не запустится"
+          fi
           # Пока нет сертификата — проверяем по http; ошибка API не мешает выкладке сайта.
           body=$(curl -sk --max-time 20 "${SITE_URL/https:/http:}/api/health" || true)
           echo "api/health: $body"
