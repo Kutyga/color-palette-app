@@ -173,6 +173,24 @@ test("фото: загрузка в свою папку, подписанная 
   assert.ok(anon.error, "аноним ничего не загружает");
 });
 
+test("функции: push-ключ, закрытая рассылка, распознавание и чтение новостей", async () => {
+  const anon = client();
+  const first = ok(await anon.functions.invoke("push", { body: { action: "config" } }));
+  assert.match(first.publicKey, /^[A-Za-z0-9_-]{80,90}$/, "открытый VAPID-ключ создан");
+  const again = ok(await anon.functions.invoke("push", { body: { action: "config" } }));
+  assert.equal(again.publicKey, first.publicKey, "ключ не меняется");
+  const send = await anon.functions.invoke("push", { body: { action: "send" } });
+  assert.equal(send.error?.context?.status, 403, "рассылка — только по секрету планировщика");
+
+  const noUser = await anon.functions.invoke("identify-plant", { body: { image_base64: "AAAA", mode: "species" } });
+  assert.equal(noUser.error?.context?.status, 401);
+  const alice = await signedIn("alice@example.com");
+  const noKey = await alice.functions.invoke("identify-plant", { body: { image_base64: "/9j/4AAQ", mode: "species" } });
+  assert.equal(noKey.error?.context?.status, 503, "квота посчитана, ключа Pl@ntNet в тестовой базе нет");
+  const reader = await alice.functions.invoke("news-reader", { body: { id: "00000000-0000-0000-0000-0000000000ee" } });
+  assert.equal(reader.error?.context?.status, 404);
+});
+
 test("продление и выход", async () => {
   const db = await signedIn("alice@example.com");
   const { data, error } = await db.auth.refreshSession();

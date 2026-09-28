@@ -13,6 +13,10 @@ require __DIR__ . '/lib/Schema.php';
 require __DIR__ . '/lib/Auth.php';
 require __DIR__ . '/lib/Rest.php';
 require __DIR__ . '/lib/Storage.php';
+require __DIR__ . '/lib/Fetch.php';
+require __DIR__ . '/lib/WebPush.php';
+require __DIR__ . '/lib/News.php';
+require __DIR__ . '/lib/Functions.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -36,7 +40,7 @@ try {
             'auth' => Auth::handle($method, $m[2]),
             'rest' => Rest::handle($method, $m[2]),
             'storage' => Storage::handle($method, $m[2]),
-            default => throw new ApiError(501, 'Ещё не перенесено на SpaceWeb', 'not_implemented'),
+            'functions' => Functions::handle($method, $m[2]),
         };
     }
     if ($path === '' || $path === 'health') {
