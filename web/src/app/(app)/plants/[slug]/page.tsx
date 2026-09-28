@@ -67,6 +67,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
             className="aspect-square w-full rounded-[28px]"
             iconSize={72}
             sizes={LARGE_PHOTO}
+            whole
           />
           {s.image && (
             <figcaption className="mt-2 px-1">

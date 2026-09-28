@@ -118,7 +118,7 @@ function ContestView({ id }: { id: string }) {
 
       <Card className="overflow-hidden">
         {c.photoUrl && (
-          <PlantPhoto src={c.photoUrl} seed={c.id} alt={c.prize} className="aspect-[4/3] w-full" iconSize={48} sizes={LARGE_PHOTO} />
+          <PlantPhoto src={c.photoUrl} seed={c.id} alt={c.prize} className="aspect-[4/3] w-full" iconSize={48} sizes={LARGE_PHOTO} whole />
         )}
         <div className="p-5">
           <p className="text-secondary flex items-center gap-1 text-[13px] font-medium">

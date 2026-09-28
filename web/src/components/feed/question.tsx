@@ -83,6 +83,7 @@ export function QuestionHeader({ post, onDeleted }: { post: FeedPost; onDeleted?
           className="mt-3 aspect-[4/3] w-full"
           iconSize={48}
           sizes={LARGE_PHOTO}
+          whole
         />
       ) : (
         <div className="h-4" />
