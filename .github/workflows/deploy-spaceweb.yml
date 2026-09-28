@@ -75,6 +75,23 @@ jobs:
             echo "::error::Задайте секрет SPACEWEB_PASSWORD или SPACEWEB_SSH_KEY"
             exit 1
           fi
+      # Понятная ошибка вместо «connection unexpectedly closed»: вход, наличие rsync на сервере.
+      - name: Проверка подключения
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+        run: |
+          set +e
+          $SSH_CMD -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" "command -v rsync >/dev/null || exit 42"
+          code=$?
+          case $code in
+            0) echo "Подключение и rsync на сервере — в порядке" ;;
+            5) echo "::error::Неверный пароль SSH: обновите секрет SPACEWEB_PASSWORD"; exit 1 ;;
+            42) echo "::error::На сервере нет rsync — обратитесь в поддержку SpaceWeb"; exit 1 ;;
+            255) echo "::error::Сервер не принял подключение: проверьте SPACEWEB_HOST, SPACEWEB_USER, пароль или ключ и что SSH включён в панели"; exit 1 ;;
+            *) echo "::error::Подключение не удалось (код $code)"; exit 1 ;;
+          esac
       # Отправляются только изменённые файлы; --delete убирает файлы старых версий,
       # сертификаты (.well-known) не трогаем. Папка сайта должна быть только под «Подоконник».
       - name: Выкладка
