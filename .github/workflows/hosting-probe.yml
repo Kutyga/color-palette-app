@@ -46,11 +46,18 @@ jobs:
           for f in /proc/net/tcp /proc/net/tcp6; do awk 'NR>1 && $4=="0A" {split($2,a,":"); print strtonum("0x" a[2])}' $f 2>/dev/null; done | sort -nu | tr '\n' ' '; echo
           echo "== Имена серверов"
           for h in pgsql postgres postgresql pg.sweb.ru pg4.sweb.ru; do getent hosts $h; done
-          try() {
-            out=$(psql "host=$1 port=$2 dbname=$DB_NAME user=$DB_USER connect_timeout=5 sslmode=prefer" -XAtc "select version(); show server_encoding; show lc_collate; select string_agg(name, ', ' order by name) from pg_available_extensions where name in ('pgcrypto','uuid-ossp','pg_trgm','citext','unaccent','plpgsql'); select current_user, has_database_privilege(current_database(),'CREATE');" 2>&1)
-            echo "-- $1:$2"; echo "$out" | head -n 8
-          }
-          try "$DB_HOST" "$DB_PORT"
+          q() { psql "host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER connect_timeout=5" -XAt -c "$1" 2>&1 | head -n 5; }
+          echo "-- $DB_HOST:$DB_PORT"
+          q "select version()"
+          q "select 'кодировка ' || pg_encoding_to_char(encoding) || ', сортировка ' || datcollate from pg_database where datname = current_database()"
+          q "select 'пользователь ' || current_user || ', суперпользователь: ' || usesuper || ', создавать схемы: ' || has_database_privilege(current_database(),'CREATE') from pg_user where usename = current_user"
+          q "select 'расширения доступны: ' || string_agg(name || coalesce(' (' || installed_version || ')', ''), ', ' order by name) from pg_available_extensions where name in ('pgcrypto','uuid-ossp','pg_trgm','citext','unaccent','pg_cron','pg_net','http')"
+          q "select 'схемы: ' || string_agg(nspname, ', ') from pg_namespace where nspname not like 'pg_%' and nspname <> 'information_schema'"
+          q "select 'лимит подключений: ' || rolconnlimit from pg_roles where rolname = current_user"
+          echo "-- пробная запись (сразу откатывается)"
+          q "begin; create schema probe_tmp; create function probe_tmp.f() returns uuid language plpgsql as \$\$ begin return gen_random_uuid(); end \$\$; select 'plpgsql и gen_random_uuid: ' || (probe_tmp.f() is not null); rollback;"
+          q "begin; create extension if not exists pgcrypto; select 'pgcrypto: можно'; rollback;"
+          q "begin; create extension if not exists pg_trgm; select 'pg_trgm: можно'; rollback;"
           EOF
           } | sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no "$SSH_USER@$SSH_HOST" 'IFS= read -r PGPASSWORD; export PGPASSWORD; bash -s'
       - name: База Supabase
