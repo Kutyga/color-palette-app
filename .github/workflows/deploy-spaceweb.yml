@@ -184,6 +184,8 @@ jobs:
         if: env.API_ENABLED == 'true'
         env:
           DB_PASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          PGPASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          DST_URL: host=${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }} port=${{ vars.SPACEWEB_DB_PORT || '5433' }} dbname=${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }} user=${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }} connect_timeout=15
           SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
           SSH_HOST: ${{ vars.SPACEWEB_HOST }}
           SSH_USER: ${{ vars.SPACEWEB_USER }}
@@ -212,3 +214,26 @@ jobs:
             *'"php":"5.'*|*'"php":"7.'*) echo "::warning::Для сайта выбрана старая версия PHP — выберите PHP 8.3 в панели SpaceWeb" ;;
             *) echo "::warning::API не отвечает как ожидалось — нужна версия PHP 8.3 для сайта в панели SpaceWeb" ;;
           esac
+          # Распознавание по фото: настоящее фото из хранилища, вызов со служебным секретом (без квоты
+          # пользователя). В журнал — только коды ответа и тексты ошибок сервисов, без ключей.
+          live=$(PGAPPNAME=podokonnik-rls-bypass psql "$DST_URL" -XAtc "select to_regclass('api.live') is not null" 2>/dev/null || true)
+          if [ "$live" = t ]; then
+            secret=$(PGAPPNAME=podokonnik-rls-bypass psql "$DST_URL" -XAtc \
+              "select decrypted_secret from vault.decrypted_secrets where name = 'news_ingest_secret'")
+            echo "::add-mask::$secret"
+            photo=$($SSH_CMD "$SSH_USER@$SSH_HOST" "find '$(dirname "$TARGET_DIR")/podokonnik-storage' -type f -size +20k | head -n 1")
+            if [ -n "$photo" ] && [ -n "$secret" ]; then
+              $SSH_CMD "$SSH_USER@$SSH_HOST" "cat '$photo'" > probe.jpg
+              for mode in species diseases; do
+                jq -n --arg img "$(base64 -w0 probe.jpg)" --arg mode "$mode" '{image_base64: $img, mode: $mode}' > probe.json
+                res=$(curl -s --max-time 60 -X POST "${SITE_URL/https:/http:}/api/functions/v1/identify-plant" \
+                  -H "content-type: application/json" -H "x-cron-secret: $secret" --data-binary @probe.json -w '\n%{http_code}' || true)
+                code=$(tail -n 1 <<<"$res")
+                echo "Распознавание ($mode): HTTP $code — $(head -n -1 <<<"$res" | head -c 600)"
+                [ "$code" = 200 ] || echo "::warning::Распознавание ($mode) не работает: HTTP $code"
+              done
+              rm -f probe.jpg probe.json
+            else
+              echo "::warning::Распознавание не проверено: нет фото в хранилище или секрета"
+            fi
+          fi

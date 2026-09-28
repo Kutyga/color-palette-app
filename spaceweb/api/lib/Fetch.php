@@ -44,7 +44,8 @@ final class Fetch
         $error = curl_errno($ch);
         curl_close($ch);
         if ($error !== 0 && !($maxBytes > 0 && strlen($received) > $maxBytes)) {
-            throw new RuntimeException("$url: curl $error");
+            // Без строки запроса: в ней бывают ключи (Pl@ntNet), а текст ошибки уходит в журналы.
+            throw new RuntimeException(strtok($url, '?') . ": curl $error " . curl_strerror($error));
         }
         return ['status' => $status, 'body' => $received, 'headers' => $respHeaders, 'url' => $effective ?: $url,
                 'truncated' => $maxBytes > 0 && strlen($received) > $maxBytes];
