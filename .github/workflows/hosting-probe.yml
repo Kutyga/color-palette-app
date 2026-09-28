@@ -23,8 +23,8 @@ jobs:
           SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
           SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
           DB_PASS: ${{ secrets.SPACEWEB_DB_PASSWORD }}
-          DB_HOST: ${{ vars.SPACEWEB_DB_HOST }}
-          DB_PORT: ${{ vars.SPACEWEB_DB_PORT }}
+          DB_HOST: ${{ vars.SPACEWEB_DB_HOST || 'pg.sweb.ru' }}
+          DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5432' }}
           DB_NAME: ${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }}
           DB_USER: ${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }}
         run: |
@@ -46,7 +46,7 @@ jobs:
             out=$(psql "host=$1 port=$2 dbname=$DB_NAME user=$DB_USER connect_timeout=5 sslmode=prefer" -XAtc "select version(); show server_encoding; show lc_collate; select string_agg(name, ', ' order by name) from pg_available_extensions where name in ('pgcrypto','uuid-ossp','pg_trgm','citext','unaccent','plpgsql'); select current_user, has_database_privilege(current_database(),'CREATE');" 2>&1)
             echo "-- $1:$2"; echo "$out" | head -n 8
           }
-          for h in ${DB_HOST:-} pg.sweb.ru localhost; do [ -n "$h" ] || continue; for p in ${DB_PORT:-} 5432 5433 6432; do try $h $p; done; done
+          try "$DB_HOST" "$DB_PORT"
           EOF
           } | sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no "$SSH_USER@$SSH_HOST" 'IFS= read -r PGPASSWORD; export PGPASSWORD; bash -s'
       - name: База Supabase
@@ -55,4 +55,4 @@ jobs:
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then echo "Секрет SUPABASE_DB_URL: НЕТ"; exit 0; fi
           sudo apt-get install -y -qq postgresql-client >/dev/null
-          psql "$SUPABASE_DB_URL" -XAtc "select 'Supabase: подключение есть, ' || version()" 2>&1 | sed -E 's#postgres(ql)?://[^ ]*#<url>#g' | head -n 3
+          psql "$SUPABASE_DB_URL" -XAtc "select 'Supabase: подключение есть, ' || version(); select 'размер базы: ' || pg_size_pretty(pg_database_size(current_database())); select 'пользователей: ' || count(*) from auth.users; select 'файлов: ' || count(*) || ', ' || pg_size_pretty(coalesce(sum((metadata->>'size')::bigint),0)) from storage.objects" 2>&1 | sed -E 's#postgres(ql)?://[^ ]*#<url>#g' | head -n 3
