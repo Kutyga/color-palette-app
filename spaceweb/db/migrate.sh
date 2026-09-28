@@ -56,15 +56,15 @@ echo "таблицы и функции: $(grep -c '^CREATE' "$WORK/pre.sql") о�
 step "Служебные схемы (auth, storage, vault, cron, net)"
 dst -f "$HERE/platform.sql" >/dev/null
 step "Таблицы и функции"
-dst -f "$WORK/pre.sql"
+dst -f "$WORK/pre.sql" >/dev/null
 step "Пользователи, файлы, секреты, расписание, права API"
-dst -f "$WORK/extras.sql"
+dst -f "$WORK/extras.sql" >/dev/null
 step "Данные"
-dst -f "$WORK/data.sql"
+dst -f "$WORK/data.sql" >/dev/null
 step "Индексы, ключи, триггеры"
-dst -f "$WORK/post.sql"
+dst -f "$WORK/post.sql" >/dev/null
 step "Правила RLS"
-dst -f "$WORK/policies.sql"
+dst -f "$WORK/policies.sql" >/dev/null
 step "Принудительный RLS и пропуск для security definer"
 dst -f "$HERE/harden.sql" >/dev/null
 
