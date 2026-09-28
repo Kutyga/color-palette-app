@@ -2,7 +2,7 @@
 
 /** Съёмка камерой устройства: полноэкранный видоискатель и поле «фото» для форм (где можно — и из файлов). */
 
-import { Camera, ImagePlus, RefreshCw, X } from "lucide-react";
+import { Camera, ImagePlus, RefreshCw, X, Zap, ZapOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Кадр с видео — в JPEG не больше maxSide по длинной стороне. */
@@ -38,6 +38,12 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [shooting, setShooting] = useState(false);
+  // Вспышка (фонарик камеры): есть не на всех телефонах и не во всех браузерах — кнопка только там, где работает.
+  const [torch, setTorch] = useState<{ supported: boolean; on: boolean }>({ supported: false, on: false });
+  // iPhone не даёт сайту включать вспышку, но системная камера (input capture) с ней работает и
+  // открывается сразу на съёмку, без галереи — правило «только снимок» сохраняется.
+  const [ios] = useState(() => typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent));
+  const systemCameraRef = useRef<HTMLInputElement>(null);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -65,6 +71,8 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
         const video = videoRef.current!;
         video.srcObject = stream;
         await video.play().catch(() => {});
+        const caps = stream.getVideoTracks()[0]?.getCapabilities?.() as { torch?: boolean } | undefined;
+        setTorch({ supported: caps?.torch === true, on: false });
         setReady(true);
       } catch (e) {
         if (!cancelled) setError(cameraError(e));
@@ -75,6 +83,18 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
       stop();
     };
   }, [open, facing, stop]);
+
+  async function toggleTorch() {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    const on = !torch.on;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: on } as MediaTrackConstraintSet] });
+      setTorch({ supported: true, on });
+    } catch {
+      setTorch({ supported: false, on: false }); // телефон отказал — прячем кнопку
+    }
+  }
 
   async function shoot() {
     const video = videoRef.current;
@@ -110,7 +130,49 @@ export function CameraCapture({ open, onClose, onCapture }: { open: boolean; onC
         )}
       </div>
       <div className="flex items-center justify-center gap-8 p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-        <span className="size-12" aria-hidden />
+        {torch.supported ? (
+          <button
+            onClick={toggleTorch}
+            className={`grid size-12 place-items-center rounded-full ${torch.on ? "bg-white text-black" : "bg-white/15"}`}
+            aria-label={torch.on ? "Выключить вспышку" : "Включить вспышку"}
+            aria-pressed={torch.on}
+          >
+            {torch.on ? <Zap className="size-5" /> : <ZapOff className="size-5" />}
+          </button>
+        ) : ios ? (
+          <>
+            <button
+              onClick={() => systemCameraRef.current?.click()}
+              className="grid size-12 place-items-center rounded-full bg-white/15"
+              aria-label="Системная камера со вспышкой"
+            >
+              <Zap className="size-5" />
+            </button>
+            <input
+              ref={systemCameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              aria-label="Снимок системной камерой"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                try {
+                  const blob = await fileToJpeg(file);
+                  stop();
+                  onCapture(blob);
+                  onClose();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : String(err));
+                }
+              }}
+            />
+          </>
+        ) : (
+          <span className="size-12" aria-hidden />
+        )}
         <button
           onClick={shoot}
           disabled={!ready || shooting}
