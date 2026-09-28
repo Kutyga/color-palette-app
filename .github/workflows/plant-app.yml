@@ -78,3 +78,8 @@ jobs:
           coverage: none
       - name: API на локальном Postgres
         run: spaceweb/api/test/run.sh
+      # Сайт целиком на своём сервере: сборка с /api, вход и страницы в браузере — без ошибок API.
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Сайт на PHP-API (браузер)
+        run: spaceweb/api/test/site-smoke.sh

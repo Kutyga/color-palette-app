@@ -1,8 +1,9 @@
 // Снимок базы знаний для сборки сайта: страницы видов генерируются заранее (их индексируют
 // поисковики), а демо-режим работает с полной базой без сервера.
 //
-//   node scripts/sync-species.mjs                 — из Supabase (NEXT_PUBLIC_SUPABASE_URL и
-//                                                   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
+//   node scripts/sync-species.mjs                 — из API (NEXT_PUBLIC_SUPABASE_URL и
+//                                                   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY; для «/api» —
+//                                                   полный адрес в SPECIES_SYNC_URL)
 //   node scripts/sync-species.mjs --from rows.json [--soil-from mixes.json]
 //                                                — из выгрузки psql (формат как у PostgREST)
 //
@@ -21,7 +22,9 @@ const arg = (name) => {
 
 async function load(file, path) {
   if (arg("--from")) return file ? JSON.parse(readFileSync(file, "utf8")) : null;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Относительный адрес API (свой сервер) при сборке недоступен — тогда полный адрес в SPECIES_SYNC_URL.
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = raw?.startsWith("/") ? process.env.SPECIES_SYNC_URL : raw;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) {
     console.log("sync-species: нет адреса Supabase — используем сохранённый снимок");
