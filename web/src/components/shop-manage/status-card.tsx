@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * Карточка статуса магазина: этап проверки, комментарий модератора, переход к витрине.
+ * Карточка статуса магазина: этап проверки, комментарий модератора, переход к витрине, удаление.
  */
 
-import { BadgeCheck, Store } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BadgeCheck, Store, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "@/components/session";
+import { useState } from "react";
+import { useBackend, useSession } from "@/components/session";
 import { ShopStatusPill, shopHref } from "@/components/shops";
-import { Button, Card } from "@/components/ui";
+import { Button, Card, useToast } from "@/components/ui";
 import type { Shop } from "@/lib/domain/shop";
 
 const STATUS_TEXT: Record<Shop["status"], string> = {
@@ -47,6 +49,49 @@ export function StatusCard({ shop, onEdit }: { shop: Shop; onEdit: () => void })
           Изменить анкету
         </Button>
       </div>
+      <DeleteShop />
     </Card>
+  );
+}
+
+/** Удаление магазина: с подтверждением, каталог удаляется вместе с ним. */
+function DeleteShop() {
+  const backend = useBackend();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [confirming, setConfirming] = useState(false);
+  const remove = useMutation({
+    mutationFn: () => backend.shops.deleteShop(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["shops"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+      toast("Магазин удалён");
+    },
+    onError: (e) => toast(e.message),
+  });
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="text-alert mt-3 flex items-center gap-1.5 text-[15px] font-medium"
+      >
+        <Trash2 className="size-4" aria-hidden /> Удалить магазин
+      </button>
+    );
+  }
+  return (
+    <div className="bg-alert/10 mt-4 rounded-2xl p-4" role="alert">
+      <p className="font-semibold">Удалить магазин навсегда?</p>
+      <p className="text-secondary mt-1 text-[15px]">Витрина и весь каталог исчезнут, восстановить их будет нельзя.</p>
+      <div className="mt-3 flex gap-2">
+        <Button variant="danger" className="flex-1" loading={remove.isPending} onClick={() => remove.mutate()}>
+          Удалить
+        </Button>
+        <Button variant="secondary" className="flex-1" onClick={() => setConfirming(false)}>
+          Отмена
+        </Button>
+      </div>
+    </div>
   );
 }

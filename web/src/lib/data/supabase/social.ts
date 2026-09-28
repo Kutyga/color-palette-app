@@ -31,7 +31,12 @@ export class SupabaseSocial implements SocialRepository {
     const [liked, follows, urls, slugOf] = await Promise.all([
       this.db.from("likes").select("post_id").eq("user_id", this.uid).in("post_id", ids),
       this.db.from("follows").select("followee_id").eq("follower_id", this.uid).in("followee_id", authors),
-      signedUrls(this.db, POST_BUCKET, rows.map(firstPhoto).filter(Boolean)),
+      // Фото из Storage — по подписанным ссылкам; у постов команды бывают открытые фото (https://…).
+      signedUrls(
+        this.db,
+        POST_BUCKET,
+        rows.map(firstPhoto).filter((p) => p && !p.startsWith("https://")),
+      ),
       this.species.slugs(),
     ]);
     const likedIds = new Set((check(liked) as Row[]).map((l) => l.post_id as string));
@@ -40,7 +45,7 @@ export class SupabaseSocial implements SocialRepository {
       ...postFromRow(r, {
         likedByMe: likedIds.has(r.id as string),
         following: followed.has(r.author_id as string),
-        photoUrl: urls.get(firstPhoto(r)) ?? null,
+        photoUrl: urls.get(firstPhoto(r)) ?? (firstPhoto(r)?.startsWith("https://") ? firstPhoto(r) : null),
         myId: this.uid,
       }),
       speciesId: slugOf(r.species_id as string | null),

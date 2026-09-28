@@ -5,7 +5,7 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Leaf } from "lucide-react";
+import { BadgeCheck, Leaf } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { FeedPost } from "@/lib/domain/social";
@@ -50,7 +50,14 @@ export function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number 
     <Link href={authorHref(post)} className="flex min-w-0 flex-1 items-center gap-3" aria-label={`Профиль: ${post.authorDisplayName}`}>
       <Avatar name={post.authorDisplayName} size={size} />
       <span className="min-w-0">
-        <span className="block truncate font-semibold">{post.authorDisplayName}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate font-semibold">{post.authorDisplayName}</span>
+          {post.authorIsTeam && (
+            <span className="bg-leaf/12 text-leaf inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+              <BadgeCheck className="size-3" aria-hidden /> Команда
+            </span>
+          )}
+        </span>
         <time className="text-secondary block text-[13px]" dateTime={post.createdAt.toISOString()}>
           {timeAgo(post.createdAt)}
           {post.editedAt && " · изменено"}

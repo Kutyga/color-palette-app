@@ -765,6 +765,39 @@ do $$ begin
 exception when insufficient_privilege then null;
 end $$;
 
+-- Удаление магазина: только владелец (или администратор), каталог — вместе с магазином.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.shops (name, city) values ('Магазин на удаление', 'Москва');
+reset role;
+insert into public.shop_products (shop_id, external_id, title, price_rub)
+select id, 'del-1', 'Фикус', 500 from public.shops where name = 'Магазин на удаление';
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+delete from public.shops where name = 'Магазин на удаление';
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$ begin
+  assert exists (select 1 from public.shops where owner_id = auth.uid()), 'чужой магазин не удалить';
+end $$;
+delete from public.shops where owner_id = auth.uid();
+reset role;
+do $$ begin
+  assert not exists (select 1 from public.shops where name = 'Магазин на удаление'), 'владелец удалил магазин';
+  assert not exists (select 1 from public.shop_products where external_id = 'del-1'), 'каталог удалён вместе с магазином';
+end $$;
+set role authenticated;
+
+-- Советы команды (администратора) видны в «Подписках» даже тем, кто ни на кого не подписан.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.posts (kind, event, text) values ('milestone', 'tip', 'Совет команды');
+reset role;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000e1', 'newbie@example.com');
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+do $$ begin
+  assert exists (select 1 from public.feed_diaries('following') where text = 'Совет команды'), 'новичок видит советы команды';
+end $$;
+
 -- ---------------------------------------------------------------------------
 -- Конкурсы: условия участия и честная жеребьёвка.
 -- Дина проводит розыгрыш в Москве без доставки, участвуют Егор и Лев.

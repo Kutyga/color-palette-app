@@ -16,7 +16,7 @@ export type Row = Record<string, unknown>;
 export const PLANT_SELECT =
   "*, species(slug, latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at), " +
   "cover:plant_photos!plants_cover_photo_fk(storage_path)";
-export const POST_SELECT = "*, author:profiles!posts_author_id_fkey(username, display_name), plant:plants(nickname)";
+export const POST_SELECT = "*, author:profiles!posts_author_id_fkey(username, display_name, is_admin), plant:plants(nickname)";
 export const COMMENT_SELECT = "*, author:profiles!comments_author_id_fkey(username, display_name)";
 export const PROFILE_FIELDS = "username, display_name, bio, city, is_admin";
 

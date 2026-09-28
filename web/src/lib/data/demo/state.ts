@@ -32,7 +32,16 @@ export type EventRec = Omit<CareEvent, "performedAt"> & { performedAt: string; p
 // Поля дневника и вопросов необязательны: в сохранённых раньше демо-данных их нет.
 export type PostRec = Omit<
   FeedPost,
-  "createdAt" | "mine" | "following" | "authorDisplayName" | "kind" | "event" | "speciesId" | "solvedCommentId" | "editedAt"
+  | "createdAt"
+  | "mine"
+  | "following"
+  | "authorDisplayName"
+  | "authorIsTeam"
+  | "kind"
+  | "event"
+  | "speciesId"
+  | "solvedCommentId"
+  | "editedAt"
 > &
   Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & {
     createdAt: string;

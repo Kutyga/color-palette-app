@@ -167,6 +167,8 @@ export interface ShopRepository {
   myShop(): Promise<Shop | null>;
   /** Создаёт заявку или меняет анкету; смена названия или ИНН проверенного магазина — снова на проверку. */
   saveShop(draft: ShopDraft): Promise<Shop>;
+  /** Удалить свой магазин вместе с каталогом. */
+  deleteShop(): Promise<void>;
   shop(id: string): Promise<Shop | null>;
   /** Проверенные магазины; city — сначала свой город. */
   shops(city: string | null): Promise<Shop[]>;
