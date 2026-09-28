@@ -1,0 +1,16 @@
+# Настройки Apache для статического сайта на своём хостинге (SpaceWeb). GitHub Pages этот файл игнорирует.
+
+DirectoryIndex index.html
+Options -Indexes
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  # Файлы сборки с хешем в имени не меняются — кэшируем надолго.
+  <If "%{REQUEST_URI} =~ m#^/_next/static/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # Страницы, service worker и манифест — всегда свежие: новая версия видна сразу после выкладки.
+  <FilesMatch "\.(html|webmanifest)$|^sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

@@ -44,6 +44,30 @@ Workflow `.github/workflows/web-deploy.yml` собирает и публикуе
 При сборке `scripts/sync-species.mjs` обновляет снимок базы знаний `src/data/species.json`
 из Supabase; без переменных используется сохранённый снимок.
 
+## Публикация на своём домене (SpaceWeb)
+
+Workflow `.github/workflows/deploy-spaceweb.yml` после каждого изменения `web/` в `main` собирает
+сайт для корня домена и выкладывает его по SSH (`rsync`). GitHub Pages продолжает работать
+параллельно. Один раз:
+
+1. **Ключ для выкладки** — на своём компьютере: `ssh-keygen -t ed25519 -f spaceweb_deploy -N ""`.
+   Содержимое `spaceweb_deploy.pub` добавить в панели SpaceWeb → SSH-доступ (или в
+   `~/.ssh/authorized_keys` на хостинге), содержимое `spaceweb_deploy` — в GitHub как секрет
+   `SPACEWEB_SSH_KEY`. Файл закрытого ключа после этого удалить.
+2. **Переменные** (Settings → Secrets and variables → Actions → Variables): `SPACEWEB_HOST`,
+   `SPACEWEB_USER`, `SPACEWEB_PATH` (папка сайта, например `~/example.ru/public_html`), при
+   нестандартном порте — `SPACEWEB_PORT`. Папка должна быть отдельной: лишние файлы в ней удаляются.
+3. **Домен и HTTPS** — в панели SpaceWeb привязать домен к этой папке и включить бесплатный
+   SSL-сертификат с перенаправлением на HTTPS.
+4. **Supabase** → Authentication → URL Configuration: `Site URL` = `https://<домен>/`, в
+   `Redirect URLs` добавить `https://<домен>/**` — иначе ссылки из писем подтверждения поведут
+   на старый адрес.
+5. Запустить Actions → deploy-spaceweb → Run workflow (или дождаться следующего изменения в `main`).
+
+**Откат:** Run workflow и в поле `ref` указать коммит или тег прошлой версии.
+`public/.htaccess` задаёт страницу 404 и кэширование: файлы сборки кэшируются надолго,
+страницы — нет, поэтому новая версия видна сразу.
+
 ## Фото, грунты и своё фото растения
 
 - **Фото видов** — с Wikimedia Commons (миграция `*_species_photos.sql`): сайт показывает миниатюры
