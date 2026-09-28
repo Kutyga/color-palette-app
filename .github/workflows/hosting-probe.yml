@@ -31,7 +31,11 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq sshpass >/dev/null
           install -m 700 -d ~/.ssh
           ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          echo "Пароль базы в секретах: $([ -n "$DB_PASS" ] && echo есть || echo НЕТ)"
+          # Пробелы и переводы строк по краям — частая ошибка при копировании с телефона.
+          trimmed=$(printf '%s' "$DB_PASS" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr -d '\r\n')
+          echo "Пароль базы в секретах: $([ -n "$DB_PASS" ] && echo есть || echo НЕТ), символов: ${#DB_PASS}, без пробелов по краям: ${#trimmed}"
+          case "$trimmed" in *[!A-Za-z0-9]*) echo "В пароле есть символы кроме латинских букв и цифр" ;; esac
+          DB_PASS=$trimmed
           echo "Заданный хост: ${DB_HOST:-не задан}, порт: ${DB_PORT:-не задан}, база: $DB_NAME, пользователь: $DB_USER"
           # Пароль базы уходит первой строкой stdin — не в командную строку и не в лог.
           { printf '%s\n' "$DB_PASS"; cat <<EOF
