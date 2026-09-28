@@ -54,9 +54,10 @@ jobs:
             || { echo "::error::API на хостинге не отвечает (/api/health)"; exit 1; }
           echo "SRC_URL=$(bash spaceweb/db/find-source.sh)" >> "$GITHUB_ENV"
       - name: 1. Остановить задания Supabase
+        # Напрямую менять cron.job в Supabase нельзя — только через cron.alter_job (обратимо).
         run: |
           $PG_BIN/psql "$SRC_URL" -X -v ON_ERROR_STOP=1 -At \
-            -c "update cron.job set active = false where active returning 'остановлено: ' || jobname"
+            -c "select 'остановлено: ' || j.jobname from (select jobid, jobname from cron.job where active) j, lateral cron.alter_job(j.jobid, active := false)"
       - name: 2. Последний перенос базы
         run: RESET=yes bash spaceweb/db/migrate.sh
       - name: 2. Последний перенос фото
@@ -74,6 +75,8 @@ jobs:
           $PG_BIN/psql "$DST_URL" -X -v ON_ERROR_STOP=1 -q -c "
             create table api.live (switched_at timestamptz not null default now(), source text not null);
             insert into api.live (source) values ('cutover-spaceweb, запуск ${{ github.run_id }}');
+            -- Задания перенеслись выключенными (их остановили в Supabase перед переносом) — здесь они нужны все.
+            update cron.job set active = true;
             update vault.secrets set secret = '${SITE_URL}/api', updated_at = now() where name = 'project_url';"
           echo "Отметка поставлена — планировщик на SpaceWeb включён, повторный перенос заблокирован"
       - name: 4. Выложить сайт с новым адресом API
