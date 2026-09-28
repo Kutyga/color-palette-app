@@ -1,0 +1,88 @@
+name: deploy-spaceweb
+
+# Публикует сайт на хостинг SpaceWeb по SSH при изменениях в main — рядом с GitHub Pages.
+# Сайт собирается для корня домена; данные по-прежнему в Supabase.
+#
+# Нужно один раз (Settings → Secrets and variables → Actions):
+#   Variables: SPACEWEB_HOST — SSH-сервер из панели SpaceWeb;
+#              SPACEWEB_USER — логин SSH;
+#              SPACEWEB_PATH — папка сайта на хостинге, например ~/example.ru/public_html;
+#              SPACEWEB_PORT — порт SSH, если не 22 (необязательно).
+#   Secret:    SPACEWEB_PASSWORD — пароль SSH из панели SpaceWeb (проще всего, можно с телефона)
+#              или SPACEWEB_SSH_KEY — закрытый ключ, открытый добавлен в панели SpaceWeb → SSH-доступ.
+#              Если заданы оба, используется ключ.
+# Пока SPACEWEB_HOST не задан, workflow пропускается.
+#
+# Откат: Actions → deploy-spaceweb → Run workflow, в поле «ref» — коммит или тег прошлой версии.
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/deploy-spaceweb.yml"]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Коммит, тег или ветка для выкладки (пусто — последний main)"
+        required: false
+
+permissions:
+  contents: read
+
+# Выкладки идут по очереди: новая не обрывает текущую на полпути.
+concurrency:
+  group: spaceweb
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.SPACEWEB_HOST != ''
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      # Без NEXT_PUBLIC_BASE_PATH: на своём домене сайт живёт в корне.
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+      - name: Доступ по SSH
+        env:
+          SSH_KEY: ${{ secrets.SPACEWEB_SSH_KEY }}
+          SSH_PASSWORD: ${{ secrets.SPACEWEB_PASSWORD }}
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
+        run: |
+          install -m 700 -d ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          if [ -n "$SSH_KEY" ]; then
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+            chmod 600 ~/.ssh/id_deploy
+            echo "SSH_CMD=ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT" >> "$GITHUB_ENV"
+          elif [ -n "$SSH_PASSWORD" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq sshpass >/dev/null
+            # sshpass -e читает пароль из переменной SSHPASS — в командной строке и логах его нет.
+            echo "SSH_CMD=sshpass -e ssh -p $SSH_PORT -o PubkeyAuthentication=no" >> "$GITHUB_ENV"
+          else
+            echo "::error::Задайте секрет SPACEWEB_PASSWORD или SPACEWEB_SSH_KEY"
+            exit 1
+          fi
+      # Отправляются только изменённые файлы; --delete убирает файлы старых версий,
+      # сертификаты (.well-known) не трогаем. Папка сайта должна быть только под «Подоконник».
+      - name: Выкладка
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+        run: |
+          rsync -rltz --delete --exclude ".well-known/" -e "$SSH_CMD" \
+            out/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
