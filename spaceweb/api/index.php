@@ -16,7 +16,13 @@ require __DIR__ . '/lib/Storage.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+// Адрес папки API от корня сайта (на хостинге — «/api»). По SCRIPT_NAME нельзя: встроенный сервер
+// PHP для адресов вида «…/фото.jpg» подставляет туда сам адрес.
+$root = realpath((string) ($_SERVER['DOCUMENT_ROOT'] ?? '')) ?: '';
+$here = realpath(__DIR__) ?: __DIR__;
+$base = $root !== '' && str_starts_with($here, $root)
+    ? rtrim(str_replace('\\', '/', substr($here, strlen($root))), '/')
+    : rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 $path = trim(substr($uri, strlen($base)), '/');
 $area = explode('/', $path, 2)[0];
 
