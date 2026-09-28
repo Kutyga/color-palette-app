@@ -28,18 +28,16 @@ jobs:
           ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
           sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no "$SSH_USER@$SSH_HOST" 'bash -s' <<'EOF'
           v() { printf '%-14s ' "$1"; shift; "$@" 2>&1 | head -n 1 || true; }
-          echo "== Система"; uname -srm; cat /etc/os-release 2>/dev/null | grep PRETTY
-          echo "== Языки"
-          v php php -v; v python3 python3 -V; v node node -v; v npm npm -v; v go go version
-          ls -d /opt/php* /opt/alt/php* /usr/local/bin/php* 2>/dev/null | head
-          ls /opt/node* /usr/local/nodejs* 2>/dev/null | head
+          echo "== PHP"
+          ls /usr/bin/php* /usr/local/bin/php* /usr/local/php*/bin/php /opt/*/bin/php* 2>/dev/null | head -n 30
+          for p in /usr/local/php8*/bin/php /usr/bin/php8* /usr/local/bin/php8*; do [ -x "$p" ] && v "$p" "$p" -v; done
+          v composer composer --version
           echo "== PostgreSQL"
-          v psql psql --version; v pg_dump pg_dump --version; v pg_isready pg_isready -h localhost
-          echo "== Процессы и cron"
-          v crontab crontab -l; ulimit -a | grep -E "processes|virtual|file size"
-          echo "== Диск"; df -h ~ 2>/dev/null | tail -n 1; quota -s 2>/dev/null | tail -n 2
-          echo "== Выход в интернет"
-          v https curl -sS -o /dev/null -w "%{http_code}" --max-time 10 https://supabase.com
-          v port5432 timeout 8 bash -c "</dev/tcp/aws-0-eu-central-1.pooler.supabase.com/5432 && echo open"
-          echo "== Домашняя папка"; ls ~
+          v socket pg_isready
+          ls /var/run/postgresql /tmp/.s.PGSQL* 2>/dev/null
+          getent hosts localhost pgsql postgres postgresql 2>/dev/null
+          env | grep -iE "^PG" | sed 's/=.*/=…/'
+          echo "== Веб-сервер"
+          ls -la ~/Podokonnik.app ~/public_html 2>/dev/null | head -n 20
+          cat ~/Podokonnik.app/.htaccess 2>/dev/null | head -n 5
           EOF
