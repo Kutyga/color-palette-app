@@ -237,7 +237,7 @@ function EditProfileForm({ initial, onDone }: { initial: ProfileUpdate; onDone: 
         </div>
         {fieldError("username")}
       </Field>
-      <Field label="Город" hint="Для объявлений «Барахолки» — только город, без адреса.">
+      <Field label="Город" hint="Для «Барахолки» и розыгрышей — только город, без адреса.">
         <input
           className={inputClass}
           value={form.city ?? ""}

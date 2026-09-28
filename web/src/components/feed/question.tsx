@@ -13,7 +13,7 @@ import { plural, timeAgo } from "@/lib/format";
 import { speciesById } from "@/lib/knowledge";
 import { useComments } from "@/lib/queries";
 import { useBackend } from "../session";
-import { Avatar, PlantPhoto, Spinner, cx, useToast } from "../ui";
+import { Avatar, LARGE_PHOTO, PlantPhoto, Spinner, cx, useToast } from "../ui";
 import { ReplyForm } from "./comments";
 import { PostMenu } from "./post-menu";
 import { AuthorLine, SpeciesLink, authorHref, questionHref } from "./shared";
@@ -76,7 +76,14 @@ export function QuestionHeader({ post, onDeleted }: { post: FeedPost; onDeleted?
         <SpeciesLink speciesId={post.speciesId} />
       </div>
       {post.photoUrl ? (
-        <PlantPhoto src={post.photoUrl} seed={post.id} alt="Фото к вопросу" className="mt-3 aspect-[4/3] w-full" iconSize={48} />
+        <PlantPhoto
+          src={post.photoUrl}
+          seed={post.id}
+          alt="Фото к вопросу"
+          className="mt-3 aspect-[4/3] w-full"
+          iconSize={48}
+          sizes={LARGE_PHOTO}
+        />
       ) : (
         <div className="h-4" />
       )}

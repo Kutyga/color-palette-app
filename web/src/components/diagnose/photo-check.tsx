@@ -114,6 +114,7 @@ export function PhotoCheck({ plantHint }: { plantHint: string | null }) {
         <>
           <div className="mt-4">
             <CameraField
+              allowFiles
               aspect="aspect-[4/3]"
               photoUrl={photo?.url ?? null}
               onCapture={(blob) => {

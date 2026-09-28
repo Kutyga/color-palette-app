@@ -122,6 +122,7 @@ function ListingForm({ existing, defaults }: { existing: Listing | null; default
         ) : null}
         <div className={cx(existing?.photoUrls[0] && !photo && "mt-2")}>
           <CameraField
+            allowFiles
             aspect="aspect-[4/3]"
             photoUrl={photo?.url ?? null}
             onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })}

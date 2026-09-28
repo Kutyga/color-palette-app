@@ -63,6 +63,7 @@ function NewContestForm() {
       </p>
       <Field label="Фото приза (необязательно)" group>
         <CameraField
+          allowFiles
           aspect="aspect-[4/3]"
           photoUrl={photoUrl}
           onCapture={(blob) => {

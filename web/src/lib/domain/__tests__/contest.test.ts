@@ -1,9 +1,11 @@
 /** Конкурсы: жеребьёвка совпадает с базой, проверка итогов, равные шансы, правила формы. */
 import { describe, expect, it } from "vitest";
 import {
+  contestChecks,
   contestPhase,
   drawRanking,
   prizeStatus,
+  profileComplete,
   sha256Hex,
   sortContests,
   validateContest,
@@ -107,5 +109,28 @@ describe("розыгрыш", () => {
       c("soon", { endsAt: at(2) }),
     ]);
     expect(sorted.map((x) => x.id)).toEqual(["pinned", "soon", "later", "finished"]);
+  });
+});
+
+describe("условия участия", () => {
+  const full = { displayName: "Аня", city: "Москва", bio: "Люблю фиалки" };
+
+  it("профиль заполнен: имя, город и пара слов о себе", () => {
+    expect(profileComplete(full)).toBe(true);
+    expect(profileComplete({ ...full, bio: "  " })).toBe(false);
+    expect(profileComplete({ ...full, city: null })).toBe(false);
+    expect(profileComplete({ ...full, displayName: "А" })).toBe(false);
+  });
+
+  it("профиль или первая публикация", () => {
+    const empty = { displayName: null, city: null, bio: null };
+    expect(contestChecks({ delivery: true, city: "Казань" }, empty, 0)[0].ok).toBe(false);
+    expect(contestChecks({ delivery: true, city: "Казань" }, empty, 1)[0].ok).toBe(true);
+  });
+
+  it("без доставки — проверяется город", () => {
+    expect(contestChecks({ delivery: true, city: "Казань" }, full, 0).map((c) => c.ok)).toEqual([true]);
+    expect(contestChecks({ delivery: false, city: "москва " }, full, 0).map((c) => c.ok)).toEqual([true, true]);
+    expect(contestChecks({ delivery: false, city: "Казань" }, full, 0).map((c) => c.ok)).toEqual([true, false]);
   });
 });
