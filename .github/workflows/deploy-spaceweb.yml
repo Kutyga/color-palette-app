@@ -85,6 +85,12 @@ jobs:
           set +e
           $SSH_CMD -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" "command -v rsync >/dev/null || exit 42"
           code=$?
+          if [ "$code" != 0 ]; then
+            # Подробности входа без секретов: какие способы предлагает сервер и где он отказал.
+            $SSH_CMD -v -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" true 2>&1 \
+              | grep -E "Authenticated|Authentications that can continue|Permission denied|Connection closed|Connection reset|Next authentication method|Received disconnect|banner" \
+              | tail -n 15
+          fi
           case $code in
             0) echo "Подключение и rsync на сервере — в порядке" ;;
             5) echo "::error::Неверный пароль SSH: обновите секрет SPACEWEB_PASSWORD"; exit 1 ;;
