@@ -543,6 +543,7 @@ test("демо: розыгрыши — закреплённый конкурс, 
   // Законченный розыгрыш: секрет раскрыт, итоги пересчитываются в браузере.
   await page.goto("/market/contest/?id=demo-contest-aloe");
   await expect(page.getByRole("heading", { name: "Победители" })).toBeVisible();
+  await expect(page.getByText(/ждём ответа до/)).toBeVisible(); // у победителя 72 часа на подтверждение
   await page.getByRole("button", { name: "Проверить итоги" }).click();
   await expect(page.getByText("Проверено: секрет совпадает с отпечатком, победители посчитаны верно")).toBeVisible();
 

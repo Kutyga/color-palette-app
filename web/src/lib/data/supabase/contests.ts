@@ -98,4 +98,16 @@ export class SupabaseContests implements ContestRepository {
   async cancel(id: string) {
     check(await this.db.rpc("cancel_contest", { p_contest: id }));
   }
+
+  async claim(id: string) {
+    check(await this.db.rpc("claim_prize", { p_contest: id }));
+  }
+
+  async decline(id: string) {
+    check(await this.db.rpc("decline_prize", { p_contest: id }));
+  }
+
+  async markDelivered(id: string, userId: string) {
+    check(await this.db.rpc("mark_prize_delivered", { p_contest: id, p_user: userId }));
+  }
 }

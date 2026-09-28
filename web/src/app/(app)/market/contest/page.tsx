@@ -3,12 +3,12 @@
 /** Розыгрыш: приз, условия, участие, итоги с проверкой честности и список участников. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Gift, MapPin, MessageCircle, Pin, Trophy, Truck, Users } from "lucide-react";
+import { ChevronLeft, Gift, MapPin, Pin, Trophy, Truck, Users } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
-import { FairnessCard, ParticipantsList, PhaseLabel } from "@/components/contests";
+import { FairnessCard, ParticipantsList, PhaseLabel, WinnerPanel, WinnersCard } from "@/components/contests";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
 import { Button, Card, EmptyState, ErrorNote, PlantPhoto, SectionTitle, Spinner, useToast } from "@/components/ui";
@@ -17,7 +17,7 @@ import { plural } from "@/lib/format";
 import { useContest, useContestParticipants, useProfile } from "@/lib/queries";
 
 /** Участвовать, выйти, отменить — в зависимости от роли и этапа. */
-function Actions({ contest: c, iWon }: { contest: Contest; iWon: boolean }) {
+function Actions({ contest: c }: { contest: Contest }) {
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();
@@ -32,18 +32,6 @@ function Actions({ contest: c, iWon }: { contest: Contest; iWon: boolean }) {
   });
   const phase = contestPhase(c, new Date());
 
-  if (phase === "finished") {
-    if (iWon || c.mine)
-      return (
-        <Link
-          href="/messages/"
-          className="bg-leaf mt-4 flex min-h-12 items-center justify-center gap-2 rounded-full font-semibold text-white"
-        >
-          <MessageCircle className="size-5" aria-hidden /> {iWon ? "Вы выиграли! Написать организатору" : "Договориться с победителями"}
-        </Link>
-      );
-    return null;
-  }
   if (phase !== "active") return null;
   const canCancel = profile.data?.isAdmin || (c.mine && c.participants === 0);
   return (
@@ -78,8 +66,7 @@ function ContestView({ id }: { id: string }) {
   if (contest.error) return <ErrorNote error={contest.error} onRetry={() => contest.refetch()} />;
   const c = contest.data;
   if (!c) return <EmptyState icon={Gift} title="Розыгрыш не найден" message="Возможно, его отменили." />;
-  const winners = (participants.data ?? []).filter((p) => p.place != null);
-  const iWon = winners.some((p) => p.username === profile.data?.username);
+  const me = c.status === "finished" ? participants.data?.find((p) => p.username === profile.data?.username) : undefined;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pt-4">
@@ -125,26 +112,12 @@ function ContestView({ id }: { id: string }) {
               </Link>
             )}
           </p>
-          <Actions contest={c} iWon={iWon} />
+          <Actions contest={c} />
         </div>
       </Card>
 
-      {c.status === "finished" && (
-        <Card className="p-5">
-          <h2 className="text-[19px] font-semibold">Победители</h2>
-          {winners.length ? (
-            <ol className="mt-2 space-y-1 text-[17px]">
-              {winners.map((w) => (
-                <li key={w.userId}>
-                  🏆 {w.place}. {w.displayName}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-secondary mt-1">Никто не участвовал.</p>
-          )}
-        </Card>
-      )}
+      {me && <WinnerPanel contest={c} me={me} />}
+      {c.status === "finished" && participants.data && <WinnersCard contest={c} participants={participants.data} />}
 
       <FairnessCard contest={c} participants={participants.data} />
 

@@ -240,6 +240,6 @@ export async function seedContests(state: DemoState, now: Date) {
     -2,
     ["anna.green", "succulove", "orchid.mood"],
   );
-  await finishContest(state, finished);
+  await finishContest(state, finished, new Date(now.getTime() - 2 * DAY_MS));
   state.contests.push(finished);
 }

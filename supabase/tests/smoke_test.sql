@@ -910,6 +910,63 @@ do $$ begin
          'после итогов выйти нельзя';
 end $$;
 
+-- Вручение: победитель подтверждает за 72 часа, иначе приз переходит следующему по очереди.
+do $$ begin
+  assert (select array_agg(rank order by rank) from public.contest_entries
+           where contest_id = '60000000-0000-0000-0000-000000000001') = array[1, 2],
+         'очередь жеребьёвки записана всем участникам';
+end $$;
+select set_config('request.jwt.claim.sub', (select user_id::text from public.contest_entries where rank = 2
+  and contest_id = '60000000-0000-0000-0000-000000000001'), false);
+do $$ begin
+  perform public.claim_prize('60000000-0000-0000-0000-000000000001');
+  raise exception 'не победитель не подтверждает приз';
+exception when check_violation then null;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d1';
+do $$ begin
+  perform public.mark_prize_delivered('60000000-0000-0000-0000-000000000001',
+    (select user_id from public.contest_entries where rank = 1 and contest_id = '60000000-0000-0000-0000-000000000001'));
+  raise exception 'вручить можно только после подтверждения';
+exception when check_violation then null;
+end $$;
+
+-- Первый победитель молчит 72 часа.
+reset role;
+update public.contest_entries set claim_deadline = now() - interval '1 minute'
+ where contest_id = '60000000-0000-0000-0000-000000000001' and rank = 1;
+do $$ begin
+  perform private.finish_due_contests();
+  assert (select forfeited_at is not null and place is null from public.contest_entries
+           where contest_id = '60000000-0000-0000-0000-000000000001' and rank = 1), 'молчавший теряет место';
+  assert (select place = 1 and claim_deadline > now() from public.contest_entries
+           where contest_id = '60000000-0000-0000-0000-000000000001' and rank = 2), 'место у следующего по очереди';
+  assert exists (select 1 from public.conversations c join public.contest_entries e
+                   on e.contest_id = c.contest_id and e.user_id = c.buyer_id
+                  where c.contest_id = '60000000-0000-0000-0000-000000000001' and e.rank = 2),
+         'у нового победителя чат с организатором';
+end $$;
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', (select user_id::text from public.contest_entries where rank = 1
+  and contest_id = '60000000-0000-0000-0000-000000000001'), false);
+do $$ begin
+  perform public.claim_prize('60000000-0000-0000-0000-000000000001');
+  raise exception 'потерявший место не подтверждает приз';
+exception when check_violation then null;
+end $$;
+select set_config('request.jwt.claim.sub', (select user_id::text from public.contest_entries where rank = 2
+  and contest_id = '60000000-0000-0000-0000-000000000001'), false);
+select public.claim_prize('60000000-0000-0000-0000-000000000001');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d1';
+select public.mark_prize_delivered('60000000-0000-0000-0000-000000000001',
+  (select user_id from public.contest_entries where rank = 2 and contest_id = '60000000-0000-0000-0000-000000000001'));
+do $$ begin
+  assert (select claimed_at is not null and delivered_at is not null
+            from public.contest_participants('60000000-0000-0000-0000-000000000001') where rank = 2),
+         'приз подтверждён и вручён — видно в списке участников';
+end $$;
+
 -- Администратор: конкурсы закреплены, одновременно можно несколько, отменить может любой.
 reset role;
 update public.profiles set is_admin = true where id = '00000000-0000-0000-0000-0000000000d6';

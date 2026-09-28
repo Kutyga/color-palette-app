@@ -203,6 +203,12 @@ export interface ContestRepository {
   leave(id: string): Promise<void>;
   /** Организатор — пока никто не участвует, администратор — всегда. */
   cancel(id: string): Promise<void>;
+  /** Победитель: «Забираю приз» — в течение 72 часов после итогов. */
+  claim(id: string): Promise<void>;
+  /** Победитель отказывается — приз переходит следующему по очереди. */
+  decline(id: string): Promise<void>;
+  /** Организатор: приз передан победителю userId. */
+  markDelivered(id: string, userId: string): Promise<void>;
 }
 
 export interface Backend {
