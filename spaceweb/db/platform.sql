@@ -34,7 +34,10 @@ create table if not exists auth.users (
   banned_until       timestamptz,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now(),
-  deleted_at         timestamptz
+  deleted_at         timestamptz,
+  -- Подтверждение почты: в базе только sha256 от ссылки из письма.
+  confirmation_token   text,
+  confirmation_sent_at timestamptz
 );
 create unique index if not exists users_email_key on auth.users (lower(email)) where deleted_at is null;
 
@@ -47,6 +50,17 @@ create table if not exists auth.refresh_tokens (
   revoked_at timestamptz
 );
 create index if not exists refresh_tokens_user_idx on auth.refresh_tokens (user_id);
+create unique index if not exists users_confirmation_token_idx on auth.users (confirmation_token)
+  where confirmation_token is not null;
+
+-- Попытки входа и регистрации — для ограничения частоты (PHP чистит старые записи сам).
+create table if not exists auth.attempts (
+  id     bigserial primary key,
+  kind   text not null,
+  key    text not null,
+  at     timestamptz not null default now()
+);
+create index if not exists attempts_key_idx on auth.attempts (kind, key, at);
 
 create or replace function auth.jwt() returns jsonb
 language sql stable

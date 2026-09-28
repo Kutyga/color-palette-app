@@ -27,3 +27,24 @@ podokonnik-rls-bypass` — по нему правило `rls_bypass` пропу�
 
 Запуск: Actions → **db-spaceweb** → Run workflow (галочка «reset» — перенести заново). Нужны
 секреты `SUPABASE_DB_URL` и `SPACEWEB_DB_PASSWORD`.
+
+## API (`api/`)
+
+PHP 8.3 на хостинге отвечает по тем же адресам, что Supabase, поэтому сайт (supabase-js) переключится
+сменой одного адреса: `https://podokonnikapp.ru/api/{auth,rest}/v1/…`.
+
+| Файл | Что делает |
+|---|---|
+| `index.php`, `.htaccess` | Маршруты, CORS, ошибки в формате Supabase; `/api/health` — проверка после выкладки |
+| `lib/Auth.php` | Вход по паролю (bcrypt, пароли из Supabase подходят), продление, регистрация с письмом, выход |
+| `lib/Rest.php` | Подмножество PostgREST: выборки с вложениями, фильтры, `or`, сортировка, подсчёт, запись, `rpc` |
+| `lib/Schema.php` | Таблицы, связи и права ролей API (`api.*_privileges`) |
+| `lib/Db.php` | Транзакции от имени пользователя (`request.jwt.claims`) и служебные — с пропуском RLS |
+| `test/run.sh` | Проверка настоящим supabase-js на локальном Postgres (в CI) |
+
+Выкладка — вместе с сайтом (`deploy-spaceweb.yml`): файлы в `public_html/api/`, настройки
+(`podokonnik-config.php`, секрет токенов, папка файлов) — рядом с `public_html`, снаружи недоступны.
+Нужна версия PHP 8.3 для сайта в панели SpaceWeb.
+
+Ещё не перенесено: хранилище фото (`storage`), серверные функции (`functions`), чат в реальном
+времени, задания по расписанию.
