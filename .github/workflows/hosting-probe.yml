@@ -1,0 +1,45 @@
+name: hosting-probe
+
+# Разовая проверка хостинга SpaceWeb перед переездом базы: версии языков и PostgreSQL,
+# доступ к базе с хостинга, выход в интернет. Только читает, ничего не меняет.
+on:
+  push:
+    branches: [claude/relaxed-euler-8qpsqr]
+    paths: [".github/workflows/hosting-probe.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: vars.SPACEWEB_HOST != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Проверка хостинга
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass >/dev/null
+          install -m 700 -d ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no "$SSH_USER@$SSH_HOST" 'bash -s' <<'EOF'
+          v() { printf '%-14s ' "$1"; shift; "$@" 2>&1 | head -n 1 || true; }
+          echo "== Система"; uname -srm; cat /etc/os-release 2>/dev/null | grep PRETTY
+          echo "== Языки"
+          v php php -v; v python3 python3 -V; v node node -v; v npm npm -v; v go go version
+          ls -d /opt/php* /opt/alt/php* /usr/local/bin/php* 2>/dev/null | head
+          ls /opt/node* /usr/local/nodejs* 2>/dev/null | head
+          echo "== PostgreSQL"
+          v psql psql --version; v pg_dump pg_dump --version; v pg_isready pg_isready -h localhost
+          echo "== Процессы и cron"
+          v crontab crontab -l; ulimit -a | grep -E "processes|virtual|file size"
+          echo "== Диск"; df -h ~ 2>/dev/null | tail -n 1; quota -s 2>/dev/null | tail -n 2
+          echo "== Выход в интернет"
+          v https curl -sS -o /dev/null -w "%{http_code}" --max-time 10 https://supabase.com
+          v port5432 timeout 8 bash -c "</dev/tcp/aws-0-eu-central-1.pooler.supabase.com/5432 && echo open"
+          echo "== Домашняя папка"; ls ~
+          EOF
