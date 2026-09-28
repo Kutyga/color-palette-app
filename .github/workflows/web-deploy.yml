@@ -1,10 +1,8 @@
 name: web-deploy
 
 # Публикует сайт на GitHub Pages при изменениях в main.
-# Нужно один раз: Settings → Pages → Source: GitHub Actions, и переменные репозитория
-# (Settings → Secrets and variables → Actions → Variables):
-#   SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY — publishable-ключ всё равно виден в браузере,
-#   данные защищают RLS-политики. Без переменных сайт соберётся в демо-режиме.
+# Нужно один раз: Settings → Pages → Source: GitHub Actions.
+# Здесь — демо-режим (данные в браузере); настоящий сайт — podokonnikapp.ru (deploy-spaceweb).
 on:
   push:
     branches: [main]
@@ -36,11 +34,9 @@ jobs:
       - id: pages
         uses: actions/configure-pages@v5
       - run: npm ci
-      # prebuild обновляет снимок базы знаний из Supabase, затем Next.js собирает статический сайт в out/.
+      # Копия на GitHub Pages — демо без сервера: живой сайт с данными — podokonnikapp.ru (SpaceWeb).
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3

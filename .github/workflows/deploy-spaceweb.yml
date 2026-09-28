@@ -1,8 +1,8 @@
 name: deploy-spaceweb
 
 # Публикует сайт на хостинг SpaceWeb по SSH при изменениях в main — рядом с GitHub Pages.
-# Сайт собирается для корня домена; данные по-прежнему в Supabase. Рядом, в папку api/,
-# выкладывается PHP-API (spaceweb/api) — будущая замена Supabase; сайт на него пока не переключён.
+# Сайт собирается для корня домена. Рядом, в папку api/, выкладывается PHP-API (spaceweb/api).
+# Куда смотрит сайт — Supabase или свой API — решает отметка api.live (cutover-spaceweb).
 #
 # Нужно один раз (Settings → Secrets and variables → Actions):
 #   Variables: SPACEWEB_HOST — SSH-сервер из панели SpaceWeb;
@@ -54,11 +54,36 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      # Куда смотрит сайт: после переключения (отметка api.live в базе SpaceWeb) — на свой API /api,
+      # до него — на Supabase. Не удалось проверить базу при заданном пароле — выкладка останавливается:
+      # гадать нельзя, иначе сайт начнёт писать не туда.
+      - name: Куда смотрит сайт
+        id: backend
+        env:
+          PGPASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          DST_URL: host=${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }} port=${{ vars.SPACEWEB_DB_PORT || '5433' }} dbname=${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }} user=${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }} connect_timeout=15
+          SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          live=f
+          if [ -n "$PGPASSWORD" ]; then
+            command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client >/dev/null
+            live=$(psql "$DST_URL" -XAtc "select to_regclass('api.live') is not null")
+          fi
+          if [ "$live" = t ]; then
+            echo "Сайт работает на SpaceWeb: API /api"
+            { echo "url=/api"; echo "key=podokonnik"; echo "sync=${SITE_URL/https:/http:}/api"; } >> "$GITHUB_OUTPUT"
+          else
+            echo "Сайт работает на Supabase"
+            { echo "url=$SUPABASE_URL"; echo "key=$SUPABASE_KEY"; echo "sync="; } >> "$GITHUB_OUTPUT"
+          fi
       # Без NEXT_PUBLIC_BASE_PATH: на своём домене сайт живёт в корне.
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.backend.outputs.url }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ steps.backend.outputs.key }}
+          SPECIES_SYNC_URL: ${{ steps.backend.outputs.sync }}
       - name: Доступ по SSH
         env:
           SSH_KEY: ${{ secrets.SPACEWEB_SSH_KEY }}

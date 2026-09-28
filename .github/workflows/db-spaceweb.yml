@@ -21,10 +21,6 @@ on:
         description: "Очистить базу SpaceWeb и перенести заново"
         type: boolean
         default: false
-  # Репетиции переноса из рабочей ветки, пока сайт на Supabase.
-  push:
-    branches: [claude/relaxed-euler-8qpsqr]
-    paths: ["spaceweb/db/**", ".github/workflows/db-spaceweb.yml"]
 
 permissions:
   contents: read
@@ -54,17 +50,12 @@ jobs:
           DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5433' }}
           DB_NAME: ${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }}
           DB_USER: ${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }}
-          RESET_INPUT: ${{ github.event_name == 'push' || inputs.reset }}
+          RESET_INPUT: ${{ inputs.reset }}
         run: |
           export PG_BIN=/usr/lib/postgresql/17/bin
           [ -n "$SUPABASE_DB_URL" ] || { echo "::error::Нет секрета SUPABASE_DB_URL"; exit 1; }
           [ -n "$PGPASSWORD" ] || { echo "::error::Нет секрета SPACEWEB_DB_PASSWORD"; exit 1; }
-          # Пароль Supabase из строки подключения тоже скрываем в логах.
-          echo "::add-mask::$(python3 -c 'import sys, urllib.parse as u; print(u.urlsplit(sys.argv[1].strip()).password or "")' "$SUPABASE_DB_URL")"
-          for url in $(python3 spaceweb/db/source_url.py "$SUPABASE_DB_URL"); do
-            if "$PG_BIN/psql" "$url" -XAtc 'select 1' >/dev/null 2>&1; then SRC_URL=$url; break; fi
-          done
-          [ -n "${SRC_URL:-}" ] || { echo "::error::Не удалось подключиться к Supabase — проверьте SUPABASE_DB_URL"; exit 1; }
+          SRC_URL=$(bash spaceweb/db/find-source.sh)
           export SRC_URL
           export DST_URL="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER connect_timeout=15"
           [ "$RESET_INPUT" = true ] && export RESET=yes
@@ -87,29 +78,5 @@ jobs:
             exit 0
           fi
           export PG_BIN=/usr/lib/postgresql/17/bin
-          for url in $(python3 spaceweb/db/source_url.py "$SUPABASE_DB_URL"); do
-            if "$PG_BIN/psql" "$url" -XAtc 'select 1' >/dev/null 2>&1; then SRC_URL=$url; break; fi
-          done
-          # Новые ключи Supabase (sb_secret_…) — только в apikey; старые (JWT) — ещё и в Authorization.
-          auth=(-H "apikey: $SERVICE_KEY")
-          [ "$(tr -cd . <<< "$SERVICE_KEY" | wc -c)" = 2 ] && auth+=(-H "Authorization: Bearer $SERVICE_KEY")
-          mkdir -p files
-          ok=0; fail=0
-          while IFS= read -r key; do
-            [ -n "$key" ] || continue
-            mkdir -p "files/$(dirname "$key")"
-            if curl -sf --max-time 60 "${auth[@]}" "${SUPABASE_URL%/}/storage/v1/object/$key" -o "files/$key"; then
-              ok=$((ok + 1))
-            else
-              fail=$((fail + 1)); echo "не скачан: $key"
-            fi
-          done < <("$PG_BIN/psql" "$SRC_URL" -XAtc "select bucket_id || '/' || name from storage.objects order by 1")
-          echo "скачано $ok, ошибок $fail"
           sudo apt-get install -y -qq sshpass >/dev/null
-          install -m 700 -d ~/.ssh
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          STORAGE_DIR="$(dirname "$TARGET_DIR")/podokonnik-storage"
-          rsync -rltz --chmod=D700,F600 -e "sshpass -e ssh -p $SSH_PORT -o PubkeyAuthentication=no" \
-            files/ "$SSH_USER@$SSH_HOST:$STORAGE_DIR/"
-          echo "на хостинге: $STORAGE_DIR"
-          [ "$fail" = 0 ] || { echo "::error::Не все фото скачались"; exit 1; }
+          SRC_URL=$(bash spaceweb/db/find-source.sh) bash spaceweb/db/sync-photos.sh

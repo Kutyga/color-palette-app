@@ -1,0 +1,86 @@
+name: cutover-spaceweb
+
+# Переключение сайта с Supabase на SpaceWeb — один раз. По шагам:
+#   1. в Supabase останавливаются задания по расписанию (push, итоги конкурсов, новости) —
+#      дальше ими занимается планировщик на SpaceWeb;
+#   2. последний перенос базы и фото из Supabase (RESET — копия заменяется свежей);
+#   3. отметка api.live: планировщик на SpaceWeb включается, повторный перенос больше невозможен;
+#   4. выкладка сайта — он собирается уже с адресом /api (см. deploy-spaceweb).
+# Запуск: Actions → cutover-spaceweb → Run workflow, в поле подтверждения — ПЕРЕКЛЮЧИТЬ.
+# Проект Supabase не удаляется — он остаётся резервной копией на время после переезда.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Чтобы переключить сайт на SpaceWeb, напишите: ПЕРЕКЛЮЧИТЬ"
+        required: true
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: db-spaceweb
+  cancel-in-progress: false
+
+jobs:
+  cutover:
+    if: inputs.confirm == 'ПЕРЕКЛЮЧИТЬ'
+    runs-on: ubuntu-latest
+    env:
+      PG_BIN: /usr/lib/postgresql/17/bin
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      PGPASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+      DST_URL: host=${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }} port=${{ vars.SPACEWEB_DB_PORT || '5433' }} dbname=${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }} user=${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }} connect_timeout=15
+      SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Клиент PostgreSQL 17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common sshpass >/dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-client-17 >/dev/null
+      - name: Проверки перед переключением
+        env:
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          [ -n "$SUPABASE_DB_URL" ] && [ -n "$PGPASSWORD" ] && [ -n "$SERVICE_KEY" ] \
+            || { echo "::error::Нужны секреты SUPABASE_DB_URL, SPACEWEB_DB_PASSWORD и SUPABASE_SERVICE_KEY"; exit 1; }
+          if [ "$($PG_BIN/psql "$DST_URL" -XAtc "select to_regclass('api.live') is not null")" = t ]; then
+            echo "::error::Сайт уже переключён на SpaceWeb"; exit 1
+          fi
+          curl -sf --max-time 20 "${SITE_URL/https:/http:}/api/health" | grep -q '"ok":true' \
+            || { echo "::error::API на хостинге не отвечает (/api/health)"; exit 1; }
+          echo "SRC_URL=$(bash spaceweb/db/find-source.sh)" >> "$GITHUB_ENV"
+      - name: 1. Остановить задания Supabase
+        run: |
+          $PG_BIN/psql "$SRC_URL" -X -v ON_ERROR_STOP=1 -At \
+            -c "update cron.job set active = false where active returning 'остановлено: ' || jobname"
+      - name: 2. Последний перенос базы
+        run: RESET=yes bash spaceweb/db/migrate.sh
+      - name: 2. Последний перенос фото
+        env:
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+        run: bash spaceweb/db/sync-photos.sh
+      - name: 3. Сайт работает на SpaceWeb (api.live)
+        run: |
+          $PG_BIN/psql "$DST_URL" -X -v ON_ERROR_STOP=1 -q -c "
+            create table api.live (switched_at timestamptz not null default now(), source text not null);
+            insert into api.live (source) values ('cutover-spaceweb, запуск ${{ github.run_id }}');
+            update vault.secrets set secret = '${SITE_URL}/api', updated_at = now() where name = 'project_url';"
+          echo "Отметка поставлена — планировщик на SpaceWeb включён, повторный перенос заблокирован"
+      - name: 4. Выложить сайт с новым адресом API
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -sf -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-spaceweb.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "Выкладка запущена: Actions → deploy-spaceweb"
