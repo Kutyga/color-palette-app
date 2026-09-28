@@ -1,7 +1,9 @@
 /**
- * Личные сообщения по объявлениям: чаты, сообщения и доставка новых через Realtime.
+ * Личные сообщения по объявлениям: чаты, сообщения и доставка новых — через Realtime у Supabase
+ * или опросом раз в несколько секунд на своём хостинге, где веб-сокетов нет.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { HAS_REALTIME } from "../../config";
 import { conversationFromRow, messageFromRow, type ChatMessage } from "../../domain/market";
 import type { ChatRepository } from "../repositories";
 import { LISTING_BUCKET, type Row, check, signedUrls } from "./shared";
@@ -51,6 +53,7 @@ export class SupabaseChat implements ChatRepository {
   }
 
   subscribe(conversationId: string, onMessage: (m: ChatMessage) => void) {
+    if (!HAS_REALTIME) return this.poll(conversationId, onMessage);
     const channel = this.db
       .channel(`chat:${conversationId}`)
       .on(
@@ -60,6 +63,42 @@ export class SupabaseChat implements ChatRepository {
       )
       .subscribe();
     return () => void this.db.removeChannel(channel);
+  }
+
+  /**
+   * Новые сообщения опросом: первый запрос запоминает последнее сообщение, дальше приходят только
+   * более новые. Пока вкладка скрыта — реже. Повторы страница отбрасывает по id.
+   */
+  private poll(conversationId: string, onMessage: (m: ChatMessage) => void) {
+    let since: string | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let stopped = false;
+    const seen = new Set<string>();
+    const query = () => this.db.from("messages").select("*").eq("conversation_id", conversationId);
+    const tick = async () => {
+      try {
+        if (since === null) {
+          const last = check(await query().order("created_at", { ascending: false }).limit(1)) as Row[];
+          since = (last[0]?.created_at as string | undefined) ?? new Date(0).toISOString();
+        } else {
+          const rows = check(await query().gte("created_at", since).order("created_at").limit(100)) as Row[];
+          for (const r of rows) {
+            if (seen.has(r.id as string)) continue;
+            seen.add(r.id as string);
+            since = r.created_at as string;
+            onMessage(messageFromRow(r, this.uid));
+          }
+        }
+      } catch {
+        // Нет сети — попробуем в следующий раз.
+      }
+      if (!stopped) timer = setTimeout(tick, document.hidden ? 15_000 : 4_000);
+    };
+    void tick();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
   }
 
   async block(userId: string) {

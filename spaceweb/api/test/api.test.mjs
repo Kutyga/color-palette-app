@@ -144,6 +144,32 @@ test("функции: таблица, значение, записи с влож
   assert.ok(inList.length >= 1);
 });
 
+test("фото: загрузка в свою папку, подписанная ссылка, чужая папка закрыта", async () => {
+  const alice = await signedIn("alice@example.com");
+  const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4, 5]);
+  // Путь как у сайта: <владелец>/<растение>/<файл> — правило RLS проверяет обе папки.
+  const path = `${ALICE}/20000000-0000-0000-0000-000000000001/${Date.now()}.jpg`;
+  ok(await alice.storage.from("plant-photos").upload(path, new Blob([bytes], { type: "image/jpeg" }), { contentType: "image/jpeg" }));
+  const again = await alice.storage.from("plant-photos").upload(path, new Blob([bytes]), { contentType: "image/jpeg" });
+  assert.ok(again.error, "без upsert повторная загрузка — ошибка");
+
+  const signed = ok(await alice.storage.from("plant-photos").createSignedUrls([path, `${ALICE}/нет-такого.jpg`], 3600));
+  assert.ok(signed[0].signedUrl, "ссылка на свой файл");
+  assert.equal(signed[1].signedUrl, null, "на несуществующий — нет");
+  const res = await fetch(signed[0].signedUrl);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("content-type"), "image/jpeg");
+  assert.deepEqual(new Uint8Array(await res.arrayBuffer()), bytes);
+  const forged = await fetch(signed[0].signedUrl.replace(/token=[^&]+/, "token=a.b.c"));
+  assert.equal(forged.status, 400, "поддельная ссылка не работает");
+
+  const bob = await signedIn("bob@example.com");
+  const intrusion = await bob.storage.from("plant-photos").upload(`${ALICE}/20000000-0000-0000-0000-000000000001/bob.jpg`, new Blob([bytes]), { contentType: "image/jpeg" });
+  assert.ok(intrusion.error, "Боб не может положить файл в папку Алисы");
+  const anon = await client().storage.from("plant-photos").upload(`${ALICE}/20000000-0000-0000-0000-000000000001/anon.jpg`, new Blob([bytes]));
+  assert.ok(anon.error, "аноним ничего не загружает");
+});
+
 test("продление и выход", async () => {
   const db = await signedIn("alice@example.com");
   const { data, error } = await db.auth.refreshSession();

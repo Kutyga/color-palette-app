@@ -30,7 +30,7 @@ return [
 PHP
 
 echo "== PHP API на 127.0.0.1:$API_PORT"
-PODOKONNIK_CONFIG="$WORK/config.php" php -S "127.0.0.1:$API_PORT" -t "$ROOT/spaceweb/api" "$ROOT/spaceweb/api/index.php" \
+PODOKONNIK_CONFIG="$WORK/config.php" php -d enable_post_data_reading=0 -S "127.0.0.1:$API_PORT" -t "$ROOT/spaceweb/api" "$ROOT/spaceweb/api/index.php" \
   > "$WORK/php.log" 2>&1 &
 PHP_PID=$!
 for _ in $(seq 50); do curl -sf "http://127.0.0.1:$API_PORT/health" >/dev/null && break; sleep 0.1; done

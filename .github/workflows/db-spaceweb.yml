@@ -6,7 +6,9 @@ name: db-spaceweb
 #
 # Нужно (Settings → Secrets and variables → Actions):
 #   Secrets: SUPABASE_DB_URL — строка подключения к Supabase (Connect → Session pooler или прямая);
-#            SPACEWEB_DB_PASSWORD — пароль базы SpaceWeb.
+#            SPACEWEB_DB_PASSWORD — пароль базы SpaceWeb;
+#            SUPABASE_SERVICE_KEY — служебный ключ Supabase (Project Settings → API Keys → secret),
+#            нужен, чтобы скачать фото из хранилища Supabase. Без него фото не переносятся.
 #   Variables (необязательно, по умолчанию — значения из панели SpaceWeb):
 #            SPACEWEB_DB_HOST, SPACEWEB_DB_PORT, SPACEWEB_DB_NAME, SPACEWEB_DB_USER.
 #
@@ -67,3 +69,47 @@ jobs:
           export DST_URL="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER connect_timeout=15"
           [ "$RESET_INPUT" = true ] && export RESET=yes
           bash spaceweb/db/migrate.sh
+      # Фото: скачиваем из хранилища Supabase служебным ключом и кладём на хостинг рядом с сайтом
+      # (podokonnik-storage, вне public_html). Уже загруженные на хостинге файлы не удаляются.
+      - name: Фото
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+        run: |
+          if [ -z "$SERVICE_KEY" ] || [ -z "$SUPABASE_URL" ]; then
+            echo "::warning::Фото не перенесены: добавьте секрет SUPABASE_SERVICE_KEY (и переменную SUPABASE_URL)"
+            exit 0
+          fi
+          export PG_BIN=/usr/lib/postgresql/17/bin
+          for url in $(python3 spaceweb/db/source_url.py "$SUPABASE_DB_URL"); do
+            if "$PG_BIN/psql" "$url" -XAtc 'select 1' >/dev/null 2>&1; then SRC_URL=$url; break; fi
+          done
+          # Новые ключи Supabase (sb_secret_…) — только в apikey; старые (JWT) — ещё и в Authorization.
+          auth=(-H "apikey: $SERVICE_KEY")
+          [ "$(tr -cd . <<< "$SERVICE_KEY" | wc -c)" = 2 ] && auth+=(-H "Authorization: Bearer $SERVICE_KEY")
+          mkdir -p files
+          ok=0; fail=0
+          while IFS= read -r key; do
+            [ -n "$key" ] || continue
+            mkdir -p "files/$(dirname "$key")"
+            if curl -sf --max-time 60 "${auth[@]}" "${SUPABASE_URL%/}/storage/v1/object/$key" -o "files/$key"; then
+              ok=$((ok + 1))
+            else
+              fail=$((fail + 1)); echo "не скачан: $key"
+            fi
+          done < <("$PG_BIN/psql" "$SRC_URL" -XAtc "select bucket_id || '/' || name from storage.objects order by 1")
+          echo "скачано $ok, ошибок $fail"
+          sudo apt-get install -y -qq sshpass >/dev/null
+          install -m 700 -d ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          STORAGE_DIR="$(dirname "$TARGET_DIR")/podokonnik-storage"
+          rsync -rltz --chmod=D700,F600 -e "sshpass -e ssh -p $SSH_PORT -o PubkeyAuthentication=no" \
+            files/ "$SSH_USER@$SSH_HOST:$STORAGE_DIR/"
+          echo "на хостинге: $STORAGE_DIR"
+          [ "$fail" = 0 ] || { echo "::error::Не все фото скачались"; exit 1; }
