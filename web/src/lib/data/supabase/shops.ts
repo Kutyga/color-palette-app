@@ -110,6 +110,11 @@ export class SupabaseShops implements ShopRepository {
     check(await this.db.from("shop_products").update({ in_stock: inStock }).eq("id", productId));
   }
 
+  async deleteShop() {
+    // Товары удаляются вместе с магазином (on delete cascade).
+    check(await this.db.from("shops").delete().eq("owner_id", this.uid));
+  }
+
   async deleteProduct(productId: string) {
     check(await this.db.from("shop_products").delete().eq("id", productId));
   }

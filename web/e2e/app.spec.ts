@@ -492,6 +492,16 @@ test("демо: магазины — «Где купить», «Хочу», ви
   // Пока магазин не проверен, его нет в «Где купить».
   await page.goto("/plants/monstera-deliciosa/");
   await expect(offers).toHaveCount(3);
+
+  // Свой магазин можно удалить — с подтверждением, вместе с каталогом.
+  await page.goto("/shop/manage/");
+  await page.getByRole("button", { name: "Удалить магазин" }).click();
+  await page.getByRole("button", { name: "Отмена" }).click();
+  await expect(page.getByText("Суккуленты у Гостя")).toBeVisible();
+  await page.getByRole("button", { name: "Удалить магазин" }).click();
+  await page.getByRole("button", { name: "Удалить", exact: true }).click();
+  await expect(page.getByText("Магазин удалён")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Заявка" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 

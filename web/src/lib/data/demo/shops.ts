@@ -144,6 +144,13 @@ export class DemoShops implements ShopRepository {
     this.persist();
   }
 
+  async deleteShop() {
+    const shop = this.mine();
+    this.state.shops = this.recs.filter((x) => x.id !== shop.id);
+    delete this.catalog[shop.id];
+    this.persist();
+  }
+
   async deleteProduct(productId: string) {
     const shop = this.mine();
     this.catalog[shop.id] = (this.catalog[shop.id] ?? []).filter((x) => x.id !== productId);
