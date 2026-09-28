@@ -1,7 +1,8 @@
 name: deploy-spaceweb
 
 # Публикует сайт на хостинг SpaceWeb по SSH при изменениях в main — рядом с GitHub Pages.
-# Сайт собирается для корня домена; данные по-прежнему в Supabase.
+# Сайт собирается для корня домена; данные по-прежнему в Supabase. Рядом, в папку api/,
+# выкладывается PHP-API (spaceweb/api) — будущая замена Supabase; сайт на него пока не переключён.
 #
 # Нужно один раз (Settings → Secrets and variables → Actions):
 #   Variables: SPACEWEB_HOST — SSH-сервер из панели SpaceWeb;
@@ -11,13 +12,14 @@ name: deploy-spaceweb
 #   Secret:    SPACEWEB_PASSWORD — пароль SSH из панели SpaceWeb (проще всего, можно с телефона)
 #              или SPACEWEB_SSH_KEY — закрытый ключ, открытый добавлен в панели SpaceWeb → SSH-доступ.
 #              Если заданы оба, используется ключ.
+#   Secret:    SPACEWEB_DB_PASSWORD — пароль базы SpaceWeb (для API; без него API не выкладывается).
 # Пока SPACEWEB_HOST не задан, workflow пропускается.
 #
 # Откат: Actions → deploy-spaceweb → Run workflow, в поле «ref» — коммит или тег прошлой версии.
 on:
   push:
     branches: [main]
-    paths: ["web/**", ".github/workflows/deploy-spaceweb.yml"]
+    paths: ["web/**", "spaceweb/api/**", ".github/workflows/deploy-spaceweb.yml"]
   workflow_dispatch:
     inputs:
       ref:
@@ -36,6 +38,9 @@ jobs:
   deploy:
     if: vars.SPACEWEB_HOST != ''
     runs-on: ubuntu-latest
+    env:
+      # API выкладывается, только когда задан пароль базы SpaceWeb.
+      API_ENABLED: ${{ secrets.SPACEWEB_DB_PASSWORD != '' }}
     defaults:
       run:
         working-directory: web
@@ -99,7 +104,8 @@ jobs:
             *) echo "::error::Подключение не удалось (код $code)"; exit 1 ;;
           esac
       # Отправляются только изменённые файлы; --delete убирает файлы старых версий,
-      # сертификаты (.well-known) не трогаем. Папка сайта должна быть только под «Подоконник».
+      # сертификаты (.well-known) и API (api/ — следующий шаг) не трогаем.
+      # Папка сайта должна быть только под «Подоконник».
       - name: Выкладка
         env:
           SSH_HOST: ${{ vars.SPACEWEB_HOST }}
@@ -107,5 +113,60 @@ jobs:
           TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
           SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
         run: |
-          rsync -rltz --delete --exclude ".well-known/" -e "$SSH_CMD" \
+          rsync -rltz --delete --exclude ".well-known/" --exclude "api/" -e "$SSH_CMD" \
             out/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
+      # API: настройки собираются из секретов и лежат рядом с папкой сайта, а не в ней. Секрет подписи
+      # токенов создаётся на хостинге один раз и дальше не меняется (иначе всех выкинет из аккаунтов).
+      - name: API
+        if: env.API_ENABLED == 'true'
+        working-directory: .
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          DB_PASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          DB_HOST: ${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }}
+          DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5433' }}
+          DB_NAME: ${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }}
+          DB_USER: ${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }}
+          SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+        run: |
+          export CONF_DIR=$(dirname "$TARGET_DIR")
+          php -r '
+            $e = getenv(...);
+            $dir = $e("CONF_DIR");
+            echo "<?php\n// Сгенерировано выкладкой (deploy-spaceweb) — не править вручную.\nreturn ", var_export([
+              "db" => ["dsn" => "pgsql:host=" . $e("DB_HOST") . ";port=" . $e("DB_PORT") . ";dbname=" . $e("DB_NAME"),
+                       "user" => $e("DB_USER"), "password" => trim($e("DB_PASSWORD"))],
+              "jwt_secret" => "",
+              "jwt_secret_file" => $dir . "/podokonnik-jwt.secret",
+              "site_url" => $e("SITE_URL"),
+              "api_url" => $e("SITE_URL") . "/api",
+              "allowed_origins" => [],
+              "confirm_email" => true,
+              "mail_from" => "Подоконник <no-reply@" . parse_url($e("SITE_URL"), PHP_URL_HOST) . ">",
+              "storage_dir" => $dir . "/podokonnik-storage",
+            ], true), ";\n";' > podokonnik-config.php
+          # Файл настроек уходит через stdin — пароль базы не попадает в командную строку и журнал.
+          $SSH_CMD "$SSH_USER@$SSH_HOST" "umask 077 && cat > '$CONF_DIR/podokonnik-config.php' \
+            && { [ -s '$CONF_DIR/podokonnik-jwt.secret' ] || head -c 48 /dev/urandom | base64 > '$CONF_DIR/podokonnik-jwt.secret'; } \
+            && mkdir -p '$CONF_DIR/podokonnik-storage' && mkdir -p '$TARGET_DIR/api'" < podokonnik-config.php
+          rm podokonnik-config.php
+          rsync -rltz --delete --exclude "test/" --exclude "config.example.php" -e "$SSH_CMD" \
+            spaceweb/api/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/api/"
+      - name: Проверка API
+        if: env.API_ENABLED == 'true'
+        env:
+          DB_PASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+          SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+        run: |
+          # Пока нет сертификата — проверяем по http; ошибка API не мешает выкладке сайта.
+          body=$(curl -sk --max-time 20 "${SITE_URL/https:/http:}/api/health" || true)
+          echo "api/health: $body"
+          case "$body" in
+            *'"ok":true'*) echo "API работает" ;;
+            *'"pdo_pgsql":false'*) echo "::warning::На хостинге у PHP нет драйвера PostgreSQL (pdo_pgsql) — включите его в панели SpaceWeb" ;;
+            *'"php":"5.'*|*'"php":"7.'*) echo "::warning::Для сайта выбрана старая версия PHP — выберите PHP 8.3 в панели SpaceWeb" ;;
+            *) echo "::warning::API не отвечает как ожидалось — нужна версия PHP 8.3 для сайта в панели SpaceWeb" ;;
+          esac
