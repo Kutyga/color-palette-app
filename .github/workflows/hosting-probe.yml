@@ -54,12 +54,27 @@ jobs:
           q "select 'расширения доступны: ' || string_agg(name || coalesce(' (' || installed_version || ')', ''), ', ' order by name) from pg_available_extensions where name in ('pgcrypto','uuid-ossp','pg_trgm','citext','unaccent','pg_cron','pg_net','http')"
           q "select 'схемы: ' || string_agg(nspname, ', ') from pg_namespace where nspname not like 'pg_%' and nspname <> 'information_schema'"
           q "select 'лимит подключений: ' || rolconnlimit from pg_roles where rolname = current_user"
-          echo "-- пробная запись (сразу откатывается)"
-          q "begin; create schema probe_tmp; create function probe_tmp.f() returns uuid language plpgsql as \$\$ begin return gen_random_uuid(); end \$\$; select 'plpgsql и gen_random_uuid: ' || (probe_tmp.f() is not null); rollback;"
+          q "select 'createrole: ' || rolcreaterole || ', createdb: ' || rolcreatedb || ', bypassrls: ' || rolbypassrls from pg_roles where rolname = current_user"
+          q "begin; create role podokonnik_probe_role nologin; select 'создать роль: можно'; rollback;"
+          q "begin; create schema probe_tmp; create table probe_tmp.t (id int); alter table probe_tmp.t enable row level security; alter table probe_tmp.t force row level security; select 'force rls: можно'; rollback;"
           q "begin; create extension if not exists pgcrypto; select 'pgcrypto: можно'; rollback;"
-          q "begin; create extension if not exists pg_trgm; select 'pg_trgm: можно'; rollback;"
           EOF
           } | sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no "$SSH_USER@$SSH_HOST" 'IFS= read -r PGPASSWORD; export PGPASSWORD; bash -s'
+      - name: Прямое подключение и туннель
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          PGPASSWORD: ${{ secrets.SPACEWEB_DB_PASSWORD }}
+        run: |
+          sudo apt-get install -y -qq postgresql-client >/dev/null
+          echo "-- напрямую из GitHub"
+          timeout 15 psql "host=pg4.sweb.ru port=5433 dbname=kutygama_podokon user=kutygama_podokon connect_timeout=8" -XAtc "select 'напрямую: работает'" 2>&1 | head -n 2 || true
+          echo "-- через SSH-туннель"
+          sshpass -e ssh -p "$SSH_PORT" -o PubkeyAuthentication=no -o StrictHostKeyChecking=accept-new -o ExitOnForwardFailure=yes -f -N -L 15433:pg4.sweb.ru:5433 "$SSH_USER@$SSH_HOST" 2>&1 | head -n 3 || true
+          sleep 3
+          timeout 15 psql "host=127.0.0.1 port=15433 dbname=kutygama_podokon user=kutygama_podokon connect_timeout=8" -XAtc "select 'туннель: работает'" 2>&1 | head -n 2 || true
       - name: База Supabase
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
