@@ -1,10 +1,11 @@
-/** Участники розыгрыша: победители сверху — список открыт всем. */
+/** Участники розыгрыша: победители сверху, у каждого — номер в очереди жеребьёвки; список открыт всем. */
 
 import { Trophy } from "lucide-react";
 import Link from "next/link";
 import { personHref } from "@/components/people";
 import { Avatar } from "@/components/ui";
 import type { ContestParticipant } from "@/lib/domain/contest";
+import { PrizeStatusChip } from "./handover";
 
 export function ParticipantsList({ participants }: { participants: ContestParticipant[] }) {
   if (!participants.length) return <p className="bg-surface text-secondary rounded-[20px] p-4">Пока никто не участвует — будьте первым.</p>;
@@ -20,6 +21,8 @@ export function ParticipantsList({ participants }: { participants: ContestPartic
                 <Trophy className="size-4" aria-hidden /> {p.place} место
               </span>
             )}
+            {p.forfeitedAt && <PrizeStatusChip participant={p} />}
+            {p.rank != null && <span className="text-secondary w-8 text-right text-[12px]">№{p.rank}</span>}
           </Link>
         </li>
       ))}

@@ -91,6 +91,11 @@ export interface ContestEntryRec {
   userId: string;
   createdAt: string;
   place: number | null;
+  rank?: number | null;
+  claimDeadline?: string | null;
+  claimedAt?: string | null;
+  deliveredAt?: string | null;
+  forfeitedAt?: string | null;
 }
 
 /** Секрет лежит рядом, но наружу отдаётся только после итогов — как в базе. */

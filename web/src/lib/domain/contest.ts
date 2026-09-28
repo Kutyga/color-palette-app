@@ -9,6 +9,8 @@ import { prettyUsername } from "./people";
 export const CONTEST_RULES = {
   /** Участвовать можно через столько дней после регистрации. */
   minAccountDays: 7,
+  /** Столько часов у победителя, чтобы подтвердить «Забираю приз»; потом приз переходит следующему. */
+  claimHours: 72,
   maxDays: 30,
   maxWinners: 5,
 } as const;
@@ -48,8 +50,25 @@ export interface ContestParticipant {
   userId: string;
   username: string;
   displayName: string;
+  /** Место в очереди жеребьёвки (1 — наибольшее u); до итогов — null. */
+  rank: number | null;
   /** Место победителя или null. */
   place: number | null;
+  /** До какого времени победитель должен подтвердить приз. */
+  claimDeadline: Date | null;
+  claimedAt: Date | null;
+  deliveredAt: Date | null;
+  /** Не подтвердил вовремя или отказался — место перешло следующему по очереди. */
+  forfeitedAt: Date | null;
+}
+
+/** Статус вручения для победителя и того, кто место потерял. */
+export type PrizeStatus = "waiting" | "claimed" | "delivered" | "forfeited";
+export function prizeStatus(p: ContestParticipant): PrizeStatus | null {
+  if (p.forfeitedAt) return "forfeited";
+  if (p.place == null) return null;
+  if (p.deliveredAt) return "delivered";
+  return p.claimedAt ? "claimed" : "waiting";
 }
 
 export interface ContestDraft {
@@ -112,30 +131,32 @@ async function drawUniform(seed: string, userId: string): Promise<number> {
 }
 
 /**
- * Победители: у каждого участника число u из секрета, побеждают наибольшие. Секрет неизвестен
- * до конца, поэтому шансы равны и заранее никто, включая организатора, итог не знает.
- * При равенстве — по userId.
+ * Очередь жеребьёвки: у каждого участника число u из секрета, первыми — наибольшие.
+ * Секрет неизвестен до конца, поэтому шансы равны и заранее итог не знает никто, включая
+ * организатора. При равенстве — по userId.
  */
-export async function drawWinners(seed: string, userIds: string[], count: number) {
+export async function drawRanking(seed: string, userIds: string[]) {
   const keyed = await Promise.all(userIds.map(async (userId) => ({ userId, key: await drawUniform(seed, userId) })));
   keyed.sort((a, b) => b.key - a.key || (a.userId < b.userId ? -1 : a.userId > b.userId ? 1 : 0));
-  return keyed.slice(0, count).map((k) => k.userId);
+  return keyed.map((k) => k.userId);
 }
 
-/** Проверка итогов в браузере: секрет совпадает с опубликованным хешем, победители — с расчётом. */
+/**
+ * Проверка итогов в браузере: секрет совпадает с опубликованным хешем, очередь — с расчётом,
+ * а победители — первые по очереди среди тех, кто не потерял место (приз переходит по очереди).
+ */
 export async function verifyDraw(c: Pick<Contest, "seed" | "seedHash" | "winnersCount">, participants: ContestParticipant[]) {
   if (!c.seed) return { hashOk: false, winnersOk: false };
   const hashOk = (await sha256Hex(c.seed)) === c.seedHash;
-  const expected = await drawWinners(
+  const ranking = await drawRanking(
     c.seed,
     participants.map((p) => p.userId),
-    c.winnersCount,
   );
-  const actual = participants
-    .filter((p) => p.place != null)
-    .sort((a, b) => a.place! - b.place!)
-    .map((p) => p.userId);
-  return { hashOk, winnersOk: expected.length === actual.length && expected.every((id, i) => id === actual[i]) };
+  const byId = new Map(participants.map((p) => [p.userId, p]));
+  const ranksOk = ranking.every((id, i) => byId.get(id)?.rank === i + 1);
+  const expected = new Set(ranking.filter((id) => !byId.get(id)?.forfeitedAt).slice(0, c.winnersCount));
+  const actual = participants.filter((p) => p.place != null).map((p) => p.userId);
+  return { hashOk, winnersOk: ranksOk && actual.length === expected.size && actual.every((id) => expected.has(id)) };
 }
 
 // ---------------------------------------------------------------------------
@@ -143,6 +164,7 @@ export async function verifyDraw(c: Pick<Contest, "seed" | "seedHash" | "winners
 // ---------------------------------------------------------------------------
 
 type Row = Record<string, unknown>;
+const dateOrNull = (v: unknown) => (v ? new Date(v as string) : null);
 
 export function contestFromRow(r: Row, photoUrl: string | null, myId: string | null, joined: boolean): Contest {
   const organizer = (r.organizer as { username?: string; display_name?: string | null } | null) ?? {};
@@ -176,5 +198,10 @@ export const participantFromRow = (r: Row): ContestParticipant => ({
   userId: r.user_id as string,
   username: r.username as string,
   displayName: (r.display_name as string) || prettyUsername(r.username as string),
+  rank: r.rank == null ? null : Number(r.rank),
   place: r.place == null ? null : Number(r.place),
+  claimDeadline: dateOrNull(r.claim_deadline),
+  claimedAt: dateOrNull(r.claimed_at),
+  deliveredAt: dateOrNull(r.delivered_at),
+  forfeitedAt: dateOrNull(r.forfeited_at),
 });

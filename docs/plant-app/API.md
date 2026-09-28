@@ -37,7 +37,9 @@
 | `save_push_subscription(p_endpoint, p_p256dh, p_auth, p_user_agent)` | Подписка браузера на Web Push |
 | `join_contest(p_contest)`, `leave_contest(p_contest)` | Участие в розыгрыше; условия (возраст аккаунта, растение со своим фото, город) проверяет функция |
 | `cancel_contest(p_contest)` | Отмена: организатор — пока нет участников, администратор — всегда |
-| `contest_participants(p_contest)` | Участники и места победителей — список открыт всем |
+| `contest_participants(p_contest)` | Участники: очередь жеребьёвки, места и статус вручения — список открыт всем |
+| `claim_prize(p_contest)`, `decline_prize(p_contest)` | Победитель подтверждает приз за 72 часа или отказывается — приз переходит следующему по очереди |
+| `mark_prize_delivered(p_contest, p_user)` | Организатор отмечает, что приз вручён |
 
 ## Хранилище
 

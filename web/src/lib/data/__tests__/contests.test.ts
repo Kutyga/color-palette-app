@@ -64,4 +64,53 @@ describe("розыгрыши в демо-режиме", () => {
     expect(chats.some((x) => x.listingTitle === `🎉 ${c.title}`)).toBe(iWon);
     await expect(b.contests.join(c.id)).rejects.toThrow(/закончился/);
   });
+
+  it("вручение: победитель подтверждает, молчание 72 часа передаёт приз следующему", async () => {
+    let now = start;
+    const b = await demoBackend(memoryDemoStorage(), () => now);
+    await b.contests.join("demo-contest-monstera"); // один победитель, участников трое
+    now = new Date(start.getTime() + 3 * 86_400_000);
+    const id = "demo-contest-monstera";
+    const before = await b.contests.participants(id);
+    const winner = before.find((p) => p.place === 1)!;
+    expect(winner.claimDeadline!.getTime() - now.getTime()).toBe(72 * 3_600_000);
+    if (winner.username === "gost") {
+      await b.contests.claim(id);
+      expect((await b.contests.participants(id)).find((p) => p.username === "gost")?.claimedAt).not.toBeNull();
+      await expect(b.contests.markDelivered(id, winner.userId)).rejects.toThrow(/организатор/);
+    } else {
+      await expect(b.contests.claim(id)).rejects.toThrow(/не победитель/);
+    }
+    // Победитель-демо не подтверждает: через 72 часа место переходит второму в очереди.
+    const second = before.find((p) => p.rank === 2)!;
+    if (winner.username !== "gost") {
+      now = new Date(now.getTime() + 73 * 3_600_000);
+      const after = await b.contests.participants(id);
+      expect(after.find((p) => p.userId === winner.userId)).toMatchObject({ place: null });
+      expect(after.find((p) => p.userId === winner.userId)?.forfeitedAt).not.toBeNull();
+      expect(after.find((p) => p.userId === second.userId)?.place).toBe(1);
+      const c = (await b.contests.contest(id))!;
+      expect(await verifyDraw(c, after)).toEqual({ hashOk: true, winnersOk: true });
+    }
+  });
+
+  it("организатор отмечает вручение после подтверждения; отказ передаёт приз дальше", async () => {
+    let now = start;
+    const b = await demoBackend(memoryDemoStorage(), () => now);
+    const draft: ContestDraft = {
+      title: "Детка хойи",
+      prize: "Хойя",
+      description: "",
+      city: "Москва",
+      delivery: true,
+      winnersCount: 1,
+      days: 1,
+      photo: null,
+    };
+    const mine = await b.contests.create(draft);
+    now = new Date(start.getTime() + 2 * 86_400_000);
+    expect((await b.contests.contest(mine.id))?.status).toBe("finished");
+    expect(await b.contests.participants(mine.id)).toEqual([]); // никто не участвовал — места свободны
+    await expect(b.contests.decline(mine.id)).rejects.toThrow(/не победитель/);
+  });
 });
