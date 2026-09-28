@@ -23,8 +23,8 @@ jobs:
           SSH_PORT: ${{ vars.SPACEWEB_PORT || '22' }}
           SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
           DB_PASS: ${{ secrets.SPACEWEB_DB_PASSWORD }}
-          DB_HOST: ${{ vars.SPACEWEB_DB_HOST || 'pg.sweb.ru' }}
-          DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5432' }}
+          DB_HOST: ${{ vars.SPACEWEB_DB_HOST || 'pg4.sweb.ru' }}
+          DB_PORT: ${{ vars.SPACEWEB_DB_PORT || '5433' }}
           DB_NAME: ${{ vars.SPACEWEB_DB_NAME || 'kutygama_podokon' }}
           DB_USER: ${{ vars.SPACEWEB_DB_USER || 'kutygama_podokon' }}
         run: |
@@ -45,7 +45,7 @@ jobs:
           echo "== Порты, которые слушают на этой машине"
           for f in /proc/net/tcp /proc/net/tcp6; do awk 'NR>1 && $4=="0A" {split($2,a,":"); print strtonum("0x" a[2])}' $f 2>/dev/null; done | sort -nu | tr '\n' ' '; echo
           echo "== Имена серверов"
-          for h in pgsql postgres postgresql pgsql.sweb.ru pg.sweb.ru; do getent hosts $h; done
+          for h in pgsql postgres postgresql pg.sweb.ru pg4.sweb.ru; do getent hosts $h; done
           try() {
             out=$(psql "host=$1 port=$2 dbname=$DB_NAME user=$DB_USER connect_timeout=5 sslmode=prefer" -XAtc "select version(); show server_encoding; show lc_collate; select string_agg(name, ', ' order by name) from pg_available_extensions where name in ('pgcrypto','uuid-ossp','pg_trgm','citext','unaccent','plpgsql'); select current_user, has_database_privilege(current_database(),'CREATE');" 2>&1)
             echo "-- $1:$2"; echo "$out" | head -n 8
