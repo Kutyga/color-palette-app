@@ -4,7 +4,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { listingFromRow, validateListing, type ListingDraft, type ListingFilter, type ListingStatus } from "../../domain/market";
 import type { MarketRepository } from "../repositories";
-import { LISTING_BUCKET, type Row, type SpeciesIds, check, signedUrls } from "./shared";
+import { LISTING_BUCKET, type Row, type SpeciesIds, check, signedUrls, uploadJpeg } from "./shared";
 
 const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, display_name)";
 
@@ -63,7 +63,7 @@ export class SupabaseMarket implements MarketRepository {
     let paths = keepPaths;
     if (d.photo) {
       const path = `${this.uid}/${id}/${Date.now()}.jpg`;
-      check(await this.db.storage.from(LISTING_BUCKET).upload(path, d.photo, { contentType: "image/jpeg" }));
+      await uploadJpeg(this.db, LISTING_BUCKET, path, d.photo);
       paths = [path];
     }
     return {

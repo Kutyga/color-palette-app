@@ -43,6 +43,14 @@ export const profileFromRow = (r: Row): Profile => ({
   isAdmin: Boolean(r.is_admin),
 });
 
+/**
+ * Загрузка фото в JPEG. Байтами, а не Blob: Blob supabase-js шлёт формой с полем без имени,
+ * а PHP на своём хостинге (SpaceWeb) такие поля выбрасывает. Supabase принимает оба варианта.
+ */
+export async function uploadJpeg(db: SupabaseClient, bucket: string, path: string, jpeg: Blob) {
+  check(await db.storage.from(bucket).upload(path, await jpeg.arrayBuffer(), { contentType: "image/jpeg" }));
+}
+
 /** Подписанные ссылки на приватные фото — одним запросом на весь список, живут час. */
 export async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();

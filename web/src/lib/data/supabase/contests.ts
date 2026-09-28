@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { contestFromRow, participantFromRow, sortContests, validateContest, type ContestDraft } from "../../domain/contest";
 import { DAY_MS } from "../../time";
 import type { ContestRepository } from "../repositories";
-import { LISTING_BUCKET, type Row, check, signedUrls } from "./shared";
+import { LISTING_BUCKET, type Row, check, signedUrls, uploadJpeg } from "./shared";
 
 const CONTEST_SELECT = "*, organizer:profiles!contests_organizer_id_fkey(username, display_name), entries:contest_entries(count)";
 /** Законченные розыгрыши показываем ещё две недели — с итогами и проверкой. */
@@ -65,7 +65,7 @@ export class SupabaseContests implements ContestRepository {
     let photoPath: string | null = null;
     if (d.photo) {
       photoPath = `${this.uid}/contests/${id}/${Date.now()}.jpg`;
-      check(await this.db.storage.from(LISTING_BUCKET).upload(photoPath, d.photo, { contentType: "image/jpeg" }));
+      await uploadJpeg(this.db, LISTING_BUCKET, photoPath, d.photo);
     }
     const row = check(
       await this.db
