@@ -17,6 +17,7 @@ export const DIARY_EVENTS = {
   cutting: { label: "Черенок или детка", emoji: "✂️" },
   rescue: { label: "Спасение", emoji: "🩹" },
   progress: { label: "Как растёт", emoji: "📏" },
+  tip: { label: "Совет", emoji: "💡" },
 } as const;
 export type DiaryEvent = keyof typeof DIARY_EVENTS;
 const isDiaryEvent = (v: unknown): v is DiaryEvent => typeof v === "string" && v in DIARY_EVENTS;
@@ -37,6 +38,8 @@ export interface FeedPost {
   authorName: string;
   /** Имя, которое автор указал в профиле. */
   authorDisplayName: string;
+  /** Автор — команда «Подоконника» (администратор). */
+  authorIsTeam: boolean;
   text: string;
   createdAt: Date;
   plantId: string | null;
@@ -131,7 +134,7 @@ export function postFromRow(
   r: Row,
   opts: { photoUrl?: string | null; likedByMe?: boolean; following?: boolean; myId?: string | null },
 ): FeedPost {
-  const author = r.author as { username?: string; display_name?: string | null } | null;
+  const author = r.author as { username?: string; display_name?: string | null; is_admin?: boolean } | null;
   const plant = r.plant as { nickname?: string } | null;
   const kind = r.kind === "question" ? "question" : "diary";
   return {
@@ -144,6 +147,7 @@ export function postFromRow(
     authorId: r.author_id as string,
     authorName: author?.username ?? "садовник",
     authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),
+    authorIsTeam: author?.is_admin === true,
     text: (r.text as string | null) ?? "",
     createdAt: new Date(r.created_at as string),
     plantId: (r.plant_id as string | null) ?? null,

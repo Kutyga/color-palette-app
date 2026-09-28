@@ -787,6 +787,17 @@ do $$ begin
 end $$;
 set role authenticated;
 
+-- Советы команды (администратора) видны в «Подписках» даже тем, кто ни на кого не подписан.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.posts (kind, event, text) values ('milestone', 'tip', 'Совет команды');
+reset role;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000e1', 'newbie@example.com');
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+do $$ begin
+  assert exists (select 1 from public.feed_diaries('following') where text = 'Совет команды'), 'новичок видит советы команды';
+end $$;
+
 -- ---------------------------------------------------------------------------
 -- Конкурсы: условия участия и честная жеребьёвка.
 -- Дина проводит розыгрыш в Москве без доставки, участвуют Егор и Лев.

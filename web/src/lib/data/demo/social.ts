@@ -40,6 +40,7 @@ export class DemoSocial implements SocialRepository {
         p.authorId === ME
           ? (me.displayName ?? "Вы")
           : (p.authorDisplayName ?? DEMO_PEOPLE.find((d) => demoId(d.username) === p.authorId)?.displayName ?? p.authorName),
+      authorIsTeam: p.authorId === ME ? Boolean(me.isAdmin) : false,
       createdAt: new Date(p.createdAt),
       mine: p.authorId === ME,
       following: (this.state.following ?? []).includes(p.authorId),
