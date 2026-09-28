@@ -150,6 +150,9 @@ test("фото: загрузка в свою папку, подписанная 
   // Путь как у сайта: <владелец>/<растение>/<файл> — правило RLS проверяет обе папки.
   const path = `${ALICE}/20000000-0000-0000-0000-000000000001/${Date.now()}.jpg`;
   ok(await alice.storage.from("plant-photos").upload(path, new Blob([bytes], { type: "image/jpeg" }), { contentType: "image/jpeg" }));
+  // Так грузит сайт (uploadJpeg): байтами, без формы — работает и там, где PHP разбирает формы сам.
+  const rawPath = path.replace(".jpg", "-raw.jpg");
+  ok(await alice.storage.from("plant-photos").upload(rawPath, bytes.buffer, { contentType: "image/jpeg" }));
   const again = await alice.storage.from("plant-photos").upload(path, new Blob([bytes]), { contentType: "image/jpeg" });
   assert.ok(again.error, "без upsert повторная загрузка — ошибка");
 

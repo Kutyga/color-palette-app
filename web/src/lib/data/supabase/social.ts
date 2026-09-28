@@ -13,7 +13,7 @@ import {
   type ReaderArticle,
 } from "../../domain/social";
 import type { SocialRepository } from "../repositories";
-import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, signedUrls } from "./shared";
+import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, signedUrls, uploadJpeg } from "./shared";
 
 export class SupabaseSocial implements SocialRepository {
   constructor(
@@ -102,7 +102,7 @@ export class SupabaseSocial implements SocialRepository {
     const paths: string[] = [];
     if (post.photo) {
       const path = `${this.uid}/${id}/0.jpg`;
-      check(await this.db.storage.from(POST_BUCKET).upload(path, post.photo, { contentType: "image/jpeg" }));
+      await uploadJpeg(this.db, POST_BUCKET, path, post.photo);
       paths.push(path);
     }
     const row = check(

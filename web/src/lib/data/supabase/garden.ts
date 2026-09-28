@@ -8,7 +8,7 @@ import { coverPathOf, plantFromRow, type Location } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
-import { PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls } from "./shared";
+import { PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls, uploadJpeg } from "./shared";
 
 export class SupabaseGarden implements GardenRepository {
   constructor(
@@ -107,7 +107,7 @@ export class SupabaseGarden implements GardenRepository {
   async setPlantPhoto(plantId: string, jpeg: Blob) {
     const photoId = crypto.randomUUID();
     const path = `${this.uid}/${plantId}/${photoId}.jpg`;
-    check(await this.db.storage.from(PLANT_BUCKET).upload(path, jpeg, { contentType: "image/jpeg" }));
+    await uploadJpeg(this.db, PLANT_BUCKET, path, jpeg);
     check(await this.db.from("plant_photos").insert({ id: photoId, plant_id: plantId, storage_path: path }));
     check(await this.db.from("plants").update({ cover_photo_id: photoId }).eq("id", plantId));
   }
