@@ -12,10 +12,17 @@ require __DIR__ . '/lib/Db.php';
 require __DIR__ . '/lib/Schema.php';
 require __DIR__ . '/lib/Auth.php';
 require __DIR__ . '/lib/Rest.php';
+require __DIR__ . '/lib/Storage.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+// Адрес папки API от корня сайта (на хостинге — «/api»). По SCRIPT_NAME нельзя: встроенный сервер
+// PHP для адресов вида «…/фото.jpg» подставляет туда сам адрес.
+$root = realpath((string) ($_SERVER['DOCUMENT_ROOT'] ?? '')) ?: '';
+$here = realpath(__DIR__) ?: __DIR__;
+$base = $root !== '' && str_starts_with($here, $root)
+    ? rtrim(str_replace('\\', '/', substr($here, strlen($root))), '/')
+    : rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 $path = trim(substr($uri, strlen($base)), '/');
 $area = explode('/', $path, 2)[0];
 
@@ -28,12 +35,15 @@ try {
         match ($m[1]) {
             'auth' => Auth::handle($method, $m[2]),
             'rest' => Rest::handle($method, $m[2]),
+            'storage' => Storage::handle($method, $m[2]),
             default => throw new ApiError(501, 'Ещё не перенесено на SpaceWeb', 'not_implemented'),
         };
     }
     if ($path === '' || $path === 'health') {
         // Проверка после выкладки: версия PHP, драйвер PostgreSQL, связь с базой.
-        $health = ['php' => PHP_VERSION, 'pdo_pgsql' => extension_loaded('pdo_pgsql'), 'db' => false];
+        $health = ['php' => PHP_VERSION, 'pdo_pgsql' => extension_loaded('pdo_pgsql'), 'db' => false,
+                   // Загрузка фото: разбор форм должен быть выключен (.user.ini), иначе файл из supabase-js теряется.
+                   'uploads' => !filter_var(ini_get('enable_post_data_reading'), FILTER_VALIDATE_BOOLEAN)];
         $health['db'] = $health['pdo_pgsql'] && Db::value(Db::pdo(), 'select 1') === 1;
         Http::json($health['db'] ? 200 : 503, ['ok' => $health['db']] + $health);
     }
@@ -50,6 +60,9 @@ try {
 /** Ошибка в формате той части Supabase, к которой обращались. */
 function fail(string $area, ApiError $e): never
 {
+    if ($area === 'storage') {
+        Http::json($e->status, ['statusCode' => (string) $e->status, 'error' => $e->errorCode ?: 'Error', 'message' => $e->getMessage()]);
+    }
     if ($area === 'auth') {
         Http::json($e->status, ['code' => $e->status, 'error_code' => $e->errorCode, 'msg' => $e->getMessage()]);
     }
