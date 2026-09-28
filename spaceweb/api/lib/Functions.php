@@ -53,10 +53,7 @@ final class Functions
 
     private static function identify(array $body): never
     {
-        $service = self::cronSecretOk(Http::header('x-cron-secret'));
-        $userId = $service ? self::SERVICE_USER : (Auth::claims()['sub'] ?? null);
-        // Проверочный вызов со служебным секретом видит тексты ошибок сервисов; пользователи — нет.
-        $errors = [];
+        $userId = self::cronSecretOk(Http::header('x-cron-secret')) ? self::SERVICE_USER : (Auth::claims()['sub'] ?? null);
         if ($userId === null) {
             Http::json(401, ['error' => 'unauthorized']);
         }
@@ -92,22 +89,16 @@ final class Functions
                 $diseases = self::plantnet('diseases/identify', $plantnetKey, $image, $organ, [self::class, 'toDiseases']);
             } catch (Throwable $e) {
                 error_log('podokonnik plantnet diseases: ' . $e->getMessage());
-                $errors['plantnet'] = $e->getMessage();
             }
             try {
                 $ai = $geminiKey ? self::gemini($geminiKey, $image, isset($body['plant_hint']) ? (string) $body['plant_hint'] : null) : null;
             } catch (Throwable $e) {
                 error_log('podokonnik gemini: ' . $e->getMessage());
-                $errors['gemini'] = $e->getMessage();
             }
-            if (!$geminiKey) {
-                $errors['gemini'] = 'нет ключа';
-            }
-            $detail = $service && $errors ? ['errors' => $errors] : [];
             if ($diseases === null && $ai === null) {
-                Http::json(502, ['error' => 'upstream'] + $detail);
+                Http::json(502, ['error' => 'upstream']);
             }
-            Http::json(200, ['source' => 'plantnet', 'diseases' => $diseases ?? [], 'ai' => $ai] + $detail);
+            Http::json(200, ['source' => 'plantnet', 'diseases' => $diseases ?? [], 'ai' => $ai]);
         }
 
         try {
@@ -118,7 +109,7 @@ final class Functions
             });
         } catch (Throwable $e) {
             error_log('podokonnik plantnet identify: ' . $e->getMessage());
-            Http::json(502, ['error' => 'upstream'] + ($service ? ['errors' => ['plantnet' => $e->getMessage()]] : []));
+            Http::json(502, ['error' => 'upstream']);
         }
         Http::json(200, ['source' => 'plantnet', 'results' => $results,
                          'remaining' => $payload['remainingIdentificationRequests'] ?? null]);
