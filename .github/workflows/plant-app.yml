@@ -2,9 +2,9 @@ name: plant-app
 
 on:
   push:
-    paths: ["web/**", "supabase/**", "scripts/**", ".github/workflows/plant-app.yml"]
+    paths: ["web/**", "supabase/**", "scripts/**", "spaceweb/**", ".github/workflows/plant-app.yml"]
   pull_request:
-    paths: ["web/**", "supabase/**", "scripts/**", ".github/workflows/plant-app.yml"]
+    paths: ["web/**", "supabase/**", "scripts/**", "spaceweb/**", ".github/workflows/plant-app.yml"]
 
 jobs:
   web:
@@ -43,6 +43,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Migrations + smoke test on local Postgres
         run: scripts/check-migrations.sh
+      - name: Перенос на SpaceWeb (локальная репетиция) + проверка RLS без ролей
+        run: spaceweb/db/test-local.sh
 
   news-ingest:
     runs-on: ubuntu-latest
