@@ -1141,6 +1141,9 @@ set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
 insert into public.messages (conversation_id, body)
 values ((select id from public.conversations where direct), 'Собеседник пишет как обычно');
 reset role;
+-- Снимаем паузу: дальше по этой базе идут тесты API от имени тех же садоводов.
+delete from private.moderation_mutes;
+delete from private.moderation_strikes;
 
 -- База знаний: у каждого вида — программа подкормки; поиск находит вид по сорту.
 do $$ begin
