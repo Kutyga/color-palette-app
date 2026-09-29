@@ -12,10 +12,10 @@ import { KindBadge, ReportSheet, listingPhoto } from "@/components/market";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
 import { Avatar, Button, EmptyState, ErrorNote, LARGE_PHOTO, PlantPhoto, Sheet, Spinner, useToast } from "@/components/ui";
+import { catalogById } from "@/lib/catalog";
 import { LISTING_STATUS, priceLabel, type Listing, type ListingStatus } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
-import { speciesById } from "@/lib/knowledge";
 import { useListing } from "@/lib/queries";
 
 /** Кнопки продавца: статус, правка, удаление. */
@@ -140,7 +140,7 @@ function ListingView() {
   if (listing.error) return <ErrorNote error={listing.error} onRetry={() => listing.refetch()} />;
   if (!listing.data) return <EmptyState icon={Store} title="Объявление не найдено" message="Его удалили или оно скрыто." />;
   const l = listing.data;
-  const sp = speciesById(l.speciesId);
+  const sp = catalogById(l.speciesId);
   const photo = listingPhoto(l);
   return (
     <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">

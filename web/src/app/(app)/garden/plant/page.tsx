@@ -18,7 +18,7 @@ import {
   SpeciesNotes,
 } from "@/components/plant-card";
 import { ErrorNote, SectionTitle, Spinner } from "@/components/ui";
-import { speciesBySlug } from "@/lib/knowledge";
+import { catalogBySlug } from "@/lib/catalog";
 import { usePlantDetails } from "@/lib/queries";
 
 function PlantView({ id }: { id: string }) {
@@ -29,7 +29,7 @@ function PlantView({ id }: { id: string }) {
   if (details.isPending) return <Spinner />;
   if (details.error) return <ErrorNote error={details.error} onRetry={() => details.refetch()} />;
   const { plant, schedules, events } = details.data;
-  const species = speciesBySlug(plant.speciesSlug);
+  const species = catalogBySlug(plant.speciesSlug);
 
   return (
     <div className="pt-4">
@@ -60,7 +60,7 @@ function PlantView({ id }: { id: string }) {
       <SectionTitle>Журнал</SectionTitle>
       <CareJournal events={events} />
 
-      {species && <SpeciesNotes species={species} />}
+      {species && <SpeciesNotes slug={species.slug} />}
 
       <DeletePlantButton plant={plant} />
     </div>

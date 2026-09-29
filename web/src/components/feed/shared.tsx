@@ -8,10 +8,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Leaf } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { catalogById } from "@/lib/catalog";
 import type { FeedPost } from "@/lib/domain/social";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
-import { speciesById } from "@/lib/knowledge";
 import { FollowButton as PersonFollowButton, personHref } from "../people";
 import { useBackend } from "../session";
 import { Avatar, cx, useToast } from "../ui";
@@ -94,7 +94,7 @@ export function FollowAuthor({ post }: { post: FeedPost }) {
 }
 
 export function SpeciesLink({ speciesId, className }: { speciesId: string | null; className?: string }) {
-  const sp = speciesById(speciesId);
+  const sp = catalogById(speciesId);
   if (!sp) return null;
   return (
     <Link href={`/plants/${sp.slug}/`} className={cx("text-secondary hover:text-leaf inline-flex min-w-0 items-center gap-1", className)}>

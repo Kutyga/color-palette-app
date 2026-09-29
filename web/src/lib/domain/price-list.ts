@@ -3,7 +3,7 @@
  * сопоставление товаров с видами из базы знаний, выгрузка каталога и шаблон.
  */
 import type { ProductInput, ShopProduct } from "./shop";
-import type { Species } from "./species";
+import type { SpeciesSummary } from "./species";
 
 // ---------------------------------------------------------------------------
 // CSV
@@ -136,13 +136,13 @@ export function parseInStock(v: unknown): boolean {
 const norm = (s: string) => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim();
 
 interface NameIndex {
-  species: Species;
+  species: SpeciesSummary;
   name: string;
   latin: boolean;
 }
 
 /** Индекс названий для сопоставления — строится один раз на весь файл. */
-export function speciesMatcher(all: Species[]) {
+export function speciesMatcher(all: SpeciesSummary[]) {
   const names: NameIndex[] = all.flatMap((s) => [
     ...[s.latinName, ...s.synonyms].map((n) => ({ species: s, name: norm(n), latin: true })),
     ...s.commonNamesRu.map((n) => ({ species: s, name: norm(n), latin: false })),
@@ -161,7 +161,7 @@ export function speciesMatcher(all: Species[]) {
     }
   };
   /** Вид по названию товара или колонке «Вид»: латынь надёжнее, потом русские названия. */
-  return (text: string): Species | null => {
+  return (text: string): SpeciesSummary | null => {
     const t = norm(text);
     if (!t) return null;
     const latin = names.find((n) => n.latin && n.name.length >= 4 && bounded(t, n.name));
@@ -228,7 +228,7 @@ const httpUrl = (v: string, httpsOnly = false) =>
 const positive = (n: number | null, max: number) => (n != null && n > 0 && n < max ? n : null);
 
 /** Строки файла → товары для импорта; ошибочные помечены и не загружаются. */
-export function rowsToProducts(rows: unknown[][], mapping: ColumnMapping, match: (text: string) => Species | null): ParsedRow[] {
+export function rowsToProducts(rows: unknown[][], mapping: ColumnMapping, match: (text: string) => SpeciesSummary | null): ParsedRow[] {
   const at = (row: unknown[], f: ImportField) => (mapping[f] == null ? null : row[mapping[f]!]);
   const seen = new Set<string>();
   return rows.map((row, i) => {

@@ -1,49 +1,24 @@
 "use client";
 
-/** Каталог видов: поиск, подборки и карточки видов с пометкой «безопасно для животных». */
+/**
+ * Витрина базы знаний: поиск по лёгкому указателю и подборки. Пока ничего не ищут —
+ * показываются группы (их рисует сервер и передаёт в children).
+ */
 
-import { PawPrint, Search, SearchX } from "lucide-react";
-import Link from "next/link";
-import { useDeferredValue, useState } from "react";
-import { COLLECTIONS, DIFFICULTY_LABELS, speciesName, type Species } from "@/lib/domain/species";
-import { searchSpecies } from "@/lib/knowledge";
-import { Chip, EmptyState, PlantPhoto } from "./ui";
+import { Search, SearchX } from "lucide-react";
+import { useDeferredValue, useState, type ReactNode } from "react";
+import { searchCatalog } from "@/lib/catalog";
+import { COLLECTIONS } from "@/lib/domain/species";
+import { SpeciesRows } from "./species-list";
+import { Chip, EmptyState } from "./ui";
 
-export function SpeciesCard({ s }: { s: Species }) {
-  return (
-    <Link href={`/plants/${s.slug}/`} className="group bg-surface block overflow-hidden rounded-[20px]">
-      <div className="overflow-hidden">
-        <PlantPhoto
-          src={s.image?.url}
-          seed={s.slug}
-          alt=""
-          className="aspect-[4/3] w-full transition group-hover:scale-[1.03]"
-          iconSize={36}
-        />
-      </div>
-      <div className="p-4">
-        <p className="leading-snug font-semibold">{speciesName(s)}</p>
-        <p className="text-secondary truncate text-[13px] italic">{s.latinName}</p>
-        <div className="mt-2 flex flex-wrap gap-1.5 text-[12px] font-medium">
-          {s.difficulty != null && <span className="bg-muted rounded-full px-2 py-0.5">{DIFFICULTY_LABELS[s.difficulty]}</span>}
-          {s.toxicToPets === false && (
-            <span className="bg-leaf/15 text-leaf inline-flex items-center gap-1 rounded-full px-2 py-0.5">
-              <PawPrint className="size-3" aria-hidden /> безопасно
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-/** Огромное поле поиска и витрина подборок, как на apple.com. */
-export function KnowledgeBrowser() {
+export function KnowledgeBrowser({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("");
   const [collection, setCollection] = useState<string | null>(null);
   const deferred = useDeferredValue(query);
   const filter = COLLECTIONS.find((c) => c.id === collection);
-  const results = searchSpecies(deferred).filter((s) => !filter || filter.test(s));
+  const browsing = !deferred.trim() && !filter;
+  const results = browsing ? [] : searchCatalog(deferred).filter((s) => !filter || filter.test(s));
 
   return (
     <>
@@ -68,15 +43,20 @@ export function KnowledgeBrowser() {
           </Chip>
         ))}
       </div>
-      {filter && <p className="text-secondary mt-3 text-[15px]">{filter.subtitle}</p>}
-      {results.length === 0 ? (
-        <EmptyState icon={SearchX} title="Ничего не нашли" message="Попробуйте латинское или другое народное название." />
+      {browsing ? (
+        children
       ) : (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {results.map((s) => (
-            <SpeciesCard key={s.slug} s={s} />
-          ))}
-        </div>
+        <>
+          <p className="text-secondary mt-3 text-[15px]">
+            {filter ? `${filter.subtitle} · ` : ""}
+            {results.length ? `найдено ${results.length}` : ""}
+          </p>
+          {results.length === 0 ? (
+            <EmptyState icon={SearchX} title="Ничего не нашли" message="Попробуйте латинское или другое народное название." />
+          ) : (
+            <SpeciesRows species={results} />
+          )}
+        </>
       )}
     </>
   );

@@ -1,6 +1,6 @@
 /** Распознавание по фото: сопоставление ответа Pl@ntNet с видами из базы знаний. */
 
-import type { Species } from "./species";
+import type { SpeciesSummary } from "./species";
 
 /** Ответ распознавателя: латинское название, уверенность 0…1 и, если есть, народное название. */
 export interface Prediction {
@@ -16,14 +16,14 @@ export interface IdentificationCandidate {
   score: number;
   percent: number;
   /** Вид из базы знаний: точное совпадение или (если genusOnly) вид того же рода. */
-  species: Species | null;
+  species: SpeciesSummary | null;
   genusOnly: boolean;
 }
 
 const normalize = (s: string) => s.toLowerCase().replaceAll("×", " ").replace(/\s+/g, " ").trim();
 
 /** Сопоставляет латинское название с базой знаний: сначала точное (с синонимами), потом по роду. */
-export function matchSpecies(p: Prediction, knowledgeBase: Species[]): IdentificationCandidate {
+export function matchSpecies(p: Prediction, knowledgeBase: SpeciesSummary[]): IdentificationCandidate {
   const base = {
     latinName: p.label,
     commonName: p.commonName ?? null,

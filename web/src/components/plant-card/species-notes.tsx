@@ -1,28 +1,39 @@
-/** Из базы знаний о виде: грунт для пересадки и советы по уходу. */
+"use client";
 
+/**
+ * Из базы знаний о виде: грунт для пересадки и советы по уходу. Полные данные базы знаний
+ * подгружаются отдельным файлом только здесь — остальным страницам хватает лёгкого указателя.
+ */
+
+import { useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
 import { SoilSummary } from "@/components/soil-schematic";
 import { SectionTitle } from "@/components/ui";
-import type { Species } from "@/lib/domain/species";
-import { soilMixFor } from "@/lib/knowledge";
 
-export function SpeciesNotes({ species }: { species: Species }) {
-  const soil = soilMixFor(species);
-  const tips = species.care?.tipsRu ?? [];
+async function loadNotes(slug: string) {
+  const kb = await import("@/lib/knowledge");
+  const species = kb.speciesBySlug(slug);
+  return { soil: kb.soilMixFor(species), tips: species?.care?.tipsRu ?? [] };
+}
+
+export function SpeciesNotes({ slug }: { slug: string }) {
+  const notes = useQuery({ queryKey: ["species-notes", slug], queryFn: () => loadNotes(slug), staleTime: Infinity });
+  if (!notes.data) return null;
+  const { soil, tips } = notes.data;
   return (
     <>
       {soil && (
         <>
           <SectionTitle>Грунт для пересадки</SectionTitle>
-          <SoilSummary mix={soil} href={`/plants/${species.slug}/#soil`} />
+          <SoilSummary mix={soil} href={`/plants/${slug}/#soil`} />
         </>
       )}
       {tips.length > 0 && (
         <>
           <SectionTitle
             action={
-              <Link href={`/plants/${species.slug}/`} className="text-leaf flex items-center gap-1 text-[15px] font-semibold">
+              <Link href={`/plants/${slug}/`} className="text-leaf flex items-center gap-1 text-[15px] font-semibold">
                 <BookOpen className="size-4" aria-hidden /> Всё о виде
               </Link>
             }

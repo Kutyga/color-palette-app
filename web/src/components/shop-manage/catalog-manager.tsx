@@ -9,12 +9,12 @@ import { Download, FileSpreadsheet, Search, Trash2, Upload } from "lucide-react"
 import { useRef, useState } from "react";
 import { useBackend } from "@/components/session";
 import { Button, Card, ErrorNote, Spinner, cx, inputClass, useToast } from "@/components/ui";
+import { catalogById } from "@/lib/catalog";
 import { TEMPLATE_CSV, guessMapping, productsToCsv } from "@/lib/domain/price-list";
 import type { Shop, ShopProduct } from "@/lib/domain/shop";
 import { speciesName } from "@/lib/domain/species";
 import { download, readTable } from "@/lib/files";
 import { plural } from "@/lib/format";
-import { speciesById } from "@/lib/knowledge";
 import { useShopProducts } from "@/lib/queries";
 import { ImportPreview, type ImportState } from "./import-preview";
 
@@ -27,7 +27,7 @@ function ProductRow({ product: p, shopId }: { product: ShopProduct; shopId: stri
   const qc = useQueryClient();
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
-  const sp = speciesById(p.speciesId);
+  const sp = catalogById(p.speciesId);
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["shops"] });
     qc.invalidateQueries({ queryKey: ["stats"] });
@@ -155,7 +155,7 @@ export function CatalogManager({ shop }: { shop: Shop }) {
               onClick={() =>
                 download(
                   `katalog-${new Date().toISOString().slice(0, 10)}.csv`,
-                  productsToCsv(list, (id) => speciesById(id)?.latinName ?? null),
+                  productsToCsv(list, (id) => catalogById(id)?.latinName ?? null),
                 )
               }
             >

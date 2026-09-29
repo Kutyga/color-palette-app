@@ -117,3 +117,40 @@ if (ferts) {
   writeFileSync(fertOut, JSON.stringify(sorted, null, 1) + "\n");
   console.log(`sync-species: ${sorted.length} программ подкормки → src/data/fertilizers.json`);
 }
+
+// Лёгкий указатель для браузера (src/data/species-index.json): названия, фото, сложность, группа —
+// без ухода и описаний. Строится из снимка всегда, даже без доступа к API. Правила групп —
+// src/data/species-groups.json (их же применяет lib/domain/groups.ts; тест сверяет результат).
+const indexOut = fileURLToPath(new URL("../src/data/species-index.json", import.meta.url));
+const groupsFile = fileURLToPath(new URL("../src/data/species-groups.json", import.meta.url));
+const { rules } = JSON.parse(readFileSync(groupsFile, "utf8"));
+const groupOf = (s) => {
+  const genus = s.latin_name.replace(/^×\s*/, "").split(" ")[0];
+  const fert = s.care_profiles?.fertilizer_slug;
+  const rule = rules.find(
+    (r) =>
+      (!r.fertilizer && !r.plantType && !r.genus) ||
+      (fert && r.fertilizer?.includes(fert)) ||
+      (s.plant_type && r.plantType?.includes(s.plant_type)) ||
+      r.genus?.includes(genus),
+  );
+  return rule?.group ?? "foliage";
+};
+const snapshot = JSON.parse(readFileSync(out, "utf8"));
+const index = snapshot.map((s) => ({
+  slug: s.slug,
+  latin: s.latin_name,
+  ru: s.common_names?.ru ?? [],
+  en: s.common_names?.en ?? [],
+  syn: s.synonyms ?? [],
+  cv: (s.cultivars ?? []).filter((c) => c?.name).map((c) => [c.name, c.ru ?? null]),
+  img: s.image_url ?? null,
+  diff: s.difficulty ?? null,
+  pets: s.toxic_to_pets ?? null,
+  air: s.air_purifying ?? null,
+  light: s.care_profiles?.light ?? null,
+  type: s.plant_type ?? null,
+  group: groupOf(s),
+}));
+writeFileSync(indexOut, JSON.stringify(index) + "\n");
+console.log(`sync-species: указатель ${index.length} видов → src/data/species-index.json`);

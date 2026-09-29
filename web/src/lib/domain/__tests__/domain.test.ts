@@ -123,6 +123,8 @@ const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = 
   airPurifying: null,
   image: null,
   care: null,
+  light: null,
+  group: "foliage",
   cultivars,
 });
 const kb = [

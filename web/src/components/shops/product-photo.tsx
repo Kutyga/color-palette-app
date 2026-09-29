@@ -3,11 +3,11 @@
 /** Фото товара: своё из прайса или, если его нет, фото вида из базы знаний. */
 
 import { PlantPhoto } from "@/components/ui";
-import { speciesById } from "@/lib/knowledge";
+import { catalogById } from "@/lib/catalog";
 
 /** Фото товара: своё из каталога или фото вида. */
 const productPhoto = (p: { imageUrl: string | null; speciesId: string | null }) =>
-  p.imageUrl ?? speciesById(p.speciesId)?.image?.url ?? null;
+  p.imageUrl ?? catalogById(p.speciesId)?.image?.url ?? null;
 
 export function ProductPhoto({
   product,

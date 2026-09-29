@@ -5,10 +5,10 @@
 import { ChevronRight, Search, X } from "lucide-react";
 import { useState } from "react";
 import { PlantPhoto, cx, inputClass } from "@/components/ui";
-import { speciesName, type Species } from "@/lib/domain/species";
-import { searchSpecies } from "@/lib/knowledge";
+import { searchCatalog } from "@/lib/catalog";
+import { speciesName, type SpeciesSummary } from "@/lib/domain/species";
 
-export function SpeciesPicker({ value, onChange }: { value: Species | null; onChange: (s: Species | null) => void }) {
+export function SpeciesPicker({ value, onChange }: { value: SpeciesSummary | null; onChange: (s: SpeciesSummary | null) => void }) {
   const [query, setQuery] = useState("");
   if (value) {
     return (
@@ -29,7 +29,7 @@ export function SpeciesPicker({ value, onChange }: { value: Species | null; onCh
       </div>
     );
   }
-  const results = query.trim() ? searchSpecies(query).slice(0, 6) : [];
+  const results = query.trim() ? searchCatalog(query).slice(0, 6) : [];
   return (
     <div>
       <div className="relative">

@@ -5,12 +5,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FertilizerCard } from "@/components/fertilizer-card";
-import { SpeciesCard } from "@/components/knowledge-browser";
 import { WhereToBuy, WishButton } from "@/components/shops";
 import { SoilSchematic } from "@/components/soil-schematic";
+import { SpeciesCard } from "@/components/species-list";
 import { LARGE_PHOTO, PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
-import { DIFFICULTY_LABELS, speciesName } from "@/lib/domain/species";
+import { speciesGroup } from "@/lib/domain/groups";
+import { DIFFICULTY_LABELS, speciesName, toSummary } from "@/lib/domain/species";
 import { MONTHS_SHORT, plural } from "@/lib/format";
 import { ALL_SPECIES, fertilizerFor, soilMixFor, speciesBySlug } from "@/lib/knowledge";
 
@@ -47,9 +48,11 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
   const soil = soilMixFor(s);
   const fertilizer = fertilizerFor(s);
   const similar = ALL_SPECIES.filter((x) => x.slug !== s.slug && x.latinName.split(" ")[0] === s.latinName.split(" ")[0])
-    .concat(ALL_SPECIES.filter((x) => x.slug !== s.slug && x.plantType === s.plantType))
+    .concat(ALL_SPECIES.filter((x) => x.slug !== s.slug && x.group === s.group))
     .filter((x, i, arr) => arr.indexOf(x) === i)
-    .slice(0, 4);
+    .slice(0, 4)
+    .map(toSummary);
+  const group = speciesGroup(s.group);
 
   return (
     <article className="pt-6">
@@ -57,7 +60,16 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
         <Link href="/plants/" className="hover:text-label">
           Знания
         </Link>{" "}
-        / {name}
+        /{" "}
+        {group && (
+          <>
+            <Link href={`/plants/group/${group.id}/`} className="hover:text-label">
+              {group.title}
+            </Link>{" "}
+            /{" "}
+          </>
+        )}
+        {name}
       </nav>
 
       <div className="mt-4 grid gap-8 md:grid-cols-[1fr_1.1fr] md:items-center">

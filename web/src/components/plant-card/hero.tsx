@@ -9,9 +9,9 @@ import { CameraCapture } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { LARGE_PHOTO, PlantPhoto, useToast } from "@/components/ui";
 import type { Plant } from "@/lib/domain/plant";
-import type { Species } from "@/lib/domain/species";
+import type { SpeciesSummary } from "@/lib/domain/species";
 
-export function PlantHero({ plant, species }: { plant: Plant; species: Species | null }) {
+export function PlantHero({ plant, species }: { plant: Plant; species: SpeciesSummary | null }) {
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();

@@ -11,15 +11,15 @@ import { CameraField } from "@/components/camera";
 import { listingHref } from "@/components/market";
 import { useBackend } from "@/components/session";
 import { Button, Chip, Field, PageHeader, Spinner, cx, inputClass, useToast } from "@/components/ui";
+import { CATALOG, catalogById, catalogBySlug } from "@/lib/catalog";
 import { LISTING_KINDS, validateListing, type Listing, type ListingDraft, type ListingKind } from "@/lib/domain/market";
 import { searchLocal, speciesName } from "@/lib/domain/species";
-import { ALL_SPECIES, speciesById, speciesBySlug } from "@/lib/knowledge";
 import { useListing, usePlants, useProfile } from "@/lib/queries";
 
 /** Выбор вида из базы знаний: поле поиска с подсказками. */
 function SpeciesPicker({ value, onChange }: { value: string | null; onChange: (id: string | null) => void }) {
   const [query, setQuery] = useState("");
-  const selected = speciesById(value);
+  const selected = catalogById(value);
   if (selected) {
     return (
       <div className="bg-muted flex items-center gap-2 rounded-xl px-4 py-3">
@@ -30,7 +30,7 @@ function SpeciesPicker({ value, onChange }: { value: string | null; onChange: (i
       </div>
     );
   }
-  const hits = query.trim().length >= 2 ? searchLocal(ALL_SPECIES, query).slice(0, 6) : [];
+  const hits = query.trim().length >= 2 ? searchLocal(CATALOG, query).slice(0, 6) : [];
   return (
     <div>
       <input
@@ -222,7 +222,7 @@ function ListingEditor() {
   const plants = usePlants();
   if ((id && listing.isPending) || profile.isPending || plants.isPending) return <Spinner />;
   const fromPlant = plants.data?.find((p) => p.id === params.get("plant"));
-  const sp = speciesBySlug(fromPlant?.speciesSlug);
+  const sp = catalogBySlug(fromPlant?.speciesSlug);
   const defaults = {
     city: profile.data?.city ?? "",
     speciesId: sp?.id ?? null,

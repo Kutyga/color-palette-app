@@ -7,10 +7,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { catalogById } from "@/lib/catalog";
 import type { FeedPost, PostComment } from "@/lib/domain/social";
 import { speciesName } from "@/lib/domain/species";
 import { plural, timeAgo } from "@/lib/format";
-import { speciesById } from "@/lib/knowledge";
 import { useComments } from "@/lib/queries";
 import { useBackend } from "../session";
 import { Avatar, LARGE_PHOTO, PlantPhoto, Spinner, cx, useToast } from "../ui";
@@ -44,8 +44,8 @@ export function QuestionRow({ post }: { post: FeedPost }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <QuestionStatus post={post} />
-            {speciesById(post.speciesId) && (
-              <span className="text-secondary truncate text-[13px]">{speciesName(speciesById(post.speciesId)!)}</span>
+            {catalogById(post.speciesId) && (
+              <span className="text-secondary truncate text-[13px]">{speciesName(catalogById(post.speciesId)!)}</span>
             )}
           </div>
           <p className="mt-2 line-clamp-3 text-[15px] leading-snug font-medium">{post.text}</p>

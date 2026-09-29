@@ -42,7 +42,8 @@ Workflow `.github/workflows/web-deploy.yml` собирает и публикуе
    (ссылка из письма подтверждения ведёт обратно на сайт).
 
 При сборке `scripts/sync-species.mjs` обновляет снимок базы знаний `src/data/species.json`
-из Supabase; без переменных используется сохранённый снимок.
+из Supabase (без переменных используется сохранённый снимок) и строит из него лёгкий указатель
+`src/data/species-index.json` с группами витрины по правилам `src/data/species-groups.json`.
 
 ## Публикация на своём домене (SpaceWeb)
 
