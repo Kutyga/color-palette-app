@@ -1081,6 +1081,67 @@ exception when insufficient_privilege then null;
 end $$;
 reset role;
 
+-- Автомодерация: запрещённые темы не сохраняются; 3 попытки за сутки — пауза на 24 часа.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$
+declare d uuid := (select id from public.conversations where direct);
+begin
+  -- Обычные садовые разговоры проходят (похожие слова не мешают).
+  insert into public.messages (conversation_id, body)
+  values (d, 'Кокосовый субстрат и маковый рулет к чаю; фен для сушки корней не нужен, наркоз тоже.');
+  begin
+    insert into public.messages (conversation_id, body) values (d, 'Есть мефедрон?');
+    raise exception 'запрещённая тема должна блокироваться';
+  exception when sqlstate 'MOD01' then null;
+  end;
+  begin
+    -- Латинские «двойники» и регистр не помогают.
+    insert into public.messages (conversation_id, body) values (d, 'Как вырастить КОНОПЛЮ дома?');
+    raise exception 'конопля должна блокироваться';
+  exception when sqlstate 'MOD01' then null;
+  end;
+  begin
+    insert into public.messages (conversation_id, body) values (d, 'псилоцuбиновые грибы');
+    raise exception 'смешанная латиница должна блокироваться';
+  exception when sqlstate 'MOD01' then null;
+  end;
+  begin
+    insert into public.posts (text) values ('Продаю семена cannabis');
+    raise exception 'посты тоже проверяются';
+  exception when sqlstate 'MOD01' then null;
+  end;
+  -- Отчёт сайта: без запрещённого текста ничего не записывается.
+  perform public.moderation_strike('Обычный текст', 'messages');
+end $$;
+reset role;
+do $$ begin
+  assert private.moderation_match('Монстера выпустила новый лист') is null, 'обычный текст не срабатывает';
+  assert (select count(*) from private.moderation_strikes) = 0, 'ложный отчёт не записывается';
+end $$;
+set role authenticated;
+select public.moderation_strike('Есть мефедрон?', 'messages');
+select public.moderation_strike('Как вырастить коноплю?', 'messages');
+select public.moderation_strike('кокаин', 'posts');
+do $$ begin
+  insert into public.messages (conversation_id, body)
+  values ((select id from public.conversations where direct), 'Просто привет');
+  raise exception 'после трёх попыток отправка на паузе';
+exception when sqlstate 'MOD02' then null;
+end $$;
+reset role;
+do $$ begin
+  assert (select count(*) from private.moderation_strikes) = 3, 'три попытки записаны (без текста)';
+  assert exists (select 1 from private.moderation_mutes
+                  where user_id = '00000000-0000-0000-0000-00000000000a' and until > now() + interval '23 hours'),
+         'пауза 24 часа';
+end $$;
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.messages (conversation_id, body)
+values ((select id from public.conversations where direct), 'Собеседник пишет как обычно');
+reset role;
+
 -- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)
 -- и индекс у каждого внешнего ключа (иначе удаление строки просматривает ссылающуюся таблицу).
 do $$

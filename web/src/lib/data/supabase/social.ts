@@ -13,7 +13,7 @@ import {
   type ReaderArticle,
 } from "../../domain/social";
 import type { SocialRepository } from "../repositories";
-import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, signedUrls, uploadJpeg } from "./shared";
+import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, moderated, signedUrls, uploadJpeg } from "./shared";
 
 export class SupabaseSocial implements SocialRepository {
   constructor(
@@ -111,19 +111,24 @@ export class SupabaseSocial implements SocialRepository {
       paths.push(path);
     }
     const row = check(
-      await this.db
-        .from("posts")
-        .insert({
-          id,
-          text: post.text,
-          plant_id: post.plantId ?? null,
-          photo_paths: paths,
-          visibility: post.visibility ?? "public",
-          kind: post.kind === "question" ? "question" : "milestone",
-          event: post.kind === "diary" ? (post.event ?? "progress") : null,
-        })
-        .select(POST_SELECT)
-        .single(),
+      moderated(
+        this.db,
+        "posts",
+        post.text,
+        await this.db
+          .from("posts")
+          .insert({
+            id,
+            text: post.text,
+            plant_id: post.plantId ?? null,
+            photo_paths: paths,
+            visibility: post.visibility ?? "public",
+            kind: post.kind === "question" ? "question" : "milestone",
+            event: post.kind === "diary" ? (post.event ?? "progress") : null,
+          })
+          .select(POST_SELECT)
+          .single(),
+      ),
     ) as Row;
     return (await this.hydrate([row]))[0];
   }
@@ -131,13 +136,12 @@ export class SupabaseSocial implements SocialRepository {
   async updatePost(id: string, update: PostUpdate) {
     const patch: Row = { text: update.text };
     if (update.event !== undefined) patch.event = update.event;
-    const { data, error } = await this.db
-      .from("posts")
-      .update(patch)
-      .eq("id", id)
-      .eq("author_id", this.uid)
-      .select(POST_SELECT)
-      .maybeSingle();
+    const { data, error } = moderated(
+      this.db,
+      "posts",
+      update.text,
+      await this.db.from("posts").update(patch).eq("id", id).eq("author_id", this.uid).select(POST_SELECT).maybeSingle(),
+    );
     if (error) throw new Error(/часа/.test(error.message) ? "Прошло больше часа — публикацию уже нельзя изменить" : error.message);
     if (!data) throw new Error("Публикация не найдена");
     return (await this.hydrate([data as Row]))[0];
@@ -173,7 +177,12 @@ export class SupabaseSocial implements SocialRepository {
 
   async addComment(postId: string, text: string) {
     const row = check(
-      await this.db.from("comments").insert({ id: crypto.randomUUID(), post_id: postId, text }).select(COMMENT_SELECT).single(),
+      moderated(
+        this.db,
+        "comments",
+        text,
+        await this.db.from("comments").insert({ id: crypto.randomUUID(), post_id: postId, text }).select(COMMENT_SELECT).single(),
+      ),
     ) as Row;
     return commentFromRow(row, this.uid);
   }

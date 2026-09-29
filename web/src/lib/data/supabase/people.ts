@@ -5,7 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { personFromRow, validateProfile, type ProfileUpdate } from "../../domain/people";
 import { coverPathOf } from "../../domain/plant";
 import type { PeopleRepository, Profile } from "../repositories";
-import { PLANT_BUCKET, PROFILE_FIELDS, type Row, check, profileFromRow, signedUrls } from "./shared";
+import { PLANT_BUCKET, PROFILE_FIELDS, type Row, check, moderated, profileFromRow, signedUrls } from "./shared";
 
 export class SupabasePeople implements PeopleRepository {
   constructor(
@@ -57,17 +57,22 @@ export class SupabasePeople implements PeopleRepository {
   async updateProfile(update: ProfileUpdate): Promise<Profile> {
     const invalid = validateProfile(update);
     if (invalid) throw new Error(invalid.message);
-    const { data, error } = await this.db
-      .from("profiles")
-      .update({
-        display_name: update.displayName.trim(),
-        username: update.username,
-        bio: update.bio.trim() || null,
-        ...(update.city !== undefined ? { city: update.city.trim() || null } : {}),
-      })
-      .eq("id", this.uid)
-      .select(PROFILE_FIELDS)
-      .single();
+    const { data, error } = moderated(
+      this.db,
+      "profiles",
+      `${update.displayName} ${update.bio} ${update.city ?? ""}`,
+      await this.db
+        .from("profiles")
+        .update({
+          display_name: update.displayName.trim(),
+          username: update.username,
+          bio: update.bio.trim() || null,
+          ...(update.city !== undefined ? { city: update.city.trim() || null } : {}),
+        })
+        .eq("id", this.uid)
+        .select(PROFILE_FIELDS)
+        .single(),
+    );
     if (error?.code === "23505") throw new Error(`Имя @${update.username} уже занято — выберите другое`);
     if (error) throw new Error(error.message);
     return profileFromRow(data as Row);
