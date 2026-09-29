@@ -172,7 +172,7 @@ function AnswerItem({
           )}
         </div>
         {c.mine && (
-          <button onClick={onDelete} aria-label="Удалить ответ" className="text-secondary hover:text-alert self-start">
+          <button type="button" onClick={onDelete} aria-label="Удалить ответ" className="text-secondary hover:text-alert self-start">
             <Trash2 className="size-4" />
           </button>
         )}

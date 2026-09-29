@@ -25,6 +25,8 @@ export function Button({
     danger: "text-alert hover:bg-muted",
   };
   return (
+    // type приходит в rest: submit у кнопок формы, button — у остальных.
+    // eslint-disable-next-line react/button-has-type
     <button
       {...rest}
       disabled={disabled || loading}

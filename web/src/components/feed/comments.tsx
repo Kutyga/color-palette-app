@@ -89,7 +89,12 @@ export function CommentsSheet({ postId, onClose }: { postId: string | null; onCl
                 <p className="text-secondary text-[12px]">{timeAgo(c.createdAt)}</p>
               </div>
               {c.mine && (
-                <button onClick={() => remove.mutate(c.id)} aria-label="Удалить комментарий" className="text-secondary hover:text-alert">
+                <button
+                  type="button"
+                  onClick={() => remove.mutate(c.id)}
+                  aria-label="Удалить комментарий"
+                  className="text-secondary hover:text-alert"
+                >
                   <Trash2 className="size-4" />
                 </button>
               )}

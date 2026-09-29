@@ -102,7 +102,12 @@ export function CareActions({ plant, schedules }: { plant: Plant; schedules: Car
           {CARE_TYPE_ORDER.map((t) => {
             const Icon = CARE_ICONS[t];
             return (
-              <button key={t} onClick={() => mark(t)} className="bg-muted flex items-center gap-3 rounded-2xl p-4 text-left font-medium">
+              <button
+                type="button"
+                key={t}
+                onClick={() => mark(t)}
+                className="bg-muted flex items-center gap-3 rounded-2xl p-4 text-left font-medium"
+              >
                 <Icon className="size-5" style={{ color: CARE_COLORS[t] }} aria-hidden /> {CARE_TYPES[t].label}
               </button>
             );

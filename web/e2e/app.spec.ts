@@ -63,6 +63,19 @@ test("демо: добавить растение из базы знаний, п
   await page.getByRole("link", { name: "Добавить в коллекцию" }).click();
   await page.waitForURL("**/garden/new/**");
   await expect(page.getByText("Хойя мясистая").first()).toBeVisible();
+  // Кнопки камеры не отправляют форму: иначе браузер проверял её, ставил курсор в «Имя» и открывал клавиатуру.
+  await page.evaluate(() => {
+    // Камера «со вспышкой»: в тестовом Chromium её нет, а ошибка была именно на кнопке вспышки.
+    MediaStreamTrack.prototype.getCapabilities = () => ({ torch: true }) as MediaTrackCapabilities;
+    MediaStreamTrack.prototype.applyConstraints = async () => {};
+    document.addEventListener("submit", () => document.body.setAttribute("data-submits", "1"), true);
+    document.addEventListener("invalid", () => document.body.setAttribute("data-submits", "1"), true);
+  });
+  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
+  await page.getByRole("button", { name: "Включить вспышку" }).click();
+  await expect(page.getByRole("button", { name: "Выключить вспышку" })).toBeVisible();
+  await expect(page.locator("body")).not.toHaveAttribute("data-submits");
+  await page.getByRole("button", { name: "Закрыть камеру" }).click();
   await page.getByLabel("Имя").fill("Хойя Звёздочка");
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
   // Без снимка добавить нельзя, а выбрать файл из галереи негде — только камера.
@@ -114,8 +127,8 @@ test("демо: дневники — поддержка, комментарий,
   await page.getByRole("button", { name: "Закрыть" }).click();
   await expect(annaPost.getByRole("button", { name: "Комментарии" })).toContainText("3");
 
-  // Подписка из «Все садоводы» добавляет автора в «Мои подписки».
-  await page.getByRole("button", { name: "Все садоводы" }).click();
+  // Сообщество открывается на «Все садоводы»; подписка оттуда добавляет автора в «Мои подписки».
+  await expect(page.getByRole("button", { name: "Все садоводы" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Подписаться на Фикус Папа" }).click();
   await expect(page.getByText("Вы подписались на Фикус Папа")).toBeVisible();
   await page.getByRole("button", { name: "Мои подписки" }).click();

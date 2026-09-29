@@ -31,16 +31,16 @@ const HELP_FILTERS: { id: HelpFilter; label: string }[] = [
 ];
 
 function Diaries({ onComments }: { onComments: (id: string) => void }) {
-  const [scope, setScope] = useState<DiaryScope>("following");
+  const [scope, setScope] = useState<DiaryScope>("all");
   const feed = useDiaries(scope);
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-4 flex gap-2">
-        <Chip active={scope === "following"} onClick={() => setScope("following")}>
-          Мои подписки
-        </Chip>
         <Chip active={scope === "all"} onClick={() => setScope("all")}>
           Все садоводы
+        </Chip>
+        <Chip active={scope === "following"} onClick={() => setScope("following")}>
+          Мои подписки
         </Chip>
       </div>
       {feed.isPending ? (
@@ -157,6 +157,7 @@ function FeedInner() {
         <div className="no-scrollbar bg-muted flex overflow-x-auto rounded-full p-1 sm:inline-flex" role="tablist">
           {TABS.map((t) => (
             <button
+              type="button"
               key={t.id}
               role="tab"
               aria-selected={tab === t.id}

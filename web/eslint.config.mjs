@@ -18,6 +18,8 @@ export default defineConfig([
       eqeqeq: ["error", "always", { null: "ignore" }],
       // Отладочный вывод не должен попадать в сборку.
       "no-console": "error",
+      // У кнопки явный type: без него кнопка внутри формы отправляет её (так вспышка камеры открывала клавиатуру).
+      "react/button-has-type": "error",
       // Импорт типов — отдельно: сборщик выбрасывает его целиком.
       "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
       // Импорт только типов — целиком через «import type», а не «import { type X }».
