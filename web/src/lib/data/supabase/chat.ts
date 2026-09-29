@@ -7,7 +7,7 @@ import { HAS_REALTIME } from "../../config";
 import { conversationFromRow, messageFromRow, type ChatMessage } from "../../domain/market";
 import { proxyMode } from "../../net";
 import type { ChatRepository } from "../repositories";
-import { LISTING_BUCKET, type Row, check, signedUrls } from "./shared";
+import { LISTING_BUCKET, type Row, check, moderated, signedUrls } from "./shared";
 
 export class SupabaseChat implements ChatRepository {
   constructor(
@@ -45,11 +45,16 @@ export class SupabaseChat implements ChatRepository {
   }
 
   async send(conversationId: string, body: string): Promise<ChatMessage> {
-    const { data, error } = await this.db
-      .from("messages")
-      .insert({ id: crypto.randomUUID(), conversation_id: conversationId, body: body.trim() })
-      .select()
-      .single();
+    const { data, error } = moderated(
+      this.db,
+      "messages",
+      body,
+      await this.db
+        .from("messages")
+        .insert({ id: crypto.randomUUID(), conversation_id: conversationId, body: body.trim() })
+        .select()
+        .single(),
+    );
     if (error?.code === "42501") throw new Error("Написать нельзя: кто-то из вас заблокировал другого");
     if (error) throw new Error(error.message);
     return messageFromRow(data as Row, this.uid);

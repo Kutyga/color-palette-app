@@ -19,6 +19,15 @@ export interface CareProfile {
   soilMixSlug: string | null;
   /** Поправка к составу именно для этого вида. */
   soilNoteRu: string | null;
+  /** Программа подкормки — slug из справочника fertilizers (см. domain/fertilizer.ts). */
+  fertilizerSlug: string | null;
+}
+
+/** Популярный сорт вида: название, русская транскрипция и чем отличается. */
+export interface Cultivar {
+  name: string;
+  ru: string | null;
+  note: string | null;
 }
 
 /** Фото вида с Wikimedia Commons; автора и лицензию обязательно показываем рядом. */
@@ -44,6 +53,7 @@ export interface Species {
   airPurifying: boolean | null;
   image: SpeciesImage | null;
   care: CareProfile | null;
+  cultivars: Cultivar[];
 }
 
 /** Русское народное название, если есть, иначе латинское. */
@@ -68,6 +78,7 @@ export function careFromRow(r: Row): CareProfile {
     tipsRu: ru(r.tips) ?? [],
     soilMixSlug: (r.soil_mix_slug as string | null) ?? null,
     soilNoteRu: ru(r.soil_note),
+    fertilizerSlug: (r.fertilizer_slug as string | null) ?? null,
   };
 }
 
@@ -98,14 +109,26 @@ export function speciesFromRow(r: Row): Species {
         }
       : null,
     care: careRaw ? careFromRow(careRaw as Row) : null,
+    cultivars: ((r.cultivars as Partial<Cultivar>[] | null) ?? [])
+      .filter((c) => typeof c.name === "string" && c.name)
+      .map((c) => ({ name: c.name!, ru: c.ru ?? null, note: c.note ?? null })),
   };
 }
+
+/** Все названия вида для поиска: латинское, народные, прежние и названия сортов. */
+export const speciesNames = (s: Species) => [
+  s.latinName,
+  ...s.synonyms,
+  ...s.commonNamesRu,
+  ...s.commonNamesEn,
+  ...s.cultivars.flatMap((c) => (c.ru ? [c.name, c.ru] : [c.name])),
+];
 
 /** Простое совпадение для демо-режима (на сервере — search_species с опечатками). */
 export function speciesMatches(s: Species, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [s.latinName, ...s.commonNamesRu, ...s.commonNamesEn, ...s.synonyms].some((n) => n.toLowerCase().includes(q));
+  return speciesNames(s).some((n) => n.toLowerCase().includes(q));
 }
 
 /** Ранжирование как у search_species: точное название, затем начало, затем вхождение. */
@@ -113,7 +136,7 @@ export function searchLocal(all: Species[], query: string): Species[] {
   const q = query.trim().toLowerCase();
   if (!q) return all;
   const rank = (s: Species) => {
-    const names = [s.latinName, ...s.synonyms, ...s.commonNamesRu, ...s.commonNamesEn].map((n) => n.toLowerCase());
+    const names = speciesNames(s).map((n) => n.toLowerCase());
     if (names.includes(q)) return 0;
     if (names.some((n) => n.startsWith(q))) return 1;
     return 2;

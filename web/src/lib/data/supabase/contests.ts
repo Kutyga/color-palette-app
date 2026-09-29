@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { contestFromRow, participantFromRow, sortContests, validateContest, type ContestDraft } from "../../domain/contest";
 import { DAY_MS } from "../../time";
 import type { ContestRepository } from "../repositories";
-import { LISTING_BUCKET, type Row, check, signedUrls, uploadJpeg } from "./shared";
+import { LISTING_BUCKET, type Row, check, moderated, signedUrls, uploadJpeg } from "./shared";
 
 const CONTEST_SELECT = "*, organizer:profiles!contests_organizer_id_fkey(username, display_name), entries:contest_entries(count)";
 /** Законченные розыгрыши показываем ещё две недели — с итогами и проверкой. */
@@ -68,21 +68,26 @@ export class SupabaseContests implements ContestRepository {
       await uploadJpeg(this.db, LISTING_BUCKET, photoPath, d.photo);
     }
     const row = check(
-      await this.db
-        .from("contests")
-        .insert({
-          id,
-          title: d.title.trim(),
-          prize: d.prize.trim(),
-          description: d.description.trim(),
-          city: d.city.trim(),
-          delivery: d.delivery,
-          winners_count: d.winnersCount,
-          ends_at: new Date(Date.now() + d.days * DAY_MS).toISOString(),
-          photo_path: photoPath,
-        })
-        .select(CONTEST_SELECT)
-        .single(),
+      moderated(
+        this.db,
+        "contests",
+        `${d.title} ${d.prize} ${d.description}`,
+        await this.db
+          .from("contests")
+          .insert({
+            id,
+            title: d.title.trim(),
+            prize: d.prize.trim(),
+            description: d.description.trim(),
+            city: d.city.trim(),
+            delivery: d.delivery,
+            winners_count: d.winnersCount,
+            ends_at: new Date(Date.now() + d.days * DAY_MS).toISOString(),
+            photo_path: photoPath,
+          })
+          .select(CONTEST_SELECT)
+          .single(),
+      ),
     ) as Row;
     return (await this.hydrate([row]))[0];
   }

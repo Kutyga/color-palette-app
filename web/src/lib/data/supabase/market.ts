@@ -4,11 +4,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { listingFromRow, validateListing, type ListingDraft, type ListingFilter, type ListingStatus } from "../../domain/market";
 import type { MarketRepository } from "../repositories";
-import { LISTING_BUCKET, type Row, type SpeciesIds, check, signedUrls, uploadJpeg } from "./shared";
+import { LISTING_BUCKET, type Row, type SpeciesIds, check, moderated, signedUrls, uploadJpeg } from "./shared";
 
 const LISTING_SELECT = "*, seller:profiles!listings_seller_id_fkey(username, display_name)";
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/** Весь текст объявления — для отчёта автомодерации. */
+const listingText = (d: ListingDraft) => [d.title, d.description, d.swapFor].join(" ");
 
 export class SupabaseMarket implements MarketRepository {
   constructor(
@@ -82,11 +85,16 @@ export class SupabaseMarket implements MarketRepository {
   async createListing(d: ListingDraft) {
     const id = crypto.randomUUID();
     const row = check(
-      await this.db
-        .from("listings")
-        .insert({ id, ...(await this.fields(id, d, [])) })
-        .select(LISTING_SELECT)
-        .single(),
+      moderated(
+        this.db,
+        "listings",
+        listingText(d),
+        await this.db
+          .from("listings")
+          .insert({ id, ...(await this.fields(id, d, [])) })
+          .select(LISTING_SELECT)
+          .single(),
+      ),
     ) as Row;
     return (await this.hydrate([row]))[0];
   }
@@ -94,13 +102,18 @@ export class SupabaseMarket implements MarketRepository {
   async updateListing(id: string, d: ListingDraft) {
     const cur = check(await this.db.from("listings").select("photo_paths").eq("id", id).eq("seller_id", this.uid).single()) as Row;
     const row = check(
-      await this.db
-        .from("listings")
-        .update(await this.fields(id, d, (cur.photo_paths as string[] | null) ?? []))
-        .eq("id", id)
-        .eq("seller_id", this.uid)
-        .select(LISTING_SELECT)
-        .single(),
+      moderated(
+        this.db,
+        "listings",
+        listingText(d),
+        await this.db
+          .from("listings")
+          .update(await this.fields(id, d, (cur.photo_paths as string[] | null) ?? []))
+          .eq("id", id)
+          .eq("seller_id", this.uid)
+          .select(LISTING_SELECT)
+          .single(),
+      ),
     ) as Row;
     return (await this.hydrate([row]))[0];
   }

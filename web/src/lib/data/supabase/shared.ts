@@ -36,6 +36,16 @@ export function check(res: { data: unknown; error: { message: string; code?: str
   return res.data;
 }
 
+/**
+ * Текст отклонила автомодерация (запрещённые темы, код MOD01) — сообщаем базе о попытке:
+ * после трёх за сутки отправка ставится на паузу. База сама перепроверяет текст и хранит
+ * только сработавшее правило. Ответ возвращается как есть — ошибку покажет вызывающий.
+ */
+export function moderated<T extends { error: { code?: string } | null }>(db: SupabaseClient, source: string, text: string, res: T): T {
+  if (res.error?.code === "MOD01") void db.rpc("moderation_strike", { p_text: text, p_source: source });
+  return res;
+}
+
 export const profileFromRow = (r: Row): Profile => ({
   username: r.username as string,
   displayName: (r.display_name as string | null) ?? null,
