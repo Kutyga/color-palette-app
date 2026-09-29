@@ -12,7 +12,7 @@ import { FairnessCard, ParticipantsList, PhaseLabel, WinnerPanel, WinnersCard } 
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
 import { Button, Card, EmptyState, ErrorNote, LARGE_PHOTO, PlantPhoto, SectionTitle, Spinner, useToast } from "@/components/ui";
-import { contestChecks, contestPhase, CONTEST_RULES, type Contest } from "@/lib/domain/contest";
+import { contestChecks, contestPhase, type Contest } from "@/lib/domain/contest";
 import { plural } from "@/lib/format";
 import { useContest, useContestParticipants, useProfile, useStats } from "@/lib/queries";
 
@@ -49,10 +49,7 @@ function Conditions({ contest: c }: { contest: Contest }) {
           </li>
         ))}
       </ul>
-      <p className="text-secondary mt-3 text-[13px]">
-        Ещё нужно растение со своим фото в коллекции. Без профиля и публикаций участвовать можно через {CONTEST_RULES.minAccountDays} дней
-        после регистрации.
-      </p>
+      <p className="text-secondary mt-3 text-[13px]">Ещё нужно растение со своим фото в коллекции.</p>
     </div>
   );
 }

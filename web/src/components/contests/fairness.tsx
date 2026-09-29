@@ -30,7 +30,7 @@ export function FairnessCard({ contest: c, participants }: { contest: Contest; p
       <ul className="text-secondary mt-2 list-disc space-y-1 pl-5 text-[15px]">
         <li>Участие бесплатное. Шансы у всех равны — ни приглашения, ни что-то ещё их не повышает.</li>
         <li>
-          Участвовать может аккаунт старше {CONTEST_RULES.minAccountDays} дней с растением со своим фото в коллекции
+          Участвовать может садовод с заполненным профилем или хотя бы одной публикацией и растением со своим фото в коллекции
           {c.delivery ? "" : `, из города ${c.city}`}.
         </li>
         <li>
