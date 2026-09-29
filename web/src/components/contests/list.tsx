@@ -1,10 +1,11 @@
 "use client";
 
-/** Список розыгрышей: закреплённые конкурсы «Подоконника» сверху, баннер закреплённого в барахолке. */
+/** Список розыгрышей: закреплённые конкурсы «Подоконника» сверху, баннер закреплённого в барахолке, приглашение на главных экранах. */
 
-import { Gift, Pin, Plus, Trophy, Truck, Users } from "lucide-react";
+import { Gift, Pin, Plus, Trophy, Truck, Users, X } from "lucide-react";
 import Link from "next/link";
-import { EmptyState, ErrorNote, PlantPhoto, Spinner, cx } from "@/components/ui";
+import { useState } from "react";
+import { EmptyState, ErrorNote, PlantPhoto, Spinner, cx, useIsClient } from "@/components/ui";
 import { contestPhase, type Contest } from "@/lib/domain/contest";
 import { plural, timeLeft } from "@/lib/format";
 import { useContests } from "@/lib/queries";
@@ -108,5 +109,61 @@ export function PinnedContestBanner() {
         </span>
       </span>
     </Link>
+  );
+}
+
+const PROMO_HIDDEN = (id: string) => `podokonnik-contest-promo-${id}`;
+
+function promoHidden(id: string): boolean {
+  try {
+    return localStorage.getItem(PROMO_HIDDEN(id)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Приглашение в закреплённый конкурс «Подоконника» — на «Сегодня» и в «Сообществе», чтобы о нём
+ * узнали и те, кто не заходит в барахолку. Не показывается, если человек уже участвует или закрыл карточку.
+ */
+export function ContestPromo({ className }: { className?: string }) {
+  const list = useContests();
+  const [hidden, setHidden] = useState<string | null>(null);
+  const isClient = useIsClient();
+  const c = list.data?.find((x) => x.pinned && x.status === "active" && contestPhase(x, new Date()) === "active" && !x.joined && !x.mine);
+  if (!c || !isClient || hidden === c.id || promoHidden(c.id)) return null;
+  function hide() {
+    try {
+      localStorage.setItem(PROMO_HIDDEN(c!.id), "1");
+    } catch {
+      // приватный режим — карточка просто появится снова
+    }
+    setHidden(c!.id);
+  }
+  return (
+    <section aria-label="Розыгрыш" className={cx("bg-leaf/10 relative flex gap-3 rounded-[20px] p-3 pr-10", className)}>
+      <PlantPhoto src={c.photoUrl} seed={c.id} alt="" className="size-20 shrink-0 rounded-2xl" iconSize={28} />
+      <div className="min-w-0 flex-1">
+        <p className="text-leaf flex items-center gap-1 text-[12px] font-semibold">
+          <Gift className="size-3.5" aria-hidden /> Розыгрыш · <PhaseLabel contest={c} />
+        </p>
+        <p className="line-clamp-2 text-[16px] leading-snug font-semibold">{c.title}</p>
+        <p className="text-secondary mt-0.5 line-clamp-2 text-[13px]">Приз: {c.prize}</p>
+        <Link
+          href={contestHref(c.id)}
+          className="bg-leaf mt-2 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[14px] font-semibold text-white"
+        >
+          Участвовать бесплатно
+        </Link>
+      </div>
+      <button
+        type="button"
+        onClick={hide}
+        aria-label="Скрыть розыгрыш"
+        className="text-secondary absolute top-2 right-2 grid size-8 place-items-center"
+      >
+        <X className="size-4" />
+      </button>
+    </section>
   );
 }

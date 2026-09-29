@@ -595,3 +595,14 @@ test("вход: ссылка «Забыли пароль?» переключае
   await expect(page.getByRole("heading", { name: "Восстановить пароль" })).toBeVisible();
   await expect(page.getByLabel("Пароль")).toHaveCount(0);
 });
+
+test("розыгрыш «Подоконника»: приглашение на «Сегодня», скрывается крестиком", async ({ page }) => {
+  await startDemo(page);
+  const promo = page.getByRole("region", { name: "Розыгрыш" });
+  await expect(promo).toBeVisible();
+  await promo.getByRole("button", { name: "Скрыть розыгрыш" }).click();
+  await expect(promo).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByText("0 из", { exact: false }).first()).toBeVisible();
+  await expect(promo).toHaveCount(0);
+});
