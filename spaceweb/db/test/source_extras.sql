@@ -12,8 +12,8 @@ alter table auth.users
   add column deleted_at         timestamptz;
 
 alter table storage.buckets
-  add column file_size_limit    bigint,
-  add column allowed_mime_types text[],
+  add column if not exists file_size_limit    bigint,
+  add column if not exists allowed_mime_types text[],
   add column created_at         timestamptz default now();
 
 alter table storage.objects

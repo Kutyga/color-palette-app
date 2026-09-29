@@ -110,7 +110,9 @@ final class Db
             default => 500,
         };
         if ($status === 500) {
+            // Текст внутренней ошибки (адрес сервера базы, имя пользователя) — только в журнал, не наружу.
             error_log('podokonnik-api: ' . $text);
+            return new ApiError(500, 'Внутренняя ошибка сервера', $state);
         }
         return new ApiError($status, $message, $state, $field('DETAIL'), $field('HINT'));
     }

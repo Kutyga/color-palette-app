@@ -1158,6 +1158,109 @@ do $$ begin
   assert exists (select 1 from public.species where slug = 'anthurium-scherzerianum'), 'новые виды добавлены';
 end $$;
 
+-- Безопасность: служебные поля и ссылки на чужие записи клиенту недоступны.
+-- Жертва — b (скрытое растение, фото, пост для подписчиков), нарушитель — e1 (ни на кого не подписан).
+insert into public.plants (id, owner_id, nickname, visibility)
+values ('99999999-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b', 'Скрытая', 'private');
+insert into public.plant_photos (id, plant_id, uploaded_by, storage_path)
+values ('99999999-0000-0000-0000-000000000002', '99999999-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000b/99999999-0000-0000-0000-000000000001/1.jpg');
+insert into public.posts (id, author_id, kind, text, visibility)
+values ('99999999-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000b', 'photo', 'Только подписчикам', 'followers');
+insert into public.locations (id, owner_id, name)
+values ('99999999-0000-0000-0000-000000000004', '00000000-0000-0000-0000-00000000000b', 'Кухня b');
+select set_config('test.e1_name', (select display_name from public.profiles
+                                    where id = '00000000-0000-0000-0000-0000000000e1'), false);
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+insert into public.plants (id, owner_id, nickname)
+values ('99999999-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000e1', 'Своё');
+insert into public.comments (id, post_id, author_id, text)
+select '99999999-0000-0000-0000-0000000000f2', id, '00000000-0000-0000-0000-0000000000e1', 'Красиво'
+  from public.posts where visibility = 'public' and deleted_at is null limit 1;
+do $$
+declare v_id uuid := '99999999-0000-0000-0000-0000000000f1';
+begin
+  begin
+    insert into public.posts (kind, text, visibility, like_count) values ('photo', 'Накрутка', 'public', 9999);
+    raise exception 'счётчик поддержки задаётся клиентом';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.posts (kind, text, visibility, plant_id)
+    values ('photo', 'Чужое растение', 'public', '99999999-0000-0000-0000-000000000001');
+    raise exception 'пост о чужом растении';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.comments set post_id = '99999999-0000-0000-0000-000000000003'
+     where id = '99999999-0000-0000-0000-0000000000f2';
+    raise exception 'комментарий переносится под закрытый пост';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.plants set cover_photo_id = '99999999-0000-0000-0000-000000000002' where id = v_id;
+    raise exception 'обложка из чужого фото';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.plants set location_id = '99999999-0000-0000-0000-000000000004' where id = v_id;
+    raise exception 'чужое место';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.plants set parent_plant_id = '99999999-0000-0000-0000-000000000001' where id = v_id;
+    raise exception 'родитель — чужое скрытое растение';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.care_events (plant_id, performed_by, type, photo_id)
+    values (v_id, '00000000-0000-0000-0000-0000000000e1', 'water', '99999999-0000-0000-0000-000000000002');
+    raise exception 'фото ухода из чужого растения';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.profiles set username = 'podokonnik' where id = '00000000-0000-0000-0000-0000000000e1';
+    raise exception 'имя команды занимается';
+  exception when check_violation then null;
+  end;
+  begin
+    update public.profiles set display_name = 'Команда Подоконника' where id = '00000000-0000-0000-0000-0000000000e1';
+    raise exception 'имя команды в отображаемом имени';
+  exception when check_violation then null;
+  end;
+  begin
+    update public.profiles set is_admin = true where id = '00000000-0000-0000-0000-0000000000e1';
+    raise exception 'сам себе администратор';
+  exception when insufficient_privilege then null;
+  end;
+  assert not exists (select 1 from public.plants where id = '99999999-0000-0000-0000-000000000001'), 'скрытое растение видно';
+  assert not exists (select 1 from public.plant_photos where id = '99999999-0000-0000-0000-000000000002'), 'скрытое фото видно';
+  assert not exists (select 1 from public.posts where id = '99999999-0000-0000-0000-000000000003'), 'пост для подписчиков виден';
+  -- Своё — по-прежнему можно: обычный пост о своём растении, удаление своего комментария.
+  insert into public.posts (kind, text, visibility, plant_id) values ('photo', 'Моё растение', 'public', v_id);
+  update public.comments set deleted_at = now() where id = '99999999-0000-0000-0000-0000000000f2';
+  update public.profiles set display_name = 'Мой подоконник' where id = '00000000-0000-0000-0000-0000000000e1';
+end $$;
+reset role;
+do $$ begin
+  assert (select like_count from public.posts where text = 'Моё растение') = 0, 'счётчик нового поста — ноль';
+  assert not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+                      where n.nspname = 'public' and c.relkind in ('r', 'p') and not c.relrowsecurity),
+         'таблица без RLS';
+  assert (select count(*) from storage.buckets
+           where id in ('plant-photos', 'post-photos', 'avatars', 'listing-photos')
+             and allowed_mime_types = array['image/jpeg'] and file_size_limit > 0) = 4,
+         'в хранилище — только JPEG с ограничением размера';
+end $$;
+delete from public.posts where author_id = '00000000-0000-0000-0000-0000000000e1' and text = 'Моё растение';
+delete from public.comments where id = '99999999-0000-0000-0000-0000000000f2';
+delete from public.plants where id in ('99999999-0000-0000-0000-0000000000f1', '99999999-0000-0000-0000-000000000001');
+delete from public.posts where id = '99999999-0000-0000-0000-000000000003';
+delete from public.locations where id = '99999999-0000-0000-0000-000000000004';
+update public.profiles set display_name = current_setting('test.e1_name')
+ where id = '00000000-0000-0000-0000-0000000000e1';
+
 -- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)
 -- и индекс у каждого внешнего ключа (иначе удаление строки просматривает ссылающуюся таблицу).
 do $$
