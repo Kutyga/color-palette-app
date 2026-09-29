@@ -20,7 +20,8 @@ name: deploy-spaceweb
 on:
   push:
     branches: [main]
-    paths: ["web/**", "spaceweb/api/**", "spaceweb/sb-proxy/**", ".github/workflows/deploy-spaceweb.yml"]  workflow_dispatch:
+    paths: ["web/**", "spaceweb/api/**", "spaceweb/sb-proxy/**", ".github/workflows/deploy-spaceweb.yml"]
+  workflow_dispatch:
     inputs:
       ref:
         description: "Коммит, тег или ветка для выкладки (пусто — последний main)"
