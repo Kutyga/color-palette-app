@@ -1,5 +1,5 @@
 /**
- * Личные сообщения по объявлениям: чаты, сообщения и доставка новых — через Realtime у Supabase
+ * Личные сообщения — по объявлениям и напрямую между садоводами: чаты, сообщения и доставка новых — через Realtime у Supabase
  * или опросом раз в несколько секунд на своём хостинге, где веб-сокетов нет.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -27,6 +27,12 @@ export class SupabaseChat implements ChatRepository {
 
   async start(listingId: string) {
     const { data, error } = await this.db.rpc("start_conversation", { p_listing: listingId });
+    if (error) throw new Error(error.message);
+    return data as string;
+  }
+
+  async startDirect(userId: string) {
+    const { data, error } = await this.db.rpc("start_direct", { p_user: userId });
     if (error) throw new Error(error.message);
     return data as string;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-/** Переписка по объявлению: сообщения, фото, отметка о прочтении. */
+/** Переписка — личная или по объявлению: сообщения, отметка о прочтении. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Flag, MessageCircle, MoreHorizontal, Send, ShieldOff } from "lucide-react";
@@ -166,7 +166,9 @@ function Chat() {
           <Avatar name={conv.otherDisplayName} size={40} />
           <span className="min-w-0">
             <span className="block truncate font-semibold">{conv.otherDisplayName}</span>
-            <span className="text-secondary block truncate text-[13px]">{conv.iAmSeller ? "Покупатель" : "Продавец"}</span>
+            <span className="text-secondary block truncate text-[13px]">
+              {conv.direct ? "Личная переписка" : conv.iAmSeller ? "Покупатель" : "Продавец"}
+            </span>
           </span>
         </Link>
         <ChatMenu conv={conv} />
@@ -186,15 +188,21 @@ function Chat() {
           </span>
         </Link>
       )}
-      <p className="bg-muted text-secondary mb-3 rounded-2xl px-4 py-2.5 text-[12px]">
-        Не переводите предоплату незнакомым и не сообщайте коды из СМС. Встречайтесь в людных местах.
-      </p>
+      {!conv.direct && (
+        <p className="bg-muted text-secondary mb-3 rounded-2xl px-4 py-2.5 text-[12px]">
+          Не переводите предоплату незнакомым и не сообщайте коды из СМС. Встречайтесь в людных местах.
+        </p>
+      )}
       {messages.error ? (
         <ErrorNote error={messages.error} onRetry={() => messages.refetch()} />
       ) : messages.data?.length ? (
         <Bubbles messages={messages.data} />
       ) : (
-        <p className="text-secondary py-6 text-center">Напишите первое сообщение — например, когда удобно забрать растение.</p>
+        <p className="text-secondary py-6 text-center">
+          {conv.direct
+            ? "Напишите первое сообщение — например, спросите, как ухаживать за растением."
+            : "Напишите первое сообщение — например, когда удобно забрать растение."}
+        </p>
       )}
       <div ref={endRef} />
       {conv.blocked ? (

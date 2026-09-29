@@ -176,6 +176,7 @@ export const SAMPLE_LISTINGS: [string, ListingKind, string, string, string, numb
 ];
 
 export const AUTO_REPLY = "Здравствуйте! Да, ещё актуально 🌿 Когда вам удобно?";
+export const DIRECT_REPLY = "Привет! Приятно познакомиться 🌿 Спрашивайте — чем смогу, помогу.";
 
 /** Проверенные демо-магазины: название, ИНН, город, адрес, телефон, сайт, доставка, описание. */
 export const SAMPLE_SHOPS: [string, string, string, string, string, string, boolean, string][] = [

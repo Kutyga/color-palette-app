@@ -123,6 +123,8 @@ export interface ConversationRec {
   listingId: string | null;
   /** Чат победителя розыгрыша с организатором. */
   contestId?: string;
+  /** Личный чат из профиля садовода. */
+  direct?: boolean;
   otherId: string;
   iAmSeller: boolean;
   readAt: string | null;

@@ -408,6 +408,16 @@ test("демо: редактирование профиля, подписчик�
   await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
   await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
   await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();
+
+  // «Написать» из профиля → личный чат → ответ → в списке сообщений.
+  await page.getByRole("button", { name: "Написать Света | суккуленты" }).click();
+  await page.waitForURL("**/messages/chat/**");
+  await expect(page.getByText("Личная переписка")).toBeVisible();
+  await page.getByRole("textbox").fill("Привет! Как поливать литопсы?");
+  await page.getByRole("button", { name: /Отправить/ }).click();
+  await expect(page.getByText("Приятно познакомиться")).toBeVisible();
+  await page.goto("/messages/");
+  await expect(page.getByRole("link", { name: /Чат с Света \| суккуленты/ })).toContainText("Личная переписка");
   expect(errors).toEqual([]);
 });
 

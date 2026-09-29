@@ -131,6 +131,8 @@ export interface ChatRepository {
   conversations(): Promise<Conversation[]>;
   /** Начать чат по объявлению (или открыть уже начатый); возвращает id чата. */
   start(listingId: string): Promise<string>;
+  /** Личный чат с садоводом (или уже начатый); возвращает id чата. */
+  startDirect(userId: string): Promise<string>;
   messages(conversationId: string): Promise<ChatMessage[]>;
   send(conversationId: string, body: string): Promise<ChatMessage>;
   markRead(conversationId: string): Promise<void>;

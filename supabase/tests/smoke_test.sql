@@ -1043,6 +1043,44 @@ end $$;
 
 reset role;
 
+-- Личные сообщения: «Написать» из профиля. У пары один чат, кто бы его ни начал; блокировка закрывает.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$
+declare d uuid;
+begin
+  d := public.start_direct('00000000-0000-0000-0000-00000000000b');
+  assert (select direct from public.my_conversations() where id = d), 'личный чат помечен direct';
+  assert (select listing_id from public.my_conversations() where id = d) is null, 'без объявления';
+  insert into public.messages (conversation_id, body) values (d, 'Привет! Как ваша монстера?');
+  begin
+    perform public.start_direct(auth.uid());
+    raise exception 'себе написать нельзя';
+  exception when check_violation then null;
+  end;
+  begin
+    perform public.start_direct('00000000-0000-0000-0000-00000000000c');
+    raise exception 'заблокированному написать нельзя';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$
+declare d uuid;
+begin
+  d := public.start_direct('00000000-0000-0000-0000-00000000000a');
+  assert d = (select id from public.conversations where direct), 'у пары один личный чат';
+  assert (select unread from public.my_conversations() where id = d), 'у собеседника непрочитанное';
+  insert into public.messages (conversation_id, body) values (d, 'Отлично, выпустила новый лист!');
+end $$;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+do $$ begin
+  perform public.start_direct('00000000-0000-0000-0000-00000000000a');
+  raise exception 'заблокированный не пишет тому, кто его заблокировал';
+exception when insufficient_privilege then null;
+end $$;
+reset role;
+
 -- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)
 -- и индекс у каждого внешнего ключа (иначе удаление строки просматривает ссылающуюся таблицу).
 do $$

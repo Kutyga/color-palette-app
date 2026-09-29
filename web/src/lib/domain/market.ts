@@ -77,6 +77,8 @@ export interface Conversation {
   unread: boolean;
   /** Кто-то из двоих заблокировал другого — писать нельзя. */
   blocked: boolean;
+  /** Личная переписка садоводов (из профиля), а не по объявлению или розыгрышу. */
+  direct: boolean;
 }
 
 export interface ChatMessage {
@@ -157,6 +159,7 @@ export function conversationFromRow(r: Row, photoUrl: string | null): Conversati
     lastFromMe: Boolean(r.last_from_me),
     unread: Boolean(r.unread),
     blocked: Boolean(r.blocked),
+    direct: Boolean(r.direct),
   };
 }
 
