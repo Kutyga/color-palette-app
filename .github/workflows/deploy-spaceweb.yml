@@ -20,8 +20,7 @@ name: deploy-spaceweb
 on:
   push:
     branches: [main]
-    paths: ["web/**", "spaceweb/api/**", "spaceweb/sb-proxy/**", ".github/workflows/deploy-spaceweb.yml"]
-  workflow_dispatch:
+    paths: ["web/**", "spaceweb/api/**", "spaceweb/sb-proxy/**", ".github/workflows/deploy-spaceweb.yml"]  workflow_dispatch:
     inputs:
       ref:
         description: "Коммит, тег или ветка для выкладки (пусто — последний main)"
@@ -161,6 +160,21 @@ jobs:
           code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${SITE_URL/https:/http:}/sb/auth/v1/health" || true)
           # Без ключа Supabase отвечает 401 — значит, запрос дошёл до Supabase через хостинг.
           case "$code" in 401|200) echo "Запасной путь работает (HTTP $code)" ;; *) echo "::warning::Запасной путь sb/ не отвечает как ожидалось: HTTP $code" ;; esac
+      # Пока сайт на Supabase, резервная копия API снаружи не нужна: закрываем папку api/, чтобы она не
+      # отвечала и не выдавала подробностей о сервере. Включение API (шаг ниже) выкладывает свой .htaccess.
+      - name: API выключен — закрыть api/
+        if: env.API_ENABLED != 'true'
+        working-directory: .
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+        run: |
+          $SSH_CMD "$SSH_USER@$SSH_HOST" "if [ -d '$TARGET_DIR/api' ]; then printf 'Require all denied\n' > '$TARGET_DIR/api/.htaccess'; fi"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${SITE_URL/https:/http:}/api/health" || true)
+          echo "api/health: HTTP $code (ожидается 403 или 404)"
       # API: настройки собираются из секретов и лежат рядом с папкой сайта, а не в ней. Секрет подписи
       # токенов создаётся на хостинге один раз и дальше не меняется (иначе всех выкинет из аккаунтов).
       - name: API

@@ -14,3 +14,18 @@ ErrorDocument 404 /404.html
     Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>
+
+# Заголовки безопасности. Директива Header на этом хостинге работает (её же использует api/.htaccess).
+<IfModule mod_headers.c>
+  # Сайт нельзя встроить в чужую страницу (защита от кликджекинга: невидимая кнопка поверх чужого сайта).
+  Header always set X-Frame-Options "DENY"
+  Header always set Content-Security-Policy "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+  # Браузер не угадывает тип файла: картинка не исполнится как скрипт.
+  Header always set X-Content-Type-Options "nosniff"
+  # Чужим сайтам по ссылке уходит только домен, без адреса страницы (там бывают id растений и чатов).
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # Камера — только для самого сайта (снимки растений), микрофон и геолокация не нужны.
+  Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+  # Только HTTPS: браузер больше не откроет сайт по незащищённому http (по http заголовок игнорируется).
+  Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
