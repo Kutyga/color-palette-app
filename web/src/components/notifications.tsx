@@ -1,9 +1,10 @@
 "use client";
 
-/** Настройки уведомлений: напоминания о поливе в браузере (web push). */
+/** Настройки уведомлений (web push) и плашка-напоминание их включить. */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, Share } from "lucide-react";
+import { Bell, BellOff, Share, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { NotificationSettings } from "@/lib/data/repositories";
 import { currentSubscription, disablePush, enablePush, pushSupport } from "@/lib/push";
@@ -169,5 +170,99 @@ export function NotificationsCard() {
         </>
       )}
     </Card>
+  );
+}
+
+const NUDGE_KEY = "podokonnik-push-nudge";
+/** Закрыли плашку — напомним снова через неделю. */
+const NUDGE_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+
+function nudgeSnoozed(): boolean {
+  try {
+    return Date.now() - Number(localStorage.getItem(NUDGE_KEY) ?? 0) < NUDGE_SNOOZE_MS;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Плашка «Включите уведомления»: пока на этом устройстве нет подписки. Включает в одно нажатие;
+ * на iPhone без «экрана Домой» ведёт к инструкции в профиле. Закрыли — вернётся через неделю;
+ * запретили уведомления в браузере — не показывается.
+ */
+export function PushNudge({ text, className }: { text: string; className?: string }) {
+  const backend = useBackend();
+  const repo = backend.notifications;
+  const toast = useToast();
+  const [state, setState] = useState<"hidden" | "enable" | "install">("hidden");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!repo || nudgeSnoozed()) return;
+    const support = pushSupport();
+    let alive = true;
+    if (support === "ios-needs-install") {
+      queueMicrotask(() => alive && setState("install"));
+    } else if (support === "supported" && Notification.permission !== "denied") {
+      currentSubscription()
+        .then((sub) => alive && !sub && setState("enable"))
+        .catch(() => {});
+    }
+    return () => {
+      alive = false;
+    };
+  }, [repo]);
+
+  if (state === "hidden" || !repo) return null;
+
+  function snooze() {
+    try {
+      localStorage.setItem(NUDGE_KEY, String(Date.now()));
+    } catch {
+      // приватный режим — плашка появится снова
+    }
+    setState("hidden");
+  }
+
+  async function enable() {
+    setBusy(true);
+    try {
+      await enablePush(repo!);
+      toast("Уведомления включены — настроить их можно в профиле");
+      setState("hidden");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section aria-label="Уведомления" className={cx("bg-water/10 relative flex items-center gap-3 rounded-[20px] p-3 pr-10", className)}>
+      <span className="bg-water/15 text-water grid size-11 shrink-0 place-items-center rounded-full">
+        <Bell className="size-5" aria-hidden />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] leading-snug font-semibold">Включите уведомления</p>
+        <p className="text-secondary text-[13px] leading-snug">{text}</p>
+        {state === "enable" ? (
+          <Button className="mt-2 min-h-9 px-4 text-[14px]" loading={busy} onClick={enable}>
+            Включить
+          </Button>
+        ) : (
+          <Link href="/profile/" className="text-leaf mt-1 inline-block text-[14px] font-semibold">
+            На iPhone — через экран «Домой». Как?
+          </Link>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={snooze}
+        aria-label="Напомнить позже"
+        className="text-secondary absolute top-2 right-2 grid size-8 place-items-center"
+      >
+        <X className="size-4" />
+      </button>
+    </section>
   );
 }

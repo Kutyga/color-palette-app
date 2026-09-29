@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { Answers, QuestionHeader } from "@/components/feed";
+import { PushNudge } from "@/components/notifications";
 import { EmptyState, ErrorNote, Spinner } from "@/components/ui";
 import { usePost } from "@/lib/queries";
 
@@ -23,6 +24,7 @@ function Question() {
   return (
     <div className="mx-auto max-w-xl">
       <QuestionHeader post={post.data} onDeleted={() => router.replace("/feed/?tab=help")} />
+      {post.data.mine && <PushNudge className="mt-4" text="Сообщим, как только кто-то ответит на ваш вопрос." />}
       <Answers post={post.data} />
     </div>
   );
