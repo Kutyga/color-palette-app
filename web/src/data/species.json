@@ -1,66 +1,5 @@
 [
  {
-  "id": "fatshedera-lizei",
-  "slug": "fatshedera-lizei",
-  "latin_name": "× Fatshedera lizei",
-  "common_names": {
-   "en": [
-    "Tree ivy",
-    "Aralia ivy"
-   ],
-   "ru": [
-    "Фатсхедера Лизе"
-   ]
-  },
-  "synonyms": [
-   "Fatshedera lizei"
-  ],
-  "description": {
-   "ru": "Гибрид фатсии и плюща: крупные пальчатые листья на полулазящих стеблях."
-  },
-  "plant_type": "кустарник",
-  "difficulty": 1,
-  "toxic_to_pets": true,
-  "toxic_to_humans": false,
-  "air_purifying": true,
-  "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/X_Fatshedera_lizei2.jpg",
-  "image_credit": "KENPEI",
-  "image_license": "CC BY-SA 3.0",
-  "image_source_url": "https://commons.wikimedia.org/wiki/File:X_Fatshedera_lizei2.jpg",
-  "care_profiles": {
-   "light": "medium",
-   "water_interval_summer": 5,
-   "water_interval_winter": 10,
-   "soil_dryness_before_watering": {
-    "ru": "верхние 2 см"
-   },
-   "humidity_min_pct": 40,
-   "temp_min_c": 8,
-   "temp_max_c": 24,
-   "fertilize_interval_days": 14,
-   "fertilize_months": [
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
-   ],
-   "repot_every_years": 2,
-   "propagation": [
-    "черенки"
-   ],
-   "tips": {
-    "ru": [
-     "Нужна опора",
-     "Любит прохладу"
-    ]
-   },
-   "soil_mix_slug": "universal",
-   "soil_note": null
-  }
- },
- {
   "id": "acalypha-hispida",
   "slug": "acalypha-hispida",
   "latin_name": "Acalypha hispida",
@@ -87,6 +26,7 @@
   "image_credit": "Augustus Binu/ facebook",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Acalypha_Hispida_DS.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -117,7 +57,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -146,6 +87,7 @@
   "image_credit": "Timothy A. Gonsalves",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Adenium_Obesum_Flower_Side_Macro_Mar22_D72_23052-58_ZS_P.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -177,7 +119,8 @@
    "soil_mix_slug": "caudex",
    "soil_note": {
     "ru": "Каудекс при пересадке приподнимайте над грунтом — открытые корни формируют красивое основание."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -208,6 +151,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_030807-0143_Adiantum_raddianum.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 3,
@@ -240,7 +184,8 @@
    "soil_mix_slug": "fern",
    "soil_note": {
     "ru": "Адиантум предпочитает почти нейтральную среду: добавьте щепоть доломитовой муки на литр смеси."
-   }
+   },
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -269,6 +214,7 @@
   "image_credit": "Didier Descouens",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(MHNT)_Adromischus_cristatus.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -296,7 +242,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -327,6 +274,7 @@
   "image_credit": "Paul & Aline Burland",
   "image_license": "CC BY-SA 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aechmea_fasciata2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -357,7 +305,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -386,6 +335,7 @@
   "image_credit": "Hedwig Storch",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Madeira,_Palheiro_Gardens_-_Aeonium_arboreum_(Marokko)_IMG_2310.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -418,7 +368,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Эониум пьёт больше других суккулентов: замените часть пемзы на 10% листовой земли."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -448,6 +399,7 @@
   "image_credit": "Michael Wolf",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aeschynanthus_radicans.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -479,7 +431,8 @@
    "soil_mix_slug": "gesneriad",
    "soil_note": {
     "ru": "Эпифит: замените вермикулит на мелкую кору — смесь должна быть рыхлее, лучше в подвесном кашпо."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -508,6 +461,7 @@
   "image_credit": "H. Zell",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Agave_attenuata_001.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -536,7 +490,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -565,6 +520,23 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aglaonema_commutatum_kz1.jpg",
+  "cultivars": [
+   {
+    "name": "Silver Bay",
+    "ru": "Сильвер Бэй",
+    "note": "Серебристый центр листа, выносливый."
+   },
+   {
+    "name": "Maria",
+    "ru": "Мария",
+    "note": "Тёмно-зелёные листья с серебристыми мазками; мирится с тенью."
+   },
+   {
+    "name": "Silver Queen",
+    "ru": "Сильвер Квин",
+    "note": "Почти серебристые узкие листья."
+   }
+  ],
   "care_profiles": {
    "light": "low",
    "water_interval_summer": 7,
@@ -596,71 +568,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
-  }
- },
- {
-  "id": "alocasia-amazonica",
-  "slug": "alocasia-amazonica",
-  "latin_name": "Alocasia × amazonica",
-  "common_names": {
-   "en": [
-    "African mask plant",
-    "Elephant ear"
-   ],
-   "ru": [
-    "Алоказия амазонская",
-    "Алоказия Поли"
-   ]
-  },
-  "synonyms": [
-   "Alocasia amazonica",
-   "Alocasia 'Polly'"
-  ],
-  "description": {
-   "ru": "Эффектные стреловидные листья с белыми жилками. Капризна к переливу и сухому воздуху."
-  },
-  "plant_type": "травянистое",
-  "difficulty": 4,
-  "toxic_to_pets": true,
-  "toxic_to_humans": true,
-  "air_purifying": false,
-  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Alocasia_x_amazonica_a1.jpg/960px-Alocasia_x_amazonica_a1.jpg",
-  "image_credit": "Jerzy Opioła",
-  "image_license": "CC BY-SA 4.0",
-  "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_x_amazonica_a1.jpg",
-  "care_profiles": {
-   "light": "bright_indirect",
-   "water_interval_summer": 5,
-   "water_interval_winter": 10,
-   "soil_dryness_before_watering": {
-    "ru": "верхние 2 см"
-   },
-   "humidity_min_pct": 60,
-   "temp_min_c": 18,
-   "temp_max_c": 30,
-   "fertilize_interval_days": 14,
-   "fertilize_months": [
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
-   ],
-   "repot_every_years": 1,
-   "propagation": [
-    "деление",
-    "клубеньки"
-   ],
-   "tips": {
-    "ru": [
-     "Зимой может сбросить листья — сократите полив и ждите",
-     "Протирайте листья: любит паутинный клещ"
-    ]
-   },
-   "soil_mix_slug": "aroid_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -689,6 +598,18 @@
   "image_credit": "Cs california",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:PXL_20220721_201128151.jpg",
+  "cultivars": [
+   {
+    "name": "Silver Dragon",
+    "ru": "Сильвер Драгон",
+    "note": "Серебристые листья с тёмными жилками."
+   },
+   {
+    "name": "Dragon Scale",
+    "ru": "Драгон Скейл",
+    "note": "Тёмно-зелёная рельефная «чешуя»."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -721,7 +642,8 @@
    "soil_mix_slug": "aroid_moist",
    "soil_note": {
     "ru": "Ювелирная алоказия: доведите пемзу до 30% и берите совсем маленький горшок."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -750,6 +672,7 @@
   "image_credit": "Daderot",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_cuprea_-_Victoriahuset,_Bergianska_tr%C3%A4dg%C3%A5rden_-_Stockholm,_Sweden_-_DSC00282.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -781,7 +704,138 @@
    "soil_mix_slug": "aroid_moist",
    "soil_note": {
     "ru": "Ювелирная алоказия: доведите пемзу до 30% и берите совсем маленький горшок."
-   }
+   },
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "alocasia-longiloba",
+  "slug": "alocasia-longiloba",
+  "latin_name": "Alocasia longiloba",
+  "common_names": {
+   "ru": [
+    "Алоказия длиннолопастная"
+   ],
+   "en": [
+    "Tiger taro"
+   ]
+  },
+  "synonyms": [
+   "Alocasia lowii",
+   "Alocasia watsoniana"
+  ],
+  "description": {
+   "ru": "Алоказия со стреловидными тёмно-зелёными листьями и серебристыми жилками; у разных форм рисунок сильно отличается."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "клубеньки"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой может сбросить листья и уйти в покой — полив сократите, клубень не выбрасывайте",
+     "Капризна к сквознякам и холодному подоконнику"
+    ]
+   },
+   "soil_mix_slug": "aroid_moist",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "alocasia-macrorrhizos",
+  "slug": "alocasia-macrorrhizos",
+  "latin_name": "Alocasia macrorrhizos",
+  "common_names": {
+   "ru": [
+    "Алоказия крупнокорневая",
+    "Алоказия «Слоновое ухо»"
+   ],
+   "en": [
+    "Giant taro",
+    "Elephant ear"
+   ]
+  },
+  "synonyms": [
+   "Alocasia macrorrhiza",
+   "Alocasia odora"
+  ],
+  "description": {
+   "ru": "Крупная алоказия с огромными светло-зелёными листьями на высоких черешках; в квартире вырастает выше метра."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 3,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление",
+    "клубеньки"
+   ],
+   "tips": {
+    "ru": [
+     "Растёт быстро и много пьёт летом",
+     "Нужен большой устойчивый горшок"
+    ]
+   },
+   "soil_mix_slug": "aroid_moist",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -811,6 +865,7 @@
   "image_credit": "Dinkum",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_micholitziana.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -841,7 +896,8 @@
     ]
    },
    "soil_mix_slug": "aroid_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -869,6 +925,7 @@
   "image_credit": "Obsidian Soul",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_reginula_(Philippines)_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -900,7 +957,70 @@
    "soil_mix_slug": "aroid_moist",
    "soil_note": {
     "ru": "Ювелирная алоказия: доведите пемзу до 30% и берите совсем маленький горшок."
-   }
+   },
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "alocasia-wentii",
+  "slug": "alocasia-wentii",
+  "latin_name": "Alocasia wentii",
+  "common_names": {
+   "ru": [
+    "Алоказия Вента"
+   ],
+   "en": [
+    "Hardy elephant ear",
+    "New Guinea shield"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Одна из самых неприхотливых алоказий: крупные листья-щиты с металлическим отливом и бордовой изнанкой."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 8,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "клубеньки"
+   ],
+   "tips": {
+    "ru": [
+     "Выносливее других алоказий — хороший первый вид",
+     "Капли на кончиках листьев утром — нормально: так уходит лишняя вода"
+    ]
+   },
+   "soil_mix_slug": "aroid_moist",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -928,6 +1048,7 @@
   "image_credit": "David J. Stang",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_zebrina_4zz.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -959,7 +1080,80 @@
     ]
    },
    "soil_mix_slug": "aroid_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "alocasia-amazonica",
+  "slug": "alocasia-amazonica",
+  "latin_name": "Alocasia × amazonica",
+  "common_names": {
+   "en": [
+    "African mask plant",
+    "Elephant ear"
+   ],
+   "ru": [
+    "Алоказия амазонская",
+    "Алоказия Поли"
+   ]
+  },
+  "synonyms": [
+   "Alocasia amazonica",
+   "Alocasia 'Polly'"
+  ],
+  "description": {
+   "ru": "Эффектные стреловидные листья с белыми жилками. Капризна к переливу и сухому воздуху."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Alocasia_x_amazonica_a1.jpg/960px-Alocasia_x_amazonica_a1.jpg",
+  "image_credit": "Jerzy Opioła",
+  "image_license": "CC BY-SA 4.0",
+  "image_source_url": "https://commons.wikimedia.org/wiki/File:Alocasia_x_amazonica_a1.jpg",
+  "cultivars": [
+   {
+    "name": "Polly",
+    "ru": "Полли",
+    "note": "Компактная, до 40 см; самая частая в продаже."
+   }
+  ],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление",
+    "клубеньки"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой может сбросить листья — сократите полив и ждите",
+     "Протирайте листья: любит паутинный клещ"
+    ]
+   },
+   "soil_mix_slug": "aroid_moist",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -990,6 +1184,7 @@
   "image_credit": "Collage by en:User:MidgleyDJ, original images from…",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aloe_vera_flower_inset.png",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -1017,7 +1212,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -1045,6 +1241,7 @@
   "image_credit": "Frank Vincentz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Anacampseros_rufescens1_ies.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -1075,7 +1272,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Мелкий суккулент: добавьте ещё 10% пемзы, торфа поменьше."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -1104,6 +1302,7 @@
   "image_credit": "Suniltg at Malayalam Wikipedia",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:%E0%B4%95%E0%B5%88%E0%B4%A4%E0%B4%9A%E0%B5%8D%E0%B4%9A%E0%B4%95%E0%B5%8D%E0%B4%95.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -1137,7 +1336,8 @@
    "soil_mix_slug": "bromeliad_epiphyte",
    "soil_note": {
     "ru": "Наземная бромелия: добавьте 20% листовой земли, горшок шире обычного."
-   }
+   },
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -1167,6 +1367,7 @@
   "image_credit": "Fanghong",
   "image_license": "CC BY 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:AnthuriumAndraenum.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -1199,7 +1400,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -1227,6 +1429,7 @@
   "image_credit": "Nadiatalent",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Anthurium_clarinervium.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -1260,7 +1463,8 @@
    "soil_mix_slug": "aroid_chunky",
    "soil_note": {
     "ru": "Бархатным антуриумам — до 40% коры и 10% сфагнума, горшок невысокий."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -1288,6 +1492,7 @@
   "image_credit": "Oeropium",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Anthurium_hookeri.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -1320,7 +1525,71 @@
    "soil_mix_slug": "aroid_chunky",
    "soil_note": {
     "ru": "Антуриум «птичье гнездо» — эпифит: коры можно до 40%, розетку не заглублять."
-   }
+   },
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "anthurium-scherzerianum",
+  "slug": "anthurium-scherzerianum",
+  "latin_name": "Anthurium scherzerianum",
+  "common_names": {
+   "ru": [
+    "Антуриум Шерцера",
+    "Цветок-фламинго"
+   ],
+   "en": [
+    "Flamingo flower"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Компактный антуриум с яркими покрывалами и закрученным, как хвостик, початком. Цветёт почти круглый год."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 16,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Для цветения зимой 1,5–2 месяца держите при +15–16 °C и поливайте реже",
+     "Любит высокую влажность — ставьте на поддон с мокрым керамзитом"
+    ]
+   },
+   "soil_mix_slug": "aroid_chunky",
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -1349,6 +1618,7 @@
   "image_credit": "WayneRay",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:AphelandraSquarrosaWPC_edit.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -1380,7 +1650,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -1411,6 +1682,7 @@
   "image_credit": "thinboyfatter",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Norfolk-Island-Pines.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -1444,7 +1716,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Замените часть торфа на 20% хвойной земли — араукария любит слегка кислый грунт."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -1473,6 +1746,7 @@
   "image_credit": "Alex Abair",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ardisia_crenata_342476445.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -1504,7 +1778,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -1536,6 +1811,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:AloeAristata.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -1564,7 +1840,74 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
+  }
+ },
+ {
+  "id": "asparagus-aethiopicus",
+  "slug": "asparagus-aethiopicus",
+  "latin_name": "Asparagus aethiopicus",
+  "common_names": {
+   "ru": [
+    "Аспарагус Шпренгера",
+    "Аспарагус густоцветковый"
+   ],
+   "en": [
+    "Sprenger's asparagus",
+    "Asparagus fern"
+   ]
+  },
+  "synonyms": [
+   "Asparagus densiflorus",
+   "Asparagus sprengeri"
+  ],
+  "description": {
+   "ru": "Пышные свисающие побеги с мягкой хвоей; осенью бывают красные ягоды. Неприхотлив и быстро растёт."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 10,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Мощные корневые клубни быстро заполняют горшок — пересаживайте каждый год",
+     "Ягоды ядовиты"
+    ]
+   },
+   "soil_mix_slug": "universal",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -1595,6 +1938,7 @@
   "image_credit": "Derek Ramsey (Ram-Man)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Asparagus_setaceus_Leaves_2760px.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -1628,7 +1972,8 @@
    "soil_mix_slug": "universal",
    "soil_note": {
     "ru": "Мясистые корни-клубеньки быстро заполняют горшок — берите посуду на размер больше."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -1657,6 +2002,7 @@
   "image_credit": "KENPEI",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aspidistra_elatior1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "low",
    "water_interval_summer": 7,
@@ -1687,7 +2033,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -1716,6 +2063,7 @@
   "image_credit": "Obsidian Soul",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Asplenium_nidus_(Bukidnon,_Philippines)_02.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -1748,7 +2096,8 @@
    "soil_mix_slug": "fern",
    "soil_note": {
     "ru": "Эпифитный папоротник: добавьте ещё 15% коры и не заглубляйте центр розетки."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -1777,6 +2126,7 @@
   "image_credit": "Diego Delso",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Astrophytum_myriostigma,_Jard%C3%ADn_Bot%C3%A1nico_de_M%C3%BAnich,_Alemania,_2013-01-27,_DD_01.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -1807,7 +2157,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Астрофитумы любят известь: добавьте немного измельчённой яичной скорлупы."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -1837,6 +2188,7 @@
   "image_credit": "PumpkinSky",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Aucuba_japonica_Gold_Dust_NBG_LR.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -1867,7 +2219,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -1899,6 +2252,7 @@
   "image_credit": "juancruzado",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Beaucarnea_recurvata,_Ocampo,_Tamaulipas,_Mexico_1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -1928,7 +2282,8 @@
     ]
    },
    "soil_mix_slug": "caudex",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -1957,6 +2312,7 @@
   "image_credit": "Cliff from I now live in Arlington, VA (Outside…",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Begonia_maculata3073316230.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -1988,7 +2344,8 @@
    "soil_mix_slug": "gesneriad",
    "soil_note": {
     "ru": "Для рослой бегонии добавьте 10% мелкой коры — стебли тростниковых бегоний гниют в сыром грунте."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -2017,6 +2374,7 @@
   "image_credit": "David J. Stang",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Begonia_rex_5zz.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -2048,7 +2406,84 @@
     ]
    },
    "soil_mix_slug": "gesneriad",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "begonia-hiemalis",
+  "slug": "begonia-hiemalis",
+  "latin_name": "Begonia × hiemalis",
+  "common_names": {
+   "ru": [
+    "Бегония элатиор",
+    "Бегония зимняя"
+   ],
+   "en": [
+    "Rieger begonia",
+    "Elatior begonia"
+   ]
+  },
+  "synonyms": [
+   "Begonia × elatior"
+  ],
+  "description": {
+   "ru": "Цветущая бегония с шапкой махровых цветков: красных, розовых, жёлтых, белых. Цветёт месяцами, часто зимой."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Borias",
+    "ru": "Бориас",
+    "note": "Махровые розовые цветки с белым краем."
+   }
+  ],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 15,
+   "temp_max_c": 24,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "repot_every_years": null,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте по краю горшка, не заливая стебли — склонна к гнили",
+     "После цветения обрежьте и дайте отдохнуть или обновите черенками"
+    ]
+   },
+   "soil_mix_slug": "flowering",
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2080,6 +2515,7 @@
   "image_credit": "Daderot",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Blechnum_gibbum_(Washington_DC).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -2109,7 +2545,8 @@
     ]
    },
    "soil_mix_slug": "fern",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -2138,6 +2575,7 @@
   "image_credit": "Zbigniew Niepokój",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Bugenwilla.D%C5%82ugo_kwitnaca_roslina.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 5,
@@ -2170,7 +2608,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2200,6 +2639,7 @@
   "image_credit": "Daderot",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Brighamia_insignis_-_general_view.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -2227,7 +2667,8 @@
     ]
    },
    "soil_mix_slug": "caudex",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2256,6 +2697,7 @@
   "image_credit": "C T Johansson",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:IMG_7246-Browallia_speciosa.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -2288,7 +2730,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2319,6 +2762,7 @@
   "image_credit": "Nativeplants garden",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Caladium_bicolor_2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -2350,7 +2794,8 @@
    "soil_mix_slug": "aroid_moist",
    "soil_note": {
     "ru": "Клубень сажают на 2–3 см; в период покоя грунт держат почти сухим."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -2382,6 +2827,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:CalceolariaHerbeohybrida2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -2410,7 +2856,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2439,6 +2886,7 @@
   "image_credit": "Forest and Kim Starr",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Callisia_repens_starr.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -2469,7 +2917,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -2497,6 +2946,7 @@
   "image_credit": "PumpkinSky",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Camellia_japonica_NBG.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -2526,7 +2976,84 @@
     ]
    },
    "soil_mix_slug": "acidic",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "acid"
+  }
+ },
+ {
+  "id": "capsicum-annuum",
+  "slug": "capsicum-annuum",
+  "latin_name": "Capsicum annuum",
+  "common_names": {
+   "ru": [
+    "Перец декоративный",
+    "Перец острый"
+   ],
+   "en": [
+    "Chili pepper",
+    "Ornamental pepper"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Компактный перец с яркими плодами: красными, жёлтыми, фиолетовыми. Острые сорта съедобны."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Огонёк",
+    "ru": "Огонёк",
+    "note": "Острый декоративный перец с красными плодами."
+   },
+   {
+    "name": "Medusa",
+    "ru": "Медуза",
+    "note": "Неострые плоды-«щупальца» разных цветов."
+   }
+  ],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 3,
+   "water_interval_winter": 5,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "repot_every_years": null,
+   "propagation": [
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Для завязей нужно солнце: зимой — досветка",
+     "После сбора плодов можно обрезать — куст плодоносит 2–3 года",
+     "Не трите глаза после работы с острыми плодами"
+    ]
+   },
+   "soil_mix_slug": "flowering",
+   "soil_note": null,
+   "fertilizer_slug": "edible"
   }
  },
  {
@@ -2557,6 +3084,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_010820-0009_Carissa_macrocarpa.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 5,
@@ -2586,7 +3114,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -2617,6 +3146,7 @@
   "image_credit": "Orchi",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cattleya_labiata_Orchi_1013.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -2650,7 +3180,77 @@
    "soil_mix_slug": "orchid_bark",
    "soil_note": {
     "ru": "Каттлеям — крупная кора без сфагнума и полное просыхание между поливами."
+   },
+   "fertilizer_slug": "orchid"
+  }
+ },
+ {
+  "id": "cereus-repandus",
+  "slug": "cereus-repandus",
+  "latin_name": "Cereus repandus",
+  "common_names": {
+   "ru": [
+    "Цереус перуанский",
+    "Цереус"
+   ],
+   "en": [
+    "Peruvian apple cactus"
+   ]
+  },
+  "synonyms": [
+   "Cereus peruvianus",
+   "Cereus uruguayanus"
+  ],
+  "description": {
+   "ru": "Столбовидный сизый кактус, который в комнате растёт до потолка; бывает уродливая скалистая форма «Монстрозус»."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Monstrosus",
+    "ru": "Монстрозус",
+    "note": "Уродливая скалистая форма с причудливыми наростами."
    }
+  ],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 7,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 8,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Тяжёлый и высокий — нужен устойчивый керамический горшок",
+     "Поворачивайте к свету, иначе растёт с наклоном"
+    ]
+   },
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -2682,6 +3282,7 @@
   "image_credit": "Photo: Dr. David Midgley",
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ceropegia_linearis_subsp_woodii.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -2710,7 +3311,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -2740,6 +3342,7 @@
   "image_credit": "Bachelot Pierre J-P",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Chamaedorea_elegans_Mart.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "low",
    "water_interval_summer": 6,
@@ -2769,7 +3372,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -2798,6 +3402,7 @@
   "image_credit": "tato grasso",
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Chamaerops_humilis_(Zingaro)015.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -2828,7 +3433,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -2856,6 +3462,23 @@
   "image_credit": "Hierbabuena_0611.JPG: Dtarazona derivative work: Peter…",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Hierbabuena_0611_Revised.jpg",
+  "cultivars": [
+   {
+    "name": "Vittatum",
+    "ru": "Виттатум",
+    "note": "Белая полоса по центру листа."
+   },
+   {
+    "name": "Variegatum",
+    "ru": "Вариегатум",
+    "note": "Белая кайма по краям."
+   },
+   {
+    "name": "Bonnie",
+    "ru": "Бонни",
+    "note": "Закрученные «кудрявые» листья."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -2886,7 +3509,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -2918,6 +3542,7 @@
   "image_credit": "Retama",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Chlorophytum_orchidastrum,_University_of_Helsinki_Botanical_Garden,_Finland_-_20080821.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -2948,7 +3573,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -2980,6 +3606,7 @@
   "image_credit": "Aruna at Malayalam Wikipedia",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Chrysanthemum.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -3010,7 +3637,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -3041,6 +3669,7 @@
   "image_credit": "Derek Ramsey (Ram-Man)",
   "image_license": "GFDL 1.2",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cissus_alata_Leaves.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -3070,7 +3699,133 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "citrus-japonica",
+  "slug": "citrus-japonica",
+  "latin_name": "Citrus japonica",
+  "common_names": {
+   "en": [
+    "Kumquat"
+   ],
+   "ru": [
+    "Кумкват"
+   ]
+  },
+  "synonyms": [
+   "Fortunella margarita",
+   "Fortunella japonica"
+  ],
+  "description": {
+   "ru": "Цитрус с мелкими плодами, которые едят вместе с кожурой."
+  },
+  "plant_type": "дерево",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Citrus_japonica.jpg/960px-Citrus_japonica.jpg",
+  "image_credit": "Phuong Tran",
+  "image_license": "CC BY 2.0",
+  "image_source_url": "https://commons.wikimedia.org/wiki/File:Citrus_japonica.jpg",
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 4,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 10,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "прививка",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой прохлада +10–15 °C для цветения"
+    ]
+   },
+   "soil_mix_slug": "citrus_mediterranean",
+   "soil_note": null,
+   "fertilizer_slug": "citrus"
+  }
+ },
+ {
+  "id": "citrus-reticulata",
+  "slug": "citrus-reticulata",
+  "latin_name": "Citrus reticulata",
+  "common_names": {
+   "en": [
+    "Mandarin orange"
+   ],
+   "ru": [
+    "Мандарин"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Компактный цитрус, охотно цветёт и плодоносит в горшке."
+  },
+  "plant_type": "дерево",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Citrus_reticulata_April_2013_Nordbaden.JPG/960px-Citrus_reticulata_April_2013_Nordbaden.JPG",
+  "image_credit": "4028mdk09",
+  "image_license": "CC BY-SA 3.0",
+  "image_source_url": "https://commons.wikimedia.org/wiki/File:Citrus_reticulata_April_2013_Nordbaden.JPG",
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 4,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "прививка",
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Поворачивайте осторожно — не любит перемещений"
+    ]
+   },
+   "soil_mix_slug": "citrus_mediterranean",
+   "soil_note": null,
+   "fertilizer_slug": "citrus"
   }
  },
  {
@@ -3100,6 +3855,23 @@
   "image_credit": "Elena Chochkova",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:P1030323.JPG",
+  "cultivars": [
+   {
+    "name": "Павловский",
+    "ru": "Павловский",
+    "note": "Старинный комнатный сорт: терпит сухой воздух и мало света."
+   },
+   {
+    "name": "Lunario",
+    "ru": "Лунарио",
+    "note": "Ремонтантный: цветёт и плодоносит почти круглый год."
+   },
+   {
+    "name": "Eureka",
+    "ru": "Эврика",
+    "note": "Урожайный, почти без колючек."
+   }
+  ],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -3132,7 +3904,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "citrus"
   }
  },
  {
@@ -3164,6 +3937,7 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Citrus_%C3%97_microcarpa_kz1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -3195,7 +3969,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "citrus"
   }
  },
  {
@@ -3226,6 +4001,7 @@
   "image_credit": "Ellen Levy Finch (Elf)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:OrangeBloss_wb.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -3257,128 +4033,72 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "citrus"
   }
  },
  {
-  "id": "citrus-japonica",
-  "slug": "citrus-japonica",
-  "latin_name": "Citrus japonica",
+  "id": "cleistocactus-winteri",
+  "slug": "cleistocactus-winteri",
+  "latin_name": "Cleistocactus winteri",
   "common_names": {
-   "en": [
-    "Kumquat"
-   ],
    "ru": [
-    "Кумкват"
+    "Клейстокактус Винтера",
+    "Хильдевинтера"
+   ],
+   "en": [
+    "Golden rat tail cactus"
    ]
   },
   "synonyms": [
-   "Fortunella margarita",
-   "Fortunella japonica"
+   "Hildewintera aureispina",
+   "Borzicactus aureispinus",
+   "Winterocereus aureispinus"
   ],
   "description": {
-   "ru": "Цитрус с мелкими плодами, которые едят вместе с кожурой."
+   "ru": "Кактус с длинными свисающими стеблями в золотистых колючках и лососево-оранжевыми цветками."
   },
-  "plant_type": "дерево",
-  "difficulty": 3,
-  "toxic_to_pets": true,
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
   "toxic_to_humans": false,
   "air_purifying": false,
-  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Citrus_japonica.jpg/960px-Citrus_japonica.jpg",
-  "image_credit": "Phuong Tran",
-  "image_license": "CC BY 2.0",
-  "image_source_url": "https://commons.wikimedia.org/wiki/File:Citrus_japonica.jpg",
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
-   "water_interval_summer": 4,
-   "water_interval_winter": 10,
+   "water_interval_summer": 7,
+   "water_interval_winter": 30,
    "soil_dryness_before_watering": {
-    "ru": "верхние 2 см"
+    "ru": "полностью"
    },
-   "humidity_min_pct": 50,
-   "temp_min_c": 10,
-   "temp_max_c": 28,
-   "fertilize_interval_days": 14,
+   "humidity_min_pct": 30,
+   "temp_min_c": 5,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
    "fertilize_months": [
-    3,
-    4,
     5,
     6,
     7,
-    8,
-    9
+    8
    ],
    "repot_every_years": 2,
    "propagation": [
-    "прививка",
-    "черенки"
+    "черенки",
+    "семена"
    ],
    "tips": {
     "ru": [
-     "Зимой прохлада +10–15 °C для цветения"
+     "Свисающие стебли красивы в подвесном кашпо",
+     "Для цветения нужна прохладная сухая зимовка +5–10 °C"
     ]
    },
-   "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
-  }
- },
- {
-  "id": "citrus-reticulata",
-  "slug": "citrus-reticulata",
-  "latin_name": "Citrus reticulata",
-  "common_names": {
-   "en": [
-    "Mandarin orange"
-   ],
-   "ru": [
-    "Мандарин"
-   ]
-  },
-  "synonyms": [],
-  "description": {
-   "ru": "Компактный цитрус, охотно цветёт и плодоносит в горшке."
-  },
-  "plant_type": "дерево",
-  "difficulty": 3,
-  "toxic_to_pets": true,
-  "toxic_to_humans": false,
-  "air_purifying": false,
-  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Citrus_reticulata_April_2013_Nordbaden.JPG/960px-Citrus_reticulata_April_2013_Nordbaden.JPG",
-  "image_credit": "4028mdk09",
-  "image_license": "CC BY-SA 3.0",
-  "image_source_url": "https://commons.wikimedia.org/wiki/File:Citrus_reticulata_April_2013_Nordbaden.JPG",
-  "care_profiles": {
-   "light": "direct",
-   "water_interval_summer": 4,
-   "water_interval_winter": 10,
-   "soil_dryness_before_watering": {
-    "ru": "верхние 2–3 см"
-   },
-   "humidity_min_pct": 50,
-   "temp_min_c": 12,
-   "temp_max_c": 28,
-   "fertilize_interval_days": 14,
-   "fertilize_months": [
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
-   ],
-   "repot_every_years": 2,
-   "propagation": [
-    "прививка",
-    "черенки"
-   ],
-   "tips": {
-    "ru": [
-     "Поворачивайте осторожно — не любит перемещений"
-    ]
-   },
-   "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -3407,6 +4127,7 @@
   "image_credit": "Kurt Stüber",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Clerodendron_thomsoniae1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -3437,7 +4158,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -3466,6 +4188,7 @@
   "image_credit": "JMK",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Clivia_miniata,_blomme_en_vrugte,_Manie_van_der_Schijff_BT,_a.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -3499,7 +4222,8 @@
    "soil_mix_slug": "bulbous",
    "soil_note": {
     "ru": "Кливия цветёт в тесноте: пересаживайте, только когда корни вылезают из горшка."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -3531,6 +4255,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_010330-0602_Clusia_rosea.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -3560,7 +4285,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -3588,6 +4314,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_080610-8073_Cocos_nucifera.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -3620,7 +4347,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Орех не заглубляют — он остаётся наполовину над грунтом; добавьте 10% песка."
-   }
+   },
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -3650,6 +4378,23 @@
   "image_credit": "Louise Wolff --darina 23:22, 6 May 2005 (UTC)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Colpfl05.jpg",
+  "cultivars": [
+   {
+    "name": "Petra",
+    "ru": "Петра",
+    "note": "Широкие листья с жёлтыми, оранжевыми и красными жилками."
+   },
+   {
+    "name": "Mammy",
+    "ru": "Мамми",
+    "note": "Закрученные узкие листья."
+   },
+   {
+    "name": "Excellent",
+    "ru": "Экселлент",
+    "note": "Листья «дубового» типа, жёлто-красные."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -3680,7 +4425,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -3710,6 +4456,7 @@
   "image_credit": "Marcelo Corrêa",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Coffee_Flowers.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -3743,7 +4490,8 @@
    "soil_mix_slug": "acidic",
    "soil_note": {
     "ru": "Кофе менее требователен: половину верхового торфа можно заменить листовой землёй."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -3776,6 +4524,7 @@
   "image_credit": "Bjoertvedt",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Plectranthus_scutellarioides_-_El_Yunque_nat_park_PR_IMG_2120.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -3808,7 +4557,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -3836,6 +4586,7 @@
   "image_credit": "geoff mckay from Palmerston North, New Zealand",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Columnea_gloriosa_(49470911201).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -3867,7 +4618,8 @@
    "soil_mix_slug": "gesneriad",
    "soil_note": {
     "ru": "Эпифит: замените вермикулит на мелкую кору и сажайте в подвесное кашпо."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -3898,6 +4650,7 @@
   "image_credit": "Dick Culbert from Gibsons, B.C., Canada",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cordyline_fruticosa_(20262433874).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -3928,7 +4681,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -3956,6 +4710,7 @@
   "image_credit": "Shuvaev",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Corokia_cotoneaster,_Tallinn_Botanic_Garden.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -3985,7 +4740,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -4014,6 +4770,7 @@
   "image_credit": "Abu Shawka",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cotyledon_orbiculata_-_pigs_ear_-_Cape_Point_-_South_Africa_2.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -4041,7 +4798,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -4072,6 +4830,7 @@
   "image_credit": "Agnieszka Kwiecień (Nova)",
   "image_license": "CC BY 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Crassula_muscosa_Grubosz_2006-05-03_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -4099,7 +4858,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -4128,6 +4888,23 @@
   "image_credit": "sannse",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Crassula_ovata_700.jpg",
+  "cultivars": [
+   {
+    "name": "Gollum",
+    "ru": "Голлум",
+    "note": "Трубчатые листья с присосками на концах."
+   },
+   {
+    "name": "Hobbit",
+    "ru": "Хоббит",
+    "note": "Листья, закрученные в трубочки; компактнее «Голлума»."
+   },
+   {
+    "name": "Tricolor",
+    "ru": "Триколор",
+    "note": "Кремово-розовая пестрота; нужно солнце."
+   }
+  ],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 12,
@@ -4156,7 +4933,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -4184,6 +4962,7 @@
   "image_credit": "Forest and Kim Starr",
   "image_license": "CC BY 3.0 us",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr-110218-1569-Crassula_perforata-flowering_habit-Ulana_St_Makawao-Maui_(24449889633).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 12,
@@ -4211,7 +4990,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -4239,6 +5019,7 @@
   "image_credit": "Adityamadhav83",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Crossandra_infundibuliformis_kanakambaram_Madhurawada_Visakhapatnam.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -4270,7 +5051,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -4299,6 +5081,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:CryptanthusBivittatus.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -4330,7 +5113,8 @@
    "soil_mix_slug": "bromeliad_epiphyte",
    "soil_note": {
     "ru": "Наземная бромелия: добавьте 10% листовой земли."
-   }
+   },
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -4360,6 +5144,7 @@
   "image_credit": "Benutzer:Callipides",
   "image_license": "CC BY-SA 2.0 de",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ctenanthe_burle-marxii.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -4390,7 +5175,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -4422,6 +5208,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Lone_cypress_in_17-mile-drive.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -4452,7 +5239,8 @@
    "soil_mix_slug": "acidic",
    "soil_note": {
     "ru": "Кипарису — плюс 15% дерновой земли для веса и структуры, и прохладная зимовка."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -4483,6 +5271,7 @@
   "image_credit": "Flickr user Forest and Kim Starr",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Senecio_rowleyanus_leaves.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -4513,7 +5302,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Широкая неглубокая плошка; бусины не засыпайте грунтом — они гниют."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -4543,6 +5333,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cycas_inflorescence.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -4574,7 +5365,8 @@
    "soil_mix_slug": "caudex",
    "soil_note": {
     "ru": "Саговник растёт медленно: горшок лишь чуть больше ствола, пересадка раз в 3–5 лет."
-   }
+   },
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -4603,6 +5395,7 @@
   "image_credit": "Hanay",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Yagur_%E2%80%93_Nesher,_the_Green_Path_%E2%80%93_Mount_Carmel_016.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -4636,7 +5429,8 @@
    "soil_mix_slug": "bulbous",
    "soil_note": {
     "ru": "Клубень на треть выступает над грунтом; поливайте по краю горшка или через поддон."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -4667,6 +5461,7 @@
   "image_credit": "Yercaud-elango",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Cymbidium_iridioides-1-bsi-yercaud-salem-India.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -4699,7 +5494,8 @@
    "soil_mix_slug": "orchid_terrestrial",
    "soil_note": {
     "ru": "Цимбидиуму нужен высокий горшок и более крупная кора: у него длинные толстые корни."
-   }
+   },
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -4730,6 +5526,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:DavalliaFejeensis.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -4762,7 +5559,8 @@
    "soil_mix_slug": "fern",
    "soil_note": {
     "ru": "Мохнатые корневища стелются по поверхности — плошка, корневища не засыпать."
-   }
+   },
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -4790,6 +5588,7 @@
   "image_credit": "Fan Wen",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Dendrobium_nobile_-_flower_view_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -4821,7 +5620,8 @@
     ]
    },
    "soil_mix_slug": "orchid_bark",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -4853,6 +5653,23 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_061212-2331_Dieffenbachia_seguine.jpg",
+  "cultivars": [
+   {
+    "name": "Camille",
+    "ru": "Камилла",
+    "note": "Светлый кремовый центр, компактная."
+   },
+   {
+    "name": "Tropic Snow",
+    "ru": "Тропик Сноу",
+    "note": "Крупная, с белыми мазками по центру."
+   },
+   {
+    "name": "Compacta",
+    "ru": "Компакта",
+    "note": "Невысокая, кустится."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -4884,7 +5701,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -4913,6 +5731,7 @@
   "image_credit": "Noah Elhardt",
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Venus_Flytrap_showing_trigger_hairs.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 2,
@@ -4938,7 +5757,8 @@
     ]
    },
    "soil_mix_slug": "carnivorous",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "carnivorous"
   }
  },
  {
@@ -4969,6 +5789,7 @@
   "image_credit": "Mokkie",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Sansevieria_cylindrica_flowers_7.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 14,
@@ -4997,7 +5818,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -5028,6 +5850,28 @@
   "image_credit": "rojypala",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Dracaena_fragrans_(2).jpg",
+  "cultivars": [
+   {
+    "name": "Massangeana",
+    "ru": "Массанжеана",
+    "note": "Жёлтая полоса по центру листа."
+   },
+   {
+    "name": "Janet Craig",
+    "ru": "Джанет Крейг",
+    "note": "Тёмно-зелёные глянцевые листья; терпит тень."
+   },
+   {
+    "name": "Lemon Lime",
+    "ru": "Лемон Лайм",
+    "note": "Лаймовые полосы по краям листа."
+   },
+   {
+    "name": "Compacta",
+    "ru": "Компакта",
+    "note": "Короткие листья плотными розетками."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 8,
@@ -5058,7 +5902,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -5089,6 +5934,23 @@
   "image_credit": "B.navez",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Dracaena_reflexa.JPG",
+  "cultivars": [
+   {
+    "name": "Bicolor",
+    "ru": "Биколор",
+    "note": "Красно-зелёные полоски."
+   },
+   {
+    "name": "Tricolor",
+    "ru": "Триколор",
+    "note": "Кремовые и красные полосы."
+   },
+   {
+    "name": "Colorama",
+    "ru": "Колорама",
+    "note": "Широкая розово-красная кайма; нужен яркий свет."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 10,
@@ -5122,7 +5984,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Драцена окаймлённая боится перелива: добавьте ещё 10% перлита."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -5154,6 +6017,7 @@
   "image_credit": "B.navez",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Dracaena_reflexa.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -5183,7 +6047,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -5214,6 +6079,7 @@
   "image_credit": "Cataleirxs",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Dracaena_sanderiana_2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -5246,7 +6112,8 @@
    "soil_mix_slug": "universal",
    "soil_note": {
     "ru": "Часто растёт в воде или гидрогеле: меняйте воду раз в 2 недели; в грунте — не пересушивать."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -5278,6 +6145,28 @@
   "image_credit": "Mokkie",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Snake_Plant_(Sansevieria_trifasciata_%27Laurentii%27).jpg",
+  "cultivars": [
+   {
+    "name": "Laurentii",
+    "ru": "Лаурентии",
+    "note": "Жёлтая кайма по краю листа."
+   },
+   {
+    "name": "Hahnii",
+    "ru": "Ханни",
+    "note": "Низкая розетка-«гнездо»."
+   },
+   {
+    "name": "Moonshine",
+    "ru": "Муншайн",
+    "note": "Серебристо-зелёные листья."
+   },
+   {
+    "name": "Futura Superba",
+    "ru": "Футура Суперба",
+    "note": "Короткие широкие листья с жёлтой каймой."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 14,
@@ -5309,7 +6198,63 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Широкий неглубокий тяжёлый горшок: корни поверхностные, а высокие листья валят лёгкий пластик."
-   }
+   },
+   "fertilizer_slug": "cactus"
+  }
+ },
+ {
+  "id": "drosera-capensis",
+  "slug": "drosera-capensis",
+  "latin_name": "Drosera capensis",
+  "common_names": {
+   "ru": [
+    "Росянка капская"
+   ],
+   "en": [
+    "Cape sundew"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Хищное растение с узкими листьями в липких волосках-«росинках»: лист медленно заворачивается вокруг пойманной мошки."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 1,
+   "water_interval_winter": 2,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 7,
+   "temp_max_c": 30,
+   "fertilize_interval_days": null,
+   "fertilize_months": [],
+   "repot_every_years": 2,
+   "propagation": [
+    "семена",
+    "черенки листьев",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Поливайте только дистиллированной или осмосной водой — снизу, через поддон",
+     "Блестящие капли на листьях — признак здоровья; без яркого света они исчезают"
+    ]
+   },
+   "soil_mix_slug": "carnivorous",
+   "soil_note": null,
+   "fertilizer_slug": "carnivorous"
   }
  },
  {
@@ -5342,6 +6287,7 @@
   "image_credit": "Ping an Chang",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:%E6%95%A3%E5%B0%BE%E8%91%B5Dypsis_lutescens_20210511145013_05.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -5373,7 +6319,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -5402,6 +6349,7 @@
   "image_credit": "EriaWei",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Echeveria_elegans_-_1.png",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -5431,7 +6379,69 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
+  }
+ },
+ {
+  "id": "echinopsis-oxygona",
+  "slug": "echinopsis-oxygona",
+  "latin_name": "Echinopsis oxygona",
+  "common_names": {
+   "ru": [
+    "Эхинопсис остроугольный"
+   ],
+   "en": [
+    "Easter lily cactus"
+   ]
+  },
+  "synonyms": [
+   "Echinopsis multiplex"
+  ],
+  "description": {
+   "ru": "Самый «домашний» кактус: рёбристый шар с детками и огромными душистыми розовыми цветками на длинной трубке."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 7,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 6,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Без прохладной зимовки +6–10 °C не цветёт",
+     "Лишние детки удаляйте — они отнимают силы у цветения"
+    ]
+   },
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -5463,6 +6473,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_010425-0048_Carmona_retusa.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -5494,7 +6505,8 @@
    "soil_mix_slug": "bonsai",
    "soil_note": {
     "ru": "Кармона не терпит пересыхания — можно добавить 10% торфа или кокоса."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -5524,6 +6536,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Epiphyllum_oxypetalum_flower.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -5553,7 +6566,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -5584,6 +6598,33 @@
   "image_credit": "Mokkie",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Money_Plant_(Epipremnum_aureum)_4.jpg",
+  "cultivars": [
+   {
+    "name": "Marble Queen",
+    "ru": "Марбл Квин",
+    "note": "Много кремово-белого, растёт медленнее."
+   },
+   {
+    "name": "N'Joy",
+    "ru": "Энджой",
+    "note": "Компактный, чёткие белые пятна по краю листа."
+   },
+   {
+    "name": "Neon",
+    "ru": "Неон",
+    "note": "Ярко-лимонные листья без пестроты; нужен свет, иначе зеленеет."
+   },
+   {
+    "name": "Manjula",
+    "ru": "Манжула",
+    "note": "Широкие волнистые листья с кремовыми и серебристыми мазками."
+   },
+   {
+    "name": "Golden",
+    "ru": "Голден",
+    "note": "Классический: зелёный с жёлтыми штрихами."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -5613,7 +6654,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -5642,6 +6684,13 @@
   "image_credit": "Obsidian Soul",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Wild_Epipremnum_pinnatum_(tibatib)_-_Misamis_Oriental,_Philippines_04.jpg",
+  "cultivars": [
+   {
+    "name": "Cebu Blue",
+    "ru": "Себу Блю",
+    "note": "Узкие листья с серебристо-голубым отливом; у взрослых — с прорезями."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -5671,7 +6720,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -5699,6 +6749,7 @@
   "image_credit": "Dick Culbert from Gibsons, B.C., Canada",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Episcia_cupreata_(9631125202).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -5729,7 +6780,8 @@
     ]
    },
    "soil_mix_slug": "gesneriad",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -5760,6 +6812,7 @@
   "image_credit": "Planch. & Linden",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Eucharis_%C3%97_grandiflora.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -5790,7 +6843,8 @@
     ]
    },
    "soil_mix_slug": "bulbous",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -5818,6 +6872,7 @@
   "image_credit": "Frank Vincentz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:E_meloformis_valida_ies.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -5846,7 +6901,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -5875,6 +6931,7 @@
   "image_credit": "Ezra Katz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Euphorbia_Milii_flowers.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -5902,7 +6959,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -5932,6 +6990,7 @@
   "image_credit": "André Karwath aka Aka",
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Weihnachtsstern_-_gro%C3%9F.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -5962,7 +7021,74 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "euphorbia-tirucalli",
+  "slug": "euphorbia-tirucalli",
+  "latin_name": "Euphorbia tirucalli",
+  "common_names": {
+   "ru": [
+    "Молочай тирукалли",
+    "Молочай «Карандашный»"
+   ],
+   "en": [
+    "Pencil cactus",
+    "Firestick"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Суккулентное деревце из тонких зелёных «карандашей»; у сорта «Файерстикс» побеги краснеют на солнце."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": true,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Firesticks",
+    "ru": "Файерстикс",
+    "note": "Побеги краснеют и оранжевеют на солнце."
+   }
+  ],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 10,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 10,
+   "temp_max_c": 32,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Млечный сок едкий и опасен для глаз — работайте в перчатках и очках",
+     "Черенки перед посадкой подсушите 1–2 дня"
+    ]
+   },
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -5991,6 +7117,7 @@
   "image_credit": "Totteandersson1",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:EuphorbiaTrigona.png",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -6019,7 +7146,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -6048,6 +7176,7 @@
   "image_credit": "Danny S",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Flower-010.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -6077,7 +7206,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -6109,6 +7239,7 @@
   "image_credit": "Orengi Harvey",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Old_Fatsia_japonica_with_blosems.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -6139,7 +7270,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6169,6 +7301,7 @@
   "image_credit": "Supanut Arunoprayote",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_altissima_of_Silpakorn_University_20231223.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -6199,7 +7332,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6227,6 +7361,28 @@
   "image_credit": "Forest and Kim Starr",
   "image_license": "CC BY 3.0 us",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr-080608-7576-Ficus_benjamina-habit_with_Laysan_albatross-Gym_Sand_Island-Midway_Atoll_(24823189861).jpg",
+  "cultivars": [
+   {
+    "name": "Danielle",
+    "ru": "Даниэль",
+    "note": "Глянцевые тёмно-зелёные листья, плотная крона."
+   },
+   {
+    "name": "Kinky",
+    "ru": "Кинки",
+    "note": "Мелкие листья с кремовой каймой, компактный."
+   },
+   {
+    "name": "Starlight",
+    "ru": "Старлайт",
+    "note": "Белая кайма и пятна; нужен яркий свет."
+   },
+   {
+    "name": "Natasha",
+    "ru": "Наташа",
+    "note": "Мелколистный, хорош для бонсай."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -6257,7 +7413,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6289,6 +7446,7 @@
   "image_credit": "Kenraiz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_binnendijkii_kz1.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -6318,7 +7476,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6346,6 +7505,7 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_cyathistipula_kz2.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -6375,7 +7535,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6404,6 +7565,33 @@
   "image_credit": "B.navez",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_elastica_leaves_02.JPG",
+  "cultivars": [
+   {
+    "name": "Robusta",
+    "ru": "Робуста",
+    "note": "Классический тёмно-зелёный, самый неприхотливый."
+   },
+   {
+    "name": "Tineke",
+    "ru": "Тинеке",
+    "note": "Кремово-зелёная пестрота с розоватой серединой."
+   },
+   {
+    "name": "Ruby",
+    "ru": "Руби",
+    "note": "Розово-кремовая пестрота, ярче на свету."
+   },
+   {
+    "name": "Belize",
+    "ru": "Белиз",
+    "note": "Кремовые и розовые мазки по краям."
+   },
+   {
+    "name": "Abidjan",
+    "ru": "Абиджан",
+    "note": "Почти чёрно-бордовые листья."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -6434,7 +7622,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6462,6 +7651,13 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_031108-0130_Ficus_lyrata.jpg",
+  "cultivars": [
+   {
+    "name": "Bambino",
+    "ru": "Бамбино",
+    "note": "Компактный, листья вдвое мельче."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -6495,7 +7691,8 @@
    "soil_mix_slug": "ficus",
    "soil_note": {
     "ru": "Для крупных экземпляров добавьте 10% коры: лировидный фикус особенно чувствителен к закисанию."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6527,6 +7724,7 @@
   "image_credit": "H. Zell",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_microcarpa_-_La_Gomera_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -6560,7 +7758,8 @@
    "soil_mix_slug": "bonsai",
    "soil_note": {
     "ru": "Если растёт как обычное деревце, а не бонсай, — подойдёт смесь для фикусов."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6588,6 +7787,7 @@
   "image_credit": "Ixitixel",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ficus_pumila_(Leafs).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -6617,7 +7817,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -6647,6 +7848,7 @@
   "image_credit": "Forest and Kim Starr",
   "image_license": "CC BY 3.0 us",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr-120522-6205-Ficus_triangularis-habit-Iao_Tropical_Gardens_of_Maui-Maui_(24847654670).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -6676,7 +7878,8 @@
     ]
    },
    "soil_mix_slug": "ficus",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -6708,6 +7911,7 @@
   "image_credit": "Louise Wolff --darina 00:12, 7 May 2005 (UTC)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Colpfl25.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 3,
@@ -6738,7 +7942,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -6769,6 +7974,7 @@
   "image_credit": "Gold Bernard",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Brincos_De_Princesa.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -6799,7 +8005,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -6830,6 +8037,7 @@
   "image_credit": "Adriel anv00",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Gardenia_jasminoides_flower_Argentina.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -6860,7 +8068,8 @@
     ]
    },
    "soil_mix_slug": "acidic",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "acid"
   }
  },
  {
@@ -6892,6 +8101,7 @@
   "image_credit": "Stan Shebs",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Gasteria_bicolor_var_bicolor_3.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -6920,7 +8130,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -6950,6 +8161,7 @@
   "image_credit": "Alexey Yakovlev",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Gerbera_jamesonii_(Asteraceae).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -6983,7 +8195,71 @@
    "soil_mix_slug": "flowering",
    "soil_note": {
     "ru": "Розетку не заглубляйте: у гербер корневая шейка легко загнивает."
-   }
+   },
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "goeppertia-crocata",
+  "slug": "goeppertia-crocata",
+  "latin_name": "Goeppertia crocata",
+  "common_names": {
+   "ru": [
+    "Калатея шафрановая",
+    "Калатея кроката"
+   ],
+   "en": [
+    "Eternal flame"
+   ]
+  },
+  "synonyms": [
+   "Calathea crocata"
+  ],
+  "description": {
+   "ru": "Калатея с тёмными волнистыми листьями, которая цветёт: над листвой поднимаются ярко-оранжевые соцветия."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 27,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Для цветения зимой нужны короткий день (около 10 часов света) и высокая влажность",
+     "Поливайте мягкой отстоянной водой"
+    ]
+   },
+   "soil_mix_slug": "tropical_moist",
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7015,6 +8291,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:CalatheaLancifolia.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7045,7 +8322,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7076,6 +8354,7 @@
   "image_credit": "Montrealais",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Calathea_lietzei_-_JBM.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7105,7 +8384,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7136,6 +8416,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:CalatheaMakoyana.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7165,7 +8446,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7196,6 +8478,7 @@
   "image_credit": "Fregisseur",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Calathea_orbifolia_2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7226,7 +8509,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7257,6 +8541,23 @@
   "image_credit": "Kathy Richardson",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Goeppertia_roseopicta.jpg",
+  "cultivars": [
+   {
+    "name": "Dottie",
+    "ru": "Дотти",
+    "note": "Почти чёрные листья с розовым рисунком."
+   },
+   {
+    "name": "Medallion",
+    "ru": "Медальон",
+    "note": "Серебристо-зелёный «медальон» и бордовая изнанка."
+   },
+   {
+    "name": "Rosy",
+    "ru": "Рози",
+    "note": "Розовый центр листа с зелёной каймой."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7287,7 +8588,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7319,6 +8621,7 @@
   "image_credit": "Cliff from Arlington, Virginia, USA",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Furry_Feather_(Calathea_rufibarba)_(3073332096)_(2).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -7348,7 +8651,70 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
+  }
+ },
+ {
+  "id": "goeppertia-warszewiczii",
+  "slug": "goeppertia-warszewiczii",
+  "latin_name": "Goeppertia warszewiczii",
+  "common_names": {
+   "ru": [
+    "Калатея Варшевича"
+   ],
+   "en": [
+    "Jungle velvet calathea"
+   ]
+  },
+  "synonyms": [
+   "Calathea warszewiczii"
+  ],
+  "description": {
+   "ru": "Бархатистые тёмно-зелёные листья со светлой «ёлочкой» по центру и бордовой изнанкой."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 4,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 60,
+   "temp_min_c": 18,
+   "temp_max_c": 27,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Бархатистые листья не опрыскивайте — увлажняйте воздух рядом",
+     "Сохнущие края — сухой воздух или жёсткая вода"
+    ]
+   },
+   "soil_mix_slug": "tropical_moist",
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -7378,6 +8744,7 @@
   "image_credit": "Didier Descouens",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(MHNT)_Graptopetalum_paraguayense_-_leaves.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 12,
@@ -7406,7 +8773,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -7435,6 +8803,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Bromeliaceae03.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -7465,7 +8834,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -7493,6 +8863,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Gymnocalcium_baldianium.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -7521,7 +8892,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -7551,6 +8923,7 @@
   "image_credit": "Petar43",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Gymnocalycium_mihanovichii_16.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -7582,7 +8955,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Привитый гимнокалициум: следите, чтобы место прививки было над гравием."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -7611,6 +8985,7 @@
   "image_credit": "Didier Descouens",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(MHNT)_Gynura_aurantiaca_-_flower_and_leaf.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -7641,7 +9016,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -7670,6 +9046,7 @@
   "image_credit": "Abu Shawka",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:1_Haworthia_cooperi_-_Kirstenbosch.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -7697,7 +9074,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -7730,6 +9108,7 @@
   "image_credit": "stephen boisvert from Chicago, United States",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Winterbourne_-_Haworthia_attenuata_(6120983526).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -7757,7 +9136,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -7786,6 +9166,23 @@
   "image_credit": "kallerna",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Hedera_helix_Dover.jpg",
+  "cultivars": [
+   {
+    "name": "Glacier",
+    "ru": "Глейшер",
+    "note": "Серо-зелёные листья с белой каймой."
+   },
+   {
+    "name": "Goldchild",
+    "ru": "Голдчайлд",
+    "note": "Жёлтая кайма."
+   },
+   {
+    "name": "Eva",
+    "ru": "Ева",
+    "note": "Мелкие листья с кремовой каймой, компактный."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -7815,7 +9212,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -7844,6 +9242,7 @@
   "image_credit": "Andy / Andrew Fogg from near Cambridge, UK",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Hibiscus_Brilliant.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -7875,7 +9274,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -7906,6 +9306,7 @@
   "image_credit": "Drew Avery",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Hippeastrum_reginae.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -7937,7 +9338,8 @@
     ]
    },
    "soil_mix_slug": "bulbous",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -7966,6 +9368,7 @@
   "image_credit": "David J. Stang",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Homalomena_rubescens_1zz.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 6,
@@ -7995,7 +9398,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -8026,6 +9430,7 @@
   "image_credit": "Black Diamond Images",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Howea_forsteriana_Lord_Howe_Island.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -8055,7 +9460,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -8084,6 +9490,23 @@
   "image_credit": "Yvan leduc",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:NKN-2007-06-13_114250_Hoya_Carnosa_(Yvan_Leduc_author_for_Wikipedia).jpg",
+  "cultivars": [
+   {
+    "name": "Krimson Queen",
+    "ru": "Кримсон Квин",
+    "note": "Кремово-розовая кайма (другое название — «Трёхцветная»)."
+   },
+   {
+    "name": "Krimson Princess",
+    "ru": "Кримсон Принцесс",
+    "note": "Кремово-розовый центр листа."
+   },
+   {
+    "name": "Compacta",
+    "ru": "Компакта",
+    "note": "Скрученные листья-«верёвочки» (Hindu Rope); поливать осторожнее."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -8114,7 +9537,70 @@
     ]
    },
    "soil_mix_slug": "epiphytic_vine",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "hoya-kerrii",
+  "slug": "hoya-kerrii",
+  "latin_name": "Hoya kerrii",
+  "common_names": {
+   "ru": [
+    "Хойя Керри",
+    "Хойя «Сердечко»"
+   ],
+   "en": [
+    "Sweetheart hoya",
+    "Valentine hoya"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Хойя с толстыми листьями-сердечками; в продаже часто одиночный лист в горшке."
+  },
+  "plant_type": "лиана",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 10,
+   "water_interval_winter": 20,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 3,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Одиночный лист без узла пустит корни, но стебель так и не вырастет",
+     "Не срезайте старые цветоносы — на них цветёт снова"
+    ]
+   },
+   "soil_mix_slug": "epiphytic_vine",
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8142,6 +9628,7 @@
   "image_credit": "belvedere04",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(Natural)_Hydrangea_macrophylla,_Iwafune,_Isumi,_Chiba,_Japan_2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 2,
@@ -8175,7 +9662,8 @@
    "soil_mix_slug": "acidic",
    "soil_note": {
     "ru": "Кислый грунт даёт голубые соцветия, нейтральный — розовые."
-   }
+   },
+   "fertilizer_slug": "acid"
   }
  },
  {
@@ -8205,6 +9693,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_080117-1693_Hypoestes_phyllostachya.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -8236,7 +9725,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -8266,6 +9756,7 @@
   "image_credit": "Thegreenj",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Impatienswalleriana.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -8298,7 +9789,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8327,6 +9819,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:IresineHerbstii.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -8357,7 +9850,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -8386,6 +9880,7 @@
   "image_credit": "Didier Descouens",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(MHNT)_Jasminum_polyanthum_%E2%80%93_flowers_and_buds.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -8416,7 +9911,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8447,6 +9943,7 @@
   "image_credit": "PierreSelim",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Justicia_carnea_-_MHNT_Borderouge.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -8476,7 +9973,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8505,6 +10003,13 @@
   "image_credit": "বাক্যবাগীশ",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Kalanchoe_blossfeldiana_3.jpg",
+  "cultivars": [
+   {
+    "name": "Calandiva",
+    "ru": "Каландива",
+    "note": "Махровые цветки-розочки."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -8537,7 +10042,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Цветущему каланхоэ — плюс 10% листовой земли для питания."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8568,6 +10074,7 @@
   "image_credit": "Gmihail at Serbian Wikipedia",
   "image_license": "CC BY-SA 3.0 rs",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Vivipary_in_Kalanchoe_daigremontiana.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -8596,7 +10103,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -8626,6 +10134,7 @@
   "image_credit": "JMK",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Kalanchoe_thyrsiflora,_habitus,_Spitskop,_a.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 12,
@@ -8654,7 +10163,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -8684,6 +10194,7 @@
   "image_credit": "Agnieszka Kwiecień, Nova",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Kalanchoe_tomentosa_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 12,
@@ -8712,7 +10223,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -8743,6 +10255,7 @@
   "image_credit": "André Karwath aka Aka",
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Echinocactus_grusonii_(aka).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -8771,7 +10284,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -8800,6 +10314,7 @@
   "image_credit": "Alvesgaspar",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:LantanaFlowerLeaves.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -8831,7 +10346,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -8860,6 +10376,7 @@
   "image_credit": "Forest and Kim Starr",
   "image_license": "CC BY 3.0 us",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr-071024-0195-Laurus_nobilis-leaves-Enchanting_Floral_Gardens_of_Kula-Maui_(24867859296).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -8888,7 +10405,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -8917,6 +10435,7 @@
   "image_credit": "Michael Wolf",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Lithops_lesliei_ssp._lesliei_v._mariae_Cole_141_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -8941,7 +10460,8 @@
     ]
    },
    "soil_mix_slug": "mesembs_mineral",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "minimal"
   }
  },
  {
@@ -8969,6 +10489,7 @@
   "image_credit": "Cookie",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Livistona-chinensis.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -8998,7 +10519,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -9029,6 +10551,7 @@
   "image_credit": "Nitesh8de at English Wikipedia",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Haem3.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -9060,7 +10583,8 @@
     ]
    },
    "soil_mix_slug": "orchid_terrestrial",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -9089,6 +10613,7 @@
   "image_credit": "Chhe",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:MammillariaElongata2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -9116,7 +10641,67 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
+  }
+ },
+ {
+  "id": "mammillaria-hahniana",
+  "slug": "mammillaria-hahniana",
+  "latin_name": "Mammillaria hahniana",
+  "common_names": {
+   "ru": [
+    "Маммиллярия Гана"
+   ],
+   "en": [
+    "Old lady cactus"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Шаровидный кактус в длинных белых волосках; весной цветёт кольцом из пурпурных цветков."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 10,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "семена",
+    "детки"
+   ],
+   "tips": {
+    "ru": [
+     "Кольцо цветков появляется после прохладной сухой зимовки +8–12 °C",
+     "Не мочите волоски при поливе"
+    ]
+   },
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -9148,6 +10733,7 @@
   "image_credit": "日:Jnn",
   "image_license": "CC BY 2.1 jp",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Flower-center142058.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -9179,7 +10765,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -9208,6 +10795,23 @@
   "image_credit": "Kurt Stüber",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Maranta_leuconeura3.jpg",
+  "cultivars": [
+   {
+    "name": "Fascinator",
+    "ru": "Фасцинатор",
+    "note": "Красные жилки и салатовый рисунок (Tricolor)."
+   },
+   {
+    "name": "Kerchoveana",
+    "ru": "Керховеана",
+    "note": "Тёмные пятна между жилками — «следы кролика»."
+   },
+   {
+    "name": "Lemon Lime",
+    "ru": "Лемон Лайм",
+    "note": "Лимонные жилки на тёмно-зелёном."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -9239,7 +10843,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -9271,6 +10876,7 @@
   "image_credit": "Lenore Edman from Sunnyvale, CA",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Stephanotis_floribunda3L._Marie.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -9301,7 +10907,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -9330,6 +10937,7 @@
   "image_credit": "Alberto Salguero",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Medinilla_magnifica_flor.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -9362,7 +10970,8 @@
    "soil_mix_slug": "epiphytic_vine",
    "soil_note": {
     "ru": "Мединилле — плюс 10% сфагнума: она любит влажный воздух и ровно влажный субстрат."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -9390,6 +10999,7 @@
   "image_credit": "Photograph by Mike Peel (www.mikepeel.net)",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Melocactus_matanzanus_2.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -9417,7 +11027,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -9446,6 +11057,7 @@
   "image_credit": "Derek Ramsey (Ram-Man)",
   "image_license": "GFDL 1.2",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Microsorum_musifolium_closeup.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -9475,7 +11087,8 @@
     ]
    },
    "soil_mix_slug": "fern",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -9506,6 +11119,7 @@
   "image_credit": "Eric in SF",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Miltoniopsis_phalaenopsis_%27Golden_Gate%27.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -9538,7 +11152,8 @@
    "soil_mix_slug": "orchid_bark",
    "soil_note": {
     "ru": "Мильтонии — мелкая кора с 25% сфагнума: она не выносит полного пересыхания."
-   }
+   },
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -9570,6 +11185,13 @@
   "image_credit": "Aitor",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Monstera_adansonii_79319231.jpg",
+  "cultivars": [
+   {
+    "name": "Albo Variegata",
+    "ru": "Альбо",
+    "note": "Белая пестрота, редкая и капризная."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -9600,7 +11222,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -9629,6 +11252,28 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Monstera_deliciosa2.jpg",
+  "cultivars": [
+   {
+    "name": "Thai Constellation",
+    "ru": "Тай Констелейшн",
+    "note": "Стабильная кремовая «звёздная» пестрота по всему листу; растёт медленнее зелёной."
+   },
+   {
+    "name": "Albo Variegata",
+    "ru": "Альбо",
+    "note": "Белые сектора и мазки; пестрота нестабильна, нужен яркий свет."
+   },
+   {
+    "name": "Aurea",
+    "ru": "Ауреа",
+    "note": "Жёлтая пестрота секторами."
+   },
+   {
+    "name": "Borsigiana",
+    "ru": "Борсигиана",
+    "note": "Компактная форма с более тонкими черешками и мелкими листьями."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -9662,7 +11307,8 @@
    "soil_mix_slug": "aroid_chunky",
    "soil_note": {
     "ru": "Для крупных экземпляров добавьте 10% крупной коры и тяжёлый горшок под опору."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -9690,6 +11336,7 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Monstera_siltepecana_kz01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -9719,7 +11366,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -9748,6 +11396,7 @@
   "image_credit": "Avenue",
   "image_license": "GFDL",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Muehlenbeckia_complexa_in_flower_T2i_IMG_104_1452.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -9778,7 +11427,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -9809,6 +11459,7 @@
   "image_credit": "Michael Wolf",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Murraya_paniculata_05.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -9841,7 +11492,8 @@
     ]
    },
    "soil_mix_slug": "acidic",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -9871,6 +11523,7 @@
   "image_credit": "Miya.m",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Musa_acuminata_in_india01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -9903,7 +11556,8 @@
    "soil_mix_slug": "universal",
    "soil_note": {
     "ru": "Банан прожорлив: добавьте 15% биогумуса и берите объёмный горшок."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -9932,6 +11586,7 @@
   "image_credit": "A. Barra",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Myrsine_africana.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -9962,7 +11617,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -9990,6 +11646,7 @@
   "image_credit": "LIGURIAN VASCULAR FLORA",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Myrtus_communis_L._subsp._communis_-_52505075873.png",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -10023,7 +11680,8 @@
    "soil_mix_slug": "citrus_mediterranean",
    "soil_note": {
     "ru": "Мирт боится пересушки кома — песка меньше, торфа чуть больше."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -10055,6 +11713,7 @@
   "image_credit": "Dinkum",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Nematanthus_gregarius_-_Kew_Gardens.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -10084,7 +11743,8 @@
     ]
    },
    "soil_mix_slug": "gesneriad",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -10112,6 +11772,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Neoregelia_carolinae_BotGardBln310505a.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -10141,7 +11802,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -10172,6 +11834,7 @@
   "image_credit": "Mokkie",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pitcher_Plant_(Nepenthes_%C3%97_ventrata).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -10197,7 +11860,8 @@
    "soil_mix_slug": "carnivorous",
    "soil_note": {
     "ru": "Непентесу нужна смесь рыхлее: половина сфагнума, 20% коры, подвесное кашпо без поддона с водой."
-   }
+   },
+   "fertilizer_slug": "carnivorous"
   }
  },
  {
@@ -10227,6 +11891,23 @@
   "image_credit": "Homer Edward Price",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Boston_Fern_(2873392811).png",
+  "cultivars": [
+   {
+    "name": "Bostoniensis",
+    "ru": "Бостонский",
+    "note": "Длинные изогнутые вайи — классика подвесных кашпо."
+   },
+   {
+    "name": "Green Lady",
+    "ru": "Грин Леди",
+    "note": "Пышный шар из прямых вай."
+   },
+   {
+    "name": "Fluffy Ruffles",
+    "ru": "Флаффи Раффлз",
+    "note": "Кружевные курчавые вайи."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 3,
@@ -10258,7 +11939,8 @@
     ]
    },
    "soil_mix_slug": "fern",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -10286,6 +11968,7 @@
   "image_credit": "Alvesgaspar",
   "image_license": "CC BY 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Nerium_oleander_flowers_leaves.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -10315,7 +11998,8 @@
     ]
    },
    "soil_mix_slug": "citrus_mediterranean",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -10344,6 +12028,23 @@
   "image_credit": "David J. Stang",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ocimum_basilicum_8zz.jpg",
+  "cultivars": [
+   {
+    "name": "Genovese",
+    "ru": "Дженовезе",
+    "note": "Классический зелёный базилик для песто."
+   },
+   {
+    "name": "Ереванский",
+    "ru": "Ереванский",
+    "note": "Фиолетовые листья с гвоздичным ароматом."
+   },
+   {
+    "name": "Thai",
+    "ru": "Тайский",
+    "note": "Фиолетовые стебли, анисовый аромат."
+   }
+  ],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 2,
@@ -10376,7 +12077,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "edible"
   }
  },
  {
@@ -10405,6 +12107,7 @@
   "image_credit": "Abu Shawka",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Olea_europaea_cuspidata-africana_Cape_Town.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -10434,7 +12137,8 @@
    "soil_mix_slug": "citrus_mediterranean",
    "soil_note": {
     "ru": "Оливе — ещё 10% гравия или пемзы и грунт ближе к нейтральному."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -10465,6 +12169,7 @@
   "image_credit": "Fan Wen",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Oncidium_-_flower_view_01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -10495,7 +12200,8 @@
     ]
    },
    "soil_mix_slug": "orchid_bark",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -10524,6 +12230,7 @@
   "image_credit": "Stan Shebs",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Opuntia_microdasys_3.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -10552,7 +12259,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -10584,6 +12292,7 @@
   "image_credit": "KENPEI",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Oxalis_triangularis6.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -10613,7 +12322,8 @@
     ]
    },
    "soil_mix_slug": "bulbous",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -10645,6 +12355,7 @@
   "image_credit": "Dennis G. Jarvis",
   "image_license": "CC BY-SA 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Flickr_-_archer10_(Dennis)_-_Guatemala-1376.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -10677,7 +12388,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Ствол пахиры гниёт при застое: добавьте 10% песка или пемзы."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -10706,6 +12418,7 @@
   "image_credit": "Didier Descouens",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:(MHNT)_Pachyphytum_oviferum_-_Habitus.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -10733,7 +12446,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -10762,6 +12476,7 @@
   "image_credit": "H. Zell",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pachypodium_lamerei_-_Cactualdea_San_Nicol%C3%A1s.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -10790,7 +12505,8 @@
     ]
    },
    "soil_mix_slug": "caudex",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -10820,6 +12536,7 @@
   "image_credit": "UpstateNYer",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:PachystachysLuteaOrlando.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -10849,7 +12566,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -10881,6 +12599,7 @@
   "image_credit": "Orchi",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Paphiopedilum_henryanum_Orchi_001.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -10911,7 +12630,71 @@
     ]
    },
    "soil_mix_slug": "orchid_terrestrial",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
+  }
+ },
+ {
+  "id": "parodia-magnifica",
+  "slug": "parodia-magnifica",
+  "latin_name": "Parodia magnifica",
+  "common_names": {
+   "ru": [
+    "Пародия великолепная",
+    "Нотокактус великолепный"
+   ],
+   "en": [
+    "Balloon cactus"
+   ]
+  },
+  "synonyms": [
+   "Notocactus magnificus",
+   "Eriocactus magnificus"
+  ],
+  "description": {
+   "ru": "Сизо-голубой рёбристый кактус с золотистыми колючками и жёлтыми шелковистыми цветками."
+  },
+  "plant_type": "суккулент",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 7,
+   "water_interval_winter": 30,
+   "soil_dryness_before_watering": {
+    "ru": "полностью"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 8,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "детки",
+    "семена"
+   ],
+   "tips": {
+    "ru": [
+     "Летом притеняйте от полуденного солнца",
+     "Зимой прохладно и почти сухо"
+    ]
+   },
+   "soil_mix_slug": "cactus_succulent",
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -10940,6 +12723,7 @@
   "image_credit": "Franz van Duns",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Passiflora_caerulea_(2019-06-24)_frontal-view.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -10970,7 +12754,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -11001,6 +12786,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pelargonium_flower.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -11035,7 +12821,8 @@
    "soil_mix_slug": "flowering",
    "soil_note": {
     "ru": "Пеларгонии — без биогумуса и с 10% песка, иначе она «жирует» вместо цветения."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -11064,6 +12851,7 @@
   "image_credit": "Cody Hough",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Penta.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -11095,7 +12883,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -11126,6 +12915,7 @@
   "image_credit": "James Steakley",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Peperomia_argyreia.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 8,
@@ -11156,7 +12946,8 @@
     ]
    },
    "soil_mix_slug": "epiphytic_vine",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11184,6 +12975,7 @@
   "image_credit": "Jerzy Opioła",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Peperomia_caperata_1-OB9.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 8,
@@ -11213,7 +13005,8 @@
     ]
    },
    "soil_mix_slug": "epiphytic_vine",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11241,6 +13034,13 @@
   "image_credit": "Jerzy Opioła",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Peperomia_obtusifolia_3-OB9.jpg",
+  "cultivars": [
+   {
+    "name": "Variegata",
+    "ru": "Вариегата",
+    "note": "Кремово-зелёная пестрота."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 10,
@@ -11271,7 +13071,71 @@
     ]
    },
    "soil_mix_slug": "epiphytic_vine",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "peperomia-polybotrya",
+  "slug": "peperomia-polybotrya",
+  "latin_name": "Peperomia polybotrya",
+  "common_names": {
+   "ru": [
+    "Пеперомия многоколосовая",
+    "Пеперомия «Капля дождя»"
+   ],
+   "en": [
+    "Raindrop peperomia",
+    "Coin-leaf peperomia"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Пеперомия с глянцевыми мясистыми листьями в форме капли на прямых стеблях."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 8,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "почти полностью"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 15,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "листовые черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Запасает воду в листьях — лучше недолить, чем перелить",
+     "Любит тесный горшок"
+    ]
+   },
+   "soil_mix_slug": "epiphytic_vine",
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11300,6 +13164,7 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Peperomia_prostrata_kz01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11329,7 +13194,68 @@
     ]
    },
    "soil_mix_slug": "epiphytic_vine",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "persea-americana",
+  "slug": "persea-americana",
+  "latin_name": "Persea americana",
+  "common_names": {
+   "ru": [
+    "Авокадо"
+   ],
+   "en": [
+    "Avocado"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Деревце из косточки авокадо: быстро растёт и радует крупными листьями. Плодов в квартире обычно не бывает."
+  },
+  "plant_type": "дерево",
+  "difficulty": 2,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 28,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "семена (косточка)"
+   ],
+   "tips": {
+    "ru": [
+     "Прищипывайте верхушку на высоте 30–40 см — станет ветвиться",
+     "Листья и косточка ядовиты для кошек, собак и птиц"
+    ]
+   },
+   "soil_mix_slug": "universal",
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -11342,7 +13268,8 @@
    ],
    "ru": [
     "Фаленопсис",
-    "Орхидея-бабочка"
+    "Орхидея-бабочка",
+    "Орхидея"
    ]
   },
   "synonyms": [],
@@ -11358,6 +13285,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Phalaenopsis_philippinensis_NationalOrchidGarden-Singapore.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11390,7 +13318,8 @@
     ]
    },
    "soil_mix_slug": "orchid_bark",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -11419,6 +13348,28 @@
   "image_credit": "Alialb",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Philodendron_erubescens_-_Leaves.jpg",
+  "cultivars": [
+   {
+    "name": "Pink Princess",
+    "ru": "Пинк Принцесс",
+    "note": "Тёмные листья с розовыми секторами; чем больше розового, тем капризнее."
+   },
+   {
+    "name": "Birkin",
+    "ru": "Биркин",
+    "note": "Тёмно-зелёные листья в тонких белых штрихах."
+   },
+   {
+    "name": "Imperial Red",
+    "ru": "Империал Ред",
+    "note": "Молодые листья бордовые, со временем темнеют."
+   },
+   {
+    "name": "Imperial Green",
+    "ru": "Империал Грин",
+    "note": "Крупные глянцевые ярко-зелёные листья, компактная розетка."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11448,7 +13399,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11480,6 +13432,23 @@
   "image_credit": "KENPEI",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Philodendron_scandens_subsp_oxycardium2.jpg",
+  "cultivars": [
+   {
+    "name": "Brasil",
+    "ru": "Бразил",
+    "note": "Жёлто-зелёная полоса по центру листа."
+   },
+   {
+    "name": "Micans",
+    "ru": "Микан",
+    "note": "Бархатистые бронзово-зелёные листья."
+   },
+   {
+    "name": "Lemon Lime",
+    "ru": "Лемон Лайм",
+    "note": "Лимонно-зелёные листья."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -11510,7 +13479,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11538,6 +13508,7 @@
   "image_credit": "Yercaud-elango",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Philodendron_melinonii-3-my_chedi-foot_hill-yercaud-salem-India.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11568,7 +13539,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11598,6 +13570,7 @@
   "image_credit": "Krzysztof Ziarnek, Kenraiz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Philodendron_pedatum_kz01.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11627,7 +13600,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11659,6 +13633,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_050107-2831_Phlebodium_aureum.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 5,
@@ -11692,7 +13667,8 @@
    "soil_mix_slug": "fern",
    "soil_note": {
     "ru": "Корневища стелются по поверхности — добавьте 15% коры и не засыпайте их."
-   }
+   },
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -11721,6 +13697,7 @@
   "image_credit": "Forest & Kim Starr",
   "image_license": "CC BY 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Starr_070124-3839_Phoenix_roebelenii.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -11750,7 +13727,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -11779,6 +13757,7 @@
   "image_credit": "Fanghong",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:PileaCadierei.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -11808,7 +13787,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -11837,6 +13817,13 @@
   "image_credit": "Husky",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pilea_peperomioides_Chinese_money_plant.jpg",
+  "cultivars": [
+   {
+    "name": "Mojito",
+    "ru": "Мохито",
+    "note": "Зелёные листья с салатовыми и кремовыми мазками."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11867,7 +13854,64 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "pinguicula-moranensis",
+  "slug": "pinguicula-moranensis",
+  "latin_name": "Pinguicula moranensis",
+  "common_names": {
+   "ru": [
+    "Жирянка моранская"
+   ],
+   "en": [
+    "Mexican butterwort"
+   ]
+  },
+  "synonyms": [
+   "Pinguicula caudata"
+  ],
+  "description": {
+   "ru": "Мексиканская хищная розетка с липкими листьями: ловит мелких мошек, в том числе грибных комариков из соседних горшков."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 3,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "слегка подсыхает"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 10,
+   "temp_max_c": 30,
+   "fertilize_interval_days": null,
+   "fertilize_months": [],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки листьев",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Зимой образует мелкую розетку покоя — поливайте реже",
+     "Вода только дистиллированная или осмосная"
+    ]
+   },
+   "soil_mix_slug": "carnivorous",
+   "soil_note": null,
+   "fertilizer_slug": "carnivorous"
   }
  },
  {
@@ -11896,6 +13940,7 @@
   "image_credit": "themaskedlapwing",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Platycerium_bifurcatum_612351086.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -11929,7 +13974,8 @@
    "soil_mix_slug": "bromeliad_epiphyte",
    "soil_note": {
     "ru": "Лучше всего растёт на блоке: доска с корой и подушкой сфагнума под щитовидными листьями."
-   }
+   },
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -11958,6 +14004,7 @@
   "image_credit": "ZooFari",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pleiospilos_nelii_flower.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 14,
@@ -11980,7 +14027,8 @@
     ]
    },
    "soil_mix_slug": "mesembs_mineral",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "minimal"
   }
  },
  {
@@ -12012,6 +14060,7 @@
   "image_credit": "Eric in SF",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Schefflera_elegantissima.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -12041,7 +14090,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -12071,6 +14121,7 @@
   "image_credit": "IKAl",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Pogonatherum_paniceum.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 2,
@@ -12102,7 +14153,8 @@
    "soil_mix_slug": "tropical_moist",
    "soil_note": {
     "ru": "Бамбуковая трава не выносит пересыхания — можно ставить в поддон с водой."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -12131,6 +14183,7 @@
   "image_credit": "Ahmed",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Polyscias_fruticosa,_Hong_Kong_Park,_December_2019_16.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -12160,7 +14213,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -12190,6 +14244,7 @@
   "image_credit": "Daderot",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Polyscias_scutellaria_-_Krohn_Conservatory_-_DSC03688.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -12219,7 +14274,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -12249,6 +14305,7 @@
   "image_credit": "Dinkum",
   "image_license": "CC0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Portulacaria_afra_02.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -12279,7 +14336,8 @@
    "soil_mix_slug": "cactus_succulent",
    "soil_note": {
     "ru": "Для формирования как бонсай подойдёт и смесь для бонсай с 20% пемзы."
-   }
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -12310,6 +14368,7 @@
   "image_credit": "Pokrajac",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Prole%C4%87no_cve%C4%87e_3.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -12338,7 +14397,81 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "pteris-cretica",
+  "slug": "pteris-cretica",
+  "latin_name": "Pteris cretica",
+  "common_names": {
+   "ru": [
+    "Птерис критский"
+   ],
+   "en": [
+    "Cretan brake fern",
+    "Ribbon fern"
+   ]
+  },
+  "synonyms": [],
+  "description": {
+   "ru": "Нетребовательный папоротник с перистыми вайями; у сорта «Альболинеата» по центру белая полоса."
+  },
+  "plant_type": "папоротник",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Albolineata",
+    "ru": "Альболинеата",
+    "note": "Белая полоса по центру вай."
+   },
+   {
+    "name": "Wimsettii",
+    "ru": "Вимсетти",
+    "note": "Вайи с гребенчатыми кончиками."
+   }
+  ],
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 3,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "не пересыхает"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 12,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "деление",
+    "споры"
+   ],
+   "tips": {
+    "ru": [
+     "Не выносит пересыхания кома",
+     "Засохшие вайи срезайте у основания"
+    ]
+   },
+   "soil_mix_slug": "fern",
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -12366,6 +14499,7 @@
   "image_credit": "Tatters ❀ from Brisbane, Australia",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Radermachera_sinica_-_%22China_Doll_tree%22_(3_photos)_(4400613119).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -12395,7 +14529,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -12425,6 +14560,7 @@
   "image_credit": "Theoperatingsystem",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Rhaphidophora_tetrasperma.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 6,
@@ -12454,7 +14590,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -12483,6 +14620,7 @@
   "image_credit": "Aris riyanto",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Arya_-_Rhapis_excelsa_at_hotel_citradream_Cirebon_2019_0.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 7,
@@ -12512,7 +14650,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -12541,6 +14680,7 @@
   "image_credit": "Frank Vincentz",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Rhipsalis_baccifera_01_ies.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -12571,7 +14711,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -12603,6 +14744,7 @@
   "image_credit": "Lany pirna",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Rhododendron_simsii-bunga_2-Lany_pirna.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 3,
@@ -12634,7 +14776,8 @@
     ]
    },
    "soil_mix_slug": "acidic",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "acid"
   }
  },
  {
@@ -12666,6 +14809,7 @@
   "image_credit": "Sakurai Midori",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Rosa_chinensis.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 3,
@@ -12698,7 +14842,8 @@
    "soil_mix_slug": "flowering",
    "soil_note": {
     "ru": "Розе — плюс 15% дерновой земли: ей нужен более плотный и питательный грунт."
-   }
+   },
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -12728,6 +14873,7 @@
   "image_credit": "Margalob",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Rosemary_in_bloom.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 5,
@@ -12758,7 +14904,8 @@
    "soil_mix_slug": "citrus_mediterranean",
    "soil_note": {
     "ru": "Розмарину — больше песка (до 25%): он не выносит сырости у корней."
-   }
+   },
+   "fertilizer_slug": "edible"
   }
  },
  {
@@ -12786,6 +14933,7 @@
   "image_credit": "Derek Ramsey (Ram-Man)",
   "image_license": "GFDL 1.2",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Sarracenia_purpurea_Flowers.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 2,
@@ -12809,7 +14957,8 @@
     ]
    },
    "soil_mix_slug": "carnivorous",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "carnivorous"
   }
  },
  {
@@ -12840,6 +14989,7 @@
   "image_credit": "Alpsdake",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Saxifraga_stolonifera_(flower_s5).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -12869,7 +15019,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -12899,6 +15050,18 @@
   "image_credit": "JMK",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Schefflera_arboricola,_vrugte,_a,_Pretoria.jpg",
+  "cultivars": [
+   {
+    "name": "Gold Capella",
+    "ru": "Голд Капелла",
+    "note": "Жёлтые пятна на листьях."
+   },
+   {
+    "name": "Janine",
+    "ru": "Жанин",
+    "note": "Кремовая пестрота, листочки с зазубринами."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -12929,7 +15092,72 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "universal"
+  }
+ },
+ {
+  "id": "schlumbergera-gaertneri",
+  "slug": "schlumbergera-gaertneri",
+  "latin_name": "Schlumbergera gaertneri",
+  "common_names": {
+   "ru": [
+    "Рипсалидопсис Гартнера",
+    "Пасхальный кактус"
+   ],
+   "en": [
+    "Easter cactus"
+   ]
+  },
+  "synonyms": [
+   "Rhipsalidopsis gaertneri",
+   "Hatiora gaertneri"
+  ],
+  "description": {
+   "ru": "Лесной кактус из плоских члеников, похожий на декабриста, но цветёт весной — звёздчатыми алыми цветками."
+  },
+  "plant_type": "эпифит",
+  "difficulty": 2,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 5,
+   "water_interval_winter": 12,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 10,
+   "temp_max_c": 26,
+   "fertilize_interval_days": 21,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Для бутонов нужна прохлада +10–15 °C с ноября по февраль",
+     "С бутонами горшок не переставляйте — сбросит"
+    ]
+   },
+   "soil_mix_slug": "bromeliad_epiphyte",
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -12962,6 +15190,7 @@
   "image_credit": "The Cosmonaut",
   "image_license": "CC BY-SA 2.5 ca",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Schlumbergera_%C3%97_buckleyi_flower.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -12991,7 +15220,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -13021,6 +15251,18 @@
   "image_credit": "Kor!An (Корзун Андрей)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Scindapsus_pictus_01.jpg",
+  "cultivars": [
+   {
+    "name": "Argyraeus",
+    "ru": "Аргирэус",
+    "note": "Мелкие серебристые пятна и кайма."
+   },
+   {
+    "name": "Exotica",
+    "ru": "Экзотика",
+    "note": "Крупные серебристые мазки на весь лист."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 8,
@@ -13051,7 +15293,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -13081,6 +15324,7 @@
   "image_credit": "Morningdew51 at English Wikipedia",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Donkey%27s_tail_in_bloom_March_06.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 14,
@@ -13110,7 +15354,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -13139,6 +15384,7 @@
   "image_credit": "Daderot",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Selaginella_martensii_-_Berlin_Botanical_Garden_-_IMG_8724.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 2,
@@ -13171,7 +15417,8 @@
    "soil_mix_slug": "tropical_moist",
    "soil_note": {
     "ru": "Селагинелла идеальна для флорариума: слой керамзита, сверху эта смесь без перлита."
-   }
+   },
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -13201,6 +15448,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Sempervivum_tectorum_Almindelig_Husl%C3%B8g.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -13229,7 +15477,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -13260,6 +15509,7 @@
   "image_credit": "Antoninhocd",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Florada_da_Glox%C3%ADnia.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -13292,7 +15542,90 @@
    "soil_mix_slug": "gesneriad",
    "soil_note": {
     "ru": "Клубень глоксинии заглубляйте на 2/3, макушка с почками остаётся над грунтом."
+   },
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "solanum-lycopersicum",
+  "slug": "solanum-lycopersicum",
+  "latin_name": "Solanum lycopersicum",
+  "common_names": {
+   "ru": [
+    "Томат",
+    "Помидор"
+   ],
+   "en": [
+    "Tomato"
+   ]
+  },
+  "synonyms": [
+   "Lycopersicon esculentum"
+  ],
+  "description": {
+   "ru": "Томаты на подоконнике — низкорослые сорта черри: при хорошем свете дают урожай круглый год."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [
+   {
+    "name": "Балконное чудо",
+    "ru": "Балконное чудо",
+    "note": "Низкорослый черри, до 40 см; самый популярный для подоконника."
+   },
+   {
+    "name": "Пиноккио",
+    "ru": "Пиноккио",
+    "note": "Штамбовый, 20–30 см, красные черри."
+   },
+   {
+    "name": "Micro Tom",
+    "ru": "Микро Том",
+    "note": "Самый маленький томат, 15–20 см."
    }
+  ],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 2,
+   "water_interval_winter": 3,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 16,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 10,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": null,
+   "propagation": [
+    "семена",
+    "черенки (пасынки)"
+   ],
+   "tips": {
+    "ru": [
+     "Выбирайте низкорослые сорта черри: «Балконное чудо», «Пиноккио», «Микро Том»",
+     "Зимой без досветки плоды не завяжутся",
+     "Помогайте опылению — слегка встряхивайте цветущие кисти"
+    ]
+   },
+   "soil_mix_slug": "flowering",
+   "soil_note": null,
+   "fertilizer_slug": "edible"
   }
  },
  {
@@ -13321,6 +15654,7 @@
   "image_credit": "Paul venter",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Solanum_pseudocapsicum04.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 4,
@@ -13351,7 +15685,8 @@
     ]
    },
    "soil_mix_slug": "flowering",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -13383,6 +15718,7 @@
   "image_credit": "Hugo.arg",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Soleirolia_soleirolii002.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 3,
@@ -13413,7 +15749,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -13442,6 +15779,28 @@
   "image_credit": "W.carter",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Peace_lily_-_1_-_cropped.jpg",
+  "cultivars": [
+   {
+    "name": "Sensation",
+    "ru": "Сенсейшн",
+    "note": "Крупный, до метра, с рифлёными листьями."
+   },
+   {
+    "name": "Domino",
+    "ru": "Домино",
+    "note": "Белые штрихи на листьях."
+   },
+   {
+    "name": "Picasso",
+    "ru": "Пикассо",
+    "note": "Крупные белые сектора; нужен свет."
+   },
+   {
+    "name": "Chopin",
+    "ru": "Шопен",
+    "note": "Компактный, с ароматными цветками."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 4,
@@ -13473,7 +15832,8 @@
     ]
    },
    "soil_mix_slug": "aroid_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -13502,6 +15862,7 @@
   "image_credit": "Jean-Michel Moullec from Vern sur Seiche (35, Bretagne),…",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Stapelia_grandiflora_22102013_1_(10606394434).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -13530,7 +15891,8 @@
     ]
    },
    "soil_mix_slug": "cactus_succulent",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -13559,6 +15921,7 @@
   "image_credit": "Gabriel Collares",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Ave-do-para%C3%ADso,_Strelitzia_reginae,_em_Bag%C3%A9,_Rio_Grande_do_Sul,_Brasil_-_55211233712.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 7,
@@ -13592,69 +15955,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Мясистые хрупкие корни: глубокий горшок и пересадка перевалкой без разрыва кома."
-   }
-  }
- },
- {
-  "id": "streptocarpus-hybridus",
-  "slug": "streptocarpus-hybridus",
-  "latin_name": "Streptocarpus × hybridus",
-  "common_names": {
-   "en": [
-    "Cape primrose"
-   ],
-   "ru": [
-    "Стрептокарпус гибридный"
-   ]
-  },
-  "synonyms": [
-   "Streptocarpus hybridus"
-  ],
-  "description": {
-   "ru": "Розетка морщинистых листьев и облако цветков-колокольчиков почти круглый год."
-  },
-  "plant_type": "травянистое",
-  "difficulty": 3,
-  "toxic_to_pets": false,
-  "toxic_to_humans": false,
-  "air_purifying": false,
-  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/2007-03-20Streptocarpus03.jpg/960px-2007-03-20Streptocarpus03.jpg",
-  "image_credit": "Wildfeuer",
-  "image_license": "CC BY-SA 3.0",
-  "image_source_url": "https://commons.wikimedia.org/wiki/File:2007-03-20Streptocarpus03.jpg",
-  "care_profiles": {
-   "light": "bright_indirect",
-   "water_interval_summer": 4,
-   "water_interval_winter": 7,
-   "soil_dryness_before_watering": {
-    "ru": "верхний слой"
    },
-   "humidity_min_pct": 50,
-   "temp_min_c": 16,
-   "temp_max_c": 25,
-   "fertilize_interval_days": 14,
-   "fertilize_months": [
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
-   ],
-   "repot_every_years": 1,
-   "propagation": [
-    "листовые черенки",
-    "деление"
-   ],
-   "tips": {
-    "ru": [
-     "Широкий неглубокий горшок",
-     "Отцветшие цветоносы срезайте у основания"
-    ]
-   },
-   "soil_mix_slug": "gesneriad",
-   "soil_note": null
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -13685,6 +15987,7 @@
   "image_credit": "Felloni claire",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Saintpaulia_ionantha_(Claire_Felloni).jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -13719,7 +16022,72 @@
     ]
    },
    "soil_mix_slug": "gesneriad",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
+  }
+ },
+ {
+  "id": "streptocarpus-hybridus",
+  "slug": "streptocarpus-hybridus",
+  "latin_name": "Streptocarpus × hybridus",
+  "common_names": {
+   "en": [
+    "Cape primrose"
+   ],
+   "ru": [
+    "Стрептокарпус гибридный"
+   ]
+  },
+  "synonyms": [
+   "Streptocarpus hybridus"
+  ],
+  "description": {
+   "ru": "Розетка морщинистых листьев и облако цветков-колокольчиков почти круглый год."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 3,
+  "toxic_to_pets": false,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/2007-03-20Streptocarpus03.jpg/960px-2007-03-20Streptocarpus03.jpg",
+  "image_credit": "Wildfeuer",
+  "image_license": "CC BY-SA 3.0",
+  "image_source_url": "https://commons.wikimedia.org/wiki/File:2007-03-20Streptocarpus03.jpg",
+  "cultivars": [],
+  "care_profiles": {
+   "light": "bright_indirect",
+   "water_interval_summer": 4,
+   "water_interval_winter": 7,
+   "soil_dryness_before_watering": {
+    "ru": "верхний слой"
+   },
+   "humidity_min_pct": 50,
+   "temp_min_c": 16,
+   "temp_max_c": 25,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 1,
+   "propagation": [
+    "листовые черенки",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Широкий неглубокий горшок",
+     "Отцветшие цветоносы срезайте у основания"
+    ]
+   },
+   "soil_mix_slug": "gesneriad",
+   "soil_note": null,
+   "fertilizer_slug": "flowering"
   }
  },
  {
@@ -13750,6 +16118,7 @@
   "image_credit": "Aleph500Dadamz",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Stromanthe_sanguinea_in_garden_in_Manaus,_Brazil.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -13780,7 +16149,8 @@
     ]
    },
    "soil_mix_slug": "tropical_moist",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "fern"
   }
  },
  {
@@ -13809,6 +16179,23 @@
   "image_credit": "Stephanie cheks",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Syngonium_podophyllum_(_Arrowhead_plant).jpg",
+  "cultivars": [
+   {
+    "name": "White Butterfly",
+    "ru": "Уайт Баттерфлай",
+    "note": "Светлые, почти белые листья с зелёной каймой."
+   },
+   {
+    "name": "Neon Robusta",
+    "ru": "Неон Робуста",
+    "note": "Нежно-розовые листья."
+   },
+   {
+    "name": "Albo Variegata",
+    "ru": "Альбо",
+    "note": "Белые сектора; редкий и медленный."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 6,
@@ -13838,7 +16225,8 @@
     ]
    },
    "soil_mix_slug": "aroid_chunky",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -13871,6 +16259,7 @@
   "image_credit": "VSA.bing",
   "image_license": "Public domain",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Tree1.JPG",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -13904,7 +16293,8 @@
    "soil_mix_slug": "aroid_chunky",
    "soil_note": {
     "ru": "Для крупных экземпляров добавьте 10% крупной коры и выбирайте тяжёлый широкий горшок."
-   }
+   },
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -13934,6 +16324,7 @@
   "image_credit": "Kurt Stüber",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Tillandsia_cyanea1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -13963,7 +16354,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -13993,6 +16385,7 @@
   "image_credit": "Andrey Zharkikh from Salt Lake City, USA",
   "image_license": "CC BY 2.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Purple_sky_plant_-_Andrey_Zharkikh.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 4,
@@ -14023,7 +16416,8 @@
     ]
    },
    "soil_mix_slug": "air_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -14054,6 +16448,18 @@
   "image_credit": "Ixitixel",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Tradescantia_fluminensis_(Flowers).jpg",
+  "cultivars": [
+   {
+    "name": "Quicksilver",
+    "ru": "Квиксильвер",
+    "note": "Серебристо-белые полоски."
+   },
+   {
+    "name": "Tricolor",
+    "ru": "Триколор",
+    "note": "Бело-розово-зелёные полосы; розовеет на свету."
+   }
+  ],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -14084,7 +16490,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -14116,6 +16523,7 @@
   "image_credit": "O Tupinólogo",
   "image_license": "CC BY 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Trapoeraba-roxa_(do_tupi_*tarapoeraba)_em_Bag%C3%A9,_RS,_Brasil_-_55378584901.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 5,
@@ -14146,7 +16554,74 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
+  }
+ },
+ {
+  "id": "tradescantia-sillamontana",
+  "slug": "tradescantia-sillamontana",
+  "latin_name": "Tradescantia sillamontana",
+  "common_names": {
+   "ru": [
+    "Традесканция силламонтана",
+    "Традесканция войлочная"
+   ],
+   "en": [
+    "White velvet",
+    "Cobweb spiderwort"
+   ]
+  },
+  "synonyms": [
+   "Tradescantia pexata"
+  ],
+  "description": {
+   "ru": "Суккулентная традесканция с листьями в густом белом опушении и розовыми цветками летом."
+  },
+  "plant_type": "травянистое",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": false,
+  "image_url": null,
+  "image_credit": null,
+  "image_license": null,
+  "image_source_url": null,
+  "cultivars": [],
+  "care_profiles": {
+   "light": "direct",
+   "water_interval_summer": 7,
+   "water_interval_winter": 14,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2–3 см"
+   },
+   "humidity_min_pct": 30,
+   "temp_min_c": 10,
+   "temp_max_c": 30,
+   "fertilize_interval_days": 30,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки",
+    "деление"
+   ],
+   "tips": {
+    "ru": [
+     "Опушённые листья не опрыскивайте",
+     "Чем больше солнца, тем плотнее и белее растение"
+    ]
+   },
+   "soil_mix_slug": "universal",
+   "soil_note": {
+    "ru": "Добавьте 20–30% песка или пемзы: она не любит сырости."
+   },
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -14178,6 +16653,7 @@
   "image_credit": "Ruestz (upload 13:54, 11 January 2008)",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Zebrina_pendula_20060521_2_closer.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 5,
@@ -14208,7 +16684,8 @@
     ]
    },
    "soil_mix_slug": "universal",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "foliage"
   }
  },
  {
@@ -14238,6 +16715,7 @@
   "image_credit": "Orchi",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Vanda_coerulea_Orchi_6052.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 2,
@@ -14269,7 +16747,8 @@
     ]
    },
    "soil_mix_slug": "air_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "orchid"
   }
  },
  {
@@ -14297,6 +16776,7 @@
   "image_credit": "El Denis Conrado, en la urbo Lavras, MG., Brazilo",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Bromelia1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 7,
@@ -14327,7 +16807,8 @@
     ]
    },
    "soil_mix_slug": "bromeliad_epiphyte",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "bromeliad"
   }
  },
  {
@@ -14355,6 +16836,7 @@
   "image_credit": "Emőke Dénes",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Arecales_-_Washingtonia_robusta_-_1.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 6,
@@ -14385,7 +16867,8 @@
     ]
    },
    "soil_mix_slug": "palm_tree",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -14414,6 +16897,7 @@
   "image_credit": "Salicyna",
   "image_license": "CC BY-SA 4.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Xerosicyos_danguyi_2015-05-29_OB_187.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -14441,7 +16925,8 @@
     ]
    },
    "soil_mix_slug": "caudex",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "cactus"
   }
  },
  {
@@ -14473,6 +16958,7 @@
   "image_credit": "H. Zell",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Yucca_gigantea_-_Jard%C3%ADn_Bot%C3%A1nico_Canario_Viera_y_Clavijo_-_Gran_Canaria.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "direct",
    "water_interval_summer": 10,
@@ -14503,7 +16989,8 @@
    "soil_mix_slug": "palm_tree",
    "soil_note": {
     "ru": "Юкке — ещё 10% песка или пемзы: она засухоустойчива и боится перелива."
-   }
+   },
+   "fertilizer_slug": "universal"
   }
  },
  {
@@ -14532,6 +17019,7 @@
   "image_credit": null,
   "image_license": "CC BY-SA 2.5",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Zamia_furfuracea03.jpg",
+  "cultivars": [],
   "care_profiles": {
    "light": "bright_indirect",
    "water_interval_summer": 10,
@@ -14560,7 +17048,8 @@
     ]
    },
    "soil_mix_slug": "caudex",
-   "soil_note": null
+   "soil_note": null,
+   "fertilizer_slug": "palm"
   }
  },
  {
@@ -14589,6 +17078,18 @@
   "image_credit": "User:WeFt",
   "image_license": "CC BY-SA 3.0",
   "image_source_url": "https://commons.wikimedia.org/wiki/File:Zamioculcas_zamiifolia_1.jpg",
+  "cultivars": [
+   {
+    "name": "Raven",
+    "ru": "Рейвен",
+    "note": "Молодые листья зелёные, потом почти чёрные."
+   },
+   {
+    "name": "Zenzi",
+    "ru": "Зензи",
+    "note": "Компактный, листочки плотно прижаты и закручены."
+   }
+  ],
   "care_profiles": {
    "light": "medium",
    "water_interval_summer": 14,
@@ -14619,7 +17120,71 @@
    "soil_mix_slug": "caudex",
    "soil_note": {
     "ru": "Замиокулькасу — 10% листовой земли и тяжёлый горшок: клубни распирают пластик."
-   }
+   },
+   "fertilizer_slug": "cactus"
+  }
+ },
+ {
+  "id": "fatshedera-lizei",
+  "slug": "fatshedera-lizei",
+  "latin_name": "× Fatshedera lizei",
+  "common_names": {
+   "en": [
+    "Tree ivy",
+    "Aralia ivy"
+   ],
+   "ru": [
+    "Фатсхедера Лизе"
+   ]
+  },
+  "synonyms": [
+   "Fatshedera lizei"
+  ],
+  "description": {
+   "ru": "Гибрид фатсии и плюща: крупные пальчатые листья на полулазящих стеблях."
+  },
+  "plant_type": "кустарник",
+  "difficulty": 1,
+  "toxic_to_pets": true,
+  "toxic_to_humans": false,
+  "air_purifying": true,
+  "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/X_Fatshedera_lizei2.jpg",
+  "image_credit": "KENPEI",
+  "image_license": "CC BY-SA 3.0",
+  "image_source_url": "https://commons.wikimedia.org/wiki/File:X_Fatshedera_lizei2.jpg",
+  "cultivars": [],
+  "care_profiles": {
+   "light": "medium",
+   "water_interval_summer": 5,
+   "water_interval_winter": 10,
+   "soil_dryness_before_watering": {
+    "ru": "верхние 2 см"
+   },
+   "humidity_min_pct": 40,
+   "temp_min_c": 8,
+   "temp_max_c": 24,
+   "fertilize_interval_days": 14,
+   "fertilize_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "repot_every_years": 2,
+   "propagation": [
+    "черенки"
+   ],
+   "tips": {
+    "ru": [
+     "Нужна опора",
+     "Любит прохладу"
+    ]
+   },
+   "soil_mix_slug": "universal",
+   "soil_note": null,
+   "fertilizer_slug": "universal"
   }
  }
 ]

@@ -466,19 +466,19 @@ test("демо: магазины — «Где купить», «Хочу», ви
 
   // Прайс в CSV из Excel: «;», вид определяется по названию, один — вручную.
   const csv =
-    "Артикул;Наименование;Цена;Остаток\nA1;Монстера деликатесная 17/60;2 100;3\nA2;Хойя Керри сердечко;450;0\nA3;Кашпо белое 20 см;900;5\n";
+    "Артикул;Наименование;Цена;Остаток\nA1;Монстера деликатесная 17/60;2 100;3\nA2;Филодендрон Глориозум;450;0\nA3;Кашпо белое 20 см;900;5\n";
   await page.getByLabel("Файл прайса").setInputFiles({ name: "price.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
   await expect(page.getByRole("status")).toContainText("Готово к загрузке: 3 · вид определён у 1");
-  await page.getByLabel("Вид для «Хойя Керри сердечко»").selectOption({ label: "Хойя мясистая (Hoya carnosa)" });
+  await page.getByLabel("Вид для «Филодендрон Глориозум»").selectOption({ label: "Филодендрон лазящий (Philodendron hederaceum)" });
   await expect(page.getByRole("status")).toContainText("вид определён у 2");
   await page.getByRole("button", { name: "Загрузить 3 товара" }).click();
   await expect(page.getByText("Готово: новых 3, обновлено 0")).toBeVisible();
   const products = page.getByRole("list", { name: "Товары" }).getByRole("listitem");
   await expect(products).toHaveCount(3);
-  await expect(products.filter({ hasText: "Хойя Керри" })).toContainText("Хойя мясистая");
-  await expect(page.getByLabel("В наличии: Хойя Керри сердечко")).not.toBeChecked();
-  await page.getByLabel("В наличии: Хойя Керри сердечко").check();
-  await expect(page.getByLabel("В наличии: Хойя Керри сердечко")).toBeChecked();
+  await expect(products.filter({ hasText: "Филодендрон Глориозум" })).toContainText("Филодендрон лазящий");
+  await expect(page.getByLabel("В наличии: Филодендрон Глориозум")).not.toBeChecked();
+  await page.getByLabel("В наличии: Филодендрон Глориозум").check();
+  await expect(page.getByLabel("В наличии: Филодендрон Глориозум")).toBeChecked();
   await page.getByRole("button", { name: "Удалить «Кашпо белое 20 см»" }).click();
   await page.getByRole("button", { name: "Удалить", exact: true }).click();
   await expect(products).toHaveCount(2);

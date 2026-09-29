@@ -1,9 +1,10 @@
-/** Страница вида из базы знаний: уход, грунт, токсичность и «Где купить». Собирается заранее для каждого вида. */
+/** Страница вида из базы знаний: уход, грунт, подкормка, сорта, токсичность и «Где купить». Собирается заранее для каждого вида. */
 
 import { Droplet, Droplets, FlaskConical, PawPrint, Plus, Sun, Thermometer, Wind } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FertilizerCard } from "@/components/fertilizer-card";
 import { SpeciesCard } from "@/components/knowledge-browser";
 import { WhereToBuy, WishButton } from "@/components/shops";
 import { SoilSchematic } from "@/components/soil-schematic";
@@ -11,7 +12,7 @@ import { LARGE_PHOTO, PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
 import { DIFFICULTY_LABELS, speciesName } from "@/lib/domain/species";
 import { MONTHS_SHORT, plural } from "@/lib/format";
-import { ALL_SPECIES, soilMixFor, speciesBySlug } from "@/lib/knowledge";
+import { ALL_SPECIES, fertilizerFor, soilMixFor, speciesBySlug } from "@/lib/knowledge";
 
 export function generateStaticParams() {
   return ALL_SPECIES.map((s) => ({ slug: s.slug }));
@@ -44,6 +45,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
   const name = speciesName(s);
   const care = s.care;
   const soil = soilMixFor(s);
+  const fertilizer = fertilizerFor(s);
   const similar = ALL_SPECIES.filter((x) => x.slug !== s.slug && x.latinName.split(" ")[0] === s.latinName.split(" ")[0])
     .concat(ALL_SPECIES.filter((x) => x.slug !== s.slug && x.plantType === s.plantType))
     .filter((x, i, arr) => arr.indexOf(x) === i)
@@ -159,6 +161,12 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
             </div>
           )}
 
+          {fertilizer && (
+            <div id="fertilizer" className="mt-6 scroll-mt-24">
+              <FertilizerCard program={fertilizer} />
+            </div>
+          )}
+
           {care.tipsRu.length > 0 && (
             <section className="bg-surface mt-6 rounded-[20px] p-5">
               <h3 className="text-[17px] font-semibold">Советы</h3>
@@ -173,6 +181,24 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
             </section>
           )}
         </>
+      )}
+
+      {s.cultivars.length > 0 && (
+        <section id="cultivars" className="mt-12 scroll-mt-24" aria-labelledby="cultivars-title">
+          <h2 id="cultivars-title" className="text-[22px] font-bold tracking-tight">
+            Популярные сорта
+          </h2>
+          <p className="text-secondary mt-1 text-[15px]">Уход у сортов тот же; пёстрым нужно больше света.</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {s.cultivars.map((c) => (
+              <li key={c.name} className="bg-surface rounded-[20px] p-4">
+                <p className="text-[17px] font-semibold">«{c.name}»</p>
+                {c.ru && c.ru !== c.name && <p className="text-secondary text-[13px]">{c.ru}</p>}
+                {c.note && <p className="mt-2 text-[15px] leading-snug">{c.note}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {(s.synonyms.length > 0 || s.commonNamesEn.length > 0) && (

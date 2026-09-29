@@ -132,6 +132,18 @@ update public.care_profiles c
  where c.species_id = s.id
    and c.soil_mix_slug is null;
 
+-- Программа подкормки (справочник public.fertilizers — миграция *_kb_fertilizers_cultivars.sql).
+update public.care_profiles c
+   set fertilizer_slug = v.fert
+  from (values
+  ('monstera-deliciosa', 'foliage'), ('ficus-elastica', 'universal'), ('dracaena-trifasciata', 'cactus'),
+  ('spathiphyllum-wallisii', 'flowering'), ('zamioculcas-zamiifolia', 'cactus'), ('phalaenopsis-hybrid', 'orchid'),
+  ('aloe-vera', 'cactus'), ('epipremnum-aureum', 'foliage'), ('chlorophytum-comosum', 'foliage'), ('crassula-ovata', 'cactus')
+) v(slug, fert)
+  join public.species s on s.slug = v.slug
+ where c.species_id = s.id
+   and c.fertilizer_slug is null;
+
 -- Источники новостей. Адреса лент проверяйте перед запуском: неработающая лента
 -- не ломает сбор, а пишет причину в news_sources.last_error.
 insert into public.news_sources (name, feed_url, site_url, language, filter_keywords) values

@@ -1142,6 +1142,19 @@ insert into public.messages (conversation_id, body)
 values ((select id from public.conversations where direct), 'Собеседник пишет как обычно');
 reset role;
 
+-- База знаний: у каждого вида — программа подкормки; поиск находит вид по сорту.
+do $$ begin
+  assert not exists (select 1 from public.care_profiles where fertilizer_slug is null),
+         'нет программы подкормки: ' || (select string_agg(sp.slug, ', ') from public.care_profiles cp
+                                           join public.species sp on sp.id = cp.species_id where cp.fertilizer_slug is null);
+  assert (select count(*) from public.fertilizers) >= 10, 'справочник подкормок заполнен';
+  assert (select slug from public.species where search_text like '%kinky%') = 'ficus-benjamina',
+         'поиск по сорту';
+  assert (select slug from public.species where search_text like '%кримсон квин%') = 'hoya-carnosa',
+         'поиск по русской транскрипции сорта';
+  assert exists (select 1 from public.species where slug = 'anthurium-scherzerianum'), 'новые виды добавлены';
+end $$;
+
 -- Структура: одна разрешающая политика на действие (иначе Postgres вычисляет все сразу)
 -- и индекс у каждого внешнего ключа (иначе удаление строки просматривает ссылающуюся таблицу).
 do $$

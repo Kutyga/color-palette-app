@@ -4,10 +4,11 @@
 //   node scripts/sync-species.mjs                 — из API (NEXT_PUBLIC_SUPABASE_URL и
 //                                                   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY; для «/api» —
 //                                                   полный адрес в SPECIES_SYNC_URL)
-//   node scripts/sync-species.mjs --from rows.json [--soil-from mixes.json]
+//   node scripts/sync-species.mjs --from rows.json [--soil-from mixes.json] [--fert-from fertilizers.json]
 //                                                — из выгрузки psql (формат как у PostgREST)
 //
-// Рядом пишется справочник грунтов src/data/soil-mixes.json (таблица soil_mixes).
+// Рядом пишутся справочники грунтов src/data/soil-mixes.json (таблица soil_mixes)
+// и подкормок src/data/fertilizers.json (таблица fertilizers).
 //
 // Без переменных окружения и без --from оставляет текущий снимок как есть.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -15,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 const out = fileURLToPath(new URL("../src/data/species.json", import.meta.url));
 const soilOut = fileURLToPath(new URL("../src/data/soil-mixes.json", import.meta.url));
+const fertOut = fileURLToPath(new URL("../src/data/fertilizers.json", import.meta.url));
 const arg = (name) => {
   const i = process.argv.indexOf(name);
   return i > 0 ? process.argv[i + 1] : null;
@@ -52,6 +54,7 @@ const SPECIES_FIELDS = [
   "image_credit",
   "image_license",
   "image_source_url",
+  "cultivars",
 ];
 const CARE_FIELDS = [
   "light",
@@ -68,6 +71,7 @@ const CARE_FIELDS = [
   "tips",
   "soil_mix_slug",
   "soil_note",
+  "fertilizer_slug",
 ];
 const pick = (obj, fields) => Object.fromEntries(fields.map((f) => [f, obj?.[f] ?? null]));
 
@@ -104,4 +108,12 @@ if (mixes) {
   const sorted = mixes.map((m) => pick(m, SOIL_FIELDS)).sort((a, b) => a.sort - b.sort);
   writeFileSync(soilOut, JSON.stringify(sorted, null, 1) + "\n");
   console.log(`sync-species: ${sorted.length} грунтов → src/data/soil-mixes.json`);
+}
+
+const FERT_FIELDS = ["slug", "name", "summary", "npk", "form", "dose", "signs_under", "signs_over", "tips", "sort"];
+const ferts = await load(arg("--fert-from"), "fertilizers?select=*&order=sort");
+if (ferts) {
+  const sorted = ferts.map((f) => pick(f, FERT_FIELDS)).sort((a, b) => a.sort - b.sort);
+  writeFileSync(fertOut, JSON.stringify(sorted, null, 1) + "\n");
+  console.log(`sync-species: ${sorted.length} программ подкормки → src/data/fertilizers.json`);
 }

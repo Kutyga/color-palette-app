@@ -108,7 +108,7 @@ describe("геймификация", () => {
   });
 });
 
-const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = []): Species => ({
+const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = [], cultivars: Species["cultivars"] = []): Species => ({
   id: slug,
   slug,
   latinName,
@@ -123,9 +123,16 @@ const sp = (slug: string, latinName: string, ru: string[], synonyms: string[] = 
   airPurifying: null,
   image: null,
   care: null,
+  cultivars,
 });
 const kb = [
-  sp("monstera-deliciosa", "Monstera deliciosa", ["Монстера деликатесная", "Монстера"]),
+  sp(
+    "monstera-deliciosa",
+    "Monstera deliciosa",
+    ["Монстера деликатесная", "Монстера"],
+    [],
+    [{ name: "Thai Constellation", ru: "Тай Констелейшн", note: null }],
+  ),
   sp("monstera-adansonii", "Monstera adansonii", ["Монстера Адансона"]),
   sp("dracaena-trifasciata", "Dracaena trifasciata", ["Сансевиерия"], ["Sansevieria trifasciata"]),
   sp("alocasia-amazonica", "Alocasia × amazonica", ["Алоказия амазонская"]),
@@ -158,6 +165,9 @@ describe("поиск в демо-режиме", () => {
   it("точное название первым", () => {
     expect(searchLocal(kb, "монстера")[0].slug).toBe("monstera-deliciosa");
     expect(searchLocal(kb, "sansevieria")[0].slug).toBe("dracaena-trifasciata");
+    // По названию сорта — латиницей и русской транскрипцией.
+    expect(searchLocal(kb, "thai constellation")[0].slug).toBe("monstera-deliciosa");
+    expect(searchLocal(kb, "тай конст")[0].slug).toBe("monstera-deliciosa");
     expect(searchLocal(kb, "")).toHaveLength(kb.length);
   });
 });
