@@ -290,6 +290,7 @@ export function SoilSchematic({ mix, noteRu }: { mix: SoilMix; noteRu?: string |
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Объём горшка">
             {POT_SIZES.map((l) => (
               <button
+                type="button"
                 key={l}
                 onClick={() => setLiters(l)}
                 aria-pressed={liters === l}

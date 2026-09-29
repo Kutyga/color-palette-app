@@ -40,6 +40,7 @@ export function PlantHero({ plant, species }: { plant: Plant; species: Species |
         <span className="glass absolute top-4 left-4 rounded-full px-3 py-1 text-[12px] font-medium">Фото из базы знаний</span>
       )}
       <button
+        type="button"
         onClick={() => setCameraOpen(true)}
         className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold"
         disabled={upload.isPending}

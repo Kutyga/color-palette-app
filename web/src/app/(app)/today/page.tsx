@@ -78,6 +78,7 @@ function TaskRow({ task, bucket, plant, now }: { task: CareTask; bucket: TaskBuc
         </div>
       </Link>
       <button
+        type="button"
         onClick={complete}
         disabled={done}
         aria-label={`${CARE_TYPES[task.type].action}: ${task.plantName}`}

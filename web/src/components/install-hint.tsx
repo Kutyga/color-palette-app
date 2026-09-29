@@ -103,6 +103,7 @@ export function InstallHint() {
           ] as const
         ).map(([id, label]) => (
           <button
+            type="button"
             key={id}
             role="tab"
             aria-selected={platform === id}

@@ -134,7 +134,12 @@ export function CameraCapture({
     <div className="fixed inset-0 z-[60] flex flex-col bg-black text-white" role="dialog" aria-modal="true" aria-label="Камера">
       <div className="flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))]">
         <p className="text-[15px] font-medium">Сфотографируйте растение</p>
-        <button onClick={onClose} className="grid size-10 place-items-center rounded-full bg-white/15" aria-label="Закрыть камеру">
+        <button
+          type="button"
+          onClick={onClose}
+          className="grid size-10 place-items-center rounded-full bg-white/15"
+          aria-label="Закрыть камеру"
+        >
           <X className="size-5" />
         </button>
       </div>
@@ -155,6 +160,7 @@ export function CameraCapture({
       <div className="flex items-center justify-center gap-8 p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         {torch.supported ? (
           <button
+            type="button"
             onClick={toggleTorch}
             className={`grid size-12 place-items-center rounded-full ${torch.on ? "bg-white text-black" : "bg-white/15"}`}
             aria-label={torch.on ? "Выключить вспышку" : "Включить вспышку"}
@@ -165,6 +171,7 @@ export function CameraCapture({
         ) : ios ? (
           <>
             <button
+              type="button"
               onClick={() => systemCameraRef.current?.click()}
               className="grid size-12 place-items-center rounded-full bg-white/15"
               aria-label="Системная камера со вспышкой"
@@ -197,6 +204,7 @@ export function CameraCapture({
           <span className="size-12" aria-hidden />
         )}
         <button
+          type="button"
           onClick={shoot}
           disabled={!ready || shooting}
           className="grid size-20 place-items-center rounded-full border-4 border-white bg-white/20 transition active:scale-95 disabled:opacity-40"
@@ -205,6 +213,7 @@ export function CameraCapture({
           <Camera className="size-8" aria-hidden />
         </button>
         <button
+          type="button"
           onClick={() => setFacing(facing === "environment" ? "user" : "environment")}
           className="grid size-12 place-items-center rounded-full bg-white/15"
           aria-label="Сменить камеру"

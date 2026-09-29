@@ -28,7 +28,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         <div className="animate-slide-up flex max-h-[85vh] flex-col">
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
             <h2 className="text-[20px] font-semibold">{title}</h2>
-            <button onClick={onClose} className="bg-muted grid size-9 place-items-center rounded-full" aria-label="Закрыть">
+            <button type="button" onClick={onClose} className="bg-muted grid size-9 place-items-center rounded-full" aria-label="Закрыть">
               <X className="size-4" />
             </button>
           </div>
