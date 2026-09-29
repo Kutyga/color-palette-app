@@ -13,3 +13,4 @@ Thumbs.db
 
 # Граф кода от навыка /graphify (строится локально)
 graphify-out/
+spaceweb/sb-proxy/upstream.php

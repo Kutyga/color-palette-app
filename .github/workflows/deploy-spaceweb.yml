@@ -20,7 +20,7 @@ name: deploy-spaceweb
 on:
   push:
     branches: [main]
-    paths: ["web/**", "spaceweb/api/**", ".github/workflows/deploy-spaceweb.yml"]
+    paths: ["web/**", "spaceweb/api/**", "spaceweb/sb-proxy/**", ".github/workflows/deploy-spaceweb.yml"]
   workflow_dispatch:
     inputs:
       ref:
@@ -139,8 +139,28 @@ jobs:
           TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
           SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
         run: |
-          rsync -rltz --delete --exclude ".well-known/" --exclude "api/" -e "$SSH_CMD" \
+          rsync -rltz --delete --exclude ".well-known/" --exclude "api/" --exclude "sb/" -e "$SSH_CMD" \
             out/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
+      # Запасной путь к Supabase через свой домен ({сайт}/sb/…) — для тех, у кого оператор не пускает
+      # на *.supabase.co. Адрес проекта пишется в upstream.php (из доступа снаружи закрыт .htaccess).
+      - name: Запасной путь к Supabase (sb/)
+        working-directory: .
+        env:
+          SSH_HOST: ${{ vars.SPACEWEB_HOST }}
+          SSH_USER: ${{ vars.SPACEWEB_USER }}
+          TARGET_DIR: ${{ vars.SPACEWEB_PATH }}
+          SSHPASS: ${{ secrets.SPACEWEB_PASSWORD }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SITE_URL: ${{ vars.SPACEWEB_SITE_URL || 'https://podokonnikapp.ru' }}
+        run: |
+          upstream=$(printf '%s' "$SUPABASE_URL" | sed -E 's#^(https://[a-z0-9]+\.supabase\.co).*#\1#')
+          case "$upstream" in https://*.supabase.co) ;; *) echo "::warning::SUPABASE_URL не похож на адрес Supabase — sb/ не выкладывается"; exit 0 ;; esac
+          printf "<?php return '%s';\n" "$upstream" > spaceweb/sb-proxy/upstream.php
+          rsync -rltz --delete -e "$SSH_CMD" spaceweb/sb-proxy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/sb/"
+          rm spaceweb/sb-proxy/upstream.php
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${SITE_URL/https:/http:}/sb/auth/v1/health" || true)
+          # Без ключа Supabase отвечает 401 — значит, запрос дошёл до Supabase через хостинг.
+          case "$code" in 401|200) echo "Запасной путь работает (HTTP $code)" ;; *) echo "::warning::Запасной путь sb/ не отвечает как ожидалось: HTTP $code" ;; esac
       # API: настройки собираются из секретов и лежат рядом с папкой сайта, а не в ней. Секрет подписи
       # токенов создаётся на хостинге один раз и дальше не меняется (иначе всех выкинет из аккаунтов).
       - name: API

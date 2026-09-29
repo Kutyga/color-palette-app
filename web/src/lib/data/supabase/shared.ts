@@ -3,6 +3,7 @@
  * на фото, перевод id видов и строки выборок, которые нужны нескольким разделам.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { viaProxy } from "../../net";
 import type { Profile } from "../repositories";
 
 /** Строка ответа PostgREST до разбора в модель предметной области. */
@@ -55,7 +56,8 @@ export async function uploadJpeg(db: SupabaseClient, bucket: string, path: strin
 export async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();
   const { data } = await db.storage.from(bucket).createSignedUrls(paths, 3600);
-  return new Map((data ?? []).flatMap((s) => (s.signedUrl && s.path ? [[s.path, s.signedUrl] as [string, string]] : [])));
+  // Через свой домен, если Supabase у пользователя заблокирован (картинки грузит браузер напрямую).
+  return new Map((data ?? []).flatMap((s) => (s.signedUrl && s.path ? [[s.path, viaProxy(s.signedUrl)] as [string, string]] : [])));
 }
 
 // ---------------------------------------------------------------------------

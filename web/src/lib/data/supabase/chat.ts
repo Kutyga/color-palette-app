@@ -5,6 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { HAS_REALTIME } from "../../config";
 import { conversationFromRow, messageFromRow, type ChatMessage } from "../../domain/market";
+import { proxyMode } from "../../net";
 import type { ChatRepository } from "../repositories";
 import { LISTING_BUCKET, type Row, check, signedUrls } from "./shared";
 
@@ -53,7 +54,8 @@ export class SupabaseChat implements ChatRepository {
   }
 
   subscribe(conversationId: string, onMessage: (m: ChatMessage) => void) {
-    if (!HAS_REALTIME) return this.poll(conversationId, onMessage);
+    // Без веб-сокетов (свой сервер или Supabase через свой домен) — новые сообщения опросом.
+    if (!HAS_REALTIME || proxyMode()) return this.poll(conversationId, onMessage);
     const channel = this.db
       .channel(`chat:${conversationId}`)
       .on(

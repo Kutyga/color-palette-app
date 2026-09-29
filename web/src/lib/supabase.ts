@@ -2,6 +2,7 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL, hasBackend } from "./config";
+import { resilientFetch } from "./net";
 
 let client: SupabaseClient | null = null;
 
@@ -10,6 +11,8 @@ export function supabase(): SupabaseClient {
   if (!hasBackend) throw new Error("Supabase не настроен");
   client ??= createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    // Если Supabase недоступен напрямую (блокировка у оператора) — запросы идут через свой домен.
+    global: { fetch: resilientFetch },
   });
   return client;
 }
