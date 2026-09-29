@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useConversations } from "@/lib/queries";
 import { AchievementWatcher } from "./achievement-watcher";
+import { useScrollMemory } from "./scroll-memory";
 import { useSession } from "./session";
 import { Avatar, Spinner, cx } from "./ui";
 
@@ -88,10 +89,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isDemo = session.status === "ready" && session.backend.mode === "demo";
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Прокрутка живёт в области контента, поэтому при переходе на другой экран возвращаем её наверх сами.
-  useEffect(() => {
-    scrollRef.current?.scrollTo(0, 0);
-  }, [pathname]);
+  // Прокрутка живёт в области контента: новый экран — наверх, «Назад» — туда, где был.
+  useScrollMemory(scrollRef, pathname);
 
   // После закрытия клавиатуры iOS может оставить окно сдвинутым — возвращаем его на место.
   useEffect(() => {

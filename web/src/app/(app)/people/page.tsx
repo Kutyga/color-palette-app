@@ -9,8 +9,27 @@ import { PersonRow } from "@/components/people";
 import { EmptyState, ErrorNote, PageHeader, Spinner } from "@/components/ui";
 import { usePeopleSearch } from "@/lib/queries";
 
+const QUERY_KEY = "people-search";
+
+/** Запрос помнится до закрытия вкладки: после «Назад» из профиля — те же результаты. */
+function savedQuery() {
+  try {
+    return sessionStorage.getItem(QUERY_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 function PeopleSearch() {
-  const [query, setQuery] = useState("");
+  const [query, setQueryState] = useState(savedQuery);
+  const setQuery = (q: string) => {
+    setQueryState(q);
+    try {
+      sessionStorage.setItem(QUERY_KEY, q);
+    } catch {
+      // Без хранилища просто не запоминаем.
+    }
+  };
   const deferred = useDeferredValue(query);
   const people = usePeopleSearch(deferred);
   return (

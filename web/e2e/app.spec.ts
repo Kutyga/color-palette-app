@@ -43,6 +43,20 @@ test("гость: база знаний открыта всем, сад — то
   await expect(page.getByText("Прежние латинские названия: Calathea orbifolia")).toBeVisible();
   await expect(page.getByRole("navigation").getByRole("link", { name: "Калатеи и маранты" })).toBeVisible();
 
+  // Длинный список: «Назад» со страницы вида возвращает на то же место, а не наверх.
+  await page.goto("/plants/group/succulents/");
+  const scroller = page.locator("[data-app-scroll]");
+  const row = page.getByRole("link", { name: /Эхинокактус Грузони/ });
+  await row.scrollIntoViewIfNeeded();
+  const before = await scroller.evaluate((el) => el.scrollTop);
+  expect(before).toBeGreaterThan(300);
+  await row.click();
+  await page.waitForURL("**/plants/kroenleinia-grusonii/");
+  await expect(scroller).toHaveJSProperty("scrollTop", 0);
+  await page.goBack();
+  await page.waitForURL("**/plants/group/succulents/");
+  await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(before - 50);
+
   await page.goto("/today/");
   await page.waitForURL("**/login/**");
   await expect(page.getByRole("heading", { name: "С возвращением" })).toBeVisible();
@@ -429,6 +443,13 @@ test("демо: редактирование профиля, подписчик�
   await expect(page.getByRole("heading", { level: 1, name: "Света | суккуленты" })).toBeVisible();
   await expect(page.getByText("Камешки")).toBeVisible();
   await expect(page.getByRole("link", { name: /Литопс/ })).toBeVisible();
+  // «Назад» возвращает к тем же результатам поиска.
+  await page.goBack();
+  await page.waitForURL("**/people/");
+  await expect(page.getByRole("searchbox", { name: "Поиск садоводов" })).toHaveValue("свет");
+  await expect(page.getByText("Результаты")).toBeVisible();
+  await page.getByRole("link", { name: /Света \| суккуленты/ }).click();
+  await page.waitForURL("**/people/view/**");
   await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
   await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
   await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();
