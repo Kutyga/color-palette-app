@@ -1,0 +1,10 @@
+# Запасной путь к Supabase (см. index.php): все запросы — в index.php.
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # PHP в режиме CGI не видит заголовок Authorization — передаём его явно.
+  RewriteCond %{HTTP:Authorization} ^(.+)$
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+  RewriteRule ^upstream\.php$ - [F,L]
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
