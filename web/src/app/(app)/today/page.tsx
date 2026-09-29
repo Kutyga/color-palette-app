@@ -6,6 +6,7 @@ import { Check, Flame, PartyPopper, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { ContestPromo } from "@/components/contests";
 import {
   ActivityRings,
   CARE_COLORS,
@@ -224,6 +225,7 @@ export default function TodayPage() {
     <>
       <PageHeader eyebrow={isClient ? formatDate(new Date()) : "\u00a0"} title="Сегодня" />
       <RequireSession>
+        <ContestPromo className="mb-5" />
         <TodayContent />
       </RequireSession>
     </>

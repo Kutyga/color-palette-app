@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { ContestPromo } from "@/components/contests";
 import { CommentsSheet, DiaryCard, QuestionRow } from "@/components/feed";
 import { Market } from "@/components/market";
 import { News } from "@/components/news";
@@ -170,6 +171,7 @@ function FeedInner() {
           ))}
         </div>
       </div>
+      {tab !== "market" && <ContestPromo className="mb-4" />}
       {tab === "diaries" && <Diaries onComments={setCommentsFor} />}
       {tab === "help" && <Help />}
       {tab === "market" && <Market />}
