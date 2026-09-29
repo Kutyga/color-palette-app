@@ -2,11 +2,12 @@
 
 /** Дневник одного растения: все записи хозяина в хронологическом порядке. */
 
-import { BookOpen, ChevronLeft, NotebookPen } from "lucide-react";
+import { BookOpen, NotebookPen } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { CommentsSheet, DiaryCard } from "@/components/feed";
 import { EmptyState, ErrorNote, PageHeader, Spinner } from "@/components/ui";
 import { plural } from "@/lib/format";
@@ -75,9 +76,9 @@ export default function PlantDiaryPage() {
   return (
     <>
       <div className="pt-4">
-        <Link href="/feed/" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Сообщество
-        </Link>
+        <BackLink href="/feed/" className="text-[15px] font-medium">
+          Сообщество
+        </BackLink>
       </div>
       <PageHeader title="Дневник растения" />
       <RequireSession>

@@ -450,6 +450,12 @@ test("демо: редактирование профиля, подписчик�
   await expect(page.getByText("Результаты")).toBeVisible();
   await page.getByRole("link", { name: /Света \| суккуленты/ }).click();
   await page.waitForURL("**/people/view/**");
+  // «‹ Садоводы» после перехода из списка — это «Назад» браузера («Вперёд» снова открывает профиль).
+  await page.getByRole("link", { name: "Садоводы", exact: true }).click();
+  await page.waitForURL("**/people/");
+  await expect(page.getByRole("searchbox", { name: "Поиск садоводов" })).toHaveValue("свет");
+  await page.goForward();
+  await page.waitForURL("**/people/view/**");
   await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
   await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
   await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();

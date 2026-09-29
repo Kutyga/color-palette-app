@@ -3,11 +3,11 @@
 /** Новость целиком: текст статьи в режиме чтения, перевод и обсуждение. */
 
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ExternalLink, Languages } from "lucide-react";
-import Link from "next/link";
+import { ExternalLink, Languages } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { useNewsPrefs } from "@/components/news";
 import { Spinner } from "@/components/ui";
 import { NEWS_LANGUAGES, translatedUrl, type NewsArticle, type ReaderBlock } from "@/lib/domain/social";
@@ -77,9 +77,9 @@ function Reader({ id }: { id: string }) {
 
   return (
     <article className="mx-auto max-w-2xl pt-4">
-      <Link href="/feed/?tab=news" className="text-leaf inline-flex items-center gap-1 text-[17px]">
-        <ChevronLeft className="size-5" aria-hidden /> Новости
-      </Link>
+      <BackLink href="/feed/?tab=news" className="text-[17px]">
+        Новости
+      </BackLink>
       <p className="text-secondary mt-6 text-[13px]">
         {reader.data?.siteName ?? meta?.sourceName}
         {meta && ` · ${timeAgo(meta.publishedAt)}`}

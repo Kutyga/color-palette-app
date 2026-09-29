@@ -2,11 +2,11 @@
 
 /** Вопрос из «Помощи» с ответами садоводов. */
 
-import { ChevronLeft, MessageCircleQuestion } from "lucide-react";
-import Link from "next/link";
+import { MessageCircleQuestion } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { Answers, QuestionHeader } from "@/components/feed";
 import { PushNudge } from "@/components/notifications";
 import { EmptyState, ErrorNote, Spinner } from "@/components/ui";
@@ -34,9 +34,9 @@ export default function QuestionPage() {
   return (
     <>
       <div className="pt-4">
-        <Link href="/feed/?tab=help" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Помощь
-        </Link>
+        <BackLink href="/feed/?tab=help" className="text-[15px] font-medium">
+          Помощь
+        </BackLink>
       </div>
       <h1 className="sr-only">Вопрос</h1>
       <div className="pt-3">

@@ -2,11 +2,12 @@
 
 /** Витрина магазина: контакты, часы работы, доставка и каталог с поиском. */
 
-import { ChevronLeft, Clock, ExternalLink, Globe, Leaf, MapPin, Phone, Search, Store, Truck } from "lucide-react";
+import { Clock, ExternalLink, Globe, Leaf, MapPin, Phone, Search, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { ProductPhoto, ShopStatusPill, VerifiedMark } from "@/components/shops";
 import { EmptyState, ErrorNote, Spinner, cx, inputClass } from "@/components/ui";
 import { catalogById } from "@/lib/catalog";
@@ -193,9 +194,9 @@ export default function ShopPage() {
   return (
     <>
       <div className="pt-4 pb-3">
-        <Link href="/feed/?tab=market" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Барахолка
-        </Link>
+        <BackLink href="/feed/?tab=market" className="text-[15px] font-medium">
+          Барахолка
+        </BackLink>
       </div>
       <RequireSession>
         <Suspense fallback={<Spinner />}>

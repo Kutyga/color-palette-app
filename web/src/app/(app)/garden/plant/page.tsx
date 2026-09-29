@@ -2,11 +2,11 @@
 
 /** Карточка растения: страница собирает блоки из components/plant-card. */
 
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import {
   CareActions,
   CareJournal,
@@ -33,9 +33,9 @@ function PlantView({ id }: { id: string }) {
 
   return (
     <div className="pt-4">
-      <Link href="/garden/" className="text-leaf inline-flex items-center gap-1 text-[17px]">
-        <ChevronLeft className="size-5" aria-hidden /> Коллекция
-      </Link>
+      <BackLink href="/garden/" className="text-[17px]">
+        Коллекция
+      </BackLink>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         <PlantHero plant={plant} species={species} />
