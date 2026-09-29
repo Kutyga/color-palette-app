@@ -1,10 +1,11 @@
 "use client";
 
-/** Люди: строка профиля, подписка, шапка профиля, открытые растения и правка профиля. */
+/** Люди: строка профиля, подписка, «Написать», шапка профиля, открытые растения и правка профиля. */
 
-import { useQueryClient } from "@tanstack/react-query";
-import { Check, Leaf, Pencil, UserPlus, Users } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Check, Leaf, MessageCircle, Pencil, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { normalizeUsername, validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "@/lib/domain/people";
 import { speciesName } from "@/lib/domain/species";
@@ -100,6 +101,34 @@ function PeopleListSheet({ kind, person, onClose }: { kind: "followers" | "follo
         </ul>
       )}
     </Sheet>
+  );
+}
+
+/** «Написать»: открывает личный чат с садоводом (или уже начатый). */
+export function MessageButton({ person }: { person: PersonCard }) {
+  const backend = useBackend();
+  const router = useRouter();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const start = useMutation({
+    mutationFn: () => backend.chat.startDirect(person.id),
+    onSuccess: (id) => {
+      qc.invalidateQueries({ queryKey: ["chat"] });
+      router.push(`/messages/chat/?id=${encodeURIComponent(id)}`);
+    },
+    onError: (e) => toast(e.message),
+  });
+  if (person.isMe) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => start.mutate()}
+      disabled={start.isPending}
+      aria-label={`Написать ${person.displayName}`}
+      className="bg-muted text-label inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[15px] font-semibold transition disabled:opacity-60"
+    >
+      <MessageCircle className="size-4" aria-hidden /> Написать
+    </button>
   );
 }
 

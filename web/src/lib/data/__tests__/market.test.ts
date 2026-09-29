@@ -86,4 +86,21 @@ describe("демо: барахолка и сообщения", () => {
     expect(conv.blocked).toBe(true);
     await expect(chat.send(convId, "Ау?")).rejects.toThrow();
   });
+
+  it("личный чат из профиля: один на пару, ответ садовода, нельзя себе", async () => {
+    const storage = memoryDemoStorage();
+    await demoBackend(storage, clock);
+    const state = storage.load()!;
+    const chat = new DemoChat(state, () => {}, clock, 0);
+    const other = (await chat.conversations()).length;
+    const convId = await chat.startDirect("demo-anna.green");
+    expect(await chat.startDirect("demo-anna.green")).toBe(convId);
+    await chat.send(convId, "Привет! Как ваша монстера?");
+    await new Promise((r) => setTimeout(r, 5));
+    expect((await chat.messages(convId)).map((m) => m.mine)).toEqual([true, false]);
+    const convs = await chat.conversations();
+    expect(convs).toHaveLength(other + 1);
+    expect(convs.find((c) => c.id === convId)).toMatchObject({ direct: true, listingId: null, unread: true });
+    await expect(chat.startDirect("demo-nobody")).rejects.toThrow(/не найден/);
+  });
 });

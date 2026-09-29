@@ -1,13 +1,13 @@
 "use client";
 
-/** Профиль садовода: о себе, подписки и открытые растения. */
+/** Профиль садовода: о себе, подписки, «Написать» и открытые растения. */
 
 import { ChevronLeft, Lock, Sprout, UserX } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { RequireSession } from "@/components/app-shell";
-import { FollowButton, ProfileHeader, PublicPlantsGrid } from "@/components/people";
+import { FollowButton, MessageButton, ProfileHeader, PublicPlantsGrid } from "@/components/people";
 import { EmptyState, ErrorNote, SectionTitle, Spinner } from "@/components/ui";
 import { usePerson, usePlantsOf } from "@/lib/queries";
 
@@ -31,7 +31,15 @@ function PersonProfile() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-2">
-      <ProfileHeader person={p} action={<FollowButton person={p} />} />
+      <ProfileHeader
+        person={p}
+        action={
+          <>
+            <FollowButton person={p} />
+            <MessageButton person={p} />
+          </>
+        }
+      />
       <SectionTitle>Растения</SectionTitle>
       {plants.isPending ? (
         <Spinner />

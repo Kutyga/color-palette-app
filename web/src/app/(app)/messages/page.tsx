@@ -1,6 +1,6 @@
 "use client";
 
-/** Сообщения: список переписок по объявлениям. */
+/** Сообщения: личные переписки садоводов и чаты по объявлениям и розыгрышам. */
 
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
@@ -20,7 +20,7 @@ function Conversations() {
       <EmptyState
         icon={MessageCircle}
         title="Сообщений пока нет"
-        message="Напишите продавцу из «Барахолки» — переписка появится здесь."
+        message="Напишите садоводу из его профиля или продавцу из «Барахолки» — переписка появится здесь."
         action={
           <Link href="/feed/?tab=market" className="bg-leaf rounded-full px-6 py-3 font-semibold text-white">
             Открыть барахолку
@@ -40,13 +40,15 @@ function Conversations() {
           >
             <div className="relative shrink-0">
               <Avatar name={c.otherDisplayName} size={48} />
-              <PlantPhoto
-                src={c.listingPhotoUrl}
-                seed={c.listingId ?? c.id}
-                alt=""
-                className="ring-surface absolute -right-1 -bottom-1 size-6 rounded-lg ring-2"
-                iconSize={12}
-              />
+              {!c.direct && (
+                <PlantPhoto
+                  src={c.listingPhotoUrl}
+                  seed={c.listingId ?? c.id}
+                  alt=""
+                  className="ring-surface absolute -right-1 -bottom-1 size-6 rounded-lg ring-2"
+                  iconSize={12}
+                />
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <p className="flex items-baseline gap-2">
@@ -54,8 +56,14 @@ function Conversations() {
                 <span className="text-secondary ml-auto shrink-0 text-[12px]">{c.lastMessage ? timeAgo(c.lastMessageAt) : ""}</span>
               </p>
               <p className="text-secondary truncate text-[13px]">
-                {c.listingKind && `${LISTING_KINDS[c.listingKind].emoji} `}
-                {c.listingTitle ?? "Объявление удалено"}
+                {c.direct ? (
+                  "Личная переписка"
+                ) : (
+                  <>
+                    {c.listingKind && `${LISTING_KINDS[c.listingKind].emoji} `}
+                    {c.listingTitle ?? "Объявление удалено"}
+                  </>
+                )}
               </p>
               <p className={cx("truncate text-[15px]", c.unread ? "text-label font-semibold" : "text-secondary")}>
                 {c.blocked ? "Переписка закрыта" : c.lastMessage ? `${c.lastFromMe ? "Вы: " : ""}${c.lastMessage}` : "Нет сообщений"}

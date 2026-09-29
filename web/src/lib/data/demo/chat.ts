@@ -1,9 +1,9 @@
 /**
- * Переписка в браузере: продавец из демо отвечает сам.
+ * Переписка в браузере: садовод из демо отвечает сам.
  */
 import type { ChatMessage, Conversation } from "../../domain/market";
 import type { ChatRepository } from "../repositories";
-import { AUTO_REPLY, personOf } from "./fixtures";
+import { AUTO_REPLY, DIRECT_REPLY, personOf } from "./fixtures";
 import { type ConversationRec, type DemoState, ME, type MessageRec } from "./state";
 
 export class DemoChat implements ChatRepository {
@@ -53,6 +53,7 @@ export class DemoChat implements ChatRepository {
           lastFromMe: last?.fromMe ?? false,
           unread: !!last && !last.fromMe && (!c.readAt || last.createdAt > c.readAt),
           blocked: blocked.includes(c.otherId),
+          direct: !!c.direct,
         };
       })
       .sort((a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime());
@@ -66,6 +67,18 @@ export class DemoChat implements ChatRepository {
     if (existing) return existing.id;
     if ((this.state.blocked ?? []).includes(listing.sellerId)) throw new Error("Написать этому садоводу нельзя");
     const c: ConversationRec = { id: crypto.randomUUID(), listingId, otherId: listing.sellerId, iAmSeller: false, readAt: null };
+    this.convs.push(c);
+    this.persist();
+    return c.id;
+  }
+
+  async startDirect(userId: string) {
+    if (userId === ME) throw new Error("Нельзя написать самому себе");
+    if (!personOf(userId)) throw new Error("Садовод не найден");
+    const existing = this.convs.find((c) => c.direct && c.otherId === userId);
+    if (existing) return existing.id;
+    if ((this.state.blocked ?? []).includes(userId)) throw new Error("Написать этому садоводу нельзя");
+    const c: ConversationRec = { id: crypto.randomUUID(), listingId: null, direct: true, otherId: userId, iAmSeller: false, readAt: null };
     this.convs.push(c);
     this.persist();
     return c.id;
@@ -92,7 +105,7 @@ export class DemoChat implements ChatRepository {
     const mine = this.push(conversationId, text, true);
     if (firstFromMe) {
       setTimeout(() => {
-        const reply = this.push(conversationId, AUTO_REPLY, false);
+        const reply = this.push(conversationId, c.direct ? DIRECT_REPLY : AUTO_REPLY, false);
         this.listeners.get(conversationId)?.forEach((fn) => fn(reply));
       }, this.replyDelayMs);
     }
