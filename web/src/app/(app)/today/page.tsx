@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { ContestPromo } from "@/components/contests";
+import { PushNudge } from "@/components/notifications";
 import {
   ActivityRings,
   CARE_COLORS,
@@ -226,6 +227,7 @@ export default function TodayPage() {
       <PageHeader eyebrow={isClient ? formatDate(new Date()) : "\u00a0"} title="Сегодня" />
       <RequireSession>
         <ContestPromo className="mb-5" />
+        <PushNudge className="mb-5" text="Напомним о поливе и подкормке, сообщим об ответах и сообщениях." />
         <TodayContent />
       </RequireSession>
     </>
