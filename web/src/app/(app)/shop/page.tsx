@@ -9,9 +9,9 @@ import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { ProductPhoto, ShopStatusPill, VerifiedMark } from "@/components/shops";
 import { EmptyState, ErrorNote, Spinner, cx, inputClass } from "@/components/ui";
+import { catalogById } from "@/lib/catalog";
 import { sizeLabel, telHref, withUtm, type Shop, type ShopProduct } from "@/lib/domain/shop";
 import { speciesMatches, speciesName } from "@/lib/domain/species";
-import { speciesById } from "@/lib/knowledge";
 import { useShop, useShopProducts } from "@/lib/queries";
 
 function hostOf(url: string | null) {
@@ -65,7 +65,7 @@ function Contacts({ shop: s }: { shop: Shop }) {
 }
 
 function ProductCard({ product: p }: { product: ShopProduct }) {
-  const sp = speciesById(p.speciesId);
+  const sp = catalogById(p.speciesId);
   const size = sizeLabel(p);
   const body = (
     <>
@@ -122,7 +122,7 @@ function Catalog({ shopId }: { shopId: string }) {
   const shown = products.data
     .filter((p) => {
       if (!q) return true;
-      const sp = speciesById(p.speciesId);
+      const sp = catalogById(p.speciesId);
       return p.title.toLowerCase().includes(q) || (sp != null && speciesMatches(sp, q));
     })
     .sort((a, b) => Number(b.inStock) - Number(a.inStock));

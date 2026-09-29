@@ -7,9 +7,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { Chip, EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner, cx } from "@/components/ui";
+import { plantPhotoUrl } from "@/lib/catalog";
 import { plantStatus, type PlantStatus } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
-import { plantPhotoUrl } from "@/lib/knowledge";
 import { useLocations, usePlants, useStats } from "@/lib/queries";
 
 const STATUS: Record<PlantStatus, { color: string; label: string }> = {

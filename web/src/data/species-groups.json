@@ -1,0 +1,35 @@
+{
+ "groups": [
+  { "id": "aroids", "title": "Ароидные", "subtitle": "Монстеры, алоказии, филодендроны, антуриумы", "cover": "monstera-deliciosa" },
+  { "id": "marantaceae", "title": "Калатеи и маранты", "subtitle": "Узорчатые листья, любят влажный воздух", "cover": "goeppertia-orbifolia" },
+  { "id": "foliage", "title": "Декоративно-лиственные", "subtitle": "Красивы листьями круглый год", "cover": "pilea-peperomioides" },
+  { "id": "flowering", "title": "Цветущие", "subtitle": "Ради цветов: свет и подкормка с калием", "cover": "hibiscus-rosa-sinensis" },
+  { "id": "vines", "title": "Лианы и ампельные", "subtitle": "Для кашпо, полок и опор", "cover": "hoya-carnosa" },
+  { "id": "succulents", "title": "Кактусы и суккуленты", "subtitle": "Полив раз в пару недель, много солнца", "cover": "echeveria-elegans" },
+  { "id": "trees", "title": "Деревья и крупные", "subtitle": "Фикусы, драцены и другие в напольный горшок", "cover": "ficus-lyrata" },
+  { "id": "palms", "title": "Пальмы и саговники", "subtitle": "Большие горшки и много места", "cover": "chamaedorea-elegans" },
+  { "id": "ferns", "title": "Папоротники", "subtitle": "Влажный воздух и полутень", "cover": "nephrolepis-exaltata" },
+  { "id": "orchids", "title": "Орхидеи", "subtitle": "Кора вместо земли, особый полив", "cover": "phalaenopsis-hybrid" },
+  { "id": "bromeliads", "title": "Бромелии и тилландсии", "subtitle": "Поливают в розетку или опрыскивают", "cover": "guzmania-lingulata" },
+  { "id": "carnivorous", "title": "Хищные", "subtitle": "Только дистиллированная вода, без удобрений", "cover": "dionaea-muscipula" },
+  { "id": "edible", "title": "Цитрусы, овощи и пряности", "subtitle": "Урожай на подоконнике", "cover": "citrus-limon" }
+ ],
+ "rules": [
+  { "group": "carnivorous", "fertilizer": ["carnivorous"] },
+  { "group": "orchids", "fertilizer": ["orchid"] },
+  { "group": "succulents", "plantType": ["суккулент"], "genus": ["Rhipsalis"] },
+  { "group": "bromeliads", "fertilizer": ["bromeliad"] },
+  { "group": "edible", "fertilizer": ["citrus", "edible"] },
+  { "group": "palms", "plantType": ["пальма"], "fertilizer": ["palm"] },
+  { "group": "ferns", "plantType": ["папоротник"], "genus": ["Asplenium", "Selaginella"] },
+  {
+   "group": "aroids",
+   "genus": ["Aglaonema", "Alocasia", "Amydrium", "Anthurium", "Caladium", "Colocasia", "Dieffenbachia", "Epipremnum", "Homalomena", "Monstera", "Philodendron", "Rhaphidophora", "Scindapsus", "Spathiphyllum", "Syngonium", "Thaumatophyllum", "Xanthosoma", "Zamioculcas"]
+  },
+  { "group": "marantaceae", "genus": ["Calathea", "Ctenanthe", "Goeppertia", "Maranta", "Stromanthe"] },
+  { "group": "vines", "plantType": ["лиана"] },
+  { "group": "flowering", "fertilizer": ["flowering", "acid"] },
+  { "group": "trees", "plantType": ["дерево"] },
+  { "group": "foliage" }
+ ]
+}

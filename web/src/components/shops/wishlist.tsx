@@ -6,8 +6,8 @@ import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/components/session";
 import { Card, Spinner, cx, useToast } from "@/components/ui";
+import { catalogById } from "@/lib/catalog";
 import { speciesName } from "@/lib/domain/species";
-import { speciesById } from "@/lib/knowledge";
 import { useSetWished, useWishlist } from "@/lib/queries";
 
 function WishButtonInner({ speciesId }: { speciesId: string }) {
@@ -56,7 +56,7 @@ export function WishButton({ speciesId }: { speciesId: string }) {
 /** Список «Хочу» в профиле. */
 export function WishlistCard() {
   const wishlist = useWishlist();
-  const species = (wishlist.data ?? []).map((id) => speciesById(id)).filter((s) => s != null);
+  const species = (wishlist.data ?? []).map((id) => catalogById(id)).filter((s) => s != null);
   return (
     <Card className="p-5">
       <p className="flex items-center gap-2 font-semibold">

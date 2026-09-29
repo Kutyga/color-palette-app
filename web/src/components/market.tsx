@@ -5,10 +5,10 @@
 import { MapPin, Store, Truck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { catalogById } from "@/lib/catalog";
 import { LISTING_KINDS, LISTING_STATUS, priceLabel, type Listing, type ListingFilter, type ListingKind } from "@/lib/domain/market";
 import { speciesName } from "@/lib/domain/species";
 import { timeAgo } from "@/lib/format";
-import { speciesById } from "@/lib/knowledge";
 import { useListings, useMyListings, useProfile } from "@/lib/queries";
 import { ContestsList, PinnedContestBanner } from "./contests";
 import { useBackend } from "./session";
@@ -19,7 +19,7 @@ export const chatHref = (id: string) => `/messages/chat/?id=${encodeURIComponent
 export const listingHref = (id: string) => `/market/view/?id=${encodeURIComponent(id)}`;
 
 /** Своё фото объявления, а если его нет (объявление «Ищу») — фото вида из базы знаний. */
-export const listingPhoto = (l: Pick<Listing, "photoUrls" | "speciesId">) => l.photoUrls[0] ?? speciesById(l.speciesId)?.image?.url ?? null;
+export const listingPhoto = (l: Pick<Listing, "photoUrls" | "speciesId">) => l.photoUrls[0] ?? catalogById(l.speciesId)?.image?.url ?? null;
 
 export function KindBadge({ kind, className }: { kind: ListingKind; className?: string }) {
   const k = LISTING_KINDS[kind];
@@ -37,7 +37,7 @@ export function KindBadge({ kind, className }: { kind: ListingKind; className?: 
 
 /** Плитка объявления в сетке. */
 function ListingCard({ listing: l }: { listing: Listing }) {
-  const sp = speciesById(l.speciesId);
+  const sp = catalogById(l.speciesId);
   return (
     <li>
       <Link

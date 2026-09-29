@@ -23,11 +23,11 @@ import {
   useIsClient,
   useToast,
 } from "@/components/ui";
+import { plantPhotoUrl } from "@/lib/catalog";
 import { CARE_TYPES, taskBucket, type CareTask, type TaskBucket } from "@/lib/domain/care";
 import { evaluateAchievements, levelFor } from "@/lib/domain/gamification";
 import type { Plant } from "@/lib/domain/plant";
 import { formatDate, plural, relativeDay } from "@/lib/format";
-import { plantPhotoUrl } from "@/lib/knowledge";
 import { useDoneToday, useLogCare, usePlants, useStats, useTasks } from "@/lib/queries";
 
 const SECTIONS: { bucket: TaskBucket; title: string }[] = [

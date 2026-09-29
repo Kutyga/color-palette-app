@@ -31,9 +31,17 @@ test("гость: база знаний открыта всем, сад — то
   await expect(page.getByText("Хлорофитум хохлатый")).toBeVisible();
   await expect(page.getByText("Монстера деликатесная")).toHaveCount(0);
 
-  await page.goto("/plants/goeppertia-orbifolia/");
+  // Без поиска — группы; в группе компактный список, у вида — ссылка обратно на группу.
+  await page.getByRole("button", { name: "Все", exact: true }).click();
+  await page.getByRole("link", { name: /Калатеи и маранты/ }).click();
+  await page.waitForURL("**/plants/group/marantaceae/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Калатеи и маранты");
+  await expect(page.getByText("Монстера деликатесная")).toHaveCount(0);
+  await page.getByRole("link", { name: /Калатея круглолистная/ }).click();
+  await page.waitForURL("**/plants/goeppertia-orbifolia/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Калатея круглолистная");
   await expect(page.getByText("Прежние латинские названия: Calathea orbifolia")).toBeVisible();
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Калатеи и маранты" })).toBeVisible();
 
   await page.goto("/today/");
   await page.waitForURL("**/login/**");
@@ -93,6 +101,9 @@ test("демо: добавить растение из базы знаний, п
   // График из карточки вида: полив, подкормка, пересадка.
   await expect(page.getByText("Подкормка", { exact: true })).toBeVisible();
   await expect(page.getByText("Пересадка", { exact: true })).toBeVisible();
+  // Грунт и советы из полной базы знаний подгружаются отдельно — только на этой странице.
+  await expect(page.getByRole("heading", { name: "Грунт для пересадки" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Всё о виде" })).toBeVisible();
 
   await page.getByRole("button", { name: "Полить" }).click();
   await expect(page.getByText("Полив: Хойя Звёздочка — готово")).toBeVisible();

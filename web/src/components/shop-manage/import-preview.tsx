@@ -10,15 +10,15 @@ import { FileSpreadsheet, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useBackend } from "@/components/session";
 import { Button, Card, cx, inputClass, useToast } from "@/components/ui";
+import { CATALOG } from "@/lib/catalog";
 import { IMPORT_FIELDS, rowsToProducts, speciesMatcher, type ColumnMapping, type ImportField } from "@/lib/domain/price-list";
 import { speciesName } from "@/lib/domain/species";
 import { plural } from "@/lib/format";
-import { ALL_SPECIES } from "@/lib/knowledge";
 
 let matcher: ReturnType<typeof speciesMatcher> | null = null;
-const matchSpecies = (text: string) => (matcher ??= speciesMatcher(ALL_SPECIES))(text);
+const matchSpecies = (text: string) => (matcher ??= speciesMatcher(CATALOG))(text);
 
-const SPECIES_OPTIONS = [...ALL_SPECIES].sort((a, b) => speciesName(a).localeCompare(speciesName(b), "ru"));
+const SPECIES_OPTIONS = [...CATALOG].sort((a, b) => speciesName(a).localeCompare(speciesName(b), "ru"));
 const PREVIEW_ROWS = 50;
 
 export interface ImportState {

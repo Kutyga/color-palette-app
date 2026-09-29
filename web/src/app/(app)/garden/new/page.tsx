@@ -19,12 +19,12 @@ import {
 } from "@/components/new-plant";
 import { useBackend } from "@/components/session";
 import { Button, Field, PageHeader, Sheet, Spinner, inputClass, useToast } from "@/components/ui";
+import { CATALOG, catalogBySlug } from "@/lib/catalog";
 import { POT_MATERIALS, type PotMaterial } from "@/lib/domain/care";
 import { capitalizeLatin, matchSpecies, type IdentificationCandidate } from "@/lib/domain/identification";
 import { VISIBILITIES, type Visibility } from "@/lib/domain/plant";
-import { speciesName, type Species } from "@/lib/domain/species";
+import { speciesName, type SpeciesSummary } from "@/lib/domain/species";
 import { toJpeg } from "@/lib/image";
-import { ALL_SPECIES, speciesBySlug } from "@/lib/knowledge";
 
 function NewPlantForm() {
   const params = useSearchParams();
@@ -33,7 +33,7 @@ function NewPlantForm() {
   const toast = useToast();
   const router = useRouter();
 
-  const [species, setSpecies] = useState<Species | null>(() => speciesBySlug(params.get("species")));
+  const [species, setSpecies] = useState<SpeciesSummary | null>(() => catalogBySlug(params.get("species")));
   const [nickname, setNickname] = useState(() => (species ? speciesName(species) : ""));
   const [location, setLocation] = useState<LocationChoice>({ id: null });
   const [pot, setPot] = useState<PotMaterial | "">("");
@@ -45,7 +45,7 @@ function NewPlantForm() {
   const [identifying, setIdentifying] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  function pickSpecies(s: Species | null) {
+  function pickSpecies(s: SpeciesSummary | null) {
     // Имя подставляем, только если пользователь его ещё не придумал сам.
     if (s && (!nickname || nickname === (species ? speciesName(species) : ""))) setNickname(speciesName(s));
     setSpecies(s);
@@ -56,7 +56,7 @@ function NewPlantForm() {
     setIdentifying(true);
     try {
       const predictions = await backend.identifier.identify(await toJpeg(photo.blob, 1280));
-      setCandidates(predictions.slice(0, 5).map((p) => matchSpecies(p, ALL_SPECIES)));
+      setCandidates(predictions.slice(0, 5).map((p) => matchSpecies(p, CATALOG)));
     } catch (e) {
       toast(e instanceof Error ? e.message : "Распознавание не удалось");
     } finally {

@@ -29,11 +29,16 @@ export const LARGE_PHOTO = "(max-width: 720px) 100vw, 720px";
 /** Стандартные ширины миниатюр Wikimedia Commons (другие ширины сервер отдаёт медленнее). */
 const WIKIMEDIA_WIDTHS = [250, 500, 960];
 const WIKIMEDIA_THUMB = /^(https:\/\/[a-z]+\.wikimedia\.org\/.+\/thumb\/.+\/)\d+px-([^/]+)$/;
+/** Ссылка на оригинал файла (без /thumb/) — у небольших фото с Commons другой миниатюры нет. */
+const WIKIMEDIA_ORIGINAL = /^(https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/)([0-9a-f]\/[0-9a-f]{2}\/)([^/]+)$/;
 
-/** Для миниатюры Wikimedia — набор копий разной ширины, чтобы в списках не грузить большие картинки. */
+/** Для фото с Wikimedia — набор копий разной ширины, чтобы в списках не грузить большие картинки. */
 function wikimediaSrcSet(src: string): string | undefined {
   const m = WIKIMEDIA_THUMB.exec(src);
-  return m ? WIKIMEDIA_WIDTHS.map((w) => `${m[1]}${w}px-${m[2]} ${w}w`).join(", ") : undefined;
+  if (m) return WIKIMEDIA_WIDTHS.map((w) => `${m[1]}${w}px-${m[2]} ${w}w`).join(", ");
+  const o = WIKIMEDIA_ORIGINAL.exec(src);
+  // Самую большую копию не просим: оригинал может быть уже 960 px — тогда берём его самого.
+  return o ? [`${o[1]}thumb/${o[2]}${o[3]}/250px-${o[3]} 250w`, `${src} 960w`].join(", ") : undefined;
 }
 
 /**

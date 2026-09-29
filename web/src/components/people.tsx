@@ -7,10 +7,10 @@ import { Check, Leaf, MessageCircle, Pencil, UserPlus, Users } from "lucide-reac
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { catalogBySlug } from "@/lib/catalog";
 import { normalizeUsername, validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "@/lib/domain/people";
 import { speciesName } from "@/lib/domain/species";
 import { plural } from "@/lib/format";
-import { speciesBySlug } from "@/lib/knowledge";
 import { useFollow, usePeopleList } from "@/lib/queries";
 import { useBackend } from "./session";
 import { Avatar, Button, EmptyState, ErrorNote, Field, PlantPhoto, Sheet, Spinner, cx, inputClass, useToast } from "./ui";
@@ -176,7 +176,7 @@ export function PublicPlantsGrid({ plants }: { plants: PublicPlant[] }) {
   return (
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {plants.map((p) => {
-        const sp = speciesBySlug(p.speciesSlug);
+        const sp = catalogBySlug(p.speciesSlug);
         return (
           <li key={p.id} className="bg-surface overflow-hidden rounded-[20px]">
             <PlantPhoto src={p.photoUrl ?? sp?.image?.url} seed={p.id} alt={p.nickname} className="aspect-square w-full" iconSize={36} />
