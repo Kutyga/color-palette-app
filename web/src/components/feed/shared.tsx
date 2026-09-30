@@ -45,7 +45,23 @@ export const authorHref = (p: { mine: boolean; authorName: string }) => (p.mine 
 export const questionHref = (id: string) => `/feed/question/?id=${encodeURIComponent(id)}`;
 export const plantDiaryHref = (plantId: string) => `/feed/plant/?id=${encodeURIComponent(plantId)}`;
 
-export function AuthorLine({ post, size = 40 }: { post: FeedPost; size?: number }) {
+/** Автор и время. inline — в одну строку («Анна · 3 ч»), для компактных карточек ленты. */
+export function AuthorLine({ post, size = 40, inline = false }: { post: FeedPost; size?: number; inline?: boolean }) {
+  if (inline) {
+    return (
+      <Link href={authorHref(post)} className="flex min-w-0 flex-1 items-center gap-2.5" aria-label={`Профиль: ${post.authorDisplayName}`}>
+        <Avatar name={post.authorDisplayName} size={size} />
+        <span className="flex min-w-0 items-baseline gap-1.5">
+          <span className="truncate text-[15px] font-semibold">{post.authorDisplayName}</span>
+          {post.authorIsTeam && <BadgeCheck className="text-leaf size-4 shrink-0 self-center" aria-label="Команда" />}
+          <time className="text-secondary shrink-0 text-[13px]" dateTime={post.createdAt.toISOString()}>
+            · {timeAgo(post.createdAt)}
+            {post.editedAt && " · изменено"}
+          </time>
+        </span>
+      </Link>
+    );
+  }
   return (
     <Link href={authorHref(post)} className="flex min-w-0 flex-1 items-center gap-3" aria-label={`Профиль: ${post.authorDisplayName}`}>
       <Avatar name={post.authorDisplayName} size={size} />

@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { BackLink } from "@/components/back-link";
-import { CommentsSheet, DiaryCard } from "@/components/feed";
+import { CommentsSheet, DiaryCard, SpeciesLink } from "@/components/feed";
 import { EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner } from "@/components/ui";
 import type { FeedPost } from "@/lib/domain/social";
 import { plural } from "@/lib/format";
@@ -82,6 +82,11 @@ function PlantDiary() {
           {first.plantName ? <b className="text-label">{first.plantName}</b> : "Растение"} · {first.authorDisplayName} · {entries.length}{" "}
           {plural(entries.length, "запись", "записи", "записей")}
         </p>
+      )}
+      {first?.speciesId && (
+        <div className="-mt-2 mb-4">
+          <SpeciesLink speciesId={first.speciesId} className="text-[14px]" />
+        </div>
       )}
       <BeforeAfter entries={entries} />
       {entries.length === 0 ? (

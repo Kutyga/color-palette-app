@@ -66,10 +66,16 @@ body {
 
 /* Large Title как в iOS: 34 / Bold, трекинг −0.4. */
 .large-title {
-  font-size: 34px;
+  font-size: 28px;
   line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.4px;
+}
+/* На телефоне заголовок экрана скромнее — больше места под содержимое. */
+@media (min-width: 640px) {
+  .large-title {
+    font-size: 34px;
+  }
 }
 
 .glass {
