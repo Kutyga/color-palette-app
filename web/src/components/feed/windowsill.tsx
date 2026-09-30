@@ -29,7 +29,7 @@ function pots(posts: FeedPost[]): FeedPost[] {
 
 export function Windowsill({ posts, now = new Date() }: { posts: FeedPost[]; now?: Date }) {
   const list = pots(posts);
-  if (list.length < 3) return null;
+  if (!list.length) return null;
   return (
     <section aria-label="На подоконниках" className="mb-4">
       <h2 className="text-secondary mb-2 text-[13px] font-medium">На подоконниках</h2>

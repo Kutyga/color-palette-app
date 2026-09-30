@@ -143,6 +143,7 @@ jobs:
             out/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/"
       # Запасной путь к Supabase через свой домен ({сайт}/sb/…) — для тех, у кого оператор не пускает
       # на *.supabase.co. Адрес проекта пишется в upstream.php (из доступа снаружи закрыт .htaccess).
+      # Через sb/ же идут все фото: копии лежат в sb/photo-cache/ — при выкладке её не трогаем.
       - name: Запасной путь к Supabase (sb/)
         working-directory: .
         env:
@@ -156,7 +157,7 @@ jobs:
           upstream=$(printf '%s' "$SUPABASE_URL" | sed -E 's#^(https://[a-z0-9]+\.supabase\.co).*#\1#')
           case "$upstream" in https://*.supabase.co) ;; *) echo "::warning::SUPABASE_URL не похож на адрес Supabase — sb/ не выкладывается"; exit 0 ;; esac
           printf "<?php return '%s';\n" "$upstream" > spaceweb/sb-proxy/upstream.php
-          rsync -rltz --delete -e "$SSH_CMD" spaceweb/sb-proxy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/sb/"
+          rsync -rltz --delete --exclude "photo-cache/" -e "$SSH_CMD" spaceweb/sb-proxy/ "$SSH_USER@$SSH_HOST:$TARGET_DIR/sb/"
           rm spaceweb/sb-proxy/upstream.php
           code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${SITE_URL/https:/http:}/sb/auth/v1/health" || true)
           # Без ключа Supabase отвечает 401 — значит, запрос дошёл до Supabase через хостинг.
