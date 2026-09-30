@@ -1,4 +1,5 @@
-# Шаблоны писем Supabase Auth из supabase/templates/ → настройки проекта через Management API.
+# Письма Supabase Auth из supabase/templates/ → настройки проекта через Management API.
+# Список писем и темы — supabase/templates/templates.json (генерирует build.mjs вместе с HTML).
 # smtp_max_frequency — не чаще одного письма на адрес раз в 30 с (RESEND_AFTER в web/src/app/login/page.tsx).
 # Нужен секрет SUPABASE_ACCESS_TOKEN (personal access token из supabase.com/dashboard/account/tokens).
 name: supabase-email-templates
@@ -19,28 +20,39 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Записать шаблоны в Supabase
+      - name: Записать письма в Supabase
+        working-directory: supabase/templates
         run: |
           if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
             echo "::error::Нет секрета SUPABASE_ACCESS_TOKEN"
             exit 1
           fi
-          jq -n \
-            --arg confirm_subject "Подтвердите почту — Подоконник" \
-            --rawfile confirm_body supabase/templates/confirm-signup.html \
-            --arg recovery_subject "Восстановление пароля — Подоконник" \
-            --rawfile recovery_body supabase/templates/reset-password.html \
-            '{mailer_subjects_confirmation: $confirm_subject, mailer_templates_confirmation_content: $confirm_body,
-              mailer_subjects_recovery: $recovery_subject, mailer_templates_recovery_content: $recovery_body,
-              smtp_max_frequency: 30}' > body.json
-          status=$(curl -sS -o response.json -w '%{http_code}' -X PATCH \
-            "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
-            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data @body.json)
-          echo "HTTP $status"
+          # Тело PATCH для группы писем: mailer_subjects_<key> и mailer_templates_<key>_content.
+          body() {
+            jq -c --arg group "$1" '.[] | select(.group == $group)' templates.json | while read -r t; do
+              key=$(jq -r .key <<<"$t"); file=$(jq -r .file <<<"$t"); subject=$(jq -r .subject <<<"$t")
+              jq -n --arg k "$key" --arg s "$subject" --rawfile c "$file" \
+                '{("mailer_subjects_" + $k): $s, ("mailer_templates_" + $k + "_content"): $c}'
+            done | jq -s 'add'
+          }
+          patch() {
+            curl -sS -o response.json -w '%{http_code}' -X PATCH \
+              "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
+              -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data @"$1"
+          }
+
+          body core | jq '. + {smtp_max_frequency: 30}' > core.json
+          status=$(patch core.json)
+          echo "Основные письма: HTTP $status"
+          if [ "$status" -ge 300 ]; then cat response.json; exit 1; fi
+          jq -r 'to_entries[] | select(.key | startswith("mailer_subjects_")) | "\(.key): \(.value)"' response.json
+
+          # Уведомления безопасности — отдельно: если API их не знает, основные письма уже записаны.
+          body notify > notify.json
+          status=$(patch notify.json)
+          echo "Уведомления безопасности: HTTP $status"
           if [ "$status" -ge 300 ]; then
-            cat response.json
-            exit 1
+            echo "::warning::Уведомления безопасности не записаны: $(cat response.json)"
           fi
-          jq -r '.mailer_subjects_confirmation, .mailer_subjects_recovery, .smtp_max_frequency' response.json

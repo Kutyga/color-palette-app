@@ -1,0 +1,80 @@
+[
+  {
+    "key": "confirmation",
+    "file": "confirm-signup.html",
+    "group": "core",
+    "subject": "Подтвердите почту — Подоконник"
+  },
+  {
+    "key": "recovery",
+    "file": "reset-password.html",
+    "group": "core",
+    "subject": "Восстановление пароля — Подоконник"
+  },
+  {
+    "key": "magic_link",
+    "file": "magic-link.html",
+    "group": "core",
+    "subject": "Вход в «Подоконник»"
+  },
+  {
+    "key": "invite",
+    "file": "invite.html",
+    "group": "core",
+    "subject": "Вас пригласили в «Подоконник»"
+  },
+  {
+    "key": "email_change",
+    "file": "change-email.html",
+    "group": "core",
+    "subject": "Подтвердите новую почту — Подоконник"
+  },
+  {
+    "key": "reauthentication",
+    "file": "reauthentication.html",
+    "group": "core",
+    "subject": "Код подтверждения — Подоконник"
+  },
+  {
+    "key": "password_changed_notification",
+    "file": "notify-password-changed.html",
+    "group": "notify",
+    "subject": "Пароль изменён — Подоконник"
+  },
+  {
+    "key": "email_changed_notification",
+    "file": "notify-email-changed.html",
+    "group": "notify",
+    "subject": "Почта аккаунта изменена — Подоконник"
+  },
+  {
+    "key": "phone_changed_notification",
+    "file": "notify-phone-changed.html",
+    "group": "notify",
+    "subject": "Телефон аккаунта изменён — Подоконник"
+  },
+  {
+    "key": "identity_linked_notification",
+    "file": "notify-identity-linked.html",
+    "group": "notify",
+    "subject": "Добавлен новый способ входа — Подоконник"
+  },
+  {
+    "key": "identity_unlinked_notification",
+    "file": "notify-identity-unlinked.html",
+    "group": "notify",
+    "subject": "Способ входа отключён — Подоконник"
+  },
+  {
+    "key": "mfa_factor_enrolled_notification",
+    "file": "notify-mfa-enrolled.html",
+    "group": "notify",
+    "subject": "Включена двухэтапная проверка — Подоконник"
+  },
+  {
+    "key": "mfa_factor_unenrolled_notification",
+    "file": "notify-mfa-unenrolled.html",
+    "group": "notify",
+    "subject": "Двухэтапная проверка отключена — Подоконник"
+  }
+]
