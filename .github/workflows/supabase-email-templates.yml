@@ -25,9 +25,12 @@ jobs:
             exit 1
           fi
           jq -n \
-            --arg subject "Подтвердите почту — Подоконник" \
-            --rawfile body supabase/templates/confirm-signup.html \
-            '{mailer_subjects_confirmation: $subject, mailer_templates_confirmation_content: $body}' > body.json
+            --arg confirm_subject "Подтвердите почту — Подоконник" \
+            --rawfile confirm_body supabase/templates/confirm-signup.html \
+            --arg recovery_subject "Восстановление пароля — Подоконник" \
+            --rawfile recovery_body supabase/templates/reset-password.html \
+            '{mailer_subjects_confirmation: $confirm_subject, mailer_templates_confirmation_content: $confirm_body,
+              mailer_subjects_recovery: $recovery_subject, mailer_templates_recovery_content: $recovery_body}' > body.json
           status=$(curl -sS -o response.json -w '%{http_code}' -X PATCH \
             "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
@@ -38,4 +41,4 @@ jobs:
             cat response.json
             exit 1
           fi
-          jq -r '.mailer_subjects_confirmation' response.json
+          jq -r '.mailer_subjects_confirmation, .mailer_subjects_recovery' response.json
