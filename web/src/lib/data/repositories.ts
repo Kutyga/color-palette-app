@@ -54,6 +54,8 @@ export interface SocialRepository {
   diaries(scope: DiaryScope): Promise<FeedPost[]>;
   /** Дневник одного растения — от первой записи к последней. */
   plantDiary(plantId: string): Promise<FeedPost[]>;
+  /** «Мой дневник»: все свои записи и советы, новые сверху. */
+  myDiary(): Promise<FeedPost[]>;
   /** Вопросы раздела «Помощь». */
   questions(filter: HelpFilter): Promise<FeedPost[]>;
   post(id: string): Promise<FeedPost | null>;

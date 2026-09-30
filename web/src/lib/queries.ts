@@ -93,6 +93,11 @@ export function usePlantDiary(plantId: string | null) {
   return useQuery({ queryKey: ["feed", "plant", plantId], queryFn: () => b.social.plantDiary(plantId!), enabled: !!plantId });
 }
 
+export function useMyDiary() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["feed", "mine"], queryFn: () => b.social.myDiary() });
+}
+
 export function useQuestions(filter: HelpFilter) {
   const b = useBackend();
   return useQuery({ queryKey: ["feed", "questions", filter], queryFn: () => b.social.questions(filter) });

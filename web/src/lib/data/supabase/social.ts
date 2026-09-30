@@ -57,6 +57,20 @@ export class SupabaseSocial implements SocialRepository {
     return this.hydrate(rows);
   }
 
+  async myDiary() {
+    const rows = check(
+      await this.db
+        .from("posts")
+        .select(POST_SELECT)
+        .eq("author_id", this.uid)
+        .in("kind", ["milestone", "photo"])
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ) as Row[];
+    return this.hydrate(rows);
+  }
+
   async plantDiary(plantId: string) {
     const rows = check(
       await this.db

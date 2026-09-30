@@ -2,7 +2,7 @@
 
 /** Мой профиль: данные, подписки, магазин, список «Хочу», уведомления и выход. */
 
-import { ChevronRight, LogOut, Pencil, Search, Trophy } from "lucide-react";
+import { BookOpen, ChevronRight, LogOut, Pencil, Search, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -79,6 +79,15 @@ function Profile() {
           <ChevronRight className="text-secondary size-5" aria-hidden />
         </Link>
       )}
+
+      <Link href="/profile/diary/" className="bg-surface flex items-center gap-4 rounded-[20px] p-5">
+        <BookOpen className="text-leaf size-6" aria-hidden />
+        <div className="flex-1">
+          <p className="font-semibold">Мой дневник</p>
+          <p className="text-secondary text-[15px]">Все записи о растениях и советы — по порядку</p>
+        </div>
+        <ChevronRight className="text-secondary size-5" aria-hidden />
+      </Link>
 
       <WishlistCard />
       <NotificationsCard />

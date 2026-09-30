@@ -87,7 +87,7 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
           aria-label={support.on ? "Убрать полив" : "Полить"}
           className={cx(
             "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[14px] font-semibold transition",
-            support.on ? "bg-water text-white" : "bg-water/10 text-water",
+            support.on ? "bg-leaf text-white" : "bg-muted text-label",
           )}
         >
           <Droplets className="size-4" aria-hidden /> {support.on ? "Полито" : "Полить"}
@@ -108,17 +108,17 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
   );
 }
 
-/** Совет или лайфхак: жёлтая карточка, крупный текст, «Пригодилось». */
+/** Совет или лайфхак: белая карточка с зелёной меткой, крупный текст, «Пригодилось». */
 function TipCard({ post, onComments }: { post: FeedPost; onComments: () => void }) {
   const support = useSupport(post);
   return (
-    <article className="overflow-hidden rounded-[20px] bg-amber-50 dark:bg-amber-400/10" aria-label={`Совет: ${post.authorDisplayName}`}>
+    <article className="bg-surface overflow-hidden rounded-[20px]" aria-label={`Совет: ${post.authorDisplayName}`}>
       <header className="flex items-center gap-2 px-4 pt-3">
         <AuthorLine post={post} size={36} />
         <FollowAuthor post={post} />
         <PostMenu post={post} />
       </header>
-      <p className="px-4 pt-3 text-[12px] font-bold tracking-wide text-amber-700 uppercase dark:text-amber-300">
+      <p className="bg-leaf/12 text-leaf mx-4 mt-3 inline-flex rounded-full px-3 py-1 text-[13px] font-semibold">
         💡 Совет{post.plantName && ` · ${post.plantName}`}
       </p>
       {post.text && <p className="px-4 pt-1 text-[17px] leading-snug font-semibold whitespace-pre-line">{post.text}</p>}
@@ -141,7 +141,7 @@ function TipCard({ post, onComments }: { post: FeedPost; onComments: () => void 
           aria-label={support.on ? "Убрать «Пригодилось»" : "Пригодилось"}
           className={cx(
             "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[14px] font-semibold transition",
-            support.on ? "bg-amber-500 text-white" : "bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-200",
+            support.on ? "bg-leaf text-white" : "bg-muted text-label",
           )}
         >
           <ThumbsUp className="size-4" aria-hidden /> Пригодилось
