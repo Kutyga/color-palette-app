@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { hasBackend } from "@/lib/config";
 import type { Backend } from "@/lib/data/repositories";
+import { registerServiceWorker } from "@/lib/push";
 import { supabase } from "@/lib/supabase";
 
 // Бэкенды грузятся по требованию: тестовые данные не попадают в загрузку рабочего сайта.
@@ -57,6 +58,16 @@ function writeDemoFlag(on: boolean) {
   }
 }
 
+/** Вышли из аккаунта — запомненные ссылки на фото (lib/data/supabase/shared.ts) больше не нужны. */
+function forgetPhotoUrls() {
+  try {
+    localStorage.removeItem("photo-urls");
+  } catch {
+    // нечего стирать
+  }
+  if (typeof caches !== "undefined") void caches.delete("photos-v1").catch(() => {}); // фото, сохранённые public/sw.js
+}
+
 /** Демо-режим убран с сайта: стираем оставшиеся у посетителей флаг и данные в браузере. */
 function forgetDemo() {
   try {
@@ -94,6 +105,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
       return () => void (cancelled = true);
     }
     forgetDemo();
+    registerServiceWorker();
     const db = supabase();
     let currentUser: string | null | undefined;
     // onAuthStateChange сразу сообщает текущую сессию (INITIAL_SESSION), затем входы и выходы.
@@ -106,6 +118,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
         const user = s.user;
         applyLater(async () => ({ status: "ready", backend: await loadSupabaseBackend(user.id), email: user.email ?? null }));
       } else {
+        forgetPhotoUrls();
         applyLater(async () => ({ status: "guest" }));
       }
     });

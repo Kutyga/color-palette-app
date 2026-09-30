@@ -57,17 +57,62 @@ export const profileFromRow = (r: Row): Profile => ({
 /**
  * Загрузка фото в JPEG. Байтами, а не Blob: Blob supabase-js шлёт формой с полем без имени,
  * а PHP на своём хостинге (SpaceWeb) такие поля выбрасывает. Supabase принимает оба варианта.
+ * Путь у каждого фото свой и не меняется — браузер может хранить его сколько угодно.
  */
 export async function uploadJpeg(db: SupabaseClient, bucket: string, path: string, jpeg: Blob) {
-  check(await db.storage.from(bucket).upload(path, await jpeg.arrayBuffer(), { contentType: "image/jpeg" }));
+  check(await db.storage.from(bucket).upload(path, await jpeg.arrayBuffer(), { contentType: "image/jpeg", cacheControl: "31536000" }));
 }
 
-/** Подписанные ссылки на приватные фото — одним запросом на весь список, живут час. */
+// Подписанные ссылки живут неделю и запоминаются в браузере: одинаковая ссылка — фото берётся
+// из кэша, а не скачивается из Supabase заново (раньше ссылка менялась каждый час, и одно фото
+// за сутки скачивалось десятки раз). Сам файл сервис-воркер хранит по пути, без ссылки (public/sw.js).
+const SIGN_TTL_S = 7 * 24 * 3600;
+/** Ссылку, которой осталось жить меньше суток, подписываем заново. */
+const RESIGN_BEFORE_MS = 24 * 3600 * 1000;
+/** Ключ в localStorage; при выходе из аккаунта его стирает components/session.tsx. */
+const URLS_KEY = "photo-urls";
+const MAX_URLS = 600;
+
+type UrlCache = Record<string, { url: string; exp: number }>;
+let urlCache: UrlCache | null = null;
+
+function loadUrls(): UrlCache {
+  if (urlCache) return urlCache;
+  try {
+    urlCache = JSON.parse(localStorage.getItem(URLS_KEY) ?? "{}") as UrlCache;
+  } catch {
+    urlCache = {};
+  }
+  return urlCache;
+}
+
+function saveUrls(cache: UrlCache, now: number) {
+  const alive = Object.entries(cache).filter(([, v]) => v.exp - now > RESIGN_BEFORE_MS);
+  urlCache = Object.fromEntries(alive.slice(-MAX_URLS));
+  try {
+    localStorage.setItem(URLS_KEY, JSON.stringify(urlCache));
+  } catch {
+    // хранилище недоступно или полно — ссылки проживут до перезагрузки
+  }
+}
+
+/** Подписанные ссылки на приватные фото: запомненные — сразу, недостающие — одним запросом. */
 export async function signedUrls(db: SupabaseClient, bucket: string, paths: string[]): Promise<Map<string, string>> {
   if (!paths.length) return new Map();
-  const { data } = await db.storage.from(bucket).createSignedUrls(paths, 3600);
-  // Через свой домен, если Supabase у пользователя заблокирован (картинки грузит браузер напрямую).
-  return new Map((data ?? []).flatMap((s) => (s.signedUrl && s.path ? [[s.path, viaProxy(s.signedUrl)] as [string, string]] : [])));
+  const now = Date.now();
+  const cache = loadUrls();
+  const key = (p: string) => `${bucket}/${p}`;
+  const missing = [...new Set(paths)].filter((p) => !((cache[key(p)]?.exp ?? 0) - now > RESIGN_BEFORE_MS));
+  if (missing.length) {
+    const { data } = await db.storage.from(bucket).createSignedUrls(missing, SIGN_TTL_S);
+    for (const s of data ?? []) {
+      if (s.signedUrl && s.path) cache[key(s.path)] = { url: s.signedUrl, exp: now + SIGN_TTL_S * 1000 };
+    }
+    saveUrls(cache, now);
+  }
+  // Фото всегда идут через свой домен: хостинг хранит копию каждого файла (spaceweb/sb-proxy) —
+  // из Supabase фото скачивается один раз, а не каждым посетителем.
+  return new Map(paths.flatMap((p) => (cache[key(p)] ? [[p, viaProxy(cache[key(p)].url, true)] as [string, string]] : [])));
 }
 
 // ---------------------------------------------------------------------------

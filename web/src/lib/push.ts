@@ -26,6 +26,14 @@ async function registration() {
   return (await navigator.serviceWorker.getRegistration(SW_SCOPE)) ?? navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE });
 }
 
+/** Сервис-воркер нужен всем, не только для push: он хранит скачанные фото (public/sw.js). */
+export function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }).catch(() => {
+    // не зарегистрировался (приватный режим, старый браузер) — фото просто качаются как раньше
+  });
+}
+
 /** Текущая подписка этого браузера на push или null. */
 export async function currentSubscription(): Promise<PushSubscription | null> {
   if (pushSupport() !== "supported") return null;
