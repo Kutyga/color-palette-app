@@ -3,11 +3,12 @@
 /** Розыгрыш: приз, условия, участие, итоги с проверкой честности и список участников. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronLeft, Circle, Gift, MapPin, Pin, Trophy, Truck, Users } from "lucide-react";
+import { CheckCircle2, Circle, Gift, MapPin, Pin, Trophy, Truck, Users } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { FairnessCard, ParticipantsList, PhaseLabel, WinnerPanel, WinnersCard } from "@/components/contests";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
@@ -109,9 +110,9 @@ function ContestView({ id }: { id: string }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pt-4">
-      <Link href="/feed/?tab=market" className="text-leaf inline-flex items-center gap-1 text-[17px]">
-        <ChevronLeft className="size-5" aria-hidden /> Барахолка
-      </Link>
+      <BackLink href="/feed/?tab=market" className="text-[17px]">
+        Барахолка
+      </BackLink>
 
       <Card className="overflow-hidden">
         {c.photoUrl && (

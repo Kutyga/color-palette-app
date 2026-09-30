@@ -17,11 +17,18 @@ import { Avatar, Button, EmptyState, ErrorNote, Field, PlantPhoto, Sheet, Spinne
 
 export const personHref = (username: string) => `/people/view/?u=${encodeURIComponent(username)}`;
 
-/** Подписаться / отписаться. Показывает результат сразу, откатывает при ошибке. */
+/**
+ * Подписаться / отписаться. Показывает результат сразу, откатывает при ошибке. Когда данные
+ * обновились (подписка из другого места, свежая загрузка), кнопка берёт новое значение —
+ * иначе в уже открывавшемся профиле или соседнем посте того же автора висело бы старое.
+ */
 export function FollowButton({ person, size = "md" }: { person: PersonCard; size?: "sm" | "md" }) {
   const follow = useFollow();
   const toast = useToast();
-  const [following, setFollowing] = useState(person.isFollowing);
+  const [state, setState] = useState({ from: person.isFollowing, value: person.isFollowing });
+  if (state.from !== person.isFollowing) setState({ from: person.isFollowing, value: person.isFollowing });
+  const following = state.value;
+  const setFollowing = (value: boolean) => setState((s) => ({ ...s, value }));
   if (person.isMe) return null;
   const toggle = () => {
     const next = !following;

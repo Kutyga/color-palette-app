@@ -2,11 +2,12 @@
 
 /** «Что с растением?»: проверка по фото и по симптомам (блоки — в components/diagnose). */
 
-import { ChevronLeft, MessageCircleQuestion, Stethoscope } from "lucide-react";
+import { MessageCircleQuestion, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { PhotoCheck, SymptomCheck } from "@/components/diagnose";
 import { Card, PageHeader, Spinner } from "@/components/ui";
 import { usePlantDetails } from "@/lib/queries";
@@ -38,9 +39,9 @@ export default function DiagnosePage() {
   return (
     <>
       <div className="pt-4">
-        <Link href="/garden/" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Коллекция
-        </Link>
+        <BackLink href="/garden/" className="text-[15px] font-medium">
+          Коллекция
+        </BackLink>
       </div>
       <PageHeader title="Что с растением?" actions={<Stethoscope className="text-alert size-7" aria-hidden />} />
       <RequireSession>

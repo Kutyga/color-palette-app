@@ -3,11 +3,12 @@
 /** Объявление барахолки: фото, условия, связь с автором, жалоба. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Flag, Leaf, MapPin, MessageCircle, Pencil, Store, Trash2, Truck } from "lucide-react";
+import { Flag, Leaf, MapPin, MessageCircle, Pencil, Store, Trash2, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { KindBadge, ReportSheet, listingPhoto } from "@/components/market";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
@@ -215,9 +216,9 @@ export default function ListingPage() {
   return (
     <>
       <div className="pt-4 pb-3">
-        <Link href="/feed/?tab=market" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Барахолка
-        </Link>
+        <BackLink href="/feed/?tab=market" className="text-[15px] font-medium">
+          Барахолка
+        </BackLink>
       </div>
       <RequireSession>
         <Suspense fallback={<Spinner />}>

@@ -18,6 +18,26 @@ function loadPositions(): Record<string, number> {
   }
 }
 
+const PREVIOUS_KEY = "previous-page";
+
+function rememberPrevious(key: string) {
+  try {
+    sessionStorage.setItem(PREVIOUS_KEY, key);
+  } catch {
+    // Без хранилища кнопки «‹ Раздел» просто открывают раздел заново.
+  }
+}
+
+/** Пришли ли на текущий экран прямо со страницы с этим адресом (сравнивается путь, без ?…). */
+export function cameFrom(href: string): boolean {
+  try {
+    const prev = sessionStorage.getItem(PREVIOUS_KEY);
+    return !!prev && prev.split("?")[0] === href.split("?")[0];
+  } catch {
+    return false;
+  }
+}
+
 export function useScrollMemory(ref: RefObject<HTMLElement | null>, pathname: string) {
   const positions = useRef<Record<string, number>>({});
   const page = useRef("");
@@ -57,6 +77,7 @@ export function useScrollMemory(ref: RefObject<HTMLElement | null>, pathname: st
     const el = ref.current;
     if (!el) return;
     const key = pathname + window.location.search;
+    if (page.current && page.current !== key) rememberPrevious(page.current);
     page.current = key;
     const target = historyNav.current ? (positions.current[key] ?? 0) : 0;
     historyNav.current = false;

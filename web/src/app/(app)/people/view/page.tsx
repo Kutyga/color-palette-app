@@ -2,11 +2,11 @@
 
 /** Профиль садовода: о себе, подписки, «Написать» и открытые растения. */
 
-import { ChevronLeft, Lock, Sprout, UserX } from "lucide-react";
-import Link from "next/link";
+import { Lock, Sprout, UserX } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { FollowButton, MessageButton, ProfileHeader, PublicPlantsGrid } from "@/components/people";
 import { EmptyState, ErrorNote, SectionTitle, Spinner } from "@/components/ui";
 import { usePerson, usePlantsOf } from "@/lib/queries";
@@ -59,9 +59,9 @@ function PersonProfile() {
 export default function PersonPage() {
   return (
     <div className="pt-4">
-      <Link href="/people/" className="text-leaf inline-flex items-center gap-1 text-[17px]">
-        <ChevronLeft className="size-5" aria-hidden /> Садоводы
-      </Link>
+      <BackLink href="/people/" className="text-[17px]">
+        Садоводы
+      </BackLink>
       <div className="mt-4">
         <RequireSession>
           <Suspense fallback={<Spinner />}>

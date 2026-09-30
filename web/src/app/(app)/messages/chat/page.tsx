@@ -3,11 +3,12 @@
 /** Переписка — личная или по объявлению: сообщения, отметка о прочтении. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Flag, MessageCircle, MoreHorizontal, Send, ShieldOff } from "lucide-react";
+import { Flag, MessageCircle, MoreHorizontal, Send, ShieldOff } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { RequireSession } from "@/components/app-shell";
+import { BackLink } from "@/components/back-link";
 import { ReportSheet, listingHref } from "@/components/market";
 import { personHref } from "@/components/people";
 import { useBackend } from "@/components/session";
@@ -238,9 +239,9 @@ export default function ChatPage() {
   return (
     <>
       <div className="pt-4 pb-3">
-        <Link href="/messages/" className="text-leaf inline-flex items-center gap-1 text-[15px] font-medium">
-          <ChevronLeft className="size-5" aria-hidden /> Сообщения
-        </Link>
+        <BackLink href="/messages/" className="text-[15px] font-medium">
+          Сообщения
+        </BackLink>
       </div>
       <RequireSession>
         <Suspense fallback={<Spinner />}>
