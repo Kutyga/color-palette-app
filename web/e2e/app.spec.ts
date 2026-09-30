@@ -456,9 +456,14 @@ test("демо: редактирование профиля, подписчик�
   await expect(page.getByRole("searchbox", { name: "Поиск садоводов" })).toHaveValue("свет");
   await page.goForward();
   await page.waitForURL("**/people/view/**");
+  // Подписка из списка видна и в уже открывавшемся профиле (кнопка не держит старое состояние).
+  await page.getByRole("link", { name: "Садоводы", exact: true }).click();
+  await page.waitForURL("**/people/");
   await page.getByRole("button", { name: "Подписаться на Света | суккуленты" }).click();
-  await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
   await expect(page.getByText("Вы подписались на Света | суккуленты")).toBeVisible();
+  await page.getByRole("link", { name: /Света \| суккуленты/ }).click();
+  await page.waitForURL("**/people/view/**");
+  await expect(page.getByRole("button", { name: "Отписаться от Света | суккуленты" })).toHaveText(/Вы подписаны/);
 
   // «Написать» из профиля → личный чат → ответ → в списке сообщений.
   await page.getByRole("button", { name: "Написать Света | суккуленты" }).click();
