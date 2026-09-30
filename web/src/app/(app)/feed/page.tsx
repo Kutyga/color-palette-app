@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { ContestPromo } from "@/components/contests";
-import { CommentsSheet, DiaryCard, QuestionRow } from "@/components/feed";
+import { CommentsSheet, DiaryCard, QuestionRow, Windowsill } from "@/components/feed";
 import { Market } from "@/components/market";
 import { News } from "@/components/news";
 import { Chip, EmptyState, ErrorNote, PageHeader, Spinner, cx } from "@/components/ui";
@@ -40,6 +40,8 @@ function Diaries({ onComments }: { onComments: (id: string) => void }) {
   const posts = filter === "tips" ? feed.data?.filter((p) => p.event === "tip") : feed.data;
   return (
     <div className="mx-auto max-w-xl">
+      {feed.data && <Windowsill posts={feed.data} />}
+      <ContestPromo compact className="mb-4" />
       <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
         <Chip active={filter === "all"} onClick={() => setFilter("all")}>
           Все садоводы
@@ -188,7 +190,7 @@ function FeedInner() {
           ))}
         </div>
       </div>
-      {tab !== "market" && <ContestPromo compact className="mb-4" />}
+      {(tab === "help" || tab === "news") && <ContestPromo compact className="mb-4" />}
       {tab === "diaries" && <Diaries onComments={setCommentsFor} />}
       {tab === "help" && <Help />}
       {tab === "market" && <Market />}

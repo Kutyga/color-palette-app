@@ -152,6 +152,13 @@ test("демо: дневники — поддержка, комментарий,
   await page.getByRole("button", { name: "Закрыть" }).click();
   await expect(annaPost.getByRole("button", { name: "Комментарии" })).toContainText("3");
 
+  // «На подоконниках»: растения из свежих записей; горшок ведёт в дневник растения.
+  const sill = page.getByRole("region", { name: "На подоконниках" });
+  await expect(sill.getByRole("link")).not.toHaveCount(0);
+  await sill.getByRole("link", { name: /Монстера Бублик/ }).click();
+  await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
+  await page.goBack();
+
   // Сообщество открывается на «Все садоводы»; подписка оттуда добавляет автора в «Мои подписки».
   await expect(page.getByRole("button", { name: "Все садоводы" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Подписаться на Фикус Папа" }).click();
