@@ -178,6 +178,18 @@ test("демо: дневники — поддержка, комментарий,
   await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
   await expect(page.getByText("Монстера Мося").first()).toBeVisible();
   await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
+
+  // Совет для всех: без растения и фото, только текст.
+  await page.goto("/feed/new/?type=diary");
+  await page.getByRole("tab", { name: "Совет" }).click();
+  await page.getByRole("textbox", { name: /^Совет/ }).fill("Коротко");
+  await expect(page.getByRole("button", { name: "Опубликовать совет" })).toBeDisabled();
+  await page.getByRole("textbox", { name: /^Совет/ }).fill("Воду для полива отстаиваю в бутылке у батареи — она сразу тёплая.");
+  await page.getByRole("button", { name: "Опубликовать совет" }).click();
+  await page.waitForURL("**/feed/?tab=diaries");
+  const tip = page.locator("article").filter({ hasText: "Воду для полива отстаиваю" });
+  await expect(tip.getByText("💡 Совет")).toBeVisible();
+  await expect(tip.getByRole("link", { name: "Дневник растения" })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
