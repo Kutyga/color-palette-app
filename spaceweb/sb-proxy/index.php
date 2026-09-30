@@ -11,11 +11,54 @@ declare(strict_types=1);
 /**
  * Фото из приватных бакетов хранятся копией на хостинге (photo-cache/): Supabase отдаёт каждый
  * файл один раз, дальше — с диска хостинга, байт в байт (без пересжатия). Трафик Supabase
- * ограничен, место на хостинге — нет. Права не меняются: ссылку с токеном каждый раз проверяет
- * сам Supabase — запросом первого байта файла; просроченная или чужая ссылка не откроет копию.
+ * ограничен, место на хостинге — нет. Права не меняются: ссылку с токеном проверяет сам Supabase
+ * (при первой встрече — запросом первого байта), просроченная или чужая ссылка копию не откроет.
+ * Проверенную ссылку помним до конца её срока (tokens/): Supabase не отзывает подписанные ссылки
+ * раньше срока, а повторная проверка стоила бы секунду на каждое фото.
  */
-const PHOTO_RE = '#^storage/v1/object/sign/((?:plant-photos|post-photos|listing-photos|avatars)/[A-Za-z0-9/_.-]+\.jpg)\?token=[A-Za-z0-9._-]+$#';
+const PHOTO_RE = '#^storage/v1/object/sign/((?:plant-photos|post-photos|listing-photos|avatars)/[A-Za-z0-9/_.-]+\.jpg)\?token=([A-Za-z0-9._-]+)$#';
 const PHOTO_DIR = __DIR__ . '/photo-cache';
+const TOKEN_DIR = PHOTO_DIR . '/tokens';
+
+function photoDirs(): void
+{
+    if (!is_dir(TOKEN_DIR)) {
+        @mkdir(TOKEN_DIR, 0750, true);
+        @file_put_contents(PHOTO_DIR . '/.htaccess', "Require all denied\n");
+    }
+}
+
+/** Эту ссылку на это фото Supabase уже подтвердил, и срок её не вышел. */
+function knownToken(string $token, string $key): bool
+{
+    $saved = @file_get_contents(TOKEN_DIR . '/' . sha1($token));
+    if ($saved === false) {
+        return false;
+    }
+    [$exp, $savedKey] = array_pad(explode(' ', $saved, 2), 2, '');
+    return (int) $exp > time() && hash_equals($savedKey, $key);
+}
+
+/** Запомнить подтверждённую ссылку до её срока (срок и путь — из самого токена). */
+function rememberToken(string $token, string $key): void
+{
+    $part = explode('.', $token)[1] ?? '';
+    $claims = json_decode((string) base64_decode(strtr($part, '-_', '+/'), false), true);
+    $exp = (int) ($claims['exp'] ?? 0);
+    if ($exp <= time() || ($claims['url'] ?? '') !== $key) {
+        return;
+    }
+    photoDirs();
+    @file_put_contents(TOKEN_DIR . '/' . sha1($token), $exp . ' ' . $key);
+    // Изредка убираем записи о просроченных ссылках.
+    if (mt_rand(1, 200) === 1) {
+        foreach ((array) glob(TOKEN_DIR . '/*') as $f) {
+            if (is_string($f) && filemtime($f) < time() - 8 * 86400) {
+                @unlink($f);
+            }
+        }
+    }
+}
 
 /** Спросить Supabase, действительна ли ссылка: скачивается только первый байт. */
 function photoStatus(string $url): int
@@ -34,13 +77,14 @@ function photoStatus(string $url): int
     return $code;
 }
 
-function sendPhoto(string $file): void
+function photoHeaders(?int $length): void
 {
     header('Content-Type: image/jpeg');
-    header('Content-Length: ' . filesize($file));
+    if ($length !== null) {
+        header('Content-Length: ' . $length);
+    }
     // Фото по одному пути не меняется; хранить может только этот браузер.
     header('Cache-Control: private, max-age=31536000, immutable');
-    readfile($file);
 }
 
 function photoError(int $code): void
@@ -50,63 +94,87 @@ function photoError(int $code): void
     echo json_encode(['error' => 'photo_unavailable']);
 }
 
-function servePhoto(string $upstream, string $path, string $key): void
+function servePhoto(string $upstream, string $path, string $key, string $token): void
 {
     $url = $upstream . '/' . $path;
     $file = PHOTO_DIR . '/' . sha1($key) . '.jpg';
     if (is_file($file)) {
-        $code = photoStatus($url);
-        if ($code === 200 || $code === 206) {
-            sendPhoto($file);
-        } else {
-            photoError($code);
+        if (!knownToken($token, $key)) {
+            $code = photoStatus($url);
+            if ($code !== 200 && $code !== 206) {
+                photoError($code);
+                return;
+            }
+            rememberToken($token, $key);
         }
+        photoHeaders((int) filesize($file));
+        readfile($file);
         return;
     }
 
-    if (!is_dir(PHOTO_DIR)) {
-        @mkdir(PHOTO_DIR, 0750, true);
-        @file_put_contents(PHOTO_DIR . '/.htaccess', "Require all denied\n");
-    }
+    // Первая встреча с фото: отдаём по мере скачивания из Supabase и одновременно пишем копию.
+    photoDirs();
     $tmp = @tempnam(PHOTO_DIR, 'dl');
     $out = $tmp === false ? false : fopen($tmp, 'wb');
-    if ($out === false) {
-        // Диск недоступен — отдаём как обычный прокси, без копии.
-        $tmp = null;
-        $out = fopen('php://temp', 'w+b');
-    }
+    $state = ['code' => 0, 'type' => '', 'length' => null, 'started' => false, 'body' => ''];
     $ch = curl_init($url);
-    curl_setopt_array($ch, [CURLOPT_FILE => $out, CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_TIMEOUT => 60]);
+    curl_setopt_array($ch, [
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 60,
+        CURLOPT_HEADERFUNCTION => function ($ch, string $line) use (&$state) {
+            if (preg_match('#^HTTP/\S+\s+(\d{3})#', $line, $m)) {
+                $state['code'] = (int) $m[1];
+            } elseif (stripos($line, 'content-type:') === 0) {
+                $state['type'] = trim(substr($line, 13));
+            } elseif (stripos($line, 'content-length:') === 0) {
+                $state['length'] = (int) trim(substr($line, 15));
+            }
+            return strlen($line);
+        },
+        CURLOPT_WRITEFUNCTION => function ($ch, string $chunk) use (&$state, $out) {
+            $ok = $state['code'] === 200 && str_starts_with($state['type'], 'image/');
+            if (!$ok) {
+                $state['body'] .= $chunk; // ошибка Supabase — короткий JSON
+                return strlen($chunk);
+            }
+            if (!$state['started']) {
+                $state['started'] = true;
+                photoHeaders($state['length']);
+            }
+            if ($out !== false) {
+                fwrite($out, $chunk);
+            }
+            echo $chunk;
+            flush();
+            return strlen($chunk);
+        },
+    ]);
     curl_exec($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    $type = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
     $failed = curl_errno($ch) !== 0;
     curl_close($ch);
-
-    if ($failed || $code !== 200 || !str_starts_with($type, 'image/')) {
+    if ($out !== false) {
         fclose($out);
-        if ($tmp !== null) {
+    }
+
+    if (!$state['started']) {
+        if ($tmp !== false) {
             @unlink($tmp);
         }
-        photoError($failed ? 502 : $code);
+        photoError($failed ? 502 : $state['code']);
         return;
     }
-    if ($tmp === null) {
-        rewind($out);
-        header('Content-Type: image/jpeg');
-        header('Cache-Control: private, max-age=31536000, immutable');
-        fpassthru($out);
-        fclose($out);
+    if ($failed || $tmp === false || ($state['length'] !== null && filesize($tmp) !== $state['length'])) {
+        if ($tmp !== false) {
+            @unlink($tmp); // оборвалось — неполную копию не храним
+        }
         return;
     }
-    fclose($out);
     @chmod($tmp, 0640);
-    if (!@rename($tmp, $file)) {
+    if (@rename($tmp, $file)) {
+        rememberToken($token, $key);
+    } else {
         @unlink($tmp);
-        photoError(502);
-        return;
     }
-    sendPhoto($file);
 }
 
 $upstream = rtrim((string) (require __DIR__ . '/upstream.php'), '/');
@@ -128,7 +196,7 @@ if ($method === 'OPTIONS') {
 }
 
 if ($method === 'GET' && preg_match(PHOTO_RE, $path, $m) && !str_contains($m[1], '..')) {
-    servePhoto($upstream, $path, $m[1]);
+    servePhoto($upstream, $path, $m[1], $m[2]);
     exit;
 }
 
