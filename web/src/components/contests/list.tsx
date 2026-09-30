@@ -126,7 +126,8 @@ function promoHidden(id: string): boolean {
  * Приглашение в закреплённый конкурс «Подоконника» — на «Сегодня» и в «Сообществе», чтобы о нём
  * узнали и те, кто не заходит в барахолку. Не показывается, если человек уже участвует или закрыл карточку.
  */
-export function ContestPromo({ className }: { className?: string }) {
+/** Закреплённый розыгрыш: карточка на «Сегодня»; compact — тонкая полоска над лентой сообщества. */
+export function ContestPromo({ className, compact = false }: { className?: string; compact?: boolean }) {
   const list = useContests();
   const [hidden, setHidden] = useState<string | null>(null);
   const isClient = useIsClient();
@@ -139,6 +140,30 @@ export function ContestPromo({ className }: { className?: string }) {
       // приватный режим — карточка просто появится снова
     }
     setHidden(c!.id);
+  }
+  if (compact) {
+    return (
+      <section
+        aria-label="Розыгрыш"
+        className={cx("from-leaf/12 to-mist/10 flex items-center gap-2 rounded-2xl bg-gradient-to-r py-1 pr-1 pl-3 text-[14px]", className)}
+      >
+        <Link href={contestHref(c.id)} className="flex min-w-0 flex-1 items-center gap-2 py-1.5">
+          <Gift className="text-leaf size-4 shrink-0" aria-hidden />
+          <span className="min-w-0 truncate">
+            <b className="text-leaf">Розыгрыш</b> · {c.prize}
+          </span>
+          <span className="text-leaf shrink-0 font-semibold">Участвовать →</span>
+        </Link>
+        <button
+          type="button"
+          onClick={hide}
+          aria-label="Скрыть розыгрыш"
+          className="text-secondary grid size-8 shrink-0 place-items-center"
+        >
+          <X className="size-4" />
+        </button>
+      </section>
+    );
   }
   return (
     <section aria-label="Розыгрыш" className={cx("bg-leaf/10 relative flex gap-3 rounded-[20px] p-3 pr-10", className)}>

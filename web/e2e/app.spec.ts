@@ -141,8 +141,8 @@ test("демо: дневники — поддержка, комментарий,
   await expect(annaPost).toBeVisible();
   await expect(annaPost.getByText("Новый лист")).toBeVisible();
 
-  await annaPost.getByRole("button", { name: "Поддержать" }).click();
-  await expect(annaPost.getByRole("button", { name: "Убрать поддержку" })).toContainText("129");
+  await annaPost.getByRole("button", { name: "Полить" }).click();
+  await expect(annaPost.getByRole("button", { name: "Убрать полив" })).toContainText("129");
 
   await annaPost.getByRole("button", { name: "Комментарии" }).click();
   await expect(page.getByText("Какая красота! Чем подкармливаете?")).toBeVisible();
