@@ -1,6 +1,10 @@
 "use client";
 
-/** Сессия и данные: выбор бэкенда (Supabase или демо), кэш запросов, контекст для компонентов. */
+/**
+ * Сессия и данные: вход через Supabase, кэш запросов, контекст для компонентов.
+ * Тестовый режим (данные в браузере, lib/data/demo) есть только в сборке без сервера — для
+ * автотестов; на рабочем сайте его нет.
+ */
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -8,8 +12,7 @@ import { hasBackend } from "@/lib/config";
 import type { Backend } from "@/lib/data/repositories";
 import { supabase } from "@/lib/supabase";
 
-// Бэкенды грузятся по требованию: демо-данные не нужны тем, кто вошёл, и наоборот — так первая
-// загрузка любой страницы легче.
+// Бэкенды грузятся по требованию: тестовые данные не попадают в загрузку рабочего сайта.
 async function loadDemoBackend(): Promise<Backend> {
   const { demoBackend, localDemoStorage } = await import("@/lib/data/demo");
   return demoBackend(localDemoStorage());
@@ -24,8 +27,9 @@ export type SessionState = { status: "loading" } | { status: "guest" } | { statu
 
 interface SessionApi {
   session: SessionState;
+  /** Тестовый режим без сервера — только в сборке без Supabase (автотесты). */
   startDemo(): Promise<void>;
-  /** Выход из аккаунта или из демо-режима. */
+  /** Выход из аккаунта или из тестового режима. */
   signOut(): Promise<void>;
   /** Вход по ссылке «сбросить пароль» из письма: сначала нужно задать новый пароль. */
   passwordRecovery: boolean;
@@ -34,6 +38,7 @@ interface SessionApi {
 
 const SessionContext = createContext<SessionApi | null>(null);
 const DEMO_FLAG = "moi-sad-mode";
+const DEMO_DATA = "moi-sad-demo";
 
 function readDemoFlag() {
   try {
@@ -48,7 +53,17 @@ function writeDemoFlag(on: boolean) {
     if (on) localStorage.setItem(DEMO_FLAG, "demo");
     else localStorage.removeItem(DEMO_FLAG);
   } catch {
-    // Хранилище недоступно (приватный режим) — демо проживёт до перезагрузки.
+    // Хранилище недоступно (приватный режим) — тестовый режим проживёт до перезагрузки.
+  }
+}
+
+/** Демо-режим убран с сайта: стираем оставшиеся у посетителей флаг и данные в браузере. */
+function forgetDemo() {
+  try {
+    localStorage.removeItem(DEMO_FLAG);
+    localStorage.removeItem(DEMO_DATA);
+  } catch {
+    // Хранилище недоступно — стирать нечего.
   }
 }
 
@@ -78,6 +93,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
       offline();
       return () => void (cancelled = true);
     }
+    forgetDemo();
     const db = supabase();
     let currentUser: string | null | undefined;
     // onAuthStateChange сразу сообщает текущую сессию (INITIAL_SESSION), затем входы и выходы.
@@ -87,11 +103,10 @@ function SessionProvider({ children }: { children: ReactNode }) {
       if (uid === currentUser) return; // обновление токена — пересоздавать ничего не нужно
       currentUser = uid;
       if (s) {
-        writeDemoFlag(false); // вошли в настоящий аккаунт — демо больше не нужно
         const user = s.user;
         applyLater(async () => ({ status: "ready", backend: await loadSupabaseBackend(user.id), email: user.email ?? null }));
       } else {
-        offline();
+        applyLater(async () => ({ status: "guest" }));
       }
     });
     return () => {
@@ -101,6 +116,7 @@ function SessionProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const startDemo = useCallback(async () => {
+    if (hasBackend) return;
     writeDemoFlag(true);
     const backend = await loadDemoBackend();
     queryClient.clear();

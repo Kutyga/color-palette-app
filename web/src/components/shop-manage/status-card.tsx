@@ -35,7 +35,9 @@ export function StatusCard({ shop, onEdit }: { shop: Shop; onEdit: () => void })
           </p>
           <p className="text-secondary mt-1 text-[15px]">{STATUS_TEXT[shop.status]}</p>
           {shop.reviewNote && <p className="bg-muted mt-2 rounded-xl px-3 py-2 text-[15px]">Комментарий модератора: {shop.reviewNote}</p>}
-          {isDemo && shop.status === "pending" && <p className="text-secondary mt-2 text-[13px]">В демо-режиме заявки не проверяются.</p>}
+          {isDemo && shop.status === "pending" && (
+            <p className="text-secondary mt-2 text-[13px]">В тестовом режиме заявки не проверяются.</p>
+          )}
         </div>
       </div>
       <div className="mt-4 flex gap-2">

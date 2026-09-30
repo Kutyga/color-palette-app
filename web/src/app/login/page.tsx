@@ -237,23 +237,22 @@ function LoginForm() {
         </form>
       ) : (
         <p className="bg-muted text-secondary mt-8 rounded-xl px-4 py-3 text-[15px]">
-          Сервер не подключён в этой сборке — доступен демо-режим.
+          Сервер не подключён в этой сборке — доступен только тестовый режим.
         </p>
       )}
 
-      <div className="text-secondary mt-6 flex items-center gap-3 text-[13px]">
-        <span className="bg-separator h-px flex-1" /> или <span className="bg-separator h-px flex-1" />
-      </div>
-      <Button
-        variant="secondary"
-        className="mt-6 w-full"
-        onClick={async () => {
-          await startDemo();
-          router.push("/today/");
-        }}
-      >
-        Попробовать без регистрации
-      </Button>
+      {!hasBackend && (
+        <Button
+          variant="secondary"
+          className="mt-6 w-full"
+          onClick={async () => {
+            await startDemo();
+            router.push("/today/");
+          }}
+        >
+          Тестовый режим
+        </Button>
+      )}
     </>
   );
 }

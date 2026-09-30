@@ -1,10 +1,11 @@
 "use client";
 
-/** Кнопки главной: вход, демо-режим; вошедшего пользователя сразу ведём в приложение. */
+/** Кнопки главной: регистрация (и тестовый режим в сборке без сервера); вошедшего сразу ведём в приложение. */
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { hasBackend } from "@/lib/config";
 import { useSession } from "./session";
 import { Button } from "./ui";
 
@@ -30,18 +31,20 @@ export function HomeActions() {
       >
         Начать бесплатно
       </Link>
-      <Button
-        variant="ghost"
-        className="min-h-12 text-[17px]"
-        loading={busy}
-        onClick={async () => {
-          setBusy(true);
-          await startDemo();
-          router.push("/today/");
-        }}
-      >
-        Попробовать без регистрации
-      </Button>
+      {!hasBackend && (
+        <Button
+          variant="ghost"
+          className="min-h-12 text-[17px]"
+          loading={busy}
+          onClick={async () => {
+            setBusy(true);
+            await startDemo();
+            router.push("/today/");
+          }}
+        >
+          Тестовый режим
+        </Button>
+      )}
     </div>
   );
 }

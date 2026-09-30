@@ -1,4 +1,4 @@
-/** Сквозные тесты сайта в демо-режиме: основные сценарии на телефоне и компьютере (Playwright). */
+/** Сквозные тесты сайта в тестовом режиме (сборка без сервера, данные в браузере): основные сценарии на телефоне и компьютере. */
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -11,7 +11,7 @@ function trackErrors(page: Page) {
 
 async function startDemo(page: Page) {
   await page.goto("/");
-  await page.getByRole("button", { name: "Попробовать без регистрации" }).click();
+  await page.getByRole("button", { name: "Тестовый режим" }).click();
   await page.waitForURL("**/today/");
 }
 
@@ -367,7 +367,7 @@ test("демо: достижения и выход из демо-режима", 
   await expect(page.getByText("Откройте магазин — появятся награды магазина.")).toBeVisible();
 
   await page.goto("/profile/");
-  await page.getByRole("button", { name: "Выйти из демо-режима" }).click();
+  await page.getByRole("button", { name: "Выйти из тестового режима" }).click();
   await page.waitForURL((url) => url.pathname.endsWith("/"));
   await page.goto("/garden/");
   await page.waitForURL("**/login/**");

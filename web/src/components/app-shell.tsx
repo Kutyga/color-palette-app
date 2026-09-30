@@ -67,7 +67,7 @@ function UnreadBadge({ className }: { className?: string }) {
   );
 }
 
-/** Значок «Сообщения» в шапке — только для вошедших (и демо). */
+/** Значок «Сообщения» в шапке — только для вошедших. */
 function MessagesButton() {
   const { session } = useSession();
   if (session.status !== "ready") return null;
@@ -157,7 +157,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ProfileButton />
           {session.status === "ready" && (
             <Link href="/profile/" className="min-w-0 text-[15px]">
-              <span className="block truncate font-medium">{isDemo ? "Демо-режим" : session.email}</span>
+              <span className="block truncate font-medium">{isDemo ? "Тестовый режим" : session.email}</span>
               <span className="text-secondary block text-[13px]">Профиль</span>
             </Link>
           )}
@@ -175,10 +175,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         {isDemo && (
           <div className="bg-leaf/10 text-leaf px-4 py-2 text-center text-[13px]">
-            Демо-режим: данные хранятся только в этом браузере.{" "}
-            <Link href="/login/" className="font-semibold underline">
-              Зарегистрироваться
-            </Link>
+            Тестовый режим: данные хранятся только в этом браузере.
           </div>
         )}
         <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 md:pb-12">{children}</main>
@@ -219,7 +216,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-/** Страницы только для вошедших (или демо): гостя отправляем на вход. */
+/** Страницы только для вошедших: гостя отправляем на вход. */
 export function RequireSession({ children }: { children: ReactNode }) {
   const { session } = useSession();
   const router = useRouter();
