@@ -56,6 +56,10 @@ export class DemoSocial implements SocialRepository {
     return this.all.filter((p) => p.kind === "diary" && (scope === "all" || p.mine || following.includes(p.authorId)));
   }
 
+  async myDiary() {
+    return this.all.filter((p) => p.kind === "diary" && p.mine);
+  }
+
   async plantDiary(plantId: string) {
     return this.all.filter((p) => p.kind === "diary" && p.plantId === plantId).reverse();
   }

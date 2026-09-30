@@ -197,6 +197,16 @@ test("демо: дневники — поддержка, комментарий,
   const tip = page.locator("article").filter({ hasText: "Воду для полива отстаиваю" });
   await expect(tip.getByText("💡 Совет")).toBeVisible();
   await expect(tip.getByRole("link", { name: "Дневник растения" })).toHaveCount(0);
+
+  // «Мой дневник» в профиле: свои записи и советы, фильтр по растению.
+  await page.goto("/profile/");
+  await page.getByRole("link", { name: /Мой дневник/ }).click();
+  await expect(page.getByRole("heading", { name: "Мой дневник" })).toBeVisible();
+  await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
+  await expect(page.getByText("Воду для полива отстаиваю")).toBeVisible();
+  await page.getByRole("button", { name: "Монстера Мося" }).click();
+  await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
+  await expect(page.getByText("Воду для полива отстаиваю")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
