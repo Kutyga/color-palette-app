@@ -53,8 +53,8 @@ export function Chip({ active, onClick, children }: { active?: boolean; onClick?
       onClick={onClick}
       aria-pressed={active}
       className={cx(
-        "shrink-0 rounded-full px-4 py-2 text-[13px] font-medium transition",
-        active ? "bg-label text-bg" : "bg-muted text-label hover:brightness-95",
+        "shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
+        active ? "bg-leaf text-white" : "bg-muted text-label hover:brightness-95",
       )}
     >
       {children}
