@@ -1,0 +1,91 @@
+<!doctype html>
+<!--
+  Письмо «Подтвердите почту» для Supabase Auth.
+  Тема: Подтвердите почту — Подоконник
+  Вставляется вручную: Supabase → Authentication → Emails → Templates → Confirm signup.
+  Вёрстка таблицами и инлайн-стилями — так письмо одинаково выглядит в Gmail, Яндексе, Mail.ru и Outlook.
+-->
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Подтвердите почту — Подоконник</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f1f1ec;">
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+      Остался один шаг — подтвердите почту, и ваш сад на подоконнике готов.
+    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f1ec;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+            <!-- Логотип -->
+            <tr>
+              <td align="center" style="padding-bottom:20px;">
+                <img src="https://podokonnikapp.ru/icon-192.png" width="64" height="64" alt="Подоконник" style="display:block; border:0; border-radius:16px;" />
+              </td>
+            </tr>
+            <!-- Карточка -->
+            <tr>
+              <td style="background-color:#ffffff; border-radius:24px; overflow:hidden;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color:#2e7d4f; background-image:linear-gradient(135deg,#2e7d4f,#12a3a3); padding:36px 32px; text-align:center; border-radius:24px 24px 0 0;">
+                      <div style="font-size:44px; line-height:1;">🌱</div>
+                      <h1 style="margin:16px 0 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; font-size:26px; line-height:1.25; font-weight:700; color:#ffffff;">
+                        Добро пожаловать в&nbsp;«Подоконник»!
+                      </h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:32px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#1c1c1e;">
+                      <p style="margin:0 0 16px; font-size:17px; line-height:1.5;">
+                        Остался один шаг — подтвердите, что это ваша почта. После этого вы сразу окажетесь в&nbsp;своём саду.
+                      </p>
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td align="center" style="padding:12px 0 24px;">
+                            <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block; background-color:#2e7d4f; color:#ffffff; font-size:17px; font-weight:600; text-decoration:none; padding:16px 36px; border-radius:14px;">
+                              Подтвердить почту
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      <!-- Что ждёт внутри -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fafaf7; border-radius:16px;">
+                        <tr>
+                          <td style="padding:20px 20px 8px; font-size:15px; font-weight:600; color:#1c1c1e;">Что вас ждёт:</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:0 20px 20px; font-size:15px; line-height:1.7; color:#1c1c1e;">
+                            💧 Напоминания о поливе и подкормке<br />
+                            📖 Советы по уходу для 268 видов растений<br />
+                            🩺 Помощь, если растение заболело<br />
+                            👋 Сообщество садоводов и конкурсы
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:24px 0 0; font-size:13px; line-height:1.5; color:#6e6e73;">
+                        Кнопка не нажимается? Скопируйте ссылку в браузер:<br />
+                        <a href="{{ .ConfirmationURL }}" style="color:#2e7d4f; word-break:break-all;">{{ .ConfirmationURL }}</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- Подвал -->
+            <tr>
+              <td align="center" style="padding:24px 16px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; font-size:13px; line-height:1.5; color:#6e6e73;">
+                Вы получили это письмо, потому что кто-то указал {{ .Email }} при регистрации в&nbsp;«Подоконнике».<br />
+                Если это были не вы — просто удалите письмо.<br /><br />
+                <a href="https://podokonnikapp.ru" style="color:#2e7d4f; text-decoration:none;">podokonnikapp.ru</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
