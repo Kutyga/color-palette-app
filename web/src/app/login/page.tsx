@@ -22,6 +22,9 @@ function authMessage(e: unknown): string {
   if (/email not confirmed/i.test(m)) return "Почта ещё не подтверждена — откройте ссылку из письма.";
   if (/already registered/i.test(m)) return "Такой пользователь уже есть — войдите.";
   if (/password should be at least/i.test(m)) return "Пароль — минимум 6 символов.";
+  const wait = /after (\d+) seconds?/i.exec(m);
+  if (wait) return `Письмо уже отправлено — повторить можно через ${wait[1]} сек. Проверьте «Входящие» и «Спам».`;
+  if (/email rate limit/i.test(m)) return "Сейчас не получается отправить письмо — попробуйте через несколько минут.";
   if (/rate limit|for security purposes/i.test(m)) return "Слишком много попыток, подождите минуту.";
   if (/different from the old password/i.test(m)) return "Новый пароль должен отличаться от старого.";
   if (/database error saving new user/i.test(m)) return "Это имя уже занято — выберите другое.";
@@ -47,6 +50,8 @@ function LoginForm() {
     if (isLive && !passwordRecovery) router.replace(next);
   }, [isLive, passwordRecovery, next, router]);
 
+  const redirectTo = () => `${window.location.origin}${BASE_PATH}/login/`;
+
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -55,7 +60,7 @@ function LoginForm() {
       const auth = supabase().auth;
       if (mode === "forgot") {
         const { error } = await auth.resetPasswordForEmail(email.trim(), {
-          redirectTo: `${window.location.origin}${BASE_PATH}/login/`,
+          redirectTo: redirectTo(),
         });
         if (error) throw error;
         setResetSentTo(email.trim());
@@ -68,7 +73,7 @@ function LoginForm() {
           password,
           options: {
             data: username ? { username: username.trim().toLowerCase() } : undefined,
-            emailRedirectTo: `${window.location.origin}${BASE_PATH}/login/`,
+            emailRedirectTo: redirectTo(),
           },
         });
         if (error) throw error;
@@ -101,6 +106,12 @@ function LoginForm() {
           Если на <b className="text-label">{resetSentTo}</b> есть аккаунт, туда пришло письмо со ссылкой. Откройте её — и задайте новый
           пароль. Письма нет несколько минут — загляните в «Спам».
         </p>
+        <ResendButton
+          send={async () => {
+            const { error } = await supabase().auth.resetPasswordForEmail(resetSentTo, { redirectTo: redirectTo() });
+            if (error) throw error;
+          }}
+        />
         <Button
           variant="secondary"
           className="mt-6"
@@ -122,7 +133,14 @@ function LoginForm() {
         <h1 className="mt-4 text-[28px] font-bold">Проверьте почту</h1>
         <p className="text-secondary mt-2">
           Мы отправили письмо на <b className="text-label">{sentTo}</b>. Откройте ссылку из письма — и вы сразу окажетесь в своём саду.
+          Письма нет несколько минут — загляните в «Спам».
         </p>
+        <ResendButton
+          send={async () => {
+            const { error } = await supabase().auth.resend({ type: "signup", email: sentTo, options: { emailRedirectTo: redirectTo() } });
+            if (error) throw error;
+          }}
+        />
         <Button
           variant="secondary"
           className="mt-6"
@@ -237,6 +255,54 @@ function LoginForm() {
         Попробовать без регистрации
       </Button>
     </>
+  );
+}
+
+/** Supabase шлёт на один адрес не чаще раза в RESEND_AFTER секунд (Auth → smtp_max_frequency). */
+const RESEND_AFTER = 30;
+
+/** «Отправить ещё раз» с обратным отсчётом — чтобы не упираться в ограничение Supabase на частоту писем. */
+function ResendButton({ send }: { send: () => Promise<void> }) {
+  const [left, setLeft] = useState(RESEND_AFTER);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  useEffect(() => {
+    if (left <= 0) return;
+    const t = setTimeout(() => setLeft(left - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left]);
+
+  return (
+    <div className="mt-4">
+      <Button
+        variant="secondary"
+        className="w-full"
+        disabled={left > 0}
+        loading={busy}
+        onClick={async () => {
+          setBusy(true);
+          setNote(null);
+          try {
+            await send();
+            setNote("Отправили ещё одно письмо.");
+            setLeft(RESEND_AFTER);
+          } catch (err) {
+            setNote(authMessage(err));
+            const wait = /after (\d+) seconds?/i.exec(err instanceof Error ? err.message : String(err));
+            if (wait) setLeft(Number(wait[1]));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {left > 0 ? `Отправить ещё раз через ${left} сек` : "Отправить письмо ещё раз"}
+      </Button>
+      {note && (
+        <p className="text-secondary mt-2 text-[14px]" role="status">
+          {note}
+        </p>
+      )}
+    </div>
   );
 }
 

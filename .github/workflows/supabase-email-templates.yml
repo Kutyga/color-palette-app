@@ -1,4 +1,5 @@
 # Шаблоны писем Supabase Auth из supabase/templates/ → настройки проекта через Management API.
+# smtp_max_frequency — не чаще одного письма на адрес раз в 30 с (RESEND_AFTER в web/src/app/login/page.tsx).
 # Нужен секрет SUPABASE_ACCESS_TOKEN (personal access token из supabase.com/dashboard/account/tokens).
 name: supabase-email-templates
 
@@ -30,7 +31,8 @@ jobs:
             --arg recovery_subject "Восстановление пароля — Подоконник" \
             --rawfile recovery_body supabase/templates/reset-password.html \
             '{mailer_subjects_confirmation: $confirm_subject, mailer_templates_confirmation_content: $confirm_body,
-              mailer_subjects_recovery: $recovery_subject, mailer_templates_recovery_content: $recovery_body}' > body.json
+              mailer_subjects_recovery: $recovery_subject, mailer_templates_recovery_content: $recovery_body,
+              smtp_max_frequency: 30}' > body.json
           status=$(curl -sS -o response.json -w '%{http_code}' -X PATCH \
             "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
@@ -41,4 +43,4 @@ jobs:
             cat response.json
             exit 1
           fi
-          jq -r '.mailer_subjects_confirmation, .mailer_subjects_recovery' response.json
+          jq -r '.mailer_subjects_confirmation, .mailer_subjects_recovery, .smtp_max_frequency' response.json
