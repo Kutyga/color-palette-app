@@ -9,9 +9,60 @@ import { Suspense, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { BackLink } from "@/components/back-link";
 import { CommentsSheet, DiaryCard } from "@/components/feed";
-import { EmptyState, ErrorNote, PageHeader, Spinner } from "@/components/ui";
+import { EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner } from "@/components/ui";
+import type { FeedPost } from "@/lib/domain/social";
 import { plural } from "@/lib/format";
 import { usePlantDiary } from "@/lib/queries";
+
+const dayMonth = (d: Date) => d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+
+/** Сколько прошло между первым и последним фото: «3 недели», «4 месяца». */
+function span(from: Date, to: Date): string {
+  const days = Math.round((to.getTime() - from.getTime()) / 86_400_000);
+  if (days < 14) return `${days} ${plural(days, "день", "дня", "дней")}`;
+  if (days < 60) {
+    const w = Math.round(days / 7);
+    return `${w} ${plural(w, "неделю", "недели", "недель")}`;
+  }
+  const m = Math.round(days / 30);
+  return `${m} ${plural(m, "месяц", "месяца", "месяцев")}`;
+}
+
+/** «Было → стало»: первое и последнее фото растения рядом. */
+function BeforeAfter({ entries }: { entries: FeedPost[] }) {
+  const photos = entries.filter((p) => p.photoUrl);
+  if (photos.length < 2) return null;
+  const before = photos[0];
+  const after = photos[photos.length - 1];
+  // Снимки одного дня — сравнивать нечего.
+  if (after.createdAt.getTime() - before.createdAt.getTime() < 86_400_000) return null;
+  return (
+    <section aria-label="Было и стало" className="bg-surface mb-6 rounded-[20px] p-3">
+      <div className="grid grid-cols-2 gap-2">
+        {(
+          [
+            ["Было", before],
+            ["Стало", after],
+          ] as const
+        ).map(([label, post]) => (
+          <figure key={label}>
+            <PlantPhoto
+              src={post.photoUrl}
+              seed={post.id}
+              alt={`${label}: ${dayMonth(post.createdAt)}`}
+              className="aspect-square w-full rounded-2xl"
+              sizes="50vw"
+            />
+            <figcaption className="mt-1.5 text-center text-[13px]">
+              <b>{label}</b> <span className="text-secondary">· {dayMonth(post.createdAt)}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="text-leaf mt-2 text-center text-[14px] font-semibold">🌿 Так выросло за {span(before.createdAt, after.createdAt)}</p>
+    </section>
+  );
+}
 
 /** Дневник одного растения: записи от первой к последней — видно, как оно росло. */
 function PlantDiary() {
@@ -32,6 +83,7 @@ function PlantDiary() {
           {plural(entries.length, "запись", "записи", "записей")}
         </p>
       )}
+      <BeforeAfter entries={entries} />
       {entries.length === 0 ? (
         <EmptyState
           icon={BookOpen}

@@ -22,7 +22,8 @@ export const personHref = (username: string) => `/people/view/?u=${encodeURIComp
  * обновились (подписка из другого места, свежая загрузка), кнопка берёт новое значение —
  * иначе в уже открывавшемся профиле или соседнем посте того же автора висело бы старое.
  */
-export function FollowButton({ person, size = "md" }: { person: PersonCard; size?: "sm" | "md" }) {
+/** size="link" — тихая кнопка-текст для карточек ленты: «+ Подписаться», после подписки — галочка. */
+export function FollowButton({ person, size = "md" }: { person: PersonCard; size?: "sm" | "md" | "link" }) {
   const follow = useFollow();
   const toast = useToast();
   const [state, setState] = useState({ from: person.isFollowing, value: person.isFollowing });
@@ -44,12 +45,29 @@ export function FollowButton({ person, size = "md" }: { person: PersonCard; size
       },
     );
   };
+  const label = following ? `Отписаться от ${person.displayName}` : `Подписаться на ${person.displayName}`;
+  if (size === "link") {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={following}
+        aria-label={label}
+        className={cx(
+          "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[14px] font-semibold",
+          following ? "text-secondary" : "text-leaf",
+        )}
+      >
+        {following ? <Check className="size-4" aria-hidden /> : <>+ Подписаться</>}
+      </button>
+    );
+  }
   return (
     <button
       type="button"
       onClick={toggle}
       aria-pressed={following}
-      aria-label={following ? `Отписаться от ${person.displayName}` : `Подписаться на ${person.displayName}`}
+      aria-label={label}
       className={cx(
         "inline-flex shrink-0 items-center gap-1.5 rounded-full font-semibold transition",
         size === "sm" ? "px-3.5 py-1.5 text-[13px]" : "px-5 py-2.5 text-[15px]",

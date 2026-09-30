@@ -76,7 +76,7 @@ export function FollowAuthor({ post }: { post: FeedPost }) {
   if (post.mine) return null;
   return (
     <PersonFollowButton
-      size="sm"
+      size="link"
       person={{
         id: post.authorId,
         username: post.authorName,

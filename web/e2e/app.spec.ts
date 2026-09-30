@@ -1,4 +1,4 @@
-/** Сквозные тесты сайта в демо-режиме: основные сценарии на телефоне и компьютере (Playwright). */
+/** Сквозные тесты сайта в тестовом режиме (сборка без сервера, данные в браузере): основные сценарии на телефоне и компьютере. */
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -11,7 +11,7 @@ function trackErrors(page: Page) {
 
 async function startDemo(page: Page) {
   await page.goto("/");
-  await page.getByRole("button", { name: "Попробовать без регистрации" }).click();
+  await page.getByRole("button", { name: "Тестовый режим" }).click();
   await page.waitForURL("**/today/");
 }
 
@@ -141,8 +141,8 @@ test("демо: дневники — поддержка, комментарий,
   await expect(annaPost).toBeVisible();
   await expect(annaPost.getByText("Новый лист")).toBeVisible();
 
-  await annaPost.getByRole("button", { name: "Поддержать" }).click();
-  await expect(annaPost.getByRole("button", { name: "Убрать поддержку" })).toContainText("129");
+  await annaPost.getByRole("button", { name: "Полить" }).click();
+  await expect(annaPost.getByRole("button", { name: "Убрать полив" })).toContainText("129");
 
   await annaPost.getByRole("button", { name: "Комментарии" }).click();
   await expect(page.getByText("Какая красота! Чем подкармливаете?")).toBeVisible();
@@ -151,6 +151,13 @@ test("демо: дневники — поддержка, комментарий,
   await expect(page.getByText("Потрясающе!")).toBeVisible();
   await page.getByRole("button", { name: "Закрыть" }).click();
   await expect(annaPost.getByRole("button", { name: "Комментарии" })).toContainText("3");
+
+  // «На подоконниках»: растения из свежих записей; горшок ведёт в дневник растения.
+  const sill = page.getByRole("region", { name: "На подоконниках" });
+  await expect(sill.getByRole("link")).not.toHaveCount(0);
+  await sill.getByRole("link", { name: /Монстера Бублик/ }).click();
+  await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
+  await page.goBack();
 
   // Сообщество открывается на «Все садоводы»; подписка оттуда добавляет автора в «Мои подписки».
   await expect(page.getByRole("button", { name: "Все садоводы" })).toHaveAttribute("aria-pressed", "true");
@@ -178,6 +185,18 @@ test("демо: дневники — поддержка, комментарий,
   await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
   await expect(page.getByText("Монстера Мося").first()).toBeVisible();
   await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
+
+  // Совет для всех: без растения и фото, только текст.
+  await page.goto("/feed/new/?type=diary");
+  await page.getByRole("tab", { name: "Совет" }).click();
+  await page.getByRole("textbox", { name: /^Совет/ }).fill("Коротко");
+  await expect(page.getByRole("button", { name: "Опубликовать совет" })).toBeDisabled();
+  await page.getByRole("textbox", { name: /^Совет/ }).fill("Воду для полива отстаиваю в бутылке у батареи — она сразу тёплая.");
+  await page.getByRole("button", { name: "Опубликовать совет" }).click();
+  await page.waitForURL("**/feed/?tab=diaries");
+  const tip = page.locator("article").filter({ hasText: "Воду для полива отстаиваю" });
+  await expect(tip.getByText("💡 Совет")).toBeVisible();
+  await expect(tip.getByRole("link", { name: "Дневник растения" })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -355,7 +374,7 @@ test("демо: достижения и выход из демо-режима", 
   await expect(page.getByText("Откройте магазин — появятся награды магазина.")).toBeVisible();
 
   await page.goto("/profile/");
-  await page.getByRole("button", { name: "Выйти из демо-режима" }).click();
+  await page.getByRole("button", { name: "Выйти из тестового режима" }).click();
   await page.waitForURL((url) => url.pathname.endsWith("/"));
   await page.goto("/garden/");
   await page.waitForURL("**/login/**");

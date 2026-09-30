@@ -101,7 +101,7 @@ export async function seedDemo(state: DemoState, clock: () => Date = () => new D
       authorName: author,
       text,
       createdAt: hours(3 + i * 7),
-      plantId: null,
+      plantId: demoId(`${author}/${plant}`),
       plantName: plant,
       photoUrl: null,
       likeCount: likes,

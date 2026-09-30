@@ -131,7 +131,7 @@ function Reader({ id }: { id: string }) {
             <p className="text-secondary mt-1 text-[15px]">
               {reader.error
                 ? "Сайт источника не отдал статью — откройте её по кнопке выше."
-                : "В демо-режиме статьи открываются на сайте источника."}
+                : "В тестовом режиме статьи открываются на сайте источника."}
             </p>
             {meta?.summary && <p className="mt-4 text-[17px] leading-relaxed">{meta.summary}</p>}
           </div>

@@ -28,7 +28,7 @@ function NewsItem({ a, prefs }: { a: NewsArticle; prefs: NewsPrefs }) {
   const foreign = a.language !== prefs.target;
   const { texts, state } = useTranslated([a.title, a.summary ?? ""], a.language, prefs.target, prefs.autoTranslate && foreign);
   const [title, summary] = texts;
-  // Статьи из базы знаний (демо) — внутренние ссылки; остальные открываются в режиме чтения на сайте.
+  // Статьи из базы знаний (тестовый режим) — внутренние ссылки; остальные открываются в режиме чтения на сайте.
   const href = a.url.startsWith("/") ? a.url : `/feed/article/?id=${a.id}`;
   return (
     <article className="bg-surface rounded-[20px] transition hover:brightness-[0.98]">

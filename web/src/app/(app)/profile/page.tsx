@@ -11,7 +11,7 @@ import { NotificationsCard } from "@/components/notifications";
 import { EditProfileSheet, ProfileHeader } from "@/components/people";
 import { useSession } from "@/components/session";
 import { ProfileShopCard, WishlistCard } from "@/components/shops";
-import { Button, Card, PageHeader, Spinner } from "@/components/ui";
+import { Button, PageHeader, Spinner } from "@/components/ui";
 import { levelFor } from "@/lib/domain/gamification";
 import { plural } from "@/lib/format";
 import { usePerson, useProfile, useStats } from "@/lib/queries";
@@ -48,7 +48,7 @@ function Profile() {
         <Spinner />
       )}
       {session.status === "ready" && (isDemo || session.email) && (
-        <p className="text-secondary px-1 text-[13px]">{isDemo ? "Демо-режим" : `Вход: ${session.email}`}</p>
+        <p className="text-secondary px-1 text-[13px]">{isDemo ? "Тестовый режим" : `Вход: ${session.email}`}</p>
       )}
       {profile.data && (
         <EditProfileSheet
@@ -84,18 +84,6 @@ function Profile() {
       <NotificationsCard />
       <ProfileShopCard />
 
-      {isDemo && (
-        <Card className="p-5">
-          <p className="font-semibold">Данные демо-режима хранятся только в этом браузере</p>
-          <p className="text-secondary mt-1 text-[15px]">
-            Зарегистрируйтесь, чтобы растения синхронизировались между телефоном и компьютером и чтобы работало распознавание по фото.
-          </p>
-          <Link href="/login/?mode=signup" className="bg-leaf mt-4 inline-flex rounded-full px-5 py-2.5 font-semibold text-white">
-            Зарегистрироваться
-          </Link>
-        </Card>
-      )}
-
       <Button
         variant="danger"
         className="bg-surface w-full"
@@ -104,7 +92,7 @@ function Profile() {
           router.replace("/");
         }}
       >
-        <LogOut className="size-4" aria-hidden /> {isDemo ? "Выйти из демо-режима" : "Выйти"}
+        <LogOut className="size-4" aria-hidden /> {isDemo ? "Выйти из тестового режима" : "Выйти"}
       </Button>
     </div>
   );

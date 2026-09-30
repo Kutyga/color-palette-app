@@ -1,4 +1,4 @@
-/** Главная для гостя: что умеет «Подоконник», вход и демо-режим. */
+/** Главная для гостя: что умеет «Подоконник» и вход. */
 
 import { BookOpen, CalendarCheck, Camera, Sprout, Trophy, UsersRound } from "lucide-react";
 import Link from "next/link";
