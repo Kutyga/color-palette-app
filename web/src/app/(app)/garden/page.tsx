@@ -94,9 +94,12 @@ function Collection() {
                   <span className="block truncate text-[15px] font-semibold">{p.nickname}</span>
                   {p.speciesName && <span className="block truncate text-[12px] opacity-80">{p.speciesName}</span>}
                 </span>
-                {p.inWater ? (
-                  <span className="glass absolute top-2 right-2 rounded-full px-2 py-0.5 text-[12px] font-medium" title="Растёт в воде">
-                    💧 в воде
+                {p.inWater || p.wick ? (
+                  <span
+                    className="glass absolute top-2 right-2 rounded-full px-2 py-0.5 text-[12px] font-medium"
+                    title={p.inWater ? "Растёт в воде" : "Фитильный полив"}
+                  >
+                    {p.inWater ? "💧 в воде" : "🧵 фитиль"}
                   </span>
                 ) : (
                   <span

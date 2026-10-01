@@ -20,6 +20,7 @@ export interface PlantRec {
   notes: string | null;
   createdAt: string;
   inWater?: boolean;
+  wick?: boolean;
 }
 
 export type Dated<T, K extends keyof T> = Omit<T, K> & { [P in K]: string | null };

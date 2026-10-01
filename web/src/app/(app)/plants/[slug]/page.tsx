@@ -12,6 +12,7 @@ import { LARGE_PHOTO, PhotoCredit, PlantPhoto } from "@/components/ui";
 import { LIGHT_LEVELS, baseWaterInterval } from "@/lib/domain/care";
 import { speciesGroup } from "@/lib/domain/groups";
 import { DIFFICULTY_LABELS, speciesName, toSummary } from "@/lib/domain/species";
+import { WICK_HOWTO, wickAdvice } from "@/lib/domain/wick";
 import { MONTHS_SHORT, plural } from "@/lib/format";
 import { ALL_SPECIES, fertilizerFor, soilMixFor, speciesBySlug } from "@/lib/knowledge";
 
@@ -178,6 +179,23 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
               <FertilizerCard program={fertilizer} />
             </div>
           )}
+
+          {(() => {
+            const wick = wickAdvice(s.group, care);
+            return (
+              <section id="wick" aria-label="Фитильный полив" className="bg-surface mt-6 scroll-mt-24 rounded-[20px] p-5">
+                <h3 className="flex items-center gap-2 text-[17px] font-semibold">
+                  <span aria-hidden>🧵</span> {wick.title}
+                </h3>
+                <p
+                  className={`mt-2 text-[15px] leading-relaxed font-medium ${wick.fit === "good" ? "text-leaf" : wick.fit === "no" ? "text-alert" : "text-soil"}`}
+                >
+                  {wick.text}
+                </p>
+                {wick.fit !== "no" && <p className="text-secondary mt-2 text-[14px] leading-relaxed">{WICK_HOWTO}</p>}
+              </section>
+            );
+          })()}
 
           {care.tipsRu.length > 0 && (
             <section className="bg-surface mt-6 rounded-[20px] p-5">

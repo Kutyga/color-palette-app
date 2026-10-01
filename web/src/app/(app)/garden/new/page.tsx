@@ -22,7 +22,7 @@ import { Button, Field, PageHeader, Sheet, Spinner, inputClass, useToast } from 
 import { CATALOG, catalogBySlug } from "@/lib/catalog";
 import { POT_MATERIALS, type PotMaterial } from "@/lib/domain/care";
 import { capitalizeLatin, matchSpecies, type IdentificationCandidate } from "@/lib/domain/identification";
-import { VISIBILITIES, type Visibility } from "@/lib/domain/plant";
+import { VISIBILITIES, type Visibility, type WaterMode } from "@/lib/domain/plant";
 import { speciesName, type SpeciesSummary } from "@/lib/domain/species";
 import { toJpeg } from "@/lib/image";
 
@@ -39,7 +39,7 @@ function NewPlantForm() {
   const [pot, setPot] = useState<PotMaterial | "">("");
   const [visibility, setVisibility] = useState<Visibility>("followers");
   const [lastWatered, setLastWatered] = useState<DaysAgo>(3);
-  const [inWater, setInWater] = useState(false);
+  const [waterMode, setWaterMode] = useState<WaterMode>("soil");
   const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
   const [candidates, setCandidates] = useState<IdentificationCandidate[] | null>(null);
   const [identifying, setIdentifying] = useState(false);
@@ -96,8 +96,9 @@ function NewPlantForm() {
         locationId,
         potMaterial: pot || null,
         visibility,
-        lastWateredAt: inWater ? null : wateredAt(lastWatered),
-        inWater,
+        lastWateredAt: waterMode === "soil" ? wateredAt(lastWatered) : null,
+        inWater: waterMode === "water",
+        wick: waterMode === "wick",
       });
       try {
         await backend.garden.setPlantPhoto(plant.id, photo.blob);
@@ -172,19 +173,32 @@ function NewPlantForm() {
             </select>
           </Field>
         </div>
-        <label className="bg-muted flex items-center justify-between gap-3 rounded-xl px-4 py-3">
-          <span>
-            <span className="block text-[17px]">💧 Растёт в воде</span>
-            <span className="text-secondary block text-[13px]">Черенок в стакане или гидропоника — полив не нужен</span>
-          </span>
-          <input
-            type="checkbox"
-            className="size-5 shrink-0 accent-[var(--water)]"
-            checked={inWater}
-            onChange={(e) => setInWater(e.target.checked)}
-          />
-        </label>
-        {!inWater && (
+        <Field label="Как поливаю" group>
+          <div className="space-y-2">
+            {(
+              [
+                ["soil", "🪴 По графику", "Напомним, когда полить"],
+                ["wick", "🧵 Фитильный полив", "Пьёт из резервуара через фитиль — график не нужен"],
+                ["water", "💧 Растёт в воде", "Черенок в стакане или гидропоника — полив не нужен"],
+              ] as const
+            ).map(([mode, title, hint]) => (
+              <label key={mode} className="bg-muted flex items-center justify-between gap-3 rounded-xl px-4 py-3">
+                <span>
+                  <span className="block text-[17px]">{title}</span>
+                  <span className="text-secondary block text-[13px]">{hint}</span>
+                </span>
+                <input
+                  type="radio"
+                  name="water-mode"
+                  className="size-5 shrink-0 accent-[var(--water)]"
+                  checked={waterMode === mode}
+                  onChange={() => setWaterMode(mode)}
+                />
+              </label>
+            ))}
+          </div>
+        </Field>
+        {waterMode === "soil" && (
           <Field label="Последний полив" group>
             <LastWateredPicker value={lastWatered} onChange={setLastWatered} />
           </Field>

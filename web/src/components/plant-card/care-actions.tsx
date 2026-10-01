@@ -2,55 +2,100 @@
 
 /**
  * Отметки ухода: большая кнопка «Полить», быстрые кнопки по графику, лист со всеми видами ухода
- * и переключатель «Растёт в воде» (такому растению полив не напоминаем).
+ * и выбор «Как поливаю»: по графику, фитиль или в воде (последним двум полив не напоминаем).
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Droplet, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useBackend } from "@/components/session";
-import { Button, CARE_COLORS, CARE_ICONS, Sheet, useToast } from "@/components/ui";
+import { Button, CARE_COLORS, CARE_ICONS, Sheet, cx, useToast } from "@/components/ui";
 import { CARE_TYPES, CARE_TYPE_ORDER, type CareSchedule, type CareType } from "@/lib/domain/care";
-import type { Plant, PlantDetails } from "@/lib/domain/plant";
+import { waterModeOf, type Plant, type PlantDetails, type WaterMode } from "@/lib/domain/plant";
+import { WICK_HOWTO, wickAdvice } from "@/lib/domain/wick";
 import { useLogCare } from "@/lib/queries";
 
-function InWaterToggle({ plant }: { plant: Plant }) {
+const WATER_MODES: { mode: WaterMode; label: string }[] = [
+  { mode: "soil", label: "По графику" },
+  { mode: "wick", label: "Фитиль" },
+  { mode: "water", label: "В воде" },
+];
+
+/** Подходит ли фитиль этому виду — из базы знаний (грузится только здесь). */
+function WickAdviceNote({ slug }: { slug: string | null }) {
+  const advice = useQuery({
+    queryKey: ["wick-advice", slug],
+    queryFn: async () => {
+      const s = (await import("@/lib/knowledge")).speciesBySlug(slug);
+      return s ? wickAdvice(s.group, s.care) : null;
+    },
+    enabled: !!slug,
+    staleTime: Infinity,
+  });
+  if (!advice.data) return null;
+  const a = advice.data;
+  return (
+    <p className={cx("mt-2 text-[14px] font-medium", a.fit === "good" ? "text-leaf" : a.fit === "no" ? "text-alert" : "text-soil")}>
+      {a.fit === "good" ? "✓" : a.fit === "no" ? "⚠️" : "•"} {a.title}. {a.text}
+    </p>
+  );
+}
+
+/** Как растение получает воду: по графику, фитиль из резервуара или растёт в воде. */
+function WaterModePicker({ plant }: { plant: Plant }) {
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();
-  // Выбор пользователя показываем сразу, не дожидаясь ответа. Сбрасываем его только при ошибке:
-  // после успеха он совпадает с кэшем карточки, а ранний сброс на миг возвращал старое значение.
-  const [picked, setPicked] = useState<boolean | null>(null);
+  // Выбор показываем сразу, не дожидаясь ответа; сбрасываем только при ошибке.
+  const [picked, setPicked] = useState<WaterMode | null>(null);
   const save = useMutation({
-    mutationFn: (inWater: boolean) => backend.garden.setInWater(plant.id, inWater),
-    onSuccess: (_d, inWater) => {
-      qc.setQueryData<PlantDetails>(["plant", plant.id], (d) => (d ? { ...d, plant: { ...d.plant, inWater } } : d));
+    mutationFn: (mode: WaterMode) => backend.garden.setWaterMode(plant.id, mode),
+    onSuccess: (_d, mode) => {
+      qc.setQueryData<PlantDetails>(["plant", plant.id], (d) =>
+        d ? { ...d, plant: { ...d.plant, inWater: mode === "water", wick: mode === "wick" } } : d,
+      );
       for (const key of ["plant", "plants", "tasks", "stats"]) qc.invalidateQueries({ queryKey: [key] });
-      toast(inWater ? "Растёт в воде — полив больше не напоминаем" : "Полив снова в графике");
+      toast(
+        mode === "water"
+          ? "Растёт в воде — полив больше не напоминаем"
+          : mode === "wick"
+            ? "Фитильный полив — полив больше не напоминаем"
+            : "Полив снова в графике",
+      );
     },
     onError: (e) => {
       setPicked(null);
       toast(`Не удалось сохранить: ${e.message}`);
     },
   });
+  const current = picked ?? waterModeOf(plant);
   return (
-    <label className="bg-muted mt-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">
-      <span>
-        <span className="block text-[15px] font-medium">Растёт в воде</span>
-        <span className="text-secondary block text-[13px]">Черенок в стакане или гидропоника</span>
-      </span>
-      <input
-        type="checkbox"
-        className="size-5 shrink-0 accent-[var(--water)]"
-        checked={picked ?? plant.inWater}
-        disabled={save.isPending}
-        onChange={(e) => {
-          setPicked(e.target.checked);
-          save.mutate(e.target.checked);
-        }}
-        aria-label="Растёт в воде"
-      />
-    </label>
+    <div className="bg-muted mt-2 rounded-xl px-4 py-3">
+      <p className="text-[15px] font-medium">Как поливаю</p>
+      <div className="bg-surface mt-2 flex rounded-full p-1" role="radiogroup" aria-label="Как поливаю">
+        {WATER_MODES.map(({ mode, label }) => (
+          <button
+            key={mode}
+            type="button"
+            role="radio"
+            aria-checked={current === mode}
+            disabled={save.isPending}
+            onClick={() => {
+              if (mode === current) return;
+              setPicked(mode);
+              save.mutate(mode);
+            }}
+            className={cx(
+              "flex-1 rounded-full py-1.5 text-[14px] font-medium transition",
+              current === mode ? "bg-water text-white" : "text-secondary",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {current === "wick" && <WickAdviceNote slug={plant.speciesSlug} />}
+    </div>
   );
 }
 
@@ -77,12 +122,14 @@ export function CareActions({ plant, schedules }: { plant: Plant; schedules: Car
           💧 Растёт в воде — поливать не нужно. Меняйте воду раз в 5–7 дней на отстоянную комнатной температуры и следите, чтобы вода не
           зеленела.
         </p>
+      ) : plant.wick ? (
+        <p className="bg-water/10 mt-5 rounded-2xl px-4 py-3 text-[15px]">🧵 Фитильный полив — график не нужен. {WICK_HOWTO}</p>
       ) : (
         <Button className="bg-water mt-5 min-h-13 w-full text-[17px]" onClick={() => mark("water")} loading={logCare.isPending}>
           <Droplet className="size-5" aria-hidden /> Полить
         </Button>
       )}
-      <InWaterToggle plant={plant} />
+      <WaterModePicker plant={plant} />
       <div className="mt-2 flex gap-2">
         {quickTypes.map((t) => {
           const Icon = CARE_ICONS[t];
