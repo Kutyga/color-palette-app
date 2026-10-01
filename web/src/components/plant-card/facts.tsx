@@ -27,6 +27,8 @@ export function PlantFacts({ plant, water, now }: { plant: Plant; water: CareSch
       <div className="bg-surface rounded-2xl p-3">
         {plant.inWater ? (
           <Fact icon={Droplet} label="Полив" value="не нужен — в воде" color="var(--water)" />
+        ) : plant.wick ? (
+          <Fact icon={Droplet} label="Полив" value="фитиль" color="var(--water)" />
         ) : (
           <Fact icon={Droplet} label="Полить" value={water?.nextDueAt ? relativeDay(water.nextDueAt, now) : "—"} color="var(--water)" />
         )}

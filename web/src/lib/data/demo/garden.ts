@@ -13,7 +13,7 @@ import {
   type LightLevel,
 } from "../../domain/care";
 import { EMPTY_STATS, type GardenStats } from "../../domain/gamification";
-import type { Plant } from "../../domain/plant";
+import type { Plant, WaterMode } from "../../domain/plant";
 import { speciesName, type Species } from "../../domain/species";
 import { blobToDataUrl } from "../../image";
 import { ALL_SPECIES } from "../../knowledge";
@@ -51,7 +51,8 @@ export class DemoGarden implements GardenRepository {
       visibility: p.visibility,
       notes: p.notes,
       inWater: !!p.inWater,
-      nextWaterAt: p.inWater ? null : toDate(water?.nextDueAt ?? null),
+      wick: !!p.wick,
+      nextWaterAt: p.inWater || p.wick ? null : toDate(water?.nextDueAt ?? null),
       photoUrl: this.state.photos[p.id] ?? null,
       createdAt: new Date(p.createdAt),
     };
@@ -93,6 +94,7 @@ export class DemoGarden implements GardenRepository {
       notes: draft.notes ?? null,
       createdAt: this.clock().toISOString(),
       inWater: !!draft.inWater,
+      wick: !draft.inWater && !!draft.wick,
     };
     this.state.plants.push(rec);
     for (const seed of initialSchedules(this.speciesOf(rec)?.care ?? null, draft)) {
@@ -105,8 +107,8 @@ export class DemoGarden implements GardenRepository {
         userFactor: 1,
         lastDoneAt: iso(seed.lastDoneAt),
         nextDueAt: null,
-        // Как триггер в базе: растению в воде полив не нужен.
-        enabled: !(seed.type === "water" && rec.inWater),
+        // Как триггер в базе: растению в воде или на фитиле полив не нужен.
+        enabled: !(seed.type === "water" && (rec.inWater || rec.wick)),
       };
       this.state.schedules.push(this.computeDue(s));
     }
@@ -135,11 +137,12 @@ export class DemoGarden implements GardenRepository {
     this.persist();
   }
 
-  async setInWater(plantId: string, inWater: boolean) {
+  async setWaterMode(plantId: string, mode: WaterMode) {
     const p = this.state.plants.find((x) => x.id === plantId);
     if (!p) throw new Error("Растение не найдено");
-    p.inWater = inWater;
-    for (const sch of this.state.schedules) if (sch.plantId === plantId && sch.type === "water") sch.enabled = !inWater;
+    p.inWater = mode === "water";
+    p.wick = mode === "wick";
+    for (const sch of this.state.schedules) if (sch.plantId === plantId && sch.type === "water") sch.enabled = mode === "soil";
     this.persist();
   }
 

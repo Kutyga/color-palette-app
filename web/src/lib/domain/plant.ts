@@ -30,6 +30,8 @@ export interface Plant {
   notes: string | null;
   /** Растёт в воде (черенок, гидропоника) — полив не нужен, график полива выключен. */
   inWater: boolean;
+  /** Фитильный полив из резервуара — график полива выключен, как у растения в воде. */
+  wick: boolean;
   /** Денормализовано из графика полива — для статуса в списке коллекции. */
   nextWaterAt: Date | null;
   /** Обложка: подписанная ссылка из Storage или data URL (демо-режим). */
@@ -56,7 +58,13 @@ export interface NewPlant {
   notes?: string | null;
   /** Растёт в воде — график полива создаётся выключенным. */
   inWater?: boolean;
+  /** На фитильном поливе — график полива создаётся выключенным. */
+  wick?: boolean;
 }
+
+/** Как растение получает воду: полив по графику, растёт в воде или фитиль из резервуара. */
+export type WaterMode = "soil" | "water" | "wick";
+export const waterModeOf = (p: Pick<Plant, "inWater" | "wick">): WaterMode => (p.inWater ? "water" : p.wick ? "wick" : "soil");
 
 type Row = Record<string, unknown>;
 
@@ -69,7 +77,8 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
   const location = r.locations as { name: string; light_level: LightLevel | null } | null;
   const schedules = (r.care_schedules as { type: string; next_due_at: string | null }[] | null) ?? [];
   const inWater = Boolean(r.in_water);
-  const water = inWater ? undefined : schedules.find((s) => s.type === "water" && s.next_due_at);
+  const wick = Boolean(r.wick);
+  const water = inWater || wick ? undefined : schedules.find((s) => s.type === "water" && s.next_due_at);
   return {
     id: r.id as string,
     nickname: r.nickname as string,
@@ -83,6 +92,7 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
     visibility: (r.visibility as Visibility | null) ?? "followers",
     notes: (r.notes as string | null) ?? null,
     inWater,
+    wick,
     nextWaterAt: water?.next_due_at ? new Date(water.next_due_at) : null,
     photoUrl,
     createdAt: new Date((r.created_at as string | undefined) ?? Date.now()),

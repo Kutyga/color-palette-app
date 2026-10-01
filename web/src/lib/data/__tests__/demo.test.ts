@@ -110,10 +110,26 @@ describe("демо-режим", () => {
     expect((await b.garden.dueTasks(far)).some((t) => t.plantId === cutting.id && t.type === "water")).toBe(false);
 
     const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
-    await b.garden.setInWater(mosya.id, true);
+    await b.garden.setWaterMode(mosya.id, "water");
     expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(false);
     expect((await b.garden.plantDetails(mosya.id)).plant.inWater).toBe(true);
-    await b.garden.setInWater(mosya.id, false);
+    await b.garden.setWaterMode(mosya.id, "soil");
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(true);
+  });
+
+  it("фитильный полив: полива нет в делах, режимы «в воде» и «фитиль» взаимоисключающие", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const far = new Date(2027, 0, 1);
+    const violet = await b.garden.addPlant({ nickname: "Фиалка на фитиле", wick: true });
+    expect(violet).toMatchObject({ wick: true, inWater: false, nextWaterAt: null });
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === violet.id && t.type === "water")).toBe(false);
+
+    const mosya = (await b.garden.myPlants()).find((p) => p.nickname === "Монстера Мося")!;
+    await b.garden.setWaterMode(mosya.id, "water");
+    await b.garden.setWaterMode(mosya.id, "wick");
+    expect((await b.garden.plantDetails(mosya.id)).plant).toMatchObject({ wick: true, inWater: false });
+    expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(false);
+    await b.garden.setWaterMode(mosya.id, "soil");
     expect((await b.garden.dueTasks(far)).some((t) => t.plantId === mosya.id && t.type === "water")).toBe(true);
   });
 

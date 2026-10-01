@@ -4,7 +4,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../../domain/care";
 import { statsFromRow } from "../../domain/gamification";
-import { coverPathOf, plantFromRow, type Location } from "../../domain/plant";
+import { coverPathOf, plantFromRow, type Location, type WaterMode } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
@@ -69,6 +69,7 @@ export class SupabaseGarden implements GardenRepository {
         visibility: draft.visibility ?? "followers",
         notes: draft.notes ?? null,
         in_water: draft.inWater ?? false,
+        wick: !draft.inWater && (draft.wick ?? false),
       }),
     );
     const seeds = initialSchedules(care, draft);
@@ -96,8 +97,13 @@ export class SupabaseGarden implements GardenRepository {
     if (!data?.length) throw new Error("Эту отметку удалить нельзя — её сделал другой человек");
   }
 
-  async setInWater(plantId: string, inWater: boolean) {
-    check(await this.db.from("plants").update({ in_water: inWater }).eq("id", plantId));
+  async setWaterMode(plantId: string, mode: WaterMode) {
+    check(
+      await this.db
+        .from("plants")
+        .update({ in_water: mode === "water", wick: mode === "wick" })
+        .eq("id", plantId),
+    );
   }
 
   async deletePlant(plantId: string) {

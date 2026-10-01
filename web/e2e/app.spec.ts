@@ -323,11 +323,15 @@ test("демо: растение в воде не просит полива; у�
     .click();
   await page.waitForURL("**/garden/plant/**");
   await expect(page.getByRole("button", { name: "Полить" })).toBeVisible();
-  await page.getByRole("checkbox", { name: "Растёт в воде" }).check();
+  await page.getByRole("radio", { name: "В воде" }).click();
   await expect(page.getByText("не нужен — в воде")).toBeVisible();
   await expect(page.getByRole("button", { name: "Полить" })).toHaveCount(0);
+  // Фитильный полив: график не нужен, подсказка из базы знаний — подходит ли фитиль виду.
+  await page.getByRole("radio", { name: "Фитиль" }).click();
+  await expect(page.getByText("Фитиль — можно, с осторожностью")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Полить" })).toHaveCount(0);
   await page.goto("/garden/");
-  await expect(page.getByText("💧 в воде")).toBeVisible();
+  await expect(page.getByText("🧵 фитиль")).toBeVisible();
   await page.goto("/profile/");
   await expect(page.getByText("Уведомления работают после регистрации.")).toBeVisible();
   expect(errors).toEqual([]);

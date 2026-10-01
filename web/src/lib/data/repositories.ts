@@ -10,7 +10,7 @@ import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../doma
 import type { Prediction } from "../domain/identification";
 import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
 import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
-import type { Location, NewPlant, Plant, PlantDetails } from "../domain/plant";
+import type { Location, NewPlant, Plant, PlantDetails, WaterMode } from "../domain/plant";
 import type { ImportResult, Offer, ProductInput, Shop, ShopDraft, ShopProduct, ShopStatus } from "../domain/shop";
 import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
@@ -30,8 +30,8 @@ export interface GardenRepository {
   setLocation(plantId: string, locationId: string | null): Promise<void>;
   /** Удалить ошибочную отметку ухода; если она последняя — график возвращается как был. */
   deleteCareEvent(eventId: string): Promise<void>;
-  /** Растёт в воде — полив не нужен (график полива выключается и включается обратно). */
-  setInWater(plantId: string, inWater: boolean): Promise<void>;
+  /** Как поливается: по графику, в воде или фитиль; в воде и на фитиле график полива выключен. */
+  setWaterMode(plantId: string, mode: WaterMode): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;

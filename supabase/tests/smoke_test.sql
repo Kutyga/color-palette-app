@@ -530,6 +530,20 @@ do $$ begin
   assert (select enabled from public.care_schedules where id = '30000000-0000-0000-0000-000000000001'),
          'из воды в грунт — полив снова включён';
 end $$;
+-- Фитильный полив: тоже выключает график; «в воде» и «на фитиле» сразу нельзя.
+update public.plants set wick = true where id = '20000000-0000-0000-0000-000000000001';
+do $$ begin
+  assert (select enabled from public.care_schedules where id = '30000000-0000-0000-0000-000000000001') = false,
+         'на фитиле — полив выключен';
+  update public.plants set in_water = true where id = '20000000-0000-0000-0000-000000000001';
+  raise exception 'в воде и на фитиле одновременно';
+exception when check_violation then null;
+end $$;
+update public.plants set wick = false where id = '20000000-0000-0000-0000-000000000001';
+do $$ begin
+  assert (select enabled from public.care_schedules where id = '30000000-0000-0000-0000-000000000001'),
+         'сняли с фитиля — полив снова включён';
+end $$;
 
 -- Push-уведомления: подписки, очередь по событиям и настройкам, напоминание об уходе.
 select public.save_push_subscription('https://push.example/alice', 'p256-a', 'auth-a', 'test');
