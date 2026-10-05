@@ -3,10 +3,11 @@
 import { DAY_MS, startOfDay } from "../time";
 import type { CareEvent, CareSchedule, LightLevel, PotMaterial } from "./care";
 
+/** Кто видит растение. Порядок — порядок выбора: по умолчанию «Все», остальное — по желанию. */
 export const VISIBILITIES = {
-  private: "Только я",
-  followers: "Подписчики",
   public: "Все",
+  followers: "Подписчики",
+  private: "Только я",
 } as const;
 export type Visibility = keyof typeof VISIBILITIES;
 
