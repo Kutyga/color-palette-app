@@ -197,6 +197,17 @@ test("демо: дневники — поддержка, комментарий,
   const mine = page.locator("article").filter({ hasText: "Первый бутон 🌱" });
   await expect(mine.getByText("Цветение")).toBeVisible();
   await expect(mine.getByText("1/2")).toBeVisible();
+  // Нажатие на фото — просмотр на весь экран: листание и закрытие.
+  await mine
+    .getByRole("button", { name: /Открыть фото/ })
+    .first()
+    .click();
+  const viewer = page.getByRole("dialog", { name: /^Фото:/ });
+  await expect(viewer.getByText("1 / 2")).toBeVisible();
+  await page.keyboard.press("ArrowRight");
+  await expect(viewer.getByText("2 / 2")).toBeVisible();
+  await viewer.getByRole("button", { name: "Закрыть фото" }).click();
+  await expect(viewer).toHaveCount(0);
   await expect(page.getByText("Новое достижение! «Звезда подоконника»")).toBeVisible();
 
   // Дневник растения — все записи о нём по порядку.
@@ -224,7 +235,7 @@ test("демо: дневники — поддержка, комментарий,
   await expect(page.getByRole("heading", { name: "Мой дневник" })).toBeVisible();
   await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
   await expect(page.getByText("Воду для полива отстаиваю")).toBeVisible();
-  await page.getByRole("button", { name: "Монстера Мося" }).click();
+  await page.getByRole("button", { name: "Монстера Мося", exact: true }).click();
   await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
   await expect(page.getByText("Воду для полива отстаиваю")).toHaveCount(0);
   expect(errors).toEqual([]);

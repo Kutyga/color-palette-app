@@ -55,6 +55,8 @@ function BeforeAfter({ entries }: { entries: FeedPost[] }) {
               alt={`${label}: ${dayMonth(post.createdAt)}`}
               className="aspect-square w-full rounded-2xl"
               sizes="50vw"
+              gallery={[before.photoUrl!, after.photoUrl!]}
+              zoom
             />
             <figcaption className="mt-1.5 text-center text-[13px]">
               <b>{label}</b> <span className="text-secondary">· {dayMonth(post.createdAt)}</span>
@@ -82,6 +84,7 @@ function PlantHeader({ plant, entries }: { plant: PlantProfile; entries: number 
           className="size-24 shrink-0 rounded-2xl"
           iconSize={32}
           sizes="96px"
+          zoom
         />
         <div className="min-w-0 flex-1 py-1">
           <h2 className="truncate text-[20px] leading-tight font-bold">{plant.nickname}</h2>
