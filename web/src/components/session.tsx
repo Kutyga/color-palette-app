@@ -171,7 +171,9 @@ export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true } },
+        // Данные 2 минуты считаются свежими: возврат в приложение и переходы между экранами не
+        // перезапрашивают всё заново (раньше было 30 с — при каждом возврате десятки запросов).
+        defaultOptions: { queries: { staleTime: 2 * 60_000, retry: 1, refetchOnWindowFocus: true } },
       }),
   );
   return (

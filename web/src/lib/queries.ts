@@ -60,6 +60,8 @@ export function useStats() {
   const b = useBackend();
   return useQuery({
     queryKey: ["stats"],
+    // 7 запросов разом — обновляем после своих действий (полив, пост, растение), а сами по себе — раз в 10 минут.
+    staleTime: 10 * 60_000,
     queryFn: async (): Promise<GardenStats> => {
       // Сад обязателен; остальное — дополнения: их сбой не должен ломать экран достижений.
       const soft = <T>(p: Promise<T>, fallback: T) => p.catch(() => fallback);
@@ -217,7 +219,8 @@ export function useListing(id: string | null) {
 /** Список чатов; обновляется раз в 30 секунд — для значка непрочитанных. */
 export function useConversations() {
   const b = useBackend();
-  return useQuery({ queryKey: ["chat", "list"], queryFn: () => b.chat.conversations(), refetchInterval: 30_000 });
+  // Непрочитанные — раз в минуту (и только пока приложение открыто); в открытом чате сообщения приходят сразу.
+  return useQuery({ queryKey: ["chat", "list"], queryFn: () => b.chat.conversations(), refetchInterval: 60_000, staleTime: 30_000 });
 }
 
 export function useMessages(conversationId: string | null) {
