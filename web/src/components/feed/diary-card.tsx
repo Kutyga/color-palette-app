@@ -3,7 +3,8 @@
 /**
  * Карточки ленты: запись дневника растения и совет (запись с меткой «Совет»).
  * Фото — главное в записи: событие и имя растения лежат плашкой прямо на нём.
- * Несколько фото листаются пальцем (как в Instagram): счётчик «2/3» и точки под снимком.
+ * Несколько фото листаются пальцем (как в Instagram): счётчик «2/3» и точки под снимком;
+ * нажатие открывает фото на весь экран с приближением.
  * «Поддержка» здесь — «Полить» (для совета — «Полезно»): те же счётчики, что и раньше.
  */
 
@@ -66,7 +67,7 @@ function PostPhotos({ post, alt, className, children }: { post: FeedPost; alt: s
   if (urls.length <= 1) {
     return (
       <div className="relative">
-        <PlantPhoto src={urls[0]} seed={post.id} alt={alt} className={className} iconSize={48} whole />
+        <PlantPhoto src={urls[0]} seed={post.id} alt={alt} className={className} iconSize={48} gallery={urls} whole />
         {children}
       </div>
     );
@@ -83,7 +84,15 @@ function PostPhotos({ post, alt, className, children }: { post: FeedPost; alt: s
       >
         {urls.map((url, i) => (
           <div key={url} className="w-full shrink-0 snap-center">
-            <PlantPhoto src={url} seed={`${post.id}-${i}`} alt={`${alt}, фото ${i + 1}`} className={className} iconSize={48} whole />
+            <PlantPhoto
+              src={url}
+              seed={`${post.id}-${i}`}
+              alt={`${alt}, фото ${i + 1}`}
+              className={className}
+              iconSize={48}
+              gallery={urls}
+              whole
+            />
           </div>
         ))}
       </div>

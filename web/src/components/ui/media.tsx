@@ -5,8 +5,9 @@
  */
 
 import { Leaf } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { cx } from "./cx";
+import { PhotoViewer } from "./photo-viewer";
 
 const GRADIENTS = [
   ["#a8e063", "#56ab2f"],
@@ -41,9 +42,41 @@ function wikimediaSrcSet(src: string): string | undefined {
   return o ? [`${o[1]}thumb/${o[2]}${o[3]}/250px-${o[3]} 250w`, `${src} 960w`].join(", ") : undefined;
 }
 
+/** Фото, которое открывается на весь экран по нажатию (с приближением и листанием gallery). */
+function Zoomable({
+  src,
+  gallery,
+  alt,
+  className,
+  children,
+}: {
+  src: string;
+  gallery?: string[];
+  alt: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const urls = gallery?.length ? gallery : [src];
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Открыть фото: ${alt}`}
+        className={cx("block cursor-zoom-in", className)}
+      >
+        {children}
+      </button>
+      {open && <PhotoViewer urls={urls} start={Math.max(0, urls.indexOf(src))} alt={alt} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
 /**
  * Фото растения или мягкий градиент с листом, если фото ещё нет. В списках фото заполняет
  * рамку (края обрезаются); с whole — показывается целиком, свободное место — размытая копия.
+ * Крупное фото (whole) или с zoom открывается на весь экран по нажатию.
  */
 export function PlantPhoto({
   src,
@@ -53,6 +86,8 @@ export function PlantPhoto({
   iconSize = 32,
   sizes = "240px",
   whole = false,
+  zoom = whole,
+  gallery,
 }: {
   src: string | null | undefined;
   seed: string;
@@ -63,14 +98,18 @@ export function PlantPhoto({
   sizes?: string;
   /** Показать фото целиком, без обрезки (крупные фото: карточка растения, объявление, пост). */
   whole?: boolean;
+  /** Открывать на весь экран по нажатию (по умолчанию — у крупных фото, whole). */
+  zoom?: boolean;
+  /** Все фото записи — в полноэкранном просмотре их можно листать. */
+  gallery?: string[];
 }) {
   // Не загрузилось (нет сети, ссылка устарела) — показываем заглушку вместо «битой» картинки.
   const [failed, setFailed] = useState<string | null>(null);
   if (src && failed !== src) {
     const srcSet = wikimediaSrcSet(src);
     if (whole) {
-      return (
-        <div className={cx("bg-muted relative overflow-hidden", className)}>
+      const photo = (
+        <div className={cx("bg-muted relative overflow-hidden", zoom ? "size-full" : className)}>
           {/* eslint-disable-next-line @next/next/no-img-element -- фон из той же картинки (браузер берёт её из кэша) */}
           <img
             src={src}
@@ -94,19 +133,33 @@ export function PlantPhoto({
           />
         </div>
       );
+      return zoom ? (
+        <Zoomable src={src} gallery={gallery} alt={alt} className={className}>
+          {photo}
+        </Zoomable>
+      ) : (
+        photo
+      );
     }
-    return (
+    const img = (
       // eslint-disable-next-line @next/next/no-img-element -- подписанные ссылки Storage, data URL и Wikimedia Commons
       <img
         src={src}
         srcSet={srcSet}
         sizes={srcSet ? sizes : undefined}
         alt={alt}
-        className={cx("object-cover", className)}
+        className={cx("object-cover", zoom ? "size-full" : className)}
         loading="lazy"
         decoding="async"
         onError={() => setFailed(src)}
       />
+    );
+    return zoom ? (
+      <Zoomable src={src} gallery={gallery} alt={alt} className={cx("overflow-hidden", className)}>
+        {img}
+      </Zoomable>
+    ) : (
+      img
     );
   }
   const [a, b] = GRADIENTS[hash(seed) % GRADIENTS.length];
