@@ -66,7 +66,7 @@ export class SupabaseGarden implements GardenRepository {
         species_id: speciesId,
         location_id: draft.locationId ?? null,
         pot_material: draft.potMaterial ?? null,
-        visibility: draft.visibility ?? "followers",
+        visibility: draft.visibility ?? "public",
         notes: draft.notes ?? null,
         in_water: draft.inWater ?? false,
         wick: !draft.inWater && (draft.wick ?? false),

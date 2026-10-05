@@ -90,7 +90,7 @@ export class DemoGarden implements GardenRepository {
       speciesSlug: draft.speciesSlug ?? null,
       locationId: draft.locationId ?? null,
       potMaterial: draft.potMaterial ?? null,
-      visibility: draft.visibility ?? "followers",
+      visibility: draft.visibility ?? "public",
       notes: draft.notes ?? null,
       createdAt: this.clock().toISOString(),
       inWater: !!draft.inWater,

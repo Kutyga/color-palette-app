@@ -37,7 +37,7 @@ function NewPlantForm() {
   const [nickname, setNickname] = useState(() => (species ? speciesName(species) : ""));
   const [location, setLocation] = useState<LocationChoice>({ id: null });
   const [pot, setPot] = useState<PotMaterial | "">("");
-  const [visibility, setVisibility] = useState<Visibility>("followers");
+  const [visibility, setVisibility] = useState<Visibility>("public");
   const [lastWatered, setLastWatered] = useState<DaysAgo>(3);
   const [waterMode, setWaterMode] = useState<WaterMode>("soil");
   const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
