@@ -333,3 +333,99 @@ export function CameraField({
     </>
   );
 }
+
+/** Выбранный снимок формы: JPEG и локальная ссылка для предпросмотра. */
+export interface PickedPhoto {
+  blob: Blob;
+  url: string;
+}
+
+/**
+ * Несколько фото для публикации: пока пусто — обычное поле съёмки; дальше — плитки снимков
+ * (первый — обложка) и «Добавить»: камера или сразу несколько файлов.
+ */
+export function PhotosField({
+  photos,
+  onAdd,
+  onRemove,
+  max,
+  aspect = "aspect-[4/3]",
+}: {
+  photos: PickedPhoto[];
+  onAdd: (blob: Blob) => void;
+  onRemove: (index: number) => void;
+  max: number;
+  aspect?: string;
+}) {
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function pickFiles(files: FileList | null) {
+    setFileError(null);
+    for (const file of [...(files ?? [])].slice(0, max - photos.length)) {
+      try {
+        onAdd(await fileToJpeg(file));
+      } catch (e) {
+        setFileError(e instanceof Error ? e.message : String(e));
+      }
+    }
+  }
+
+  if (photos.length === 0) return <CameraField allowFiles aspect={aspect} photoUrl={null} onCapture={onAdd} />;
+  return (
+    <>
+      <ul className="grid grid-cols-3 gap-2" aria-label="Фото публикации">
+        {photos.map((p, i) => (
+          <li key={p.url} className="relative">
+            {/* eslint-disable-next-line @next/next/no-img-element -- локальный предпросмотр снимка */}
+            <img src={p.url} alt={`Фото ${i + 1}`} className="bg-muted aspect-square w-full rounded-2xl object-cover" />
+            {i === 0 && (
+              <span className="glass absolute bottom-1.5 left-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold">Обложка</span>
+            )}
+            <button
+              type="button"
+              onClick={() => onRemove(i)}
+              aria-label={`Убрать фото ${i + 1}`}
+              className="glass absolute top-1.5 right-1.5 grid size-7 place-items-center rounded-full"
+            >
+              <X className="size-4" />
+            </button>
+          </li>
+        ))}
+        {photos.length < max && (
+          <li className="bg-muted flex aspect-square flex-col overflow-hidden rounded-2xl text-[13px] font-semibold">
+            <button type="button" onClick={() => setCameraOpen(true)} className="flex flex-1 items-center justify-center gap-1.5">
+              <Camera className="size-4" aria-hidden /> Снять
+            </button>
+            <span className="bg-separator h-px" aria-hidden />
+            <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-1 items-center justify-center gap-1.5">
+              <ImagePlus className="size-4" aria-hidden /> Из файлов
+            </button>
+          </li>
+        )}
+      </ul>
+      <p className="text-secondary mt-2 text-center text-[13px]">
+        {photos.length} из {max} фото
+      </p>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        aria-label="Ещё фото из файлов"
+        onChange={(e) => {
+          void pickFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+      {fileError && (
+        <p className="text-alert mt-2 text-[14px]" role="alert">
+          {fileError}
+        </p>
+      )}
+      <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={onAdd} ratio={aspect.includes("4/3") ? 4 / 3 : 1} />
+    </>
+  );
+}

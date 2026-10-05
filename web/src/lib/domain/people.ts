@@ -1,6 +1,6 @@
 /**
  * Садоводы: карточки профилей, поиск, подписчики. На сервере — представление profile_cards
- * и RPC search_people / people_followers / people_following
+ * и RPC search_people_page / people_followers / people_following
  * (supabase/migrations/*_people.sql), в демо-режиме — локальный список.
  */
 export interface PersonCard {
@@ -25,6 +25,16 @@ export interface PublicPlant {
   photoUrl: string | null;
 }
 
+/** Страница растения для гостя: то, что хозяин открыл, — фото, вид, заметки и чьё оно. */
+export interface PlantProfile extends PublicPlant {
+  ownerName: string;
+  ownerDisplayName: string;
+  notes: string | null;
+  /** Когда растение появилось в коллекции. */
+  since: Date;
+  mine: boolean;
+}
+
 export interface ProfileUpdate {
   displayName: string;
   username: string;
@@ -32,6 +42,11 @@ export interface ProfileUpdate {
   /** Город — для объявлений «Барахолки». Пустая строка — не указан. */
   city?: string;
 }
+
+/** Сколько садоводов в одной порции поиска; дальше — «Показать ещё». */
+export const PEOPLE_PAGE = 30;
+/** Порядок без запроса: популярные (по подписчикам) или новые (недавно зарегистрировались). */
+export type PeopleSort = "popular" | "new";
 
 type Row = Record<string, unknown>;
 

@@ -16,6 +16,7 @@ import {
   PlantHero,
   PlantLinks,
   SpeciesNotes,
+  VisibilityPicker,
 } from "@/components/plant-card";
 import { ErrorNote, SectionTitle, Spinner } from "@/components/ui";
 import { catalogBySlug } from "@/lib/catalog";
@@ -50,6 +51,7 @@ function PlantView({ id }: { id: string }) {
           )}
           <PlantFacts plant={plant} water={schedules.find((s) => s.type === "water")} now={now} />
           <CareActions plant={plant} schedules={schedules} />
+          <VisibilityPicker plant={plant} />
           <PlantLinks plantId={plant.id} />
         </div>
       </div>

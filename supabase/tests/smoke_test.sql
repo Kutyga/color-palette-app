@@ -492,6 +492,44 @@ do $$ begin
   assert (select display_name || '/' || username from public.profiles where id = auth.uid()) = 'Боб/bob_garden',
          'своё имя и username меняются';
 end $$;
+
+-- Поиск порциями: offset и сортировка «новые».
+do $$ begin
+  assert (select count(*) from public.search_people_page('', 1, 0)) = 1, 'порция из одного садовода';
+  assert (select count(*) from public.search_people_page('', 50, 1000)) = 0, 'за концом списка пусто';
+  assert (select count(*) from public.search_people_page('', 50, 0, 'new'))
+         = (select count(*) from public.search_people_page('', 50, 0, 'popular')), '«новые» — те же садоводы';
+end $$;
+
+-- Ответы на комментарии (вопрос Алисы, ответ Боба — корень ветки): ответ на ответ крепится
+-- к корню; «сердечки» считаются триггером.
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.comments (id, post_id, parent_id, text)
+values ('50000000-0000-0000-0000-000000000010', '40000000-0000-0000-0000-000000000003',
+        '50000000-0000-0000-0000-000000000001', 'Боб, спасибо — проверю!');
+insert into public.comment_likes (comment_id) values ('50000000-0000-0000-0000-000000000001');
+do $$ begin
+  assert (select like_count from public.comments where id = '50000000-0000-0000-0000-000000000001') = 1, 'сердечко посчитано';
+  insert into public.comments (post_id, parent_id, text)
+  values ('40000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001', 'чужая ветка');
+  raise exception 'ответ в ветку другой записи должен отклоняться';
+exception when foreign_key_violation then null;
+end $$;
+do $$ begin
+  update public.comments set like_count = 100 where id = '50000000-0000-0000-0000-000000000001';
+  raise exception 'like_count комментария не должен обновляться клиентом';
+exception when insufficient_privilege then null;
+end $$;
+delete from public.comment_likes where comment_id = '50000000-0000-0000-0000-000000000001';
+set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.comments (id, post_id, parent_id, text)
+values ('50000000-0000-0000-0000-000000000011', '40000000-0000-0000-0000-000000000003',
+        '50000000-0000-0000-0000-000000000010', 'Алиса, напишите, что вышло');
+do $$ begin
+  assert (select parent_id from public.comments where id = '50000000-0000-0000-0000-000000000011')
+         = '50000000-0000-0000-0000-000000000001', 'ответ на ответ — в ветке корня';
+  assert (select like_count from public.comments where id = '50000000-0000-0000-0000-000000000001') = 0, 'сердечко снято';
+end $$;
 do $$ begin
   update public.profiles set created_at = now() where id = auth.uid();
   raise exception 'дату регистрации менять нельзя';

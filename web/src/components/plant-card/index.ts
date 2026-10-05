@@ -7,3 +7,4 @@ export { CareJournal } from "./journal";
 export { PlantLinks } from "./links";
 export { CareScheduleList } from "./schedule";
 export { SpeciesNotes } from "./species-notes";
+export { VisibilityPicker } from "./visibility";

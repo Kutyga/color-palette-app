@@ -1,7 +1,15 @@
 /**
  * Садоводы в браузере: демо-садоводы и свой профиль.
  */
-import { validateProfile, type PersonCard, type ProfileUpdate, type PublicPlant } from "../../domain/people";
+import {
+  PEOPLE_PAGE,
+  validateProfile,
+  type PeopleSort,
+  type PersonCard,
+  type PlantProfile,
+  type ProfileUpdate,
+  type PublicPlant,
+} from "../../domain/people";
 import type { PeopleRepository, Profile } from "../repositories";
 import { DEFAULT_PROFILE, DEMO_PEOPLE, demoId } from "./fixtures";
 import { type DemoState, ME } from "./state";
@@ -55,10 +63,15 @@ export class DemoPeople implements PeopleRepository {
     return [this.myCard(), ...DEMO_PEOPLE.map((d) => this.card(d))];
   }
 
-  async search(query: string) {
+  async search(query: string, sort: PeopleSort = "popular", offset = 0) {
     const q = query.trim().toLowerCase().replace(/^@/, "");
-    if (!q) return DEMO_PEOPLE.map((d) => this.card(d)).sort((a, b) => b.followers - a.followers);
-    return this.all().filter((p) => p.username.toLowerCase().includes(q) || p.displayName.toLowerCase().includes(q));
+    // У демо-садоводов нет даты регистрации: «новые» — последние в списке.
+    const found = q
+      ? this.all().filter((p) => p.username.toLowerCase().includes(q) || p.displayName.toLowerCase().includes(q))
+      : sort === "new"
+        ? DEMO_PEOPLE.map((d) => this.card(d)).reverse()
+        : DEMO_PEOPLE.map((d) => this.card(d)).sort((a, b) => b.followers - a.followers);
+    return found.slice(offset, offset + PEOPLE_PAGE);
   }
 
   async byUsername(username: string) {
@@ -87,12 +100,46 @@ export class DemoPeople implements PeopleRepository {
         photoUrl: this.state.photos[p.id] ?? null,
       }));
     const person = DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
-    return (person?.plants ?? []).map(([nickname, slug], i) => ({
-      id: `${userId}-plant-${i}`,
+    // id как у записей дневников в демо-ленте — с карточки открывается дневник растения.
+    return (person?.plants ?? []).map(([nickname, slug]) => ({
+      id: demoId(`${person!.username}/${nickname}`),
       nickname,
       speciesSlug: slug,
       photoUrl: null,
     }));
+  }
+
+  async plant(plantId: string): Promise<PlantProfile | null> {
+    const me = this.state.profile ?? DEFAULT_PROFILE;
+    const own = this.state.plants.find((p) => p.id === plantId);
+    if (own)
+      return {
+        id: own.id,
+        nickname: own.nickname,
+        speciesSlug: own.speciesSlug,
+        photoUrl: this.state.photos[own.id] ?? null,
+        notes: own.notes ?? null,
+        since: new Date(own.createdAt),
+        ownerName: me.username,
+        ownerDisplayName: me.displayName ?? me.username,
+        mine: true,
+      };
+    for (const d of DEMO_PEOPLE) {
+      const found = d.plants.find(([nickname]) => demoId(`${d.username}/${nickname}`) === plantId);
+      if (found)
+        return {
+          id: plantId,
+          nickname: found[0],
+          speciesSlug: found[1],
+          photoUrl: null,
+          notes: null,
+          since: new Date(),
+          ownerName: d.username,
+          ownerDisplayName: d.displayName,
+          mine: false,
+        };
+    }
+    return null;
   }
 
   async updateProfile(update: ProfileUpdate): Promise<Profile> {

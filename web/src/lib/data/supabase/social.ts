@@ -26,7 +26,7 @@ export class SupabaseSocial implements SocialRepository {
   private async hydrate(rows: Row[]) {
     if (!rows.length) return [];
     const ids = rows.map((r) => r.id as string);
-    const firstPhoto = (r: Row) => ((r.photo_paths as string[] | null) ?? [])[0];
+    const pathsOf = (r: Row) => (r.photo_paths as string[] | null) ?? [];
     const authors = [...new Set(rows.map((r) => r.author_id as string))];
     const [liked, follows, urls, slugOf] = await Promise.all([
       this.db.from("likes").select("post_id").eq("user_id", this.uid).in("post_id", ids),
@@ -35,7 +35,7 @@ export class SupabaseSocial implements SocialRepository {
       signedUrls(
         this.db,
         POST_BUCKET,
-        rows.map(firstPhoto).filter((p) => p && !p.startsWith("https://")),
+        rows.flatMap(pathsOf).filter((p) => !p.startsWith("https://")),
       ),
       this.species.slugs(),
     ]);
@@ -45,7 +45,9 @@ export class SupabaseSocial implements SocialRepository {
       ...postFromRow(r, {
         likedByMe: likedIds.has(r.id as string),
         following: followed.has(r.author_id as string),
-        photoUrl: urls.get(firstPhoto(r)) ?? (firstPhoto(r)?.startsWith("https://") ? firstPhoto(r) : null),
+        photoUrls: pathsOf(r)
+          .map((p) => (p.startsWith("https://") ? p : urls.get(p)))
+          .filter((u): u is string => !!u),
         myId: this.uid,
       }),
       speciesId: slugOf(r.species_id as string | null),
@@ -118,12 +120,9 @@ export class SupabaseSocial implements SocialRepository {
 
   async createPost(post: NewPost) {
     const id = crypto.randomUUID();
-    const paths: string[] = [];
-    if (post.photo) {
-      const path = `${this.uid}/${id}/0.jpg`;
-      await uploadJpeg(this.db, POST_BUCKET, path, post.photo);
-      paths.push(path);
-    }
+    // Фото грузим параллельно; порядок путей — как выбрал автор (первое — обложка).
+    const paths = (post.photos ?? []).map((_, i) => `${this.uid}/${id}/${i}.jpg`);
+    await Promise.all((post.photos ?? []).map((photo, i) => uploadJpeg(this.db, POST_BUCKET, paths[i], photo)));
     const row = check(
       moderated(
         this.db,
@@ -186,16 +185,44 @@ export class SupabaseSocial implements SocialRepository {
     const rows = check(
       await this.db.from("comments").select(COMMENT_SELECT).eq("post_id", postId).is("deleted_at", null).order("created_at").limit(200),
     ) as Row[];
-    return rows.map((r) => commentFromRow(r, this.uid));
+    const liked = rows.length
+      ? new Set(
+          (
+            check(
+              await this.db
+                .from("comment_likes")
+                .select("comment_id")
+                .eq("user_id", this.uid)
+                .in(
+                  "comment_id",
+                  rows.map((r) => r.id as string),
+                ),
+            ) as Row[]
+          ).map((l) => l.comment_id as string),
+        )
+      : new Set<string>();
+    return rows.map((r) => commentFromRow(r, this.uid, liked.has(r.id as string)));
   }
 
-  async addComment(postId: string, text: string) {
+  async setCommentLiked(commentId: string, liked: boolean) {
+    if (liked) {
+      check(await this.db.from("comment_likes").upsert({ user_id: this.uid, comment_id: commentId }, { ignoreDuplicates: true }));
+    } else {
+      check(await this.db.from("comment_likes").delete().eq("user_id", this.uid).eq("comment_id", commentId));
+    }
+  }
+
+  async addComment(postId: string, text: string, parentId: string | null = null) {
     const row = check(
       moderated(
         this.db,
         "comments",
         text,
-        await this.db.from("comments").insert({ id: crypto.randomUUID(), post_id: postId, text }).select(COMMENT_SELECT).single(),
+        await this.db
+          .from("comments")
+          .insert({ id: crypto.randomUUID(), post_id: postId, text, parent_id: parentId })
+          .select(COMMENT_SELECT)
+          .single(),
       ),
     ) as Row;
     return commentFromRow(row, this.uid);

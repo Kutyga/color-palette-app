@@ -3,12 +3,13 @@
 /**
  * Карточки ленты: запись дневника растения и совет (запись с меткой «Совет»).
  * Фото — главное в записи: событие и имя растения лежат плашкой прямо на нём.
+ * Несколько фото листаются пальцем (как в Instagram): счётчик «2/3» и точки под снимком.
  * «Поддержка» здесь — «Полить» (для совета — «Полезно»): те же счётчики, что и раньше.
  */
 
 import { BookOpen, Droplets, MessageCircle, ThumbsUp } from "lucide-react";
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { DIARY_EVENTS, type FeedPost } from "@/lib/domain/social";
 import { PlantPhoto, cx } from "../ui";
 import { PostMenu } from "./post-menu";
@@ -58,6 +59,47 @@ function PostText({ text, className }: { text: string; className?: string }) {
   );
 }
 
+/** Фото записи: одно — как есть; несколько — лента с прокруткой по снимку, счётчик и точки. */
+function PostPhotos({ post, alt, className, children }: { post: FeedPost; alt: string; className: string; children?: ReactNode }) {
+  const [index, setIndex] = useState(0);
+  const urls = post.photoUrls.length ? post.photoUrls : post.photoUrl ? [post.photoUrl] : [];
+  if (urls.length <= 1) {
+    return (
+      <div className="relative">
+        <PlantPhoto src={urls[0]} seed={post.id} alt={alt} className={className} iconSize={48} whole />
+        {children}
+      </div>
+    );
+  }
+  return (
+    <div className="relative">
+      <div
+        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto"
+        aria-label={`${urls.length} фото, листайте`}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          setIndex(Math.round(el.scrollLeft / el.clientWidth));
+        }}
+      >
+        {urls.map((url, i) => (
+          <div key={url} className="w-full shrink-0 snap-center">
+            <PlantPhoto src={url} seed={`${post.id}-${i}`} alt={`${alt}, фото ${i + 1}`} className={className} iconSize={48} whole />
+          </div>
+        ))}
+      </div>
+      {children}
+      <span className="absolute top-3 right-3 rounded-full bg-black/40 px-2 py-0.5 text-[12px] font-semibold text-white tabular-nums backdrop-blur-sm">
+        {index + 1}/{urls.length}
+      </span>
+      <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1.5" aria-hidden>
+        {urls.map((url, i) => (
+          <span key={url} className={cx("size-1.5 rounded-full transition", i === index ? "bg-white" : "bg-white/50")} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function CommentsButton({ post, onComments }: { post: FeedPost; onComments: () => void }) {
   return (
     <button
@@ -85,19 +127,11 @@ export function DiaryCard({ post, onComments, showPlantLink = true }: { post: Fe
         <PostMenu post={post} />
       </header>
       {post.photoUrl ? (
-        <div className="relative">
-          <PlantPhoto
-            src={post.photoUrl}
-            seed={post.id}
-            alt={post.plantName ?? "Фото растения"}
-            className="aspect-[4/3] max-h-[45vh] w-full"
-            iconSize={48}
-            whole
-          />
-          <div className="absolute inset-x-3 top-3 flex">
+        <PostPhotos post={post} alt={post.plantName ?? "Фото растения"} className="aspect-[4/3] max-h-[45vh] w-full">
+          <div className="pointer-events-none absolute top-3 right-16 left-3 flex">
             <EventTag post={post} onPhoto />
           </div>
-        </div>
+        </PostPhotos>
       ) : (
         <div className="px-4">
           <EventTag post={post} onPhoto={false} />
@@ -148,14 +182,9 @@ function TipCard({ post, onComments }: { post: FeedPost; onComments: () => void 
       </p>
       {post.text && <PostText text={post.text} className="px-4 pt-2 text-[17px] leading-snug font-semibold" />}
       {post.photoUrl && (
-        <PlantPhoto
-          src={post.photoUrl}
-          seed={post.id}
-          alt={post.plantName ?? "Иллюстрация к совету"}
-          className="mx-4 mt-3 aspect-[4/3] max-h-[40vh] w-[calc(100%-2rem)] rounded-2xl"
-          iconSize={40}
-          whole
-        />
+        <div className="mx-4 mt-3 overflow-hidden rounded-2xl">
+          <PostPhotos post={post} alt={post.plantName ?? "Иллюстрация к совету"} className="aspect-[4/3] max-h-[40vh] w-full" />
+        </div>
       )}
       <footer className="flex items-center gap-1 px-3 pt-2 pb-2.5">
         <button

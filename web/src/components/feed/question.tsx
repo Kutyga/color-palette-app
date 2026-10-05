@@ -14,7 +14,7 @@ import { plural, timeAgo } from "@/lib/format";
 import { useComments } from "@/lib/queries";
 import { useBackend } from "../session";
 import { Avatar, LARGE_PHOTO, PlantPhoto, Spinner, cx, useToast } from "../ui";
-import { ReplyForm } from "./comments";
+import { CommentHeart, ReplyForm } from "./comments";
 import { PostMenu } from "./post-menu";
 import { AuthorLine, SpeciesLink, authorHref, questionHref } from "./shared";
 
@@ -162,7 +162,10 @@ function AnswerItem({
         </Link>
         <div className="min-w-0 flex-1">
           <p className="text-[13px]">
-            <b>{c.authorDisplayName}</b> <span className="text-secondary">· {timeAgo(c.createdAt)}</span>
+            <Link href={authorHref({ mine: c.mine, authorName: c.authorName })} className="font-semibold">
+              {c.authorDisplayName}
+            </Link>{" "}
+            <span className="text-secondary">· {timeAgo(c.createdAt)}</span>
           </p>
           <p className="mt-1 text-[15px] leading-relaxed whitespace-pre-line">{c.text}</p>
           {canMark && (
@@ -176,6 +179,7 @@ function AnswerItem({
             <Trash2 className="size-4" />
           </button>
         )}
+        <CommentHeart comment={c} />
       </div>
     </li>
   );

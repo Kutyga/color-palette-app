@@ -43,14 +43,23 @@ export type PostRec = Omit<
   | "speciesId"
   | "solvedCommentId"
   | "editedAt"
+  | "photoUrls"
 > &
   Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & {
     createdAt: string;
     authorDisplayName?: string;
     editedAt?: string | null;
+    /** Все фото; в старых сохранённых демо-данных только photoUrl. */
+    photoUrls?: string[];
   };
 
-export type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName"> & { createdAt: string; authorDisplayName?: string };
+export type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName" | "parentId" | "likeCount" | "likedByMe"> & {
+  createdAt: string;
+  authorDisplayName?: string;
+  parentId?: string | null;
+  likeCount?: number;
+  likedByMe?: boolean;
+};
 
 export interface DemoState {
   version: 1;
