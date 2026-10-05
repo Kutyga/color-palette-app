@@ -4,7 +4,7 @@
  * Общее для записей и вопросов: автор, ссылки, «Поддержать», вид растения.
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { BadgeCheck, Leaf } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -18,7 +18,6 @@ import { Avatar, cx, useToast } from "../ui";
 
 export function useSupport(post: FeedPost) {
   const backend = useBackend();
-  const qc = useQueryClient();
   const toast = useToast();
   const [state, setState] = useState({ on: post.likedByMe, count: post.likeCount });
   const mutation = useMutation({
@@ -27,7 +26,6 @@ export function useSupport(post: FeedPost) {
       setState((s) => ({ on: !on, count: s.count + (on ? -1 : 1) }));
       toast(`Не получилось: ${e.message}`);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["stats"] }),
   });
   return {
     ...state,

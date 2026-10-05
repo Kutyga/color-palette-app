@@ -2,13 +2,18 @@
  * Запасной путь к Supabase через свой домен. Часть российских операторов (чаще мобильный
  * интернет) не пропускает *.supabase.co — в браузере это «Load failed» / «Failed to fetch».
  * Тогда запросы идут на {сайт}/sb/…, а хостинг пересылает их в Supabase (spaceweb/sb-proxy).
- * Переключение — само, после первой сетевой ошибки; через сутки снова пробуем напрямую.
+ *
+ * Прокси медленнее прямого пути, поэтому включаем его на время, только когда Supabase правда
+ * недоступен: одна сетевая ошибка бывает и просто так (iPhone обрывает запросы, когда приложение
+ * сворачивают, — «Load failed»). После ошибки запрос повторяем через прокси, а прямой путь
+ * проверяем коротким запросом: отвечает — остаёмся на нём; нет — прокси на час, потом пробуем снова.
  */
 
-import { BASE_PATH, SUPABASE_URL } from "./config";
+import { BASE_PATH, SUPABASE_KEY, SUPABASE_URL } from "./config";
 
 const FLAG = "podokonnik-sb-proxy";
-const RETRY_DIRECT_MS = 24 * 60 * 60 * 1000;
+const RETRY_DIRECT_MS = 60 * 60 * 1000;
+const PROBE_TIMEOUT_MS = 4000;
 
 const origin = (() => {
   try {
@@ -46,6 +51,28 @@ export function viaProxy(url: string, force = false): string {
   return base && (force || proxyMode()) && url.startsWith(origin) ? base + url.slice(origin.length) : url;
 }
 
+let probing: Promise<void> | null = null;
+
+/** Доходит ли запрос до Supabase напрямую: короткий запрос к /auth/v1/health. Нет — включаем прокси. */
+function probeDirect(): Promise<void> {
+  probing ??= (async () => {
+    try {
+      const res = await fetch(`${origin}/auth/v1/health`, {
+        headers: { apikey: SUPABASE_KEY },
+        signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+        cache: "no-store",
+      });
+      // Любой ответ сервера (даже ошибка) значит, что прямой путь открыт.
+      void res.body?.cancel();
+    } catch {
+      enableProxy();
+    } finally {
+      probing = null;
+    }
+  })();
+  return probing;
+}
+
 /** fetch для supabase-js: напрямую, а при сетевой ошибке — через свой домен. */
 export const resilientFetch: typeof fetch = async (input, init) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
@@ -56,8 +83,8 @@ export const resilientFetch: typeof fetch = async (input, init) => {
   } catch (e) {
     // TypeError — сеть не дошла до сервера (блокировка, обрыв); отмена запроса (AbortError) — не наш случай.
     if (!(e instanceof TypeError)) throw e;
-    const res = await fetch(viaProxy(url, true), init);
-    enableProxy();
-    return res;
+    // Этот запрос — через прокси, чтобы не потерять его; а надолго ли переключаться — решит проверка.
+    void probeDirect();
+    return fetch(viaProxy(url, true), init);
   }
 };
