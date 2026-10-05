@@ -14,7 +14,7 @@
 |---|---|---|
 | Коллекция и уход | `plants`, `locations`, `care_schedules`, `care_events`, `plant_photos` | Отметка ухода — вставка в `care_events` с id от клиента, поэтому повтор не создаёт дубль. Триггер сдвигает `next_due_at`, удаление отметки откатывает график |
 | База знаний | `species` | Нужна только для перевода slug ↔ uuid (`SpeciesIds`); сами карточки — из снимка при сборке |
-| Сообщество | `posts`, `comments`, `likes`, `follows`, `blocks`, `reports` | Правка своей записи — в течение часа; окно проверяет база |
+| Сообщество | `posts`, `comments` (ответы — `parent_id`, ветка под корнем), `comment_likes`, `likes`, `follows`, `blocks`, `reports` | Правка своей записи — в течение часа; окно проверяет база |
 | Люди | `profiles`, `profile_cards` | `profile_cards` — представление с публичными полями и счётчиками |
 | Барахолка и чат | `listings`, `messages`, `contests` | Новые сообщения приходят через Realtime-канал `chat:<id>` |
 | Магазины | `shops`, `shop_products`, `wishlist_items` | Статус магазина меняет только администратор (RPC `review_shop`) |
@@ -29,7 +29,7 @@
 | `feed_diaries(scope, lim)` | Записи дневников: подписки или все публичные |
 | `help_questions(filter, lim)` | Вопросы «Помощи»: ждут ответа, про мои виды, мои, все |
 | `news_feed(lim, only_my_species, langs)` | Лента новостей с фильтром по языкам и своим видам |
-| `search_people(q, lim)`, `people_followers(p_user)`, `people_following(p_user)` | Поиск садоводов и списки подписок |
+| `search_people_page(q, lim, off, sort)`, `people_followers(p_user)`, `people_following(p_user)` | Поиск садоводов порциями (популярные или новые) и списки подписок |
 | `start_conversation(p_listing)`, `my_conversations()`, `mark_conversation_read(p_conversation)` | Переписка по объявлению; лимит новых чатов проверяет функция |
 | `shop_import_products(p_rows, p_replace)` | Загрузка каталога: обновление по артикулу, при `p_replace` — удаление отсутствующих |
 | `where_to_buy(p_species, p_city)` | «Где купить»: свой город первым, чужие — только с доставкой |

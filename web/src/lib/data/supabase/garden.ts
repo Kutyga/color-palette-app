@@ -4,7 +4,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../../domain/care";
 import { statsFromRow } from "../../domain/gamification";
-import { coverPathOf, plantFromRow, type Location, type WaterMode } from "../../domain/plant";
+import { coverPathOf, plantFromRow, type Location, type Visibility, type WaterMode } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
@@ -95,6 +95,10 @@ export class SupabaseGarden implements GardenRepository {
     const { data, error } = await this.db.from("care_events").delete().eq("id", eventId).select("id");
     if (error) throw new Error(error.message);
     if (!data?.length) throw new Error("Эту отметку удалить нельзя — её сделал другой человек");
+  }
+
+  async setVisibility(plantId: string, visibility: Visibility) {
+    check(await this.db.from("plants").update({ visibility }).eq("id", plantId).eq("owner_id", this.uid));
   }
 
   async setWaterMode(plantId: string, mode: WaterMode) {

@@ -149,14 +149,29 @@ test("демо: дневники — поддержка, комментарий,
   await page.getByLabel("Текст комментария").fill("Потрясающе!");
   await page.getByRole("button", { name: "Отправить" }).click();
   await expect(page.getByText("Потрясающе!")).toBeVisible();
+  // Ответ на комментарий — веткой под ним, с обращением по имени; сердечко на комментарии.
+  const sheet = page.getByRole("dialog", { name: "Комментарии" });
+  const papaComment = sheet.getByRole("listitem").filter({ hasText: "Чем подкармливаете?" });
+  await papaComment.getByRole("button", { name: "Ответить" }).click();
+  await expect(sheet.getByText("Ответ для Фикус Папа")).toBeVisible();
+  await expect(page.getByLabel("Текст комментария")).toHaveValue("Фикус Папа, ");
+  await page.getByLabel("Текст комментария").fill("Фикус Папа, раз в месяц, летом чаще");
+  await page.getByRole("button", { name: "Отправить" }).click();
+  await expect(papaComment.getByRole("list").getByText("раз в месяц, летом чаще")).toBeVisible();
+  await papaComment.getByRole("button", { name: "Поставить сердечко" }).first().click();
+  await expect(papaComment.getByRole("button", { name: "Убрать сердечко" })).toContainText("1");
+  // Имя автора комментария ведёт в его профиль.
+  await expect(papaComment.getByRole("link", { name: "Профиль: Фикус Папа" })).toHaveAttribute("href", /people\/view/);
   await page.getByRole("button", { name: "Закрыть" }).click();
-  await expect(annaPost.getByRole("button", { name: "Комментарии" })).toContainText("3");
+  await expect(annaPost.getByRole("button", { name: "Комментарии" })).toContainText("4");
 
   // «На подоконниках»: растения из свежих записей; горшок ведёт в дневник растения.
   const sill = page.getByRole("region", { name: "На подоконниках" });
   await expect(sill.getByRole("link")).not.toHaveCount(0);
   await sill.getByRole("link", { name: /Монстера Бублик/ }).click();
-  await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Растение" })).toBeVisible();
+  // Чужое растение: шапка с хозяином, записи о нём.
+  await expect(page.getByRole("region", { name: "О растении" }).getByRole("link", { name: "Анна" })).toBeVisible();
   await page.goBack();
 
   // Сообщество открывается на «Все садоводы»; подписка оттуда добавляет автора в «Мои подписки».
@@ -173,16 +188,21 @@ test("демо: дневники — поддержка, комментарий,
   await page.getByRole("button", { name: "🌸 Цветение" }).click();
   await page.getByRole("button", { name: "Сфотографировать растение" }).click();
   await page.getByRole("button", { name: "Снять" }).click();
+  // Второе фото — из файлов: например, бутон крупно и всё растение.
+  await page.getByLabel("Ещё фото из файлов").setInputFiles("e2e/fixtures/plant.jpg");
+  await expect(page.getByText("2 из 5 фото")).toBeVisible();
   await page.getByLabel("Пара слов").fill("Первый бутон 🌱");
   await page.getByRole("button", { name: "Добавить в дневник" }).click();
   await page.waitForURL("**/feed/?tab=diaries");
   const mine = page.locator("article").filter({ hasText: "Первый бутон 🌱" });
   await expect(mine.getByText("Цветение")).toBeVisible();
+  await expect(mine.getByText("1/2")).toBeVisible();
   await expect(page.getByText("Новое достижение! «Звезда подоконника»")).toBeVisible();
 
   // Дневник растения — все записи о нём по порядку.
   await mine.getByRole("link", { name: "Дневник растения" }).click();
-  await expect(page.getByRole("heading", { name: "Дневник растения" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Растение" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Карточка ухода/ })).toBeVisible();
   await expect(page.getByText("Монстера Мося").first()).toBeVisible();
   await expect(page.getByText("Первый бутон 🌱")).toBeVisible();
 
@@ -366,6 +386,12 @@ test("демо: место растения меняется, ошибочный
   await page.getByRole("button", { name: "Закрыть" }).click();
   await expect(page.getByRole("button", { name: /Место: не указано/ })).toBeVisible();
 
+  // Кто видит растение — меняется прямо в карточке.
+  const who = page.getByRole("radiogroup", { name: "Кто видит растение" });
+  await who.getByRole("radio", { name: "Только я" }).click();
+  await expect(page.getByText("Растение видите только вы")).toBeVisible();
+  await expect(who.getByRole("radio", { name: "Только я" })).toHaveAttribute("aria-checked", "true");
+
   const log = page.getByRole("list", { name: "Журнал ухода" }).getByRole("listitem").filter({ hasText: "Полив" });
   const before = await log.count();
   await page.getByRole("button", { name: "Полить" }).click();
@@ -469,13 +495,22 @@ test("демо: редактирование профиля, подписчик�
   // Поиск садоводов → профиль → растения → подписка.
   await page.getByRole("link", { name: "Найти садоводов" }).click();
   await page.waitForURL("**/people/");
-  await expect(page.getByText("Популярные садоводы")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Популярные" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Новые" }).click();
+  await expect(page.getByRole("button", { name: "Новые" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("link", { name: /Света \| суккуленты/ })).toBeVisible();
   await page.getByRole("searchbox", { name: "Поиск садоводов" }).fill("свет");
   await page.getByRole("link", { name: /Света \| суккуленты/ }).click();
   await page.waitForURL("**/people/view/**");
   await expect(page.getByRole("heading", { level: 1, name: "Света | суккуленты" })).toBeVisible();
   await expect(page.getByText("Камешки")).toBeVisible();
-  await expect(page.getByRole("link", { name: /Литопс/ })).toBeVisible();
+  // Растение из чужой коллекции открывается: шапка с хозяином и дневник.
+  await page.getByRole("link", { name: /Камешки/ }).click();
+  await page.waitForURL("**/feed/plant/**");
+  await expect(page.getByRole("region", { name: "О растении" }).getByRole("link", { name: "Света | суккуленты" })).toBeVisible();
+  await expect(page.getByText("пока не писал(а) о нём в дневнике")).toBeVisible();
+  await page.goBack();
+  await page.waitForURL("**/people/view/**");
   // «Назад» возвращает к тем же результатам поиска.
   await page.goBack();
   await page.waitForURL("**/people/");

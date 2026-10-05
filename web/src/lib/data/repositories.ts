@@ -9,8 +9,8 @@ import type { PhotoDiagnosis } from "../domain/diagnosis";
 import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../domain/gamification";
 import type { Prediction } from "../domain/identification";
 import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
-import type { PersonCard, ProfileUpdate, PublicPlant } from "../domain/people";
-import type { Location, NewPlant, Plant, PlantDetails, WaterMode } from "../domain/plant";
+import type { PeopleSort, PersonCard, PlantProfile, ProfileUpdate, PublicPlant } from "../domain/people";
+import type { Location, NewPlant, Plant, PlantDetails, Visibility, WaterMode } from "../domain/plant";
 import type { ImportResult, Offer, ProductInput, Shop, ShopDraft, ShopProduct, ShopStatus } from "../domain/shop";
 import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
 
@@ -32,6 +32,8 @@ export interface GardenRepository {
   deleteCareEvent(eventId: string): Promise<void>;
   /** Как поливается: по графику, в воде или фитиль; в воде и на фитиле график полива выключен. */
   setWaterMode(plantId: string, mode: WaterMode): Promise<void>;
+  /** Кто видит растение: только я, подписчики или все. */
+  setVisibility(plantId: string, visibility: Visibility): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;
@@ -73,7 +75,10 @@ export interface SocialRepository {
   setLiked(postId: string, liked: boolean): Promise<void>;
   setFollowing(authorId: string, follow: boolean): Promise<void>;
   comments(postId: string): Promise<PostComment[]>;
-  addComment(postId: string, text: string): Promise<PostComment>;
+  /** parentId — ответ на комментарий (ответ на ответ попадает в ту же ветку). */
+  addComment(postId: string, text: string, parentId?: string | null): Promise<PostComment>;
+  /** «Сердечко» на комментарии. */
+  setCommentLiked(commentId: string, liked: boolean): Promise<void>;
   deleteComment(commentId: string): Promise<void>;
   /** Для достижений: сколько постов опубликовано и лайков получено. */
   /** Для достижений: публикации, «Поддержать», ответы в «Помощи» (и лучшие), подписчики. */
@@ -101,13 +106,15 @@ export interface Profile {
 
 /** Садоводы: поиск, профили, подписчики и их растения. Подписка — SocialRepository.setFollowing. */
 export interface PeopleRepository {
-  /** Пустой запрос — рекомендации (популярные садоводы). */
-  search(query: string): Promise<PersonCard[]>;
+  /** Пустой запрос — все садоводы: популярные или новые. Порциями по PEOPLE_PAGE, offset — сколько уже показано. */
+  search(query: string, sort?: PeopleSort, offset?: number): Promise<PersonCard[]>;
   byUsername(username: string): Promise<PersonCard | null>;
   followers(userId: string): Promise<PersonCard[]>;
   following(userId: string): Promise<PersonCard[]>;
   /** Растения садовода, которые разрешено видеть текущему пользователю. */
   plantsOf(userId: string): Promise<PublicPlant[]>;
+  /** Одно растение (своё или чужое, если его разрешено видеть); null — нет или скрыто. */
+  plant(plantId: string): Promise<PlantProfile | null>;
   /** Меняет свой профиль; занятый username — ошибка с понятным текстом. */
   updateProfile(update: ProfileUpdate): Promise<Profile>;
 }

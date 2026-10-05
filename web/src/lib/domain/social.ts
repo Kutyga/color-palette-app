@@ -44,13 +44,22 @@ export interface FeedPost {
   createdAt: Date;
   plantId: string | null;
   plantName: string | null;
+  /** Обложка — первое фото. */
   photoUrl: string | null;
+  /** Все фото публикации по порядку (обложка — первое). */
+  photoUrls: string[];
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
   mine: boolean;
   /** Я подписан на автора. */
   following: boolean;
+}
+
+/** Комментарии веткой: корневые по времени, под каждым — его ответы. */
+export function commentThreads(list: PostComment[]): { root: PostComment; replies: PostComment[] }[] {
+  const roots = list.filter((c) => !c.parentId || !list.some((x) => x.id === c.parentId));
+  return roots.map((root) => ({ root, replies: list.filter((c) => c.parentId === root.id) }));
 }
 
 /** Сколько после публикации её можно редактировать (удалять — всегда). */
@@ -72,6 +81,10 @@ export interface PostUpdate {
 export interface PostComment {
   id: string;
   postId: string;
+  /** Корневой комментарий ветки, если это ответ; ответы всегда в одной ветке под корнем. */
+  parentId: string | null;
+  likeCount: number;
+  likedByMe: boolean;
   authorName: string;
   authorDisplayName: string;
   text: string;
@@ -85,7 +98,8 @@ export interface NewPost {
   event?: DiaryEvent | null;
   text: string;
   plantId?: string | null;
-  photo?: Blob | null;
+  /** Фото по порядку; первое — обложка в ленте. */
+  photos?: Blob[];
   /** Для постов доступны только «Подписчики» и «Все». */
   visibility?: "followers" | "public";
 }
@@ -132,7 +146,7 @@ type Row = Record<string, unknown>;
 /** Ожидает выборку `*, author:profiles(username, display_name), plant:plants(nickname)`. */
 export function postFromRow(
   r: Row,
-  opts: { photoUrl?: string | null; likedByMe?: boolean; following?: boolean; myId?: string | null },
+  opts: { photoUrls?: string[]; likedByMe?: boolean; following?: boolean; myId?: string | null },
 ): FeedPost {
   const author = r.author as { username?: string; display_name?: string | null; is_admin?: boolean } | null;
   const plant = r.plant as { nickname?: string } | null;
@@ -152,7 +166,8 @@ export function postFromRow(
     createdAt: new Date(r.created_at as string),
     plantId: (r.plant_id as string | null) ?? null,
     plantName: plant?.nickname ?? null,
-    photoUrl: opts.photoUrl ?? null,
+    photoUrl: opts.photoUrls?.[0] ?? null,
+    photoUrls: opts.photoUrls ?? [],
     likeCount: (r.like_count as number | null) ?? 0,
     commentCount: (r.comment_count as number | null) ?? 0,
     likedByMe: opts.likedByMe ?? false,
@@ -161,11 +176,14 @@ export function postFromRow(
   };
 }
 
-export function commentFromRow(r: Row, myId: string | null): PostComment {
+export function commentFromRow(r: Row, myId: string | null, likedByMe = false): PostComment {
   const author = r.author as { username?: string; display_name?: string | null } | null;
   return {
     id: r.id as string,
     postId: r.post_id as string,
+    parentId: (r.parent_id as string | null) ?? null,
+    likeCount: Number(r.like_count ?? 0),
+    likedByMe,
     authorName: author?.username ?? "садовник",
     authorDisplayName: author?.display_name?.trim() || prettyUsername(author?.username ?? "садовник"),
     text: r.text as string,

@@ -6,11 +6,12 @@
  * Весь кэш сбрасывается при входе, выходе и смене демо-режима.
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackend } from "@/components/session";
 import type { CareType } from "./domain/care";
 import type { GardenStats } from "./domain/gamification";
 import type { ListingFilter } from "./domain/market";
+import { PEOPLE_PAGE, type PeopleSort } from "./domain/people";
 import type { DiaryScope, HelpFilter } from "./domain/social";
 import { startOfDay } from "./time";
 
@@ -145,9 +146,16 @@ export function useLogCare() {
 // Люди
 // ---------------------------------------------------------------------------
 
-export function usePeopleSearch(query: string) {
+/** Поиск садоводов порциями: fetchNextPage — «Показать ещё». */
+export function usePeopleSearch(query: string, sort: PeopleSort = "popular") {
   const b = useBackend();
-  return useQuery({ queryKey: ["people", "search", query.trim()], queryFn: () => b.people.search(query), placeholderData: (prev) => prev });
+  return useInfiniteQuery({
+    queryKey: ["people", "search", query.trim(), sort],
+    queryFn: ({ pageParam }) => b.people.search(query, sort, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (last, all) => (last.length < PEOPLE_PAGE ? undefined : all.length * PEOPLE_PAGE),
+    placeholderData: (prev) => prev,
+  });
 }
 
 export function usePerson(username: string | null) {
@@ -162,6 +170,11 @@ export function usePeopleList(kind: "followers" | "following", userId: string | 
     queryFn: () => (kind === "followers" ? b.people.followers(userId!) : b.people.following(userId!)),
     enabled: !!userId,
   });
+}
+
+export function usePlantProfile(plantId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "plant", plantId], queryFn: () => b.people.plant(plantId!), enabled: !!plantId });
 }
 
 export function usePlantsOf(userId: string | null) {

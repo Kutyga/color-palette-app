@@ -36,6 +36,7 @@ export class DemoSocial implements SocialRepository {
       speciesId: p.speciesId ?? null,
       solvedCommentId: p.solvedCommentId ?? null,
       editedAt: p.editedAt ? new Date(p.editedAt) : null,
+      photoUrls: p.photoUrls ?? (p.photoUrl ? [p.photoUrl] : []),
       authorDisplayName:
         p.authorId === ME
           ? (me.displayName ?? "Вы")
@@ -95,6 +96,7 @@ export class DemoSocial implements SocialRepository {
 
   async createPost(post: NewPost) {
     const plant = this.state.plants.find((p) => p.id === post.plantId);
+    const photoUrls = await Promise.all((post.photos ?? []).map(blobToDataUrl));
     const rec: PostRec = {
       id: crypto.randomUUID(),
       kind: post.kind,
@@ -107,7 +109,8 @@ export class DemoSocial implements SocialRepository {
       createdAt: this.clock().toISOString(),
       plantId: post.plantId ?? null,
       plantName: plant?.nickname ?? null,
-      photoUrl: post.photo ? await blobToDataUrl(post.photo) : null,
+      photoUrl: photoUrls[0] ?? null,
+      photoUrls,
       likeCount: 0,
       commentCount: 0,
       likedByMe: false,
@@ -159,10 +162,13 @@ export class DemoSocial implements SocialRepository {
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
-  async addComment(postId: string, text: string) {
+  async addComment(postId: string, text: string, parentId: string | null = null) {
+    const parent = parentId ? this.state.comments.find((x) => x.id === parentId && x.postId === postId) : null;
+    if (parentId && !parent) throw new Error("Комментарий, на который вы отвечаете, не найден");
     const c: CommentRec = {
       id: crypto.randomUUID(),
       postId,
+      parentId: parent ? (parent.parentId ?? parent.id) : null,
       authorName: (this.state.profile ?? DEFAULT_PROFILE).username,
       text,
       createdAt: this.clock().toISOString(),
@@ -174,11 +180,22 @@ export class DemoSocial implements SocialRepository {
     return this.comment(c);
   }
 
+  async setCommentLiked(commentId: string, liked: boolean) {
+    const c = this.state.comments.find((x) => x.id === commentId);
+    if (!c || !!c.likedByMe === liked) return;
+    c.likedByMe = liked;
+    c.likeCount = Math.max(0, (c.likeCount ?? 0) + (liked ? 1 : -1));
+    this.persist();
+  }
+
   private comment(c: CommentRec): PostComment {
     const me = this.state.profile ?? DEFAULT_PROFILE;
     const person = DEMO_PEOPLE.find((d) => d.username === c.authorName);
     return {
       ...c,
+      parentId: c.parentId ?? null,
+      likeCount: c.likeCount ?? 0,
+      likedByMe: c.likedByMe ?? false,
       authorDisplayName: c.mine ? (me.displayName ?? "Вы") : (c.authorDisplayName ?? person?.displayName ?? c.authorName),
       createdAt: new Date(c.createdAt),
     };

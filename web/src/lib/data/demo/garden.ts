@@ -13,7 +13,7 @@ import {
   type LightLevel,
 } from "../../domain/care";
 import { EMPTY_STATS, type GardenStats } from "../../domain/gamification";
-import type { Plant, WaterMode } from "../../domain/plant";
+import type { Plant, Visibility, WaterMode } from "../../domain/plant";
 import { speciesName, type Species } from "../../domain/species";
 import { blobToDataUrl } from "../../image";
 import { ALL_SPECIES } from "../../knowledge";
@@ -134,6 +134,13 @@ export class DemoGarden implements GardenRepository {
       const s = this.state.schedules[i];
       this.state.schedules[i] = this.computeDue({ ...s, lastDoneAt: e.prevDoneAt ?? null, userFactor: e.prevFactor ?? s.userFactor });
     }
+    this.persist();
+  }
+
+  async setVisibility(plantId: string, visibility: Visibility) {
+    const p = this.state.plants.find((x) => x.id === plantId);
+    if (!p) throw new Error("Растение не найдено");
+    p.visibility = visibility;
     this.persist();
   }
 

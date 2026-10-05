@@ -204,17 +204,22 @@ export function PublicPlantsGrid({ plants }: { plants: PublicPlant[] }) {
         const sp = catalogBySlug(p.speciesSlug);
         return (
           <li key={p.id} className="bg-surface overflow-hidden rounded-[20px]">
-            <PlantPhoto src={p.photoUrl ?? sp?.image?.url} seed={p.id} alt={p.nickname} className="aspect-square w-full" iconSize={36} />
-            <div className="p-3">
-              <p className="truncate font-semibold">{p.nickname}</p>
-              {sp ? (
-                <Link href={`/plants/${sp.slug}/`} className="text-secondary hover:text-leaf flex items-center gap-1 truncate text-[13px]">
-                  <Leaf className="size-3.5 shrink-0" aria-hidden /> {speciesName(sp)}
-                </Link>
-              ) : (
-                <p className="text-secondary text-[13px]">Вид не указан</p>
-              )}
-            </div>
+            {/* Открывает страницу растения: фото, заметки хозяина и дневник. */}
+            <Link href={`/feed/plant/?id=${encodeURIComponent(p.id)}`} className="block">
+              <PlantPhoto src={p.photoUrl ?? sp?.image?.url} seed={p.id} alt={p.nickname} className="aspect-square w-full" iconSize={36} />
+              <div className="p-3">
+                <p className="truncate font-semibold">{p.nickname}</p>
+                <p className="text-secondary flex items-center gap-1 truncate text-[13px]">
+                  {sp ? (
+                    <>
+                      <Leaf className="size-3.5 shrink-0" aria-hidden /> <span className="truncate">{speciesName(sp)}</span>
+                    </>
+                  ) : (
+                    "Вид не указан"
+                  )}
+                </p>
+              </div>
+            </Link>
           </li>
         );
       })}

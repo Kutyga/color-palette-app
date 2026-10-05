@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { RequireSession } from "@/components/app-shell";
-import { CameraField } from "@/components/camera";
+import { PhotosField, type PickedPhoto } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { Button, Chip, EmptyState, Field, PageHeader, Spinner, cx, inputClass, useToast } from "@/components/ui";
 import { DIARY_EVENTS, type DiaryEvent } from "@/lib/domain/social";
@@ -16,6 +16,8 @@ import { usePlants } from "@/lib/queries";
 
 const MIN_QUESTION = 15;
 const MIN_TIP = 20;
+/** Сколько фото можно приложить к публикации: например, новый росток и всё растение целиком. */
+const MAX_PHOTOS = 5;
 
 /** Что публикуем: tip — запись с меткой «Совет» без обязательного растения и фото. */
 type Mode = "diary" | "tip" | "question";
@@ -32,18 +34,25 @@ function NewPostForm() {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(modeOf(params.get("type")));
   const [event, setEvent] = useState<DiaryEvent>("new_leaf");
-  const [photo, setPhoto] = useState<{ blob: Blob; url: string } | null>(null);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [text, setText] = useState("");
   const [plantId, setPlantId] = useState(params.get("plant") ?? "");
   const [visibility, setVisibility] = useState<"public" | "followers">("public");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => () => void (photo && URL.revokeObjectURL(photo.url)), [photo]);
+  // Ссылки предпросмотра освобождаем, когда форма закрывается.
+  const [urls] = useState(() => new Set<string>());
+  useEffect(() => () => urls.forEach((u) => URL.revokeObjectURL(u)), [urls]);
+  const addPhoto = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    urls.add(url);
+    setPhotos((ps) => (ps.length < MAX_PHOTOS ? [...ps, { blob, url }] : ps));
+  };
 
   const isDiary = mode === "diary";
   const isTip = mode === "tip";
   const minText = isTip ? MIN_TIP : MIN_QUESTION;
-  const ready = isDiary ? !!plantId && !!photo : text.trim().length >= minText;
+  const ready = isDiary ? !!plantId && photos.length > 0 : text.trim().length >= minText;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -55,7 +64,7 @@ function NewPostForm() {
         event: isDiary ? event : isTip ? "tip" : null,
         text: text.trim(),
         plantId: plantId || null,
-        photo: photo?.blob ?? null,
+        photos: photos.map((p) => p.blob),
         visibility: mode === "question" ? "public" : visibility,
       });
       qc.invalidateQueries({ queryKey: ["feed"] });
@@ -138,15 +147,15 @@ function NewPostForm() {
             </fieldset>
           )}
           <div>
-            <CameraField
-              allowFiles
-              aspect="aspect-[4/3]"
-              photoUrl={photo?.url ?? null}
-              onCapture={(blob) => setPhoto({ blob, url: URL.createObjectURL(blob) })}
+            <PhotosField
+              photos={photos}
+              max={MAX_PHOTOS}
+              onAdd={addPhoto}
+              onRemove={(i) => setPhotos((ps) => ps.filter((_, j) => j !== i))}
             />
             <p className="text-secondary mt-2 text-center text-[13px]">
               {isDiary
-                ? "Фото обязательно — так в дневнике будет видно, как растение меняется."
+                ? `Хотя бы одно фото — так в дневнике будет видно, как растение меняется. Можно до ${MAX_PHOTOS}.`
                 : isTip
                   ? "Картинка по желанию — например, как это выглядит на деле."
                   : "Фото поможет понять, что случилось. Можно и без него."}
