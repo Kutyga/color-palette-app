@@ -31,8 +31,18 @@ test("гость: база знаний открыта всем, сад — то
   await expect(page.getByText("Хлорофитум хохлатый")).toBeVisible();
   await expect(page.getByText("Монстера деликатесная")).toHaveCount(0);
 
-  // Без поиска — группы; в группе компактный список, у вида — ссылка обратно на группу.
+  // «Новичкам»: список статей → статья → следующая статья.
   await page.getByRole("button", { name: "Все", exact: true }).click();
+  await page.getByRole("link", { name: /Новичкам/ }).click();
+  await page.waitForURL("**/plants/guide/");
+  await page.getByRole("link", { name: /Полив без ошибок/ }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Полив без ошибок" })).toBeVisible();
+  await expect(page.getByRole("table")).toContainText("Перелив");
+  await page.getByRole("link", { name: /Следующая статья/ }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Горшок, дренаж и кашпо" })).toBeVisible();
+  await page.goto("/plants/");
+
+  // Без поиска — группы; в группе компактный список, у вида — ссылка обратно на группу.
   await page.getByRole("link", { name: /Калатеи и маранты/ }).click();
   await page.waitForURL("**/plants/group/marantaceae/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Калатеи и маранты");
