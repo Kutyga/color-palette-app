@@ -266,9 +266,14 @@ test("демо: помощь — вопрос, ответ и лучший отв
   await page.getByRole("link", { name: "Спросить" }).click();
   await expect(page.getByRole("button", { name: "Спросить" })).toBeDisabled();
   await page.getByLabel("Вопрос").fill("Почему у щучки мягкие листья у основания?");
+  // К вопросу — два фото: на странице вопроса листаются оба, в списке — значок «+1».
+  await page.getByLabel("Фото из файлов").setInputFiles("e2e/fixtures/plant.jpg");
+  await page.getByLabel("Ещё фото из файлов").setInputFiles("e2e/fixtures/plant.jpg");
+  await expect(page.getByText("2 из 5 фото")).toBeVisible();
   await page.getByRole("button", { name: "Спросить" }).click();
   await page.waitForURL("**/feed/question/**");
   await expect(page.getByText("Ответов пока нет")).toBeVisible();
+  await expect(page.getByText("1/2")).toBeVisible();
   await page.getByLabel("Текст ответа").fill("Скорее всего перелив — проверьте корни.");
   await page.getByRole("button", { name: "Отправить" }).click();
   await expect(page.getByText("Скорее всего перелив")).toBeVisible();
@@ -277,6 +282,7 @@ test("демо: помощь — вопрос, ответ и лучший отв
   await page.getByRole("link", { name: "Помощь" }).click();
   await page.getByRole("button", { name: "Мои вопросы" }).click();
   await expect(page.getByRole("link", { name: /мягкие листья у основания/ })).toContainText("1 ответ");
+  await expect(page.getByRole("link", { name: /мягкие листья у основания/ })).toContainText("+1");
 
   // Свой вопрос: правка в течение часа и удаление.
   await page.getByRole("link", { name: /мягкие листья у основания/ }).click();

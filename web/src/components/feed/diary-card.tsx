@@ -61,7 +61,7 @@ function PostText({ text, className }: { text: string; className?: string }) {
 }
 
 /** Фото записи: одно — как есть; несколько — лента с прокруткой по снимку, счётчик и точки. */
-function PostPhotos({ post, alt, className, children }: { post: FeedPost; alt: string; className: string; children?: ReactNode }) {
+export function PostPhotos({ post, alt, className, children }: { post: FeedPost; alt: string; className: string; children?: ReactNode }) {
   const [index, setIndex] = useState(0);
   const urls = post.photoUrls.length ? post.photoUrls : post.photoUrl ? [post.photoUrl] : [];
   if (urls.length <= 1) {

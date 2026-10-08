@@ -13,8 +13,9 @@ import { speciesName } from "@/lib/domain/species";
 import { plural, timeAgo } from "@/lib/format";
 import { useComments } from "@/lib/queries";
 import { useBackend } from "../session";
-import { Avatar, LARGE_PHOTO, PlantPhoto, Spinner, cx, useToast } from "../ui";
+import { Avatar, PlantPhoto, Spinner, cx, useToast } from "../ui";
 import { CommentHeart, ReplyForm } from "./comments";
+import { PostPhotos } from "./diary-card";
 import { PostMenu } from "./post-menu";
 import { AuthorLine, SpeciesLink, authorHref, questionHref } from "./shared";
 
@@ -54,7 +55,14 @@ export function QuestionRow({ post }: { post: FeedPost }) {
           </p>
         </div>
         {post.photoUrl && (
-          <PlantPhoto src={post.photoUrl} seed={post.id} alt="Фото к вопросу" className="size-20 shrink-0 rounded-2xl" iconSize={24} />
+          <div className="relative shrink-0">
+            <PlantPhoto src={post.photoUrl} seed={post.id} alt="Фото к вопросу" className="size-20 rounded-2xl" iconSize={24} />
+            {post.photoUrls.length > 1 && (
+              <span className="absolute right-1 bottom-1 rounded-full bg-black/55 px-1.5 text-[11px] font-semibold text-white">
+                +{post.photoUrls.length - 1}
+              </span>
+            )}
+          </div>
         )}
       </Link>
     </li>
@@ -76,15 +84,10 @@ export function QuestionHeader({ post, onDeleted }: { post: FeedPost; onDeleted?
         <SpeciesLink speciesId={post.speciesId} />
       </div>
       {post.photoUrl ? (
-        <PlantPhoto
-          src={post.photoUrl}
-          seed={post.id}
-          alt="Фото к вопросу"
-          className="mt-3 aspect-[4/3] w-full"
-          iconSize={48}
-          sizes={LARGE_PHOTO}
-          whole
-        />
+        // Все фото вопроса листаются, как в записях дневника (раньше показывалось только первое).
+        <div className="mt-3">
+          <PostPhotos post={post} alt="Фото к вопросу" className="aspect-[4/3] w-full" />
+        </div>
       ) : (
         <div className="h-4" />
       )}
