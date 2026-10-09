@@ -13,7 +13,8 @@
     "e2e": "playwright test",
     "format": "prettier --write . ../supabase/functions",
     "format:check": "prettier --check . ../supabase/functions",
-    "knip": "knip"
+    "knip": "knip",
+    "lessons": "node scripts/build-lessons.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.1",

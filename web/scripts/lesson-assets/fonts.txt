@@ -1,0 +1,10 @@
+Manrope|500|cyrillic|manrope-500-cyrillic.woff2
+Manrope|500|latin|manrope-500-latin.woff2
+Manrope|700|cyrillic|manrope-700-cyrillic.woff2
+Manrope|700|latin|manrope-700-latin.woff2
+Manrope|800|cyrillic|manrope-800-cyrillic.woff2
+Manrope|800|latin|manrope-800-latin.woff2
+Unbounded|700|cyrillic|unbounded-700-cyrillic.woff2
+Unbounded|700|latin|unbounded-700-latin.woff2
+Unbounded|900|cyrillic|unbounded-900-cyrillic.woff2
+Unbounded|900|latin|unbounded-900-latin.woff2

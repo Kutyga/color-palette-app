@@ -1,4 +1,4 @@
-/** Статья «Новичкам»: текст из lib/guides.ts, собирается заранее для каждой статьи. */
+/** Урок курса «Новичкам»: видео (если уже снято) и текст из lib/guides.ts — для тех, кто не хочет смотреть. */
 
 import { AlertTriangle, ArrowRight, Lightbulb } from "lucide-react";
 import type { Metadata } from "next";
@@ -7,8 +7,9 @@ import { notFound } from "next/navigation";
 import { SpeciesCard } from "@/components/species-list";
 import { PageHeader } from "@/components/ui";
 import { catalogBySlug } from "@/lib/catalog";
+import { BASE_PATH } from "@/lib/config";
 import type { SpeciesSummary } from "@/lib/domain/species";
-import { GUIDES, guideBySlug, type GuideBlock } from "@/lib/guides";
+import { COURSE, GUIDES, courseLesson, guideBySlug, nextLesson, type GuideBlock, type LessonVideo } from "@/lib/guides";
 
 export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
@@ -96,11 +97,30 @@ function Block({ block }: { block: GuideBlock }) {
   );
 }
 
+/** Вертикальное видео урока: со звуком и субтитрами в кадре; обложка — до нажатия. */
+function LessonPlayer({ video, title }: { video: LessonVideo; title: string }) {
+  return (
+    <figure className="mx-auto mb-6 max-w-[360px]">
+      <video
+        controls
+        playsInline
+        preload="none"
+        poster={BASE_PATH + video.poster}
+        className="aspect-[9/16] w-full rounded-[24px] bg-black shadow-[0_10px_40px_rgb(0_0_0/0.18)]"
+        aria-label={`Видеоурок: ${title}`}
+      >
+        <source src={BASE_PATH + video.src} type="video/mp4" />
+      </video>
+      <figcaption className="text-secondary mt-2 text-center text-[13px]">Видео {video.duration} · ниже — то же самое текстом</figcaption>
+    </figure>
+  );
+}
+
 export default async function GuidePage({ params }: PageProps<"/plants/guide/[slug]">) {
   const g = guideBySlug((await params).slug);
   if (!g) notFound();
-  const i = GUIDES.indexOf(g);
-  const next = GUIDES[i + 1];
+  const lesson = courseLesson(g.slug);
+  const next = nextLesson(g.slug)?.guide ?? GUIDES[GUIDES.indexOf(g) + 1];
   return (
     <article className="mx-auto max-w-2xl">
       <nav className="text-secondary pt-6 text-[15px]">
@@ -112,7 +132,11 @@ export default async function GuidePage({ params }: PageProps<"/plants/guide/[sl
           Новичкам
         </Link>
       </nav>
-      <PageHeader eyebrow={`${g.emoji} ${g.minutes} мин чтения`} title={g.title} />
+      <PageHeader
+        eyebrow={lesson ? `${g.emoji} Урок ${lesson.number} · ${COURSE[lesson.module].title}` : `${g.emoji} ${g.minutes} мин чтения`}
+        title={g.title}
+      />
+      {lesson?.video && <LessonPlayer video={lesson.video} title={g.title} />}
       <div className="space-y-5">
         {g.blocks.map((b, j) => (
           <Block key={j} block={b} />
@@ -124,7 +148,7 @@ export default async function GuidePage({ params }: PageProps<"/plants/guide/[sl
             {next.emoji}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="text-secondary block text-[12px] font-semibold">Следующая статья</span>
+            <span className="text-secondary block text-[12px] font-semibold">Следующий урок</span>
             <span className="block font-semibold">{next.title}</span>
           </span>
           <ArrowRight className="text-secondary size-5 shrink-0" aria-hidden />

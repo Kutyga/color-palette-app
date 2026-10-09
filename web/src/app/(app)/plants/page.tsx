@@ -8,7 +8,7 @@ import { GroupTile } from "@/components/species-list";
 import { PageHeader } from "@/components/ui";
 import { CATALOG, CATALOG_GROUPS } from "@/lib/catalog";
 import { plural } from "@/lib/format";
-import { GUIDES } from "@/lib/guides";
+import { COURSE, COURSE_LESSONS } from "@/lib/guides";
 
 export const metadata: Metadata = {
   title: "База знаний",
@@ -28,7 +28,8 @@ export default function PlantsPage() {
             <span className="min-w-0 flex-1">
               <span className="block text-[17px] font-semibold">Новичкам</span>
               <span className="block text-[13px] leading-snug opacity-90">
-                {GUIDES.length} {plural(GUIDES.length, "статья", "статьи", "статей")}: свет, полив, пересадка, вредители
+                Курс: {COURSE.length} модулей, {COURSE_LESSONS.length} {plural(COURSE_LESSONS.length, "урок", "урока", "уроков")} — видео и
+                текст
               </span>
             </span>
             <ChevronRight className="size-5 shrink-0" aria-hidden />

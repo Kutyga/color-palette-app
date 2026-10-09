@@ -563,3 +563,91 @@ export const GUIDES: Guide[] = [
 ];
 
 export const guideBySlug = (slug: string) => GUIDES.find((g) => g.slug === slug) ?? null;
+
+// ---------------------------------------------------------------------------
+// Курс для новичков: модули и уроки по порядку. Урок — статья из GUIDES (текст для тех, кто
+// не хочет смотреть) и, если уже снято, видео из public/lessons (собирает scripts/build-lessons.mjs).
+// Уроки, которые ещё готовятся, показываются в программе с пометкой «скоро».
+// ---------------------------------------------------------------------------
+
+export interface LessonVideo {
+  /** Путь к ролику и обложке от корня сайта (без BASE_PATH). */
+  src: string;
+  poster: string;
+  /** Длительность ролика, мин:сек — для подписи. */
+  duration: string;
+}
+
+/** Видео к урокам: ключ — slug статьи. */
+export const LESSON_VIDEOS: Record<string, LessonVideo> = {
+  start: { src: "/lessons/start.mp4", poster: "/lessons/start.jpg", duration: "1:51" },
+};
+
+export interface CourseModule {
+  emoji: string;
+  title: string;
+  summary: string;
+  /** slug статей по порядку; строка вида «soon:Название» — урок в разработке. */
+  lessons: string[];
+}
+
+export const COURSE: CourseModule[] = [
+  {
+    emoji: "🌱",
+    title: "Первые шаги",
+    summary: "Главные правила, первые растения и что делать с покупкой",
+    lessons: ["start", "easy-plants", "new-plant", "app"],
+  },
+  {
+    emoji: "☀️",
+    title: "Свет, вода и воздух",
+    summary: "Без чего растение не живёт: окно, полив, влажность и сезоны",
+    lessons: ["light", "watering", "humidity", "seasons"],
+  },
+  {
+    emoji: "🪴",
+    title: "Корни и почва",
+    summary: "Горшок, грунт, пересадка и подкормки",
+    lessons: ["pots", "soil", "repotting", "feeding"],
+  },
+  {
+    emoji: "🩺",
+    title: "Здоровье растения",
+    summary: "Читаем листья, находим вредителей и спасаем от гнили",
+    lessons: ["symptoms", "pests", "soon:Болезни и корневая гниль"],
+  },
+  {
+    emoji: "✂️",
+    title: "Размножение",
+    summary: "Из одного растения — много: черенки, детки, семена",
+    lessons: ["propagation", "soon:Черенкуем эпипремнум — по шагам", "soon:Деление куста и детки", "soon:Растения из семян"],
+  },
+  {
+    emoji: "🏡",
+    title: "Жизнь с растениями",
+    summary: "Отпуск, питомцы, цветение и словарь садовода",
+    lessons: ["vacation", "pets", "soon:Как добиться цветения", "glossary"],
+  },
+];
+
+export type CourseLesson =
+  | { number: number; module: number; soon: false; guide: Guide; video: LessonVideo | null }
+  | { number: number; module: number; soon: true; title: string };
+
+/** Все уроки курса подряд со сквозными номерами. */
+export const COURSE_LESSONS: CourseLesson[] = COURSE.flatMap((m, mi) => m.lessons.map((l) => ({ l, mi }))).map(({ l, mi }, i) => {
+  if (l.startsWith("soon:")) return { number: i + 1, module: mi, soon: true as const, title: l.slice(5) };
+  const guide = guideBySlug(l);
+  if (!guide) throw new Error(`Курс: нет статьи ${l}`);
+  return { number: i + 1, module: mi, soon: false as const, guide, video: LESSON_VIDEOS[l] ?? null };
+});
+
+/** Урок курса по slug статьи. */
+export const courseLesson = (slug: string) =>
+  COURSE_LESSONS.find((l): l is Extract<CourseLesson, { soon: false }> => !l.soon && l.guide.slug === slug) ?? null;
+
+/** Следующий готовый урок (с текстом) после данного. */
+export function nextLesson(slug: string) {
+  const i = COURSE_LESSONS.findIndex((l) => !l.soon && l.guide.slug === slug);
+  return COURSE_LESSONS.slice(i + 1).find((l): l is Extract<CourseLesson, { soon: false }> => !l.soon) ?? null;
+}

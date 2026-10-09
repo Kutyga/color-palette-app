@@ -38,8 +38,12 @@ test("гость: база знаний открыта всем, сад — то
   await page.getByRole("link", { name: /Полив без ошибок/ }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Полив без ошибок" })).toBeVisible();
   await expect(page.getByRole("table")).toContainText("Перелив");
-  await page.getByRole("link", { name: /Следующая статья/ }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Горшок, дренаж и кашпо" })).toBeVisible();
+  await page.getByRole("link", { name: /Следующий урок/ }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Влажность, температура и батареи" })).toBeVisible();
+  // Урок 1 курса — с видео: плеер и текст на одной странице.
+  await page.goto("/plants/guide/start/");
+  await expect(page.getByLabel("Видеоурок: С чего начать: 7 правил новичка")).toBeVisible();
+  await expect(page.getByText("Поливайте по грунту, а не по календарю.", { exact: false })).toBeVisible();
   await page.goto("/plants/");
 
   // Без поиска — группы; в группе компактный список, у вида — ссылка обратно на группу.

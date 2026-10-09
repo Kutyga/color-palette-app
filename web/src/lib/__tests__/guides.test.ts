@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import { catalogBySlug } from "../catalog";
-import { GUIDES } from "../guides";
+import { COURSE_LESSONS, GUIDES, LESSON_VIDEOS } from "../guides";
 
 const APP_ROUTES = ["/plants/", "/plants/soil/", "/garden/new/", "/garden/diagnose/"];
 
@@ -22,5 +22,12 @@ describe("статьи для новичков", () => {
     const guides = new Set(GUIDES.map((g) => `/plants/guide/${g.slug}/`));
     const hrefs = GUIDES.flatMap((g) => g.blocks.flatMap((b) => ("link" in b ? [b.link.href] : [])));
     expect(hrefs.filter((h) => !guides.has(h) && !APP_ROUTES.includes(h))).toEqual([]);
+  });
+
+  it("курс: каждая статья — ровно один урок, видео — у существующих уроков", () => {
+    const slugs = COURSE_LESSONS.flatMap((l) => (l.soon ? [] : [l.guide.slug]));
+    expect([...slugs].sort()).toEqual(GUIDES.map((g) => g.slug).sort());
+    expect(COURSE_LESSONS.map((l) => l.number)).toEqual(COURSE_LESSONS.map((_, i) => i + 1));
+    for (const slug of Object.keys(LESSON_VIDEOS)) expect(slugs).toContain(slug);
   });
 });
