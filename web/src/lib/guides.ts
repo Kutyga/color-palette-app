@@ -581,6 +581,9 @@ export interface LessonVideo {
 /** Видео к урокам: ключ — slug статьи. */
 export const LESSON_VIDEOS: Record<string, LessonVideo> = {
   start: { src: "/lessons/start.mp4", poster: "/lessons/start.jpg", duration: "1:50" },
+  "easy-plants": { src: "/lessons/easy-plants.mp4", poster: "/lessons/easy-plants.jpg", duration: "1:18" },
+  "new-plant": { src: "/lessons/new-plant.mp4", poster: "/lessons/new-plant.jpg", duration: "1:11" },
+  app: { src: "/lessons/app.mp4", poster: "/lessons/app.jpg", duration: "1:08" },
 };
 
 export interface CourseModule {
