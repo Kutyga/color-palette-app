@@ -580,7 +580,7 @@ export interface LessonVideo {
 
 /** Видео к урокам: ключ — slug статьи. */
 export const LESSON_VIDEOS: Record<string, LessonVideo> = {
-  start: { src: "/lessons/start.mp4", poster: "/lessons/start.jpg", duration: "1:51" },
+  start: { src: "/lessons/start.mp4", poster: "/lessons/start.jpg", duration: "1:50" },
 };
 
 export interface CourseModule {
