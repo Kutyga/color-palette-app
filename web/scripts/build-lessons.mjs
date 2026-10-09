@@ -446,7 +446,7 @@ async function renderVideo(lesson, timeline, audio, outFile, browser) {
           "-preset",
           "slow",
           "-crf",
-          "22",
+          "27",
           "-pix_fmt",
           "yuv420p",
           "-c:a",
