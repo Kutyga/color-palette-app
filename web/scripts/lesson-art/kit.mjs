@@ -42,7 +42,7 @@ export const sparkles = (pts, color) =>
     .join("");
 
 /** Ростки для горшка pot(0, -60, 90, 60): растут вверх от грунта (0, -78). */
-export const SPROUT = {
+const SPROUT = {
   leafy: (d) =>
     `${stem("M0 -78 C -4 -120 6 -160 0 -200", d + 0.3, 8)}${leaf(0, -192, 0.42, 4, d + 0.6)}${leaf(2, -120, 0.36, 46, d + 0.8, "leafG2")}${leaf(-2, -150, 0.38, -44, d + 1)}`,
   snake: (d) =>
@@ -88,7 +88,7 @@ export const potted = (x, y, s, d, kind = "leafy") =>
   `<g transform="translate(${x} ${y}) scale(${s})">${pot(0, -60, 90, 60, d)}${SPROUT[kind](d)}</g>`;
 
 /** Точка на кубической кривой Безье — для листьев вдоль лианы. */
-export const bez = (t, [x0, y0], [x1, y1], [x2, y2], [x3, y3]) => {
+const bez = (t, [x0, y0], [x1, y1], [x2, y2], [x3, y3]) => {
   const u = 1 - t;
   return [
     u ** 3 * x0 + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t ** 3 * x3,
