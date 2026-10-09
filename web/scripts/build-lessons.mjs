@@ -819,7 +819,7 @@ function sceneHtml(lesson, scene, i) {
     .art { position: absolute; left: 60px; top: 360px; width: 600px; height: 600px; overflow: visible; }
     .art-glow { position: absolute; left: 160px; top: 480px; width: 400px; height: 400px; border-radius: 50%; background: ${accent}; filter: blur(120px); opacity: .22; }
     header { position: absolute; top: 58px; left: 52px; right: 52px; display: flex; justify-content: space-between; align-items: center;
-             font-weight: 800; font-size: 19px; letter-spacing: .22em; color: #ffffffb3; }
+             font-weight: 800; font-size: 17px; letter-spacing: .16em; gap: 16px; white-space: nowrap; color: #ffffffb3; }
     header b { color: ${accent}; }
     .kicker { position: absolute; top: 150px; left: 52px; display: flex; align-items: center; gap: 14px; font-weight: 800;
               font-size: 22px; letter-spacing: .3em; color: ${accent}; text-transform: uppercase; animation: fadein .8s ease both .1s; }
