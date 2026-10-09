@@ -26,9 +26,9 @@ export default function CoursePage() {
       </nav>
       <PageHeader eyebrow={`${COURSE.length} модулей · ${COURSE_LESSONS.length} уроков`} title="Курс для новичков" />
       <p className="text-secondary max-w-2xl text-[17px] leading-relaxed">
-        Всё, чтобы растения жили долго: от выбора окна до размножения. Уроки идут по порядку, у каждого — текст, а у
-        {videos === 1 ? " первого" : " части"} — короткое видео. Готово {ready} {plural(ready, "урок", "урока", "уроков")}, остальные —
-        скоро.
+        Всё, чтобы растения жили долго: от выбора окна до размножения. Уроки идут по порядку, у каждого — текст
+        {videos === ready ? " и короткое видео" : `, у ${videos} ${plural(videos, "урока", "уроков", "уроков")} — ещё и короткое видео`}.
+        {ready < COURSE_LESSONS.length && ` Готово ${ready} ${plural(ready, "урок", "урока", "уроков")}, остальные — скоро.`}
       </p>
 
       <div className="mt-6 space-y-8">
