@@ -26,7 +26,8 @@ INTRO = 1.2  # музыка до первой фразы
 
 
 def tts_text(s: str) -> str:
-    """Vosk знает не все знаки: тире — пауза, кавычки и скобки убираем."""
+    """Vosk знает не все знаки: тире — пауза, кавычки и скобки убираем.
+    «+» перед гласной (держ+ите) — ударение для слов, которые Vosk читает неверно; в титрах его нет."""
     s = re.sub(r"\s*[–—]\s*", ", ", s)
     s = re.sub(r"[«»\"()]", "", s)
     return s.strip()
@@ -141,7 +142,7 @@ def main() -> None:
             path = f"{out}/s{si}_{li}.wav"
             synth.synth(tts_text(sentence), path, speaker_id=speaker)
             clip = read_wav(path)
-            lines.append({"text": sentence, "start": round(cursor, 3), "end": round(cursor + len(clip) / SR, 3)})
+            lines.append({"text": sentence.replace("+", ""), "start": round(cursor, 3), "end": round(cursor + len(clip) / SR, 3)})
             voice_parts += [clip, np.zeros(int(GAP * SR), np.float32)]
             cursor += len(clip) / SR + GAP
         voice_parts.append(np.zeros(int(TAIL * SR), np.float32))
