@@ -773,7 +773,7 @@ export const LESSON_VIDEOS: Record<string, LessonVideo> = {
   symptoms: { src: "/lessons/symptoms.mp4", poster: "/lessons/symptoms.jpg", duration: "1:05" },
   pests: { src: "/lessons/pests.mp4", poster: "/lessons/pests.jpg", duration: "1:15" },
   diseases: { src: "/lessons/diseases.mp4", poster: "/lessons/diseases.jpg", duration: "1:12" },
-  propagation: { src: "/lessons/propagation.mp4", poster: "/lessons/propagation.jpg", duration: "0:60" },
+  propagation: { src: "/lessons/propagation.mp4", poster: "/lessons/propagation.jpg", duration: "1:00" },
   "pothos-cuttings": { src: "/lessons/pothos-cuttings.mp4", poster: "/lessons/pothos-cuttings.jpg", duration: "1:07" },
   division: { src: "/lessons/division.mp4", poster: "/lessons/division.jpg", duration: "1:01" },
   seeds: { src: "/lessons/seeds.mp4", poster: "/lessons/seeds.jpg", duration: "0:56" },
