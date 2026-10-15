@@ -50,6 +50,29 @@ export function useDoneToday() {
   });
 }
 
+/** Свои группы растений («Бонсаи») с составом. */
+export function useGroups() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["groups"], queryFn: () => b.garden.myGroups() });
+}
+
+/** Сколько непрочитанных событий в «Активности» — для значка в шапке. */
+export function useUnreadActivity(enabled = true) {
+  const b = useBackend();
+  return useQuery({
+    queryKey: ["activity", "unread"],
+    queryFn: () => b.social.unreadActivity(),
+    enabled,
+    staleTime: 60_000,
+    refetchInterval: 120_000,
+  });
+}
+
+export function useActivity() {
+  const b = useBackend();
+  return useQuery({ queryKey: ["activity", "list"], queryFn: () => b.social.activity() });
+}
+
 export function useLocations() {
   const b = useBackend();
   return useQuery({ queryKey: ["locations"], queryFn: () => b.garden.myLocations() });

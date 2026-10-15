@@ -44,6 +44,7 @@ export type PostRec = Omit<
   | "solvedCommentId"
   | "editedAt"
   | "photoUrls"
+  | "plants"
 > &
   Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & {
     createdAt: string;
@@ -51,6 +52,8 @@ export type PostRec = Omit<
     editedAt?: string | null;
     /** Все фото; в старых сохранённых демо-данных только photoUrl. */
     photoUrls?: string[];
+    /** Отмеченные вместе с главным растения (без него). */
+    alsoPlantIds?: string[];
   };
 
 export type CommentRec = Omit<PostComment, "createdAt" | "authorDisplayName" | "parentId" | "likeCount" | "likedByMe"> & {
@@ -85,6 +88,10 @@ export interface DemoState {
   shops?: ShopRec[];
   products?: Record<string, ShopProduct[]>;
   wishlist?: string[];
+  /** Свои группы растений. */
+  groups?: { id: string; name: string; plantIds: string[] }[];
+  /** Когда «Активность» последний раз открывали. */
+  activitySeenAt?: string;
 }
 
 export type ShopRec = Omit<Shop, "createdAt" | "verifiedAt" | "mine"> & { createdAt: string; verifiedAt: string | null };

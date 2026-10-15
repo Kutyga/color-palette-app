@@ -2,9 +2,11 @@
 export { CareActions } from "./care-actions";
 export { DeletePlantButton } from "./delete-plant";
 export { PlantFacts } from "./facts";
+export { PlantGroupsPicker } from "./groups";
 export { PlantHero } from "./hero";
 export { CareJournal } from "./journal";
 export { PlantLinks } from "./links";
+export { NameForm, PlantName } from "./name";
 export { CareScheduleList } from "./schedule";
 export { SpeciesNotes } from "./species-notes";
 export { VisibilityPicker } from "./visibility";

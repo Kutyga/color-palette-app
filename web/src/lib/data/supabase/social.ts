@@ -3,6 +3,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  activityFromRow,
   commentFromRow,
   newsFromRow,
   postFromRow,
@@ -74,11 +75,15 @@ export class SupabaseSocial implements SocialRepository {
   }
 
   async plantDiary(plantId: string) {
+    // Записи о нескольких растениях лежат у главного; это растение может быть отмечено вместе с ним.
+    const linked = (check(await this.db.from("post_plants").select("post_id").eq("plant_id", plantId).limit(200)) as Row[]).map(
+      (r) => r.post_id as string,
+    );
     const rows = check(
       await this.db
         .from("posts")
         .select(POST_SELECT)
-        .eq("plant_id", plantId)
+        .or(linked.length ? `plant_id.eq.${plantId},id.in.(${linked.join(",")})` : `plant_id.eq.${plantId}`)
         .in("kind", ["milestone", "photo"])
         .is("deleted_at", null)
         .order("created_at")
@@ -143,7 +148,10 @@ export class SupabaseSocial implements SocialRepository {
           .single(),
       ),
     ) as Row;
-    return (await this.hydrate([row]))[0];
+    const also = [...new Set(post.alsoPlantIds ?? [])].filter((p) => p !== post.plantId);
+    if (!also.length) return (await this.hydrate([row]))[0];
+    check(await this.db.from("post_plants").insert(also.map((plantId) => ({ post_id: id, plant_id: plantId }))));
+    return (await this.post(id)) ?? (await this.hydrate([row]))[0];
   }
 
   async updatePost(id: string, update: PostUpdate) {
@@ -231,6 +239,18 @@ export class SupabaseSocial implements SocialRepository {
   /** Мягкое удаление: счётчик комментариев поправит триггер. */
   async deleteComment(commentId: string) {
     check(await this.db.from("comments").update({ deleted_at: new Date().toISOString() }).eq("id", commentId));
+  }
+
+  async activity() {
+    return (check(await this.db.rpc("my_activity", { lim: 60 })) as Row[]).map(activityFromRow);
+  }
+
+  async unreadActivity() {
+    return Number(check(await this.db.rpc("activity_unread_count")) ?? 0);
+  }
+
+  async markActivitySeen() {
+    check(await this.db.rpc("mark_activity_seen"));
   }
 
   async myActivity() {

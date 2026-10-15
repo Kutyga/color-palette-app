@@ -2,11 +2,11 @@
 
 /** Каркас приложения: логотип, навигация (сбоку на компьютере, снизу на телефоне), проверка входа. */
 
-import { BookOpen, CalendarCheck, LogIn, MessageCircle, Plus, Sprout, Trophy, UsersRound } from "lucide-react";
+import { BookOpen, CalendarCheck, Heart, LogIn, MessageCircle, Plus, Sprout, Trophy, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
-import { useConversations } from "@/lib/queries";
+import { useConversations, useUnreadActivity } from "@/lib/queries";
 import { AchievementWatcher } from "./achievement-watcher";
 import { useScrollMemory } from "./scroll-memory";
 import { useSession } from "./session";
@@ -64,6 +64,33 @@ function UnreadBadge({ className }: { className?: string }) {
     >
       {n > 9 ? "9+" : n}
     </span>
+  );
+}
+
+/** Сколько новых событий в «Активности»: комментарии, ответы, «Полить», подписчики. */
+function ActivityBadge({ className }: { className?: string }) {
+  const unread = useUnreadActivity();
+  const n = unread.data ?? 0;
+  if (!n) return null;
+  return (
+    <span
+      className={cx("bg-alert grid min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold text-white", className)}
+      aria-label={`Новых событий: ${n}`}
+    >
+      {n > 9 ? "9+" : n}
+    </span>
+  );
+}
+
+/** Значок «Активность» в шапке — кто прокомментировал, ответил, подписался. */
+function ActivityButton() {
+  const { session } = useSession();
+  if (session.status !== "ready") return null;
+  return (
+    <Link href="/activity/" aria-label="Активность" className="hover:bg-muted relative grid size-9 place-items-center rounded-full">
+      <Heart className="size-6" aria-hidden />
+      <ActivityBadge className="absolute -top-1 -right-1" />
+    </Link>
   );
 }
 
@@ -136,6 +163,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
           {session.status === "ready" && (
             <Link
+              href="/activity/"
+              className={cx(
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[17px] transition",
+                isActive(pathname, "/activity/") ? "bg-muted font-semibold" : "text-secondary hover:bg-muted hover:text-label",
+              )}
+            >
+              <Heart className="size-5" aria-hidden /> Активность
+              <ActivityBadge className="ml-auto" />
+            </Link>
+          )}
+          {session.status === "ready" && (
+            <Link
               href="/messages/"
               className={cx(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[17px] transition",
@@ -169,6 +208,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="glass border-separator sticky top-0 z-30 flex items-center justify-between border-b px-4 py-2.5 md:hidden">
           <Logo />
           <div className="flex items-center gap-2">
+            <ActivityButton />
             <MessagesButton />
             <ProfileButton />
           </div>

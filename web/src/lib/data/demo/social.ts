@@ -3,6 +3,7 @@
  */
 import {
   EDIT_WINDOW_MS,
+  type ActivityItem,
   type DiaryScope,
   type FeedPost,
   type HelpFilter,
@@ -37,6 +38,12 @@ export class DemoSocial implements SocialRepository {
       solvedCommentId: p.solvedCommentId ?? null,
       editedAt: p.editedAt ? new Date(p.editedAt) : null,
       photoUrls: p.photoUrls ?? (p.photoUrl ? [p.photoUrl] : []),
+      plants: [p.plantId, ...(p.alsoPlantIds ?? [])]
+        .filter((id): id is string => !!id)
+        .map((id) => ({
+          id,
+          name: this.state.plants.find((x) => x.id === id)?.nickname ?? (id === p.plantId ? p.plantName : null) ?? "Растение",
+        })),
       authorDisplayName:
         p.authorId === ME
           ? (me.displayName ?? "Вы")
@@ -62,7 +69,7 @@ export class DemoSocial implements SocialRepository {
   }
 
   async plantDiary(plantId: string) {
-    return this.all.filter((p) => p.kind === "diary" && p.plantId === plantId).reverse();
+    return this.all.filter((p) => p.kind === "diary" && p.plants.some((x) => x.id === plantId)).reverse();
   }
 
   async questions(filter: HelpFilter) {
@@ -109,6 +116,7 @@ export class DemoSocial implements SocialRepository {
       createdAt: this.clock().toISOString(),
       plantId: post.plantId ?? null,
       plantName: plant?.nickname ?? null,
+      alsoPlantIds: [...new Set(post.alsoPlantIds ?? [])].filter((id) => id !== post.plantId && this.state.plants.some((p) => p.id === id)),
       photoUrl: photoUrls[0] ?? null,
       photoUrls,
       likeCount: 0,
@@ -214,6 +222,46 @@ export class DemoSocial implements SocialRepository {
   private bump(postId: string, delta: number) {
     const p = this.state.posts.find((x) => x.id === postId);
     if (p) p.commentCount += delta;
+  }
+
+  /** В демо-режиме «Активность» — комментарии других к своим записям и ответы на свои комментарии. */
+  async activity(): Promise<ActivityItem[]> {
+    const seen = this.state.activitySeenAt ? new Date(this.state.activitySeenAt) : null;
+    const mineComments = new Set(this.state.comments.filter((c) => c.mine).map((c) => c.id));
+    return this.state.comments
+      .filter((c) => !c.mine)
+      .flatMap((c): ActivityItem[] => {
+        const post = this.state.posts.find((p) => p.id === c.postId);
+        if (!post) return [];
+        const reply = !!c.parentId && mineComments.has(c.parentId);
+        if (post.authorId !== ME && !reply) return [];
+        const createdAt = new Date(c.createdAt);
+        return [
+          {
+            id: `c${c.id}`,
+            kind: reply ? "reply" : "comment",
+            createdAt,
+            actorName: c.authorName,
+            actorDisplayName: c.authorDisplayName ?? c.authorName,
+            postId: post.id,
+            postKind: post.kind ?? "diary",
+            plantId: post.plantId,
+            plantName: post.plantName,
+            text: c.text.slice(0, 200),
+            unread: !seen || createdAt > seen,
+          },
+        ];
+      })
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async unreadActivity() {
+    return (await this.activity()).filter((a) => a.unread).length;
+  }
+
+  async markActivitySeen() {
+    this.state.activitySeenAt = this.clock().toISOString();
+    this.persist();
   }
 
   async myActivity() {

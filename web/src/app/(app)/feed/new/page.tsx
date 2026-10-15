@@ -12,7 +12,7 @@ import { PhotosField, type PickedPhoto } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { Button, Chip, EmptyState, Field, PageHeader, Spinner, cx, inputClass, useToast } from "@/components/ui";
 import { DIARY_EVENTS, type DiaryEvent } from "@/lib/domain/social";
-import { usePlants } from "@/lib/queries";
+import { useGroups, usePlants } from "@/lib/queries";
 
 const MIN_QUESTION = 15;
 const MIN_TIP = 20;
@@ -29,6 +29,7 @@ function NewPostForm() {
   const params = useSearchParams();
   const backend = useBackend();
   const plants = usePlants();
+  const groups = useGroups();
   const qc = useQueryClient();
   const toast = useToast();
   const router = useRouter();
@@ -37,6 +38,9 @@ function NewPostForm() {
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [text, setText] = useState("");
   const [plantId, setPlantId] = useState(params.get("plant") ?? "");
+  // Запись дневника может быть сразу о нескольких растениях (душ всем, новая подсветка): первое — главное.
+  const [picked, setPicked] = useState<string[]>(() => (params.get("plant") ? [params.get("plant")!] : []));
+  const togglePlant = (id: string) => setPicked((ps) => (ps.includes(id) ? ps.filter((x) => x !== id) : [...ps, id]));
   const [visibility, setVisibility] = useState<"public" | "followers">("public");
   const [saving, setSaving] = useState(false);
 
@@ -52,7 +56,7 @@ function NewPostForm() {
   const isDiary = mode === "diary";
   const isTip = mode === "tip";
   const minText = isTip ? MIN_TIP : MIN_QUESTION;
-  const ready = isDiary ? !!plantId && photos.length > 0 : text.trim().length >= minText;
+  const ready = isDiary ? picked.length > 0 && photos.length > 0 : text.trim().length >= minText;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -63,7 +67,8 @@ function NewPostForm() {
         kind: mode === "question" ? "question" : "diary",
         event: isDiary ? event : isTip ? "tip" : null,
         text: text.trim(),
-        plantId: plantId || null,
+        plantId: isDiary ? picked[0] : plantId || null,
+        alsoPlantIds: isDiary ? picked.slice(1) : [],
         photos: photos.map((p) => p.blob),
         visibility: mode === "question" ? "public" : visibility,
       });
@@ -124,16 +129,52 @@ function NewPostForm() {
               Поделитесь лайфхаком, советом или новостью для всех садоводов. Растение и фото — по желанию.
             </p>
           )}
-          <Field label={isDiary ? "Растение" : isTip ? "Растение (если совет про ваше)" : "Растение (если оно у вас в коллекции)"}>
-            <select className={inputClass} value={plantId} onChange={(e) => setPlantId(e.target.value)} required={isDiary}>
-              <option value="">{isDiary ? "Выберите растение" : "Не указывать"}</option>
-              {myPlants.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nickname}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {isDiary ? (
+            <fieldset>
+              <legend className="text-secondary mb-2 text-[13px] font-medium">
+                Растения{picked.length > 1 ? ` · ${picked.length}` : ""} — можно отметить несколько
+              </legend>
+              {!!groups.data?.length && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {groups.data
+                    .filter((g) => g.plantIds.some((id) => myPlants.some((p) => p.id === id)))
+                    .map((g) => {
+                      const ids = g.plantIds.filter((id) => myPlants.some((p) => p.id === id));
+                      const all = ids.every((id) => picked.includes(id));
+                      return (
+                        <Chip
+                          key={g.id}
+                          active={all}
+                          onClick={() =>
+                            setPicked((ps) => (all ? ps.filter((x) => !ids.includes(x)) : [...ps, ...ids.filter((x) => !ps.includes(x))]))
+                          }
+                        >
+                          📁 {g.name}
+                        </Chip>
+                      );
+                    })}
+                </div>
+              )}
+              <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
+                {myPlants.map((p) => (
+                  <Chip key={p.id} active={picked.includes(p.id)} onClick={() => togglePlant(p.id)}>
+                    {p.nickname}
+                  </Chip>
+                ))}
+              </div>
+            </fieldset>
+          ) : (
+            <Field label={isTip ? "Растение (если совет про ваше)" : "Растение (если оно у вас в коллекции)"}>
+              <select className={inputClass} value={plantId} onChange={(e) => setPlantId(e.target.value)}>
+                <option value="">Не указывать</option>
+                {myPlants.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nickname}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
           {isDiary && (
             <fieldset>
               <legend className="text-secondary mb-2 text-[13px] font-medium">Что произошло</legend>
@@ -195,8 +236,8 @@ function NewPostForm() {
           {!ready && (
             <p className="text-secondary text-center text-[13px]">
               {isDiary
-                ? !plantId
-                  ? "Выберите растение и сфотографируйте его."
+                ? !picked.length
+                  ? "Отметьте растение (или несколько) и сделайте фото."
                   : "Сфотографируйте растение."
                 : `${isTip ? "Напишите совет" : "Опишите вопрос"} подробнее — хотя бы ${minText} символов.`}
             </p>

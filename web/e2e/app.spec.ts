@@ -198,7 +198,7 @@ test("демо: дневники — поддержка, комментарий,
   // Своя запись: только своё растение и снимок с камеры.
   await page.getByRole("link", { name: "Запись" }).click();
   await expect(page.getByRole("button", { name: "Добавить в дневник" })).toBeDisabled();
-  await page.getByRole("combobox", { name: /^Растение/ }).selectOption({ label: "Монстера Мося" });
+  await page.getByRole("button", { name: "Монстера Мося", exact: true }).click();
   await page.getByRole("button", { name: "🌸 Цветение" }).click();
   await page.getByRole("button", { name: "Сфотографировать растение" }).click();
   await page.getByRole("button", { name: "Снять" }).click();
@@ -431,6 +431,52 @@ test("демо: место растения меняется, ошибочный
   await log.first().getByRole("button", { name: "Удалить", exact: true }).click();
   await expect(page.getByText("Отметка «Полив» удалена")).toBeVisible();
   await expect(log).toHaveCount(before);
+  expect(errors).toEqual([]);
+});
+
+test("демо: переименование растения, своя группа в коллекции и запись сразу о нескольких растениях", async ({ page }) => {
+  const errors = trackErrors(page);
+  await startDemo(page);
+  await page.goto("/garden/");
+  await page.getByRole("link", { name: /Щучка/ }).first().click();
+  await page.waitForURL("**/garden/plant/**");
+
+  // Имя появилось позже — переименовываем.
+  await page.getByRole("button", { name: "Переименовать" }).click();
+  await page.getByLabel("Имя растения").fill("Сансевиерия Зоя");
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByRole("heading", { name: "Сансевиерия Зоя" })).toBeVisible();
+
+  // Своя группа прямо со страницы растения.
+  await page.getByRole("button", { name: "Новая группа" }).click();
+  await page.getByLabel("Название группы").fill("Неубиваемые");
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.getByText("Группа «Неубиваемые» создана")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Неубиваемые" })).toHaveAttribute("aria-pressed", "true");
+
+  // В коллекции группа — фильтр: показывает только своё растение.
+  await page.goto("/garden/");
+  await page.getByRole("button", { name: "📁 Неубиваемые" }).click();
+  await expect(page.getByText(/Неубиваемые · 1 растение/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Сансевиерия Зоя/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Монстера Мося/ })).toHaveCount(0);
+
+  // Запись «Уход» сразу о нескольких растениях: группа отмечается одним нажатием.
+  await page.goto("/feed/new/?type=diary");
+  await page.getByRole("button", { name: "📁 Неубиваемые" }).click();
+  await page.getByRole("button", { name: "Монстера Мося", exact: true }).click();
+  await page.getByRole("button", { name: "🚿 Уход" }).click();
+  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
+  await page.getByRole("button", { name: "Снять" }).click();
+  await page.getByLabel("Пара слов").fill("Душ всем 🚿");
+  await page.getByRole("button", { name: "Добавить в дневник" }).click();
+  await page.waitForURL("**/feed/?tab=diaries");
+  await expect(
+    page
+      .locator("article")
+      .filter({ hasText: "Душ всем" })
+      .getByText(/Уход · Сансевиерия Зоя, Монстера Мося/),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

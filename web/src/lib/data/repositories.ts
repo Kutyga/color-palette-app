@@ -10,9 +10,19 @@ import type { ActivityStats, GardenStats, MarketStats, ShopStats } from "../doma
 import type { Prediction } from "../domain/identification";
 import type { ChatMessage, Conversation, Listing, ListingDraft, ListingFilter, ListingStatus } from "../domain/market";
 import type { PeopleSort, PersonCard, PlantProfile, ProfileUpdate, PublicPlant } from "../domain/people";
-import type { Location, NewPlant, Plant, PlantDetails, Visibility, WaterMode } from "../domain/plant";
+import type { Location, NewPlant, Plant, PlantDetails, PlantGroup, Visibility, WaterMode } from "../domain/plant";
 import type { ImportResult, Offer, ProductInput, Shop, ShopDraft, ShopProduct, ShopStatus } from "../domain/shop";
-import type { DiaryScope, FeedPost, HelpFilter, NewPost, PostUpdate, NewsArticle, PostComment, ReaderArticle } from "../domain/social";
+import type {
+  ActivityItem,
+  DiaryScope,
+  FeedPost,
+  HelpFilter,
+  NewPost,
+  PostUpdate,
+  NewsArticle,
+  PostComment,
+  ReaderArticle,
+} from "../domain/social";
 
 /** Черновик растения: вид задаётся slug из базы знаний, настоящий id находит репозиторий. */
 export type PlantDraft = Omit<NewPlant, "speciesId"> & { speciesSlug?: string | null };
@@ -34,6 +44,16 @@ export interface GardenRepository {
   setWaterMode(plantId: string, mode: WaterMode): Promise<void>;
   /** Кто видит растение: только я, подписчики или все. */
   setVisibility(plantId: string, visibility: Visibility): Promise<void>;
+  /** Новое имя растения (например, когда оно появилось через неделю). */
+  renamePlant(plantId: string, nickname: string): Promise<void>;
+  /** Свои группы растений с составом. */
+  myGroups(): Promise<PlantGroup[]>;
+  createGroup(name: string): Promise<PlantGroup>;
+  renameGroup(id: string, name: string): Promise<void>;
+  /** Удалить группу; сами растения остаются в коллекции. */
+  deleteGroup(id: string): Promise<void>;
+  /** Добавить растение в группу или убрать из неё. */
+  setGroupMember(groupId: string, plantId: string, member: boolean): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;
@@ -80,9 +100,14 @@ export interface SocialRepository {
   /** «Сердечко» на комментарии. */
   setCommentLiked(commentId: string, liked: boolean): Promise<void>;
   deleteComment(commentId: string): Promise<void>;
-  /** Для достижений: сколько постов опубликовано и лайков получено. */
   /** Для достижений: публикации, «Поддержать», ответы в «Помощи» (и лучшие), подписчики. */
   myActivity(): Promise<ActivityStats>;
+  /** «Активность»: комментарии к моим записям, ответы мне, «Полить» и новые подписчики — новые сверху. */
+  activity(): Promise<ActivityItem[]>;
+  /** Сколько событий «Активности» я ещё не видел. */
+  unreadActivity(): Promise<number>;
+  /** Отметить «Активность» просмотренной. */
+  markActivitySeen(): Promise<void>;
 }
 
 /** Распознаёт растение по фото. */

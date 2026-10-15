@@ -13,8 +13,10 @@ import {
   CareScheduleList,
   DeletePlantButton,
   PlantFacts,
+  PlantGroupsPicker,
   PlantHero,
   PlantLinks,
+  PlantName,
   SpeciesNotes,
   VisibilityPicker,
 } from "@/components/plant-card";
@@ -41,7 +43,7 @@ function PlantView({ id }: { id: string }) {
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         <PlantHero plant={plant} species={species} />
         <div>
-          <h1 className="text-[40px] leading-tight font-bold tracking-tight">{plant.nickname}</h1>
+          <PlantName plant={plant} />
           {species ? (
             <Link href={`/plants/${species.slug}/`} className="text-secondary hover:text-leaf text-[17px]">
               {plant.speciesName} · <i>{species.latinName}</i>
@@ -52,6 +54,7 @@ function PlantView({ id }: { id: string }) {
           <PlantFacts plant={plant} water={schedules.find((s) => s.type === "water")} now={now} />
           <CareActions plant={plant} schedules={schedules} />
           <VisibilityPicker plant={plant} />
+          <PlantGroupsPicker plant={plant} />
           <PlantLinks plantId={plant.id} />
         </div>
       </div>

@@ -2,15 +2,18 @@
 
 /** Коллекция: все растения пользователя со статусом полива. */
 
-import { Plus, Sprout } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Pencil, Plus, Sprout, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
-import { Chip, EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner, cx } from "@/components/ui";
+import { NameForm } from "@/components/plant-card";
+import { useBackend } from "@/components/session";
+import { Chip, EmptyState, ErrorNote, PageHeader, PlantPhoto, Spinner, cx, useToast } from "@/components/ui";
 import { plantPhotoUrl } from "@/lib/catalog";
-import { plantStatus, type PlantStatus } from "@/lib/domain/plant";
+import { GROUP_NAME_MAX, plantStatus, type PlantGroup, type PlantStatus } from "@/lib/domain/plant";
 import { plural } from "@/lib/format";
-import { useLocations, usePlants, useStats } from "@/lib/queries";
+import { useGroups, useLocations, usePlants, useStats } from "@/lib/queries";
 
 const STATUS: Record<PlantStatus, { color: string; label: string }> = {
   ok: { color: "var(--leaf)", label: "всё хорошо" },
@@ -27,11 +30,119 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
+/**
+ * Свои группы растений: фильтр коллекции («Бонсаи» — только бонсаи), новая группа,
+ * переименование и удаление выбранной. Растения добавляют в группу на их странице.
+ */
+function GroupsBar({ selected, onSelect, count }: { selected: string | null; onSelect: (id: string | null) => void; count: number }) {
+  const backend = useBackend();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const groups = useGroups();
+  const [mode, setMode] = useState<"idle" | "create" | "rename">("idle");
+  const current = groups.data?.find((g) => g.id === selected) ?? null;
+  const done = (msg: string) => {
+    qc.invalidateQueries({ queryKey: ["groups"] });
+    setMode("idle");
+    toast(msg);
+  };
+  const create = useMutation({
+    mutationFn: (name: string) => backend.garden.createGroup(name),
+    onSuccess: (g: PlantGroup) => {
+      onSelect(g.id);
+      done(`Группа «${g.name}» создана — добавляйте в неё растения на их страницах`);
+    },
+    onError: (e) => toast(e.message),
+  });
+  const rename = useMutation({
+    mutationFn: (name: string) => backend.garden.renameGroup(selected!, name),
+    onSuccess: (_d, name) => done(`Группа переименована: «${name}»`),
+    onError: (e) => toast(e.message),
+  });
+  const remove = useMutation({
+    mutationFn: () => backend.garden.deleteGroup(selected!),
+    onSuccess: () => {
+      onSelect(null);
+      done("Группа удалена, растения остались в коллекции");
+    },
+    onError: (e) => toast(e.message),
+  });
+
+  return (
+    <>
+      <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:-mx-6 sm:px-6">
+        {(groups.data ?? []).map((g) => (
+          <Chip key={g.id} active={selected === g.id} onClick={() => onSelect(selected === g.id ? null : g.id)}>
+            📁 {g.name}
+          </Chip>
+        ))}
+        <button
+          type="button"
+          onClick={() => setMode("create")}
+          className="text-leaf border-leaf/40 inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-dashed px-3 text-[14px] font-medium whitespace-nowrap"
+        >
+          <Plus className="size-4" aria-hidden /> Группа
+        </button>
+      </div>
+      {mode === "create" && (
+        <NameForm
+          initial=""
+          max={GROUP_NAME_MAX}
+          label="Название группы"
+          placeholder="Например, Бонсаи"
+          busy={create.isPending}
+          onSave={(name) => create.mutate(name)}
+          onCancel={() => setMode("idle")}
+          className="mt-3"
+        />
+      )}
+      {current && mode === "rename" && (
+        <NameForm
+          initial={current.name}
+          max={GROUP_NAME_MAX}
+          label="Новое название группы"
+          busy={rename.isPending}
+          onSave={(name) => rename.mutate(name)}
+          onCancel={() => setMode("idle")}
+          className="mt-3"
+        />
+      )}
+      {current && mode === "idle" && (
+        <div className="bg-surface mt-3 flex items-center gap-2 rounded-2xl px-4 py-2.5 text-[14px]">
+          <span className="min-w-0 flex-1 truncate">
+            <b>{current.name}</b> · {count} {plural(count, "растение", "растения", "растений")}
+            {count === 0 && <span className="text-secondary"> — добавьте растения на их страницах</span>}
+          </span>
+          <button
+            type="button"
+            onClick={() => setMode("rename")}
+            aria-label="Переименовать группу"
+            className="hover:bg-muted rounded-full p-2"
+          >
+            <Pencil className="size-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Удалить группу"
+            className="text-alert hover:bg-muted rounded-full p-2"
+            disabled={remove.isPending}
+            onClick={() => window.confirm(`Удалить группу «${current.name}»? Растения останутся в коллекции.`) && remove.mutate()}
+          >
+            <Trash2 className="size-4" aria-hidden />
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
 function Collection() {
   const plants = usePlants();
   const locations = useLocations();
   const stats = useStats();
   const [location, setLocation] = useState<string | null>(null);
+  const [group, setGroup] = useState<string | null>(null);
+  const groups = useGroups();
   const now = useMemo(() => new Date(), []);
 
   if (plants.isPending) return <Spinner />;
@@ -51,7 +162,8 @@ function Collection() {
     );
   }
 
-  const shown = location ? plants.data.filter((p) => p.locationId === location) : plants.data;
+  const inGroup = group ? new Set(groups.data?.find((g) => g.id === group)?.plantIds ?? []) : null;
+  const shown = plants.data.filter((p) => (!location || p.locationId === location) && (!inGroup || inGroup.has(p.id)));
   const n = plants.data.length;
   const places = locations.data?.length ?? 0;
   const streak = stats.data?.currentStreak ?? 0;
@@ -76,6 +188,8 @@ function Collection() {
           ))}
         </div>
       )}
+
+      <GroupsBar selected={group} onSelect={setGroup} count={shown.length} />
 
       <ul className="mt-4 grid grid-cols-2 gap-1 overflow-hidden rounded-[20px] sm:grid-cols-3 lg:grid-cols-4">
         {shown.map((p) => {

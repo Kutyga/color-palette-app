@@ -40,6 +40,17 @@ export interface Plant {
   createdAt: Date;
 }
 
+/** Своя группа растений в коллекции («Бонсаи», «Кактусы на кухне») — видна только владельцу. */
+export interface PlantGroup {
+  id: string;
+  name: string;
+  plantIds: string[];
+}
+
+/** Ограничения имени растения и названия группы. */
+export const PLANT_NAME_MAX = 60;
+export const GROUP_NAME_MAX = 40;
+
 export interface PlantDetails {
   plant: Plant;
   schedules: CareSchedule[];
