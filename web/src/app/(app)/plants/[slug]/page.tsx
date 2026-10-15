@@ -73,7 +73,7 @@ export default async function SpeciesPage({ params }: PageProps<"/plants/[slug]"
         {name}
       </nav>
 
-      <div className="mt-4 grid gap-8 md:grid-cols-[1fr_1.1fr] md:items-center">
+      <div className="mt-4 grid gap-8 md:grid-cols-[1fr_1.1fr] md:items-center [&>*]:min-w-0">
         <figure>
           <PlantPhoto
             src={s.image?.url}

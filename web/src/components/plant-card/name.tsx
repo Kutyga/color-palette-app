@@ -103,7 +103,7 @@ export function PlantName({ plant }: { plant: Plant }) {
   }
   return (
     <div className="flex items-start gap-2">
-      <h1 className="min-w-0 text-[40px] leading-tight font-bold tracking-tight break-words">{plant.nickname}</h1>
+      <h1 className="min-w-0 text-[40px] leading-tight font-bold tracking-tight [overflow-wrap:anywhere]">{plant.nickname}</h1>
       <button
         type="button"
         onClick={() => setEditing(true)}

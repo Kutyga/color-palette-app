@@ -40,7 +40,7 @@ function PlantView({ id }: { id: string }) {
         Коллекция
       </BackLink>
 
-      <div className="mt-4 grid gap-8 md:grid-cols-2">
+      <div className="mt-4 grid gap-8 md:grid-cols-2 [&>*]:min-w-0">
         <PlantHero plant={plant} species={species} />
         <div>
           <PlantName plant={plant} />

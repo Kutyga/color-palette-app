@@ -144,7 +144,7 @@ function ListingView() {
   const sp = catalogById(l.speciesId);
   const photo = listingPhoto(l);
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+    <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 [&>*]:min-w-0">
       <div>
         <div className="relative overflow-hidden rounded-[28px]">
           <PlantPhoto

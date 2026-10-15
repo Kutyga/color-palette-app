@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 export function PageHeader({ eyebrow, title, actions }: { eyebrow?: string; title: string; actions?: ReactNode }) {
   return (
     <header className="flex items-end justify-between gap-4 pt-6 pb-4">
-      <div>
+      <div className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
         {eyebrow && <p className="text-secondary text-[13px] font-semibold tracking-wide uppercase first-letter:uppercase">{eyebrow}</p>}
         <h1 className="large-title">{title}</h1>
       </div>

@@ -134,12 +134,12 @@ export function CareActions({ plant, schedules }: { plant: Plant; schedules: Car
         {quickTypes.map((t) => {
           const Icon = CARE_ICONS[t];
           return (
-            <Button key={t} variant="secondary" className="flex-1" onClick={() => mark(t)}>
+            <Button key={t} variant="secondary" className="min-w-0 flex-1 gap-1.5 px-3!" onClick={() => mark(t)}>
               <Icon className="size-4" style={{ color: CARE_COLORS[t] }} aria-hidden /> {CARE_TYPES[t].action}
             </Button>
           );
         })}
-        <Button variant="secondary" onClick={() => setMoreOpen(true)} aria-label="Другой уход">
+        <Button variant="secondary" className="shrink-0 px-3!" onClick={() => setMoreOpen(true)} aria-label="Другой уход">
           <MoreHorizontal className="size-5" />
         </Button>
       </div>
