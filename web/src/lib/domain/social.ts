@@ -17,6 +17,7 @@ export const DIARY_EVENTS = {
   cutting: { label: "Черенок или детка", emoji: "✂️" },
   rescue: { label: "Спасение", emoji: "🩹" },
   progress: { label: "Как растёт", emoji: "📏" },
+  care: { label: "Уход", emoji: "🚿" },
   tip: { label: "Совет", emoji: "💡" },
 } as const;
 export type DiaryEvent = keyof typeof DIARY_EVENTS;
@@ -44,6 +45,8 @@ export interface FeedPost {
   createdAt: Date;
   plantId: string | null;
   plantName: string | null;
+  /** Все растения записи: главное первым, затем отмеченные вместе с ним (душ всем, новая подсветка). */
+  plants: { id: string; name: string }[];
   /** Обложка — первое фото. */
   photoUrl: string | null;
   /** Все фото публикации по порядку (обложка — первое). */
@@ -98,6 +101,8 @@ export interface NewPost {
   event?: DiaryEvent | null;
   text: string;
   plantId?: string | null;
+  /** Ещё растения той же записи (кроме plantId) — запись появится и в их дневниках. */
+  alsoPlantIds?: string[];
   /** Фото по порядку; первое — обложка в ленте. */
   photos?: Blob[];
   /** Для постов доступны только «Подписчики» и «Все». */
@@ -143,7 +148,61 @@ export const translatedUrl = (url: string, target = "ru") =>
 
 type Row = Record<string, unknown>;
 
+/** Событие «Активности»: кто и что сделал с моими записями и комментариями. */
+export interface ActivityItem {
+  id: string;
+  kind: "comment" | "reply" | "like" | "follow";
+  createdAt: Date;
+  actorName: string;
+  actorDisplayName: string;
+  postId: string | null;
+  postKind: PostKind | null;
+  /** Главное растение записи — по нему ссылка на дневник. */
+  plantId: string | null;
+  plantName: string | null;
+  /** Текст комментария (до 200 символов). */
+  text: string | null;
+  unread: boolean;
+}
+
+export function activityFromRow(r: Row): ActivityItem {
+  const username = (r.actor_username as string | null) ?? "садовник";
+  return {
+    id: r.id as string,
+    kind: r.kind as ActivityItem["kind"],
+    createdAt: new Date(r.created_at as string),
+    actorName: username,
+    actorDisplayName: (r.actor_display_name as string | null)?.trim() || prettyUsername(username),
+    postId: (r.post_id as string | null) ?? null,
+    postKind: r.post_kind == null ? null : r.post_kind === "question" ? "question" : "diary",
+    plantId: (r.post_plant_id as string | null) ?? null,
+    plantName: (r.plant_name as string | null) ?? null,
+    text: (r.text as string | null) ?? null,
+    unread: r.unread === true,
+  };
+}
+
+/** Куда ведёт событие «Активности»: вопрос, дневник растения (к самой записи) или профиль. */
+export function activityHref(a: ActivityItem): string {
+  if (a.kind === "follow") return `/people/view/?u=${encodeURIComponent(a.actorName)}`;
+  if (a.postKind === "question" && a.postId) return `/feed/question/?id=${encodeURIComponent(a.postId)}`;
+  if (a.plantId && a.postId) return `/feed/plant/?id=${encodeURIComponent(a.plantId)}#post-${a.postId}`;
+  return "/feed/?tab=diaries";
+}
+
 /** Ожидает выборку `*, author:profiles(username, display_name), plant:plants(nickname)`. */
+/** Главное растение и отмеченные вместе с ним (post_plants), без повторов. */
+function postPlants(r: Row): { id: string; name: string }[] {
+  const out: { id: string; name: string }[] = [];
+  const add = (id: unknown, name: unknown) => {
+    if (typeof id === "string" && !out.some((p) => p.id === id)) out.push({ id, name: typeof name === "string" ? name : "Растение" });
+  };
+  add(r.plant_id, (r.plant as { nickname?: string } | null)?.nickname);
+  for (const x of (r.extra as { plant_id?: string; plant?: { nickname?: string } | null }[] | null) ?? [])
+    add(x.plant_id, x.plant?.nickname);
+  return out;
+}
+
 export function postFromRow(
   r: Row,
   opts: { photoUrls?: string[]; likedByMe?: boolean; following?: boolean; myId?: string | null },
@@ -166,6 +225,7 @@ export function postFromRow(
     createdAt: new Date(r.created_at as string),
     plantId: (r.plant_id as string | null) ?? null,
     plantName: plant?.nickname ?? null,
+    plants: postPlants(r),
     photoUrl: opts.photoUrls?.[0] ?? null,
     photoUrls: opts.photoUrls ?? [],
     likeCount: (r.like_count as number | null) ?? 0,

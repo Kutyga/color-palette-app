@@ -16,10 +16,18 @@ import { PlantPhoto, cx } from "../ui";
 import { PostMenu } from "./post-menu";
 import { AuthorLine, FollowAuthor, plantDiaryHref, useSupport } from "./shared";
 
+/** «Монстера, Фикус +3» — растения записи: главное первым, остальные отмечены вместе с ним. */
+function plantsLabel(post: Pick<FeedPost, "plants" | "plantName">): string | null {
+  const names = post.plants.length ? post.plants.map((p) => p.name) : post.plantName ? [post.plantName] : [];
+  if (names.length <= 2) return names.join(", ") || null;
+  return `${names.slice(0, 2).join(", ")} +${names.length - 2}`;
+}
+
 /** «🌱 Новый лист · Монстера Бублик» — что случилось и с кем. На фото — полупрозрачная плашка. */
 function EventTag({ post, onPhoto }: { post: FeedPost; onPhoto: boolean }) {
   const e = post.event ? DIARY_EVENTS[post.event] : null;
-  if (!e && !post.plantName) return null;
+  const plants = plantsLabel(post);
+  if (!e && !plants) return null;
   return (
     <span
       className={cx(
@@ -30,8 +38,8 @@ function EventTag({ post, onPhoto }: { post: FeedPost; onPhoto: boolean }) {
       {e && <span aria-hidden>{e.emoji}</span>}
       <span className="truncate">
         {e?.label}
-        {e && post.plantName && " · "}
-        {post.plantName}
+        {e && plants && " · "}
+        {plants}
       </span>
     </span>
   );

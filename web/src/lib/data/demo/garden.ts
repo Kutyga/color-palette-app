@@ -144,6 +144,56 @@ export class DemoGarden implements GardenRepository {
     this.persist();
   }
 
+  async renamePlant(plantId: string, nickname: string) {
+    const p = this.state.plants.find((x) => x.id === plantId);
+    if (!p) throw new Error("Растение не найдено");
+    p.nickname = nickname.trim();
+    this.persist();
+  }
+
+  async myGroups() {
+    const alive = new Set(this.state.plants.map((p) => p.id));
+    return (this.state.groups ?? []).map((g) => ({ ...g, plantIds: g.plantIds.filter((id) => alive.has(id)) }));
+  }
+
+  private group(id: string) {
+    const g = (this.state.groups ?? []).find((x) => x.id === id);
+    if (!g) throw new Error("Группа не найдена");
+    return g;
+  }
+
+  private checkGroupName(name: string, except?: string) {
+    const key = name.trim().toLowerCase();
+    if ((this.state.groups ?? []).some((g) => g.id !== except && g.name.trim().toLowerCase() === key)) {
+      throw new Error("Группа с таким названием уже есть");
+    }
+  }
+
+  async createGroup(name: string) {
+    this.checkGroupName(name);
+    const g = { id: crypto.randomUUID(), name: name.trim(), plantIds: [] as string[] };
+    this.state.groups = [...(this.state.groups ?? []), g];
+    this.persist();
+    return { ...g, plantIds: [] };
+  }
+
+  async renameGroup(id: string, name: string) {
+    this.checkGroupName(name, id);
+    this.group(id).name = name.trim();
+    this.persist();
+  }
+
+  async deleteGroup(id: string) {
+    this.state.groups = (this.state.groups ?? []).filter((g) => g.id !== id);
+    this.persist();
+  }
+
+  async setGroupMember(groupId: string, plantId: string, member: boolean) {
+    const g = this.group(groupId);
+    g.plantIds = member ? [...new Set([...g.plantIds, plantId])] : g.plantIds.filter((id) => id !== plantId);
+    this.persist();
+  }
+
   async setWaterMode(plantId: string, mode: WaterMode) {
     const p = this.state.plants.find((x) => x.id === plantId);
     if (!p) throw new Error("Растение не найдено");

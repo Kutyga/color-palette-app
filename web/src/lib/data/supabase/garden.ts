@@ -4,7 +4,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../../domain/care";
 import { statsFromRow } from "../../domain/gamification";
-import { coverPathOf, plantFromRow, type Location, type Visibility, type WaterMode } from "../../domain/plant";
+import { coverPathOf, plantFromRow, type Location, type PlantGroup, type Visibility, type WaterMode } from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
@@ -99,6 +99,44 @@ export class SupabaseGarden implements GardenRepository {
 
   async setVisibility(plantId: string, visibility: Visibility) {
     check(await this.db.from("plants").update({ visibility }).eq("id", plantId).eq("owner_id", this.uid));
+  }
+
+  async renamePlant(plantId: string, nickname: string) {
+    check(await this.db.from("plants").update({ nickname: nickname.trim() }).eq("id", plantId).eq("owner_id", this.uid));
+  }
+
+  async myGroups(): Promise<PlantGroup[]> {
+    const rows = check(
+      await this.db.from("plant_groups").select("id, name, members:plant_group_members(plant_id)").order("created_at"),
+    ) as Row[];
+    return rows.map((r) => ({
+      id: r.id as string,
+      name: r.name as string,
+      plantIds: ((r.members as { plant_id: string }[] | null) ?? []).map((m) => m.plant_id),
+    }));
+  }
+
+  async createGroup(name: string): Promise<PlantGroup> {
+    const { data, error } = await this.db.from("plant_groups").insert({ name: name.trim() }).select("id, name").single();
+    if (error) throw new Error(error.code === "23505" ? "Группа с таким названием уже есть" : error.message);
+    return { id: data.id as string, name: data.name as string, plantIds: [] };
+  }
+
+  async renameGroup(id: string, name: string) {
+    const { error } = await this.db.from("plant_groups").update({ name: name.trim() }).eq("id", id);
+    if (error) throw new Error(error.code === "23505" ? "Группа с таким названием уже есть" : error.message);
+  }
+
+  async deleteGroup(id: string) {
+    check(await this.db.from("plant_groups").delete().eq("id", id));
+  }
+
+  async setGroupMember(groupId: string, plantId: string, member: boolean) {
+    if (member) {
+      check(await this.db.from("plant_group_members").upsert({ group_id: groupId, plant_id: plantId }, { ignoreDuplicates: true }));
+    } else {
+      check(await this.db.from("plant_group_members").delete().eq("group_id", groupId).eq("plant_id", plantId));
+    }
   }
 
   async setWaterMode(plantId: string, mode: WaterMode) {

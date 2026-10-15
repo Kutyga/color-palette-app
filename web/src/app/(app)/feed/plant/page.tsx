@@ -5,7 +5,7 @@
 import { BookOpen, ChevronRight, NotebookPen } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
 import { BackLink } from "@/components/back-link";
 import { CommentsSheet, DiaryCard, SpeciesLink } from "@/components/feed";
@@ -119,7 +119,16 @@ function PlantDiary() {
   const id = useSearchParams().get("id");
   const diary = usePlantDiary(id);
   const plant = usePlantProfile(id);
-  const [commentsFor, setCommentsFor] = useState<string | null>(null);
+  // Ссылка из «Активности» (#post-…): сразу открываем комментарии этой записи и прокручиваем к ней.
+  const [commentsFor, setCommentsFor] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : (window.location.hash.match(/^#post-(.+)$/)?.[1] ?? null),
+  );
+  const jumped = useRef(false);
+  useEffect(() => {
+    if (jumped.current || !diary.data || !commentsFor) return;
+    jumped.current = true;
+    document.getElementById(`post-${commentsFor}`)?.scrollIntoView({ block: "start" });
+  }, [diary.data, commentsFor]);
   if (!id) return <EmptyState icon={BookOpen} title="Дневник не найден" message="Ссылка неполная." />;
   if (diary.isPending || plant.isPending) return <Spinner />;
   if (diary.error) return <ErrorNote error={diary.error} onRetry={() => diary.refetch()} />;
@@ -163,7 +172,7 @@ function PlantDiary() {
       ) : (
         <ol className="border-separator relative space-y-6 border-l-2 pl-5">
           {entries.map((p) => (
-            <li key={p.id} className="relative">
+            <li key={p.id} id={`post-${p.id}`} className="relative scroll-mt-20">
               <span className="bg-leaf ring-bg absolute top-5 -left-[27px] size-3 rounded-full ring-4" aria-hidden />
               <p className="text-secondary mb-2 text-[13px] font-semibold">
                 {p.createdAt.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
