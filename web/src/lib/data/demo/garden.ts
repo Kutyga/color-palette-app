@@ -153,7 +153,11 @@ export class DemoGarden implements GardenRepository {
 
   async myGroups() {
     const alive = new Set(this.state.plants.map((p) => p.id));
-    return (this.state.groups ?? []).map((g) => ({ ...g, plantIds: g.plantIds.filter((id) => alive.has(id)) }));
+    return (this.state.groups ?? []).map((g) => ({
+      ...g,
+      plantIds: g.plantIds.filter((id) => alive.has(id)),
+      isPublic: !!g.isPublic,
+    }));
   }
 
   private group(id: string) {
@@ -171,7 +175,7 @@ export class DemoGarden implements GardenRepository {
 
   async createGroup(name: string) {
     this.checkGroupName(name);
-    const g = { id: crypto.randomUUID(), name: name.trim(), plantIds: [] as string[] };
+    const g = { id: crypto.randomUUID(), name: name.trim(), plantIds: [] as string[], isPublic: false };
     this.state.groups = [...(this.state.groups ?? []), g];
     this.persist();
     return { ...g, plantIds: [] };
@@ -191,6 +195,11 @@ export class DemoGarden implements GardenRepository {
   async setGroupMember(groupId: string, plantId: string, member: boolean) {
     const g = this.group(groupId);
     g.plantIds = member ? [...new Set([...g.plantIds, plantId])] : g.plantIds.filter((id) => id !== plantId);
+    this.persist();
+  }
+
+  async setGroupPublic(id: string, isPublic: boolean) {
+    this.group(id).isPublic = isPublic;
     this.persist();
   }
 

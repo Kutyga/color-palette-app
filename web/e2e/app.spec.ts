@@ -460,6 +460,10 @@ test("демо: переименование растения, своя груп
   await expect(page.getByText(/Неубиваемые · 1 растение/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Сансевиерия Зоя/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Монстера Мося/ })).toHaveCount(0);
+  // Группа личная, пока её не открыть для профиля.
+  await page.getByRole("button", { name: "Показывать группу в профиле" }).click();
+  await expect(page.getByText("· видна в профиле")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Сделать группу личной" })).toBeVisible();
 
   // Запись «Уход» сразу о нескольких растениях: группа отмечается одним нажатием.
   await page.goto("/feed/new/?type=diary");

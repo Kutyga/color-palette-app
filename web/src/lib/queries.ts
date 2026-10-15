@@ -202,6 +202,12 @@ export function usePlantProfile(plantId: string | null) {
   return useQuery({ queryKey: ["people", "plant", plantId], queryFn: () => b.people.plant(plantId!), enabled: !!plantId });
 }
 
+/** Открытые группы садовода — фильтры над его растениями в профиле. */
+export function useGroupsOf(userId: string | null) {
+  const b = useBackend();
+  return useQuery({ queryKey: ["people", "groups", userId], queryFn: () => b.people.groupsOf(userId!), enabled: !!userId });
+}
+
 export function usePlantsOf(userId: string | null) {
   const b = useBackend();
   return useQuery({ queryKey: ["people", "plants", userId], queryFn: () => b.people.plantsOf(userId!), enabled: !!userId });

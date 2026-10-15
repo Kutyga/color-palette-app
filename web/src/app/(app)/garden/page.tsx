@@ -3,7 +3,7 @@
 /** Коллекция: все растения пользователя со статусом полива. */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Sprout, Trash2 } from "lucide-react";
+import { Globe, Lock, Pencil, Plus, Sprout, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RequireSession } from "@/components/app-shell";
@@ -59,6 +59,12 @@ function GroupsBar({ selected, onSelect, count }: { selected: string | null; onS
     onSuccess: (_d, name) => done(`Группа переименована: «${name}»`),
     onError: (e) => toast(e.message),
   });
+  const share = useMutation({
+    mutationFn: (isPublic: boolean) => backend.garden.setGroupPublic(selected!, isPublic),
+    onSuccess: (_d, isPublic) =>
+      done(isPublic ? "Группа видна в вашем профиле — гости увидят её растения, которые им и так открыты" : "Группа снова личная"),
+    onError: (e) => toast(e.message),
+  });
   const remove = useMutation({
     mutationFn: () => backend.garden.deleteGroup(selected!),
     onSuccess: () => {
@@ -112,7 +118,18 @@ function GroupsBar({ selected, onSelect, count }: { selected: string | null; onS
           <span className="min-w-0 flex-1 truncate">
             <b>{current.name}</b> · {count} {plural(count, "растение", "растения", "растений")}
             {count === 0 && <span className="text-secondary"> — добавьте растения на их страницах</span>}
+            {current.isPublic && <span className="text-secondary"> · видна в профиле</span>}
           </span>
+          <button
+            type="button"
+            onClick={() => share.mutate(!current.isPublic)}
+            disabled={share.isPending}
+            aria-label={current.isPublic ? "Сделать группу личной" : "Показывать группу в профиле"}
+            title={current.isPublic ? "Видна в профиле — сделать личной" : "Личная — показывать в профиле"}
+            className={cx("hover:bg-muted rounded-full p-2", current.isPublic && "text-leaf")}
+          >
+            {current.isPublic ? <Globe className="size-4" aria-hidden /> : <Lock className="size-4" aria-hidden />}
+          </button>
           <button
             type="button"
             onClick={() => setMode("rename")}

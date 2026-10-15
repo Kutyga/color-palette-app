@@ -89,7 +89,7 @@ export interface DemoState {
   products?: Record<string, ShopProduct[]>;
   wishlist?: string[];
   /** Свои группы растений. */
-  groups?: { id: string; name: string; plantIds: string[] }[];
+  groups?: { id: string; name: string; plantIds: string[]; isPublic?: boolean }[];
   /** Когда «Активность» последний раз открывали. */
   activitySeenAt?: string;
 }

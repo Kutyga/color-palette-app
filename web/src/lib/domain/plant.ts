@@ -40,11 +40,15 @@ export interface Plant {
   createdAt: Date;
 }
 
-/** Своя группа растений в коллекции («Бонсаи», «Кактусы на кухне») — видна только владельцу. */
+/**
+ * Своя группа растений в коллекции («Бонсаи», «Кактусы на кухне»). По умолчанию видна только владельцу;
+ * открытую группу видят гости профиля — вместе с теми растениями из неё, которые им и так разрешено видеть.
+ */
 export interface PlantGroup {
   id: string;
   name: string;
   plantIds: string[];
+  isPublic: boolean;
 }
 
 /** Ограничения имени растения и названия группы. */
@@ -112,6 +116,16 @@ export function plantFromRow(r: Row, photoUrl: string | null = null): Plant {
 }
 
 /** Путь к обложке растения в хранилище (из вложенного select cover:plant_photos). */
+/** Группа из строки plant_groups с вложенным составом (select GROUP_SELECT). */
+export function groupFromRow(r: Row): PlantGroup {
+  return {
+    id: r.id as string,
+    name: r.name as string,
+    plantIds: ((r.members as { plant_id: string }[] | null) ?? []).map((m) => m.plant_id),
+    isPublic: !!r.is_public,
+  };
+}
+
 export const coverPathOf = (r: Row) => (r.cover as { storage_path?: string } | null)?.storage_path ?? null;
 
 export type PlantStatus = "ok" | "soon" | "overdue";

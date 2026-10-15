@@ -54,6 +54,8 @@ export interface GardenRepository {
   deleteGroup(id: string): Promise<void>;
   /** Добавить растение в группу или убрать из неё. */
   setGroupMember(groupId: string, plantId: string, member: boolean): Promise<void>;
+  /** Показывать группу в профиле или держать личной. */
+  setGroupPublic(id: string, isPublic: boolean): Promise<void>;
   /** Загружает фото (JPEG) и делает его обложкой растения. */
   setPlantPhoto(plantId: string, jpeg: Blob): Promise<void>;
   myLocations(): Promise<Location[]>;
@@ -138,6 +140,8 @@ export interface PeopleRepository {
   following(userId: string): Promise<PersonCard[]>;
   /** Растения садовода, которые разрешено видеть текущему пользователю. */
   plantsOf(userId: string): Promise<PublicPlant[]>;
+  /** Открытые группы садовода — фильтры над его растениями. */
+  groupsOf(userId: string): Promise<PlantGroup[]>;
   /** Одно растение (своё или чужое, если его разрешено видеть); null — нет или скрыто. */
   plant(plantId: string): Promise<PlantProfile | null>;
   /** Меняет свой профиль; занятый username — ошибка с понятным текстом. */
