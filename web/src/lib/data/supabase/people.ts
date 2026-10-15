@@ -11,9 +11,9 @@ import {
   type PlantProfile,
   type ProfileUpdate,
 } from "../../domain/people";
-import { coverPathOf } from "../../domain/plant";
+import { coverPathOf, groupFromRow, type PlantGroup } from "../../domain/plant";
 import type { PeopleRepository, Profile } from "../repositories";
-import { PLANT_BUCKET, PROFILE_FIELDS, type Row, check, moderated, profileFromRow, signedUrls } from "./shared";
+import { GROUP_SELECT, PLANT_BUCKET, PROFILE_FIELDS, type Row, check, moderated, profileFromRow, signedUrls } from "./shared";
 
 export class SupabasePeople implements PeopleRepository {
   constructor(
@@ -60,6 +60,14 @@ export class SupabasePeople implements PeopleRepository {
       speciesSlug: (r.species as { slug?: string } | null)?.slug ?? null,
       photoUrl: urls.get(coverPathOf(r) ?? "") ?? null,
     }));
+  }
+
+  async groupsOf(userId: string): Promise<PlantGroup[]> {
+    // Чужие — только открытые (RLS); свои в профиле показываем так же, как их видят гости.
+    const rows = check(
+      await this.db.from("plant_groups").select(GROUP_SELECT).eq("owner_id", userId).eq("is_public", true).order("created_at"),
+    ) as Row[];
+    return rows.map(groupFromRow).filter((g) => g.plantIds.length > 0);
   }
 
   async plant(plantId: string): Promise<PlantProfile | null> {

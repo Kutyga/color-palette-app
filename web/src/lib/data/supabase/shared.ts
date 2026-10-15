@@ -14,6 +14,9 @@ export type Row = Record<string, unknown>;
 // ---------------------------------------------------------------------------
 
 /** Растение со всем, что нужно карточке: вид, место, ближайшие сроки ухода и обложка. */
+/** Группа растений с составом; растения, которые смотрящему не видны, RLS из состава убирает. */
+export const GROUP_SELECT = "id, name, is_public, members:plant_group_members(plant_id)";
+
 export const PLANT_SELECT =
   "*, species(slug, latin_name, common_names), locations(name, light_level), care_schedules(type, next_due_at), " +
   "cover:plant_photos!plants_cover_photo_fk(storage_path)";

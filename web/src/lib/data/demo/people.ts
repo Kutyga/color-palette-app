@@ -10,6 +10,7 @@ import {
   type ProfileUpdate,
   type PublicPlant,
 } from "../../domain/people";
+import type { PlantGroup } from "../../domain/plant";
 import type { PeopleRepository, Profile } from "../repositories";
 import { DEFAULT_PROFILE, DEMO_PEOPLE, demoId } from "./fixtures";
 import { type DemoState, ME } from "./state";
@@ -89,6 +90,15 @@ export class DemoPeople implements PeopleRepository {
     const person = DEMO_PEOPLE.find((d) => demoId(d.username) === userId);
     const others = DEMO_PEOPLE.filter((d) => demoId(d.username) !== userId).map((d) => this.card(d));
     return person?.followsMe ? [this.myCard(), ...others] : others;
+  }
+
+  async groupsOf(userId: string): Promise<PlantGroup[]> {
+    if (userId !== ME) return [];
+    const alive = new Set(this.state.plants.map((p) => p.id));
+    return (this.state.groups ?? [])
+      .filter((g) => g.isPublic)
+      .map((g) => ({ ...g, plantIds: g.plantIds.filter((id) => alive.has(id)), isPublic: true }))
+      .filter((g) => g.plantIds.length > 0);
   }
 
   async plantsOf(userId: string): Promise<PublicPlant[]> {

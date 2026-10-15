@@ -4,11 +4,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { eventFromRow, scheduleFromRow, taskFromRow, type CareType } from "../../domain/care";
 import { statsFromRow } from "../../domain/gamification";
-import { coverPathOf, plantFromRow, type Location, type PlantGroup, type Visibility, type WaterMode } from "../../domain/plant";
+import {
+  coverPathOf,
+  groupFromRow,
+  plantFromRow,
+  type Location,
+  type PlantGroup,
+  type Visibility,
+  type WaterMode,
+} from "../../domain/plant";
 import { careFromRow } from "../../domain/species";
 import type { GardenRepository, PlantDraft } from "../repositories";
 import { initialSchedules } from "../schedules";
-import { PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls, uploadJpeg } from "./shared";
+import { GROUP_SELECT, PLANT_BUCKET, PLANT_SELECT, type Row, check, signedUrls, uploadJpeg } from "./shared";
 
 export class SupabaseGarden implements GardenRepository {
   constructor(
@@ -107,19 +115,19 @@ export class SupabaseGarden implements GardenRepository {
 
   async myGroups(): Promise<PlantGroup[]> {
     const rows = check(
-      await this.db.from("plant_groups").select("id, name, members:plant_group_members(plant_id)").order("created_at"),
+      await this.db
+        .from("plant_groups")
+        .select(GROUP_SELECT)
+        .eq("owner_id", this.uid) // открытые группы других садоводов RLS тоже отдаёт
+        .order("created_at"),
     ) as Row[];
-    return rows.map((r) => ({
-      id: r.id as string,
-      name: r.name as string,
-      plantIds: ((r.members as { plant_id: string }[] | null) ?? []).map((m) => m.plant_id),
-    }));
+    return rows.map(groupFromRow);
   }
 
   async createGroup(name: string): Promise<PlantGroup> {
-    const { data, error } = await this.db.from("plant_groups").insert({ name: name.trim() }).select("id, name").single();
+    const { data, error } = await this.db.from("plant_groups").insert({ name: name.trim() }).select("id, name, is_public").single();
     if (error) throw new Error(error.code === "23505" ? "Группа с таким названием уже есть" : error.message);
-    return { id: data.id as string, name: data.name as string, plantIds: [] };
+    return { id: data.id as string, name: data.name as string, plantIds: [], isPublic: !!data.is_public };
   }
 
   async renameGroup(id: string, name: string) {
@@ -137,6 +145,10 @@ export class SupabaseGarden implements GardenRepository {
     } else {
       check(await this.db.from("plant_group_members").delete().eq("group_id", groupId).eq("plant_id", plantId));
     }
+  }
+
+  async setGroupPublic(id: string, isPublic: boolean) {
+    check(await this.db.from("plant_groups").update({ is_public: isPublic }).eq("id", id).eq("owner_id", this.uid));
   }
 
   async setWaterMode(plantId: string, mode: WaterMode) {

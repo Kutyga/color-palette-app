@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { activityFromRow, activityHref } from "../../domain/social";
 import { demoBackend, memoryDemoStorage } from "../demo";
+import { ME } from "../demo/state";
 
 const clock = () => new Date(2026, 6, 15, 12);
 
@@ -30,6 +31,22 @@ describe("группы, переименование и записи о неск
     await b.garden.deleteGroup(g.id);
     expect(await b.garden.myGroups()).toEqual([]);
     expect((await b.garden.myPlants()).length).toBeGreaterThan(1); // растения на месте
+  });
+
+  it("группа личная по умолчанию; открытую с растениями видно в профиле, пустую — нет", async () => {
+    const b = await demoBackend(memoryDemoStorage(), clock);
+    const [a] = await b.garden.myPlants();
+    const g = await b.garden.createGroup("Бонсаи");
+    const empty = await b.garden.createGroup("Кактусы");
+    expect(g.isPublic).toBe(false);
+    await b.garden.setGroupMember(g.id, a.id, true);
+    expect(await b.people.groupsOf(ME)).toEqual([]);
+    await b.garden.setGroupPublic(g.id, true);
+    await b.garden.setGroupPublic(empty.id, true);
+    expect((await b.garden.myGroups()).map((x) => x.isPublic)).toEqual([true, true]);
+    expect(await b.people.groupsOf(ME)).toEqual([{ id: g.id, name: "Бонсаи", plantIds: [a.id], isPublic: true }]);
+    await b.garden.setGroupPublic(g.id, false);
+    expect(await b.people.groupsOf(ME)).toEqual([]);
   });
 
   it("запись «душ всем» попадает в дневник каждого отмеченного растения", async () => {
