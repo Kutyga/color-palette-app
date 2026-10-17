@@ -11,13 +11,12 @@ import { RequireSession } from "@/components/app-shell";
 import { PhotosField, type PickedPhoto } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { Button, Chip, EmptyState, Field, PageHeader, Spinner, cx, inputClass, useToast } from "@/components/ui";
-import { DIARY_EVENTS, type DiaryEvent } from "@/lib/domain/social";
+import { DIARY_EVENTS, POST_PHOTOS_MAX, type DiaryEvent } from "@/lib/domain/social";
 import { useGroups, usePlants } from "@/lib/queries";
 
 const MIN_QUESTION = 15;
 const MIN_TIP = 20;
 /** Сколько фото можно приложить к публикации: например, новый росток и всё растение целиком. */
-const MAX_PHOTOS = 5;
 
 /** Что публикуем: tip — запись с меткой «Совет» без обязательного растения и фото. */
 type Mode = "diary" | "tip" | "question";
@@ -50,7 +49,7 @@ function NewPostForm() {
   const addPhoto = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     urls.add(url);
-    setPhotos((ps) => (ps.length < MAX_PHOTOS ? [...ps, { blob, url }] : ps));
+    setPhotos((ps) => (ps.length < POST_PHOTOS_MAX ? [...ps, { blob, url }] : ps));
   };
 
   const isDiary = mode === "diary";
@@ -190,13 +189,13 @@ function NewPostForm() {
           <div>
             <PhotosField
               photos={photos}
-              max={MAX_PHOTOS}
+              max={POST_PHOTOS_MAX}
               onAdd={addPhoto}
               onRemove={(i) => setPhotos((ps) => ps.filter((_, j) => j !== i))}
             />
             <p className="text-secondary mt-2 text-center text-[13px]">
               {isDiary
-                ? `Хотя бы одно фото — так в дневнике будет видно, как растение меняется. Можно до ${MAX_PHOTOS}.`
+                ? `Хотя бы одно фото — так в дневнике будет видно, как растение меняется. Можно до ${POST_PHOTOS_MAX}.`
                 : isTip
                   ? "Картинка по желанию — например, как это выглядит на деле."
                   : "Фото поможет понять, что случилось. Можно и без него."}

@@ -51,6 +51,8 @@ export interface FeedPost {
   photoUrl: string | null;
   /** Все фото публикации по порядку (обложка — первое). */
   photoUrls: string[];
+  /** Чем фото обозначены при правке (путь в хранилище) — по одному на каждую ссылку photoUrls. */
+  photoKeys: string[];
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
@@ -68,10 +70,24 @@ export function commentThreads(list: PostComment[]): { root: PostComment; replie
 /** Сколько после публикации её можно редактировать (удалять — всегда). */
 export const EDIT_WINDOW_MS = 60 * 60 * 1000;
 
+/** Сколько фото можно приложить к публикации. */
+export const POST_PHOTOS_MAX = 5;
+
 /** Сколько миллисекунд ещё можно редактировать; 0 — уже нельзя или пост чужой. */
 export function editTimeLeft(post: Pick<FeedPost, "mine" | "createdAt">, now = new Date()): number {
   if (!post.mine) return 0;
   return Math.max(0, post.createdAt.getTime() + EDIT_WINDOW_MS - now.getTime());
+}
+
+/**
+ * Новый набор фото записи по порядку (первое — обложка): оставить имеющееся фото (его photoKeys) или добавить снимок.
+ * Фото в записи дневника можно менять в любое время, у вопроса — как и текст, в течение часа.
+ */
+export type PostPhotoEdit = { keep: string } | { add: Blob };
+
+/** Поменять фото можно: в своей записи дневника — всегда, в своём вопросе — пока открыта правка. */
+export function canEditPhotos(post: Pick<FeedPost, "mine" | "kind" | "createdAt">, now = new Date()): boolean {
+  return post.mine && (post.kind === "diary" || editTimeLeft(post, now) > 0);
 }
 
 /** Что автор может поменять в публикации. */
@@ -205,7 +221,7 @@ function postPlants(r: Row): { id: string; name: string }[] {
 
 export function postFromRow(
   r: Row,
-  opts: { photoUrls?: string[]; likedByMe?: boolean; following?: boolean; myId?: string | null },
+  opts: { photoUrls?: string[]; photoKeys?: string[]; likedByMe?: boolean; following?: boolean; myId?: string | null },
 ): FeedPost {
   const author = r.author as { username?: string; display_name?: string | null; is_admin?: boolean } | null;
   const plant = r.plant as { nickname?: string } | null;
@@ -228,6 +244,7 @@ export function postFromRow(
     plants: postPlants(r),
     photoUrl: opts.photoUrls?.[0] ?? null,
     photoUrls: opts.photoUrls ?? [],
+    photoKeys: opts.photoKeys ?? opts.photoUrls ?? [],
     likeCount: (r.like_count as number | null) ?? 0,
     commentCount: (r.comment_count as number | null) ?? 0,
     likedByMe: opts.likedByMe ?? false,

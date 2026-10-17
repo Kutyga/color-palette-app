@@ -10,11 +10,21 @@ import {
   type DiaryScope,
   type HelpFilter,
   type NewPost,
+  type PostPhotoEdit,
   type PostUpdate,
   type ReaderArticle,
 } from "../../domain/social";
 import type { SocialRepository } from "../repositories";
 import { COMMENT_SELECT, POST_BUCKET, POST_SELECT, type Row, type SpeciesIds, check, moderated, signedUrls, uploadJpeg } from "./shared";
+
+/** Ссылки на фото и их пути — парами: фото без ссылки пропускаем целиком, чтобы правка не перепутала снимки. */
+function photosOf(paths: string[], urls: Map<string, string>) {
+  const pairs = paths.flatMap((p) => {
+    const url = p.startsWith("https://") ? p : urls.get(p);
+    return url ? [[p, url] as const] : [];
+  });
+  return { photoKeys: pairs.map(([p]) => p), photoUrls: pairs.map(([, u]) => u) };
+}
 
 export class SupabaseSocial implements SocialRepository {
   constructor(
@@ -46,9 +56,7 @@ export class SupabaseSocial implements SocialRepository {
       ...postFromRow(r, {
         likedByMe: likedIds.has(r.id as string),
         following: followed.has(r.author_id as string),
-        photoUrls: pathsOf(r)
-          .map((p) => (p.startsWith("https://") ? p : urls.get(p)))
-          .filter((u): u is string => !!u),
+        ...photosOf(pathsOf(r), urls),
         myId: this.uid,
       }),
       speciesId: slugOf(r.species_id as string | null),
@@ -165,6 +173,34 @@ export class SupabaseSocial implements SocialRepository {
     );
     if (error) throw new Error(/часа/.test(error.message) ? "Прошло больше часа — публикацию уже нельзя изменить" : error.message);
     if (!data) throw new Error("Публикация не найдена");
+    return (await this.hydrate([data as Row]))[0];
+  }
+
+  async updatePostPhotos(id: string, photos: PostPhotoEdit[]) {
+    const cur = check(await this.db.from("posts").select("photo_paths").eq("id", id).eq("author_id", this.uid).maybeSingle()) as Row | null;
+    if (!cur) throw new Error("Публикация не найдена");
+    const old = (cur.photo_paths as string[] | null) ?? [];
+    // Новые снимки — под новыми именами: старые ссылки в кэше браузеров не покажут чужое фото.
+    const stamp = Date.now();
+    if (photos.some((p) => "keep" in p && !old.includes(p.keep))) throw new Error("Фото уже изменились — обновите страницу");
+    const paths = photos.map((p, i) => ("keep" in p ? p.keep : `${this.uid}/${id}/${stamp}-${i}.jpg`));
+    const added = photos.flatMap((p, i) => ("add" in p ? [{ path: paths[i], blob: p.add }] : []));
+    await Promise.all(added.map((a) => uploadJpeg(this.db, POST_BUCKET, a.path, a.blob)));
+    const { data, error } = await this.db
+      .from("posts")
+      .update({ photo_paths: paths })
+      .eq("id", id)
+      .eq("author_id", this.uid)
+      .select(POST_SELECT)
+      .maybeSingle();
+    if (error || !data) {
+      if (added.length) await this.db.storage.from(POST_BUCKET).remove(added.map((a) => a.path));
+      if (error) throw new Error(/часа/.test(error.message) ? "Прошло больше часа — фото вопроса уже нельзя изменить" : error.message);
+      throw new Error("Публикация не найдена");
+    }
+    // Убранные снимки удаляем из хранилища; если не вышло — запись уже исправлена, это не ошибка.
+    const removed = old.filter((p) => !paths.includes(p));
+    if (removed.length) await this.db.storage.from(POST_BUCKET).remove(removed);
     return (await this.hydrate([data as Row]))[0];
   }
 
