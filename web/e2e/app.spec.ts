@@ -297,6 +297,13 @@ test("демо: помощь — вопрос, ответ и лучший отв
   await page.getByRole("button", { name: "Сохранить" }).click();
   await expect(page.getByText("Почему у щучки мягкие и тёмные листья у основания?")).toBeVisible();
   await expect(page.getByText(/изменено/)).toBeVisible();
+  // Лишнее фото можно убрать: остаётся одно, счётчик «1/2» пропадает.
+  await page.getByRole("button", { name: "Действия с публикацией" }).click();
+  await page.getByRole("button", { name: /Изменить фото/ }).click();
+  await page.getByRole("button", { name: "Убрать фото 2" }).click();
+  await page.getByRole("button", { name: "Сохранить фото" }).click();
+  await expect(page.getByText("Фото обновлены")).toBeVisible();
+  await expect(page.getByText("1/2")).toHaveCount(0);
   await page.getByRole("button", { name: "Действия с публикацией" }).click();
   await page.getByRole("button", { name: "Удалить вопрос" }).click();
   await page.getByRole("button", { name: "Удалить", exact: true }).click();

@@ -10,6 +10,7 @@ import {
   type NewPost,
   type NewsArticle,
   type PostComment,
+  type PostPhotoEdit,
   type PostUpdate,
 } from "../../domain/social";
 import { speciesName, type Species } from "../../domain/species";
@@ -38,6 +39,7 @@ export class DemoSocial implements SocialRepository {
       solvedCommentId: p.solvedCommentId ?? null,
       editedAt: p.editedAt ? new Date(p.editedAt) : null,
       photoUrls: p.photoUrls ?? (p.photoUrl ? [p.photoUrl] : []),
+      photoKeys: p.photoUrls ?? (p.photoUrl ? [p.photoUrl] : []),
       plants: [p.plantId, ...(p.alsoPlantIds ?? [])]
         .filter((id): id is string => !!id)
         .map((id) => ({
@@ -136,6 +138,24 @@ export class DemoSocial implements SocialRepository {
     }
     p.text = update.text;
     if (update.event !== undefined && (p.kind ?? "diary") === "diary") p.event = update.event;
+    p.editedAt = this.clock().toISOString();
+    this.persist();
+    return this.toPost(p);
+  }
+
+  async updatePostPhotos(id: string, photos: PostPhotoEdit[]) {
+    const p = this.state.posts.find((x) => x.id === id && x.authorId === ME);
+    if (!p) throw new Error("Публикация не найдена");
+    const kind = p.kind ?? "diary";
+    if (kind === "question" && this.clock().getTime() - new Date(p.createdAt).getTime() > EDIT_WINDOW_MS) {
+      throw new Error("Прошло больше часа — фото вопроса уже нельзя изменить");
+    }
+    const old = p.photoUrls ?? (p.photoUrl ? [p.photoUrl] : []);
+    if (photos.some((x) => "keep" in x && !old.includes(x.keep))) throw new Error("Фото уже изменились — обновите страницу");
+    const urls = await Promise.all(photos.map((x) => ("keep" in x ? x.keep : blobToDataUrl(x.add))));
+    if (kind === "diary" && !urls.length) throw new Error("В записи дневника нужно хотя бы одно фото");
+    p.photoUrls = urls;
+    p.photoUrl = urls[0] ?? null;
     p.editedAt = this.clock().toISOString();
     this.persist();
     return this.toPost(p);

@@ -19,6 +19,7 @@ import type {
   HelpFilter,
   NewPost,
   PostUpdate,
+  PostPhotoEdit,
   NewsArticle,
   PostComment,
   ReaderArticle,
@@ -92,6 +93,8 @@ export interface SocialRepository {
   createPost(post: NewPost): Promise<FeedPost>;
   /** Правка своей публикации — только в течение часа после неё. */
   updatePost(id: string, update: PostUpdate): Promise<FeedPost>;
+  /** Новый набор фото своей публикации; в записи дневника — в любое время, хотя бы одно фото. */
+  updatePostPhotos(id: string, photos: PostPhotoEdit[]): Promise<FeedPost>;
   /** Удаление своей публикации — в любое время. */
   deletePost(id: string): Promise<void>;
   setLiked(postId: string, liked: boolean): Promise<void>;

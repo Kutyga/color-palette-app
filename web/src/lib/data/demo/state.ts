@@ -44,6 +44,7 @@ export type PostRec = Omit<
   | "solvedCommentId"
   | "editedAt"
   | "photoUrls"
+  | "photoKeys"
   | "plants"
 > &
   Partial<Pick<FeedPost, "kind" | "event" | "speciesId" | "solvedCommentId">> & {

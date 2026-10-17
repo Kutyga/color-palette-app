@@ -1,22 +1,23 @@
 "use client";
 
 /**
- * Меню своей публикации: правка в течение часа и удаление.
+ * Меню своей публикации: правка в течение часа, фото записи дневника — в любое время, удаление.
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Images, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { DIARY_EVENTS, editTimeLeft, type DiaryEvent, type FeedPost } from "@/lib/domain/social";
+import { DIARY_EVENTS, canEditPhotos, editTimeLeft, type DiaryEvent, type FeedPost } from "@/lib/domain/social";
 import { plural } from "@/lib/format";
 import { useBackend } from "../session";
 import { Button, Chip, Sheet, cx, inputClass, useToast } from "../ui";
+import { EditPhotosForm } from "./edit-photos";
 
 export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();
-  const [mode, setMode] = useState<"menu" | "edit" | "delete" | null>(null);
+  const [mode, setMode] = useState<"menu" | "edit" | "photos" | "delete" | null>(null);
   const [left, setLeft] = useState(0);
   const close = () => setMode(null);
   // Закрытие одного окна (событие close у <dialog>) не должно сбрасывать уже открытое следующее.
@@ -66,8 +67,25 @@ export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () =
             </button>
           ) : (
             <p className="bg-muted text-secondary rounded-2xl px-4 py-3.5 text-[15px]">
-              Редактировать можно в течение часа после публикации — это время прошло.
+              {post.kind === "diary"
+                ? "Текст можно менять в течение часа после публикации — это время прошло."
+                : "Редактировать можно в течение часа после публикации — это время прошло."}
             </p>
+          )}
+          {canEditPhotos(post) && (
+            <button
+              type="button"
+              onClick={() => setMode("photos")}
+              className="bg-muted flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left"
+            >
+              <Images className="text-leaf size-5" aria-hidden />
+              <span className="flex-1">
+                <span className="block font-semibold">Изменить фото</span>
+                <span className="text-secondary block text-[13px]">
+                  {post.kind === "diary" ? "Убрать лишнее или добавить новое — в любое время" : "Убрать лишнее или добавить новое"}
+                </span>
+              </span>
+            </button>
           )}
           <button
             type="button"
@@ -92,6 +110,9 @@ export function PostMenu({ post, onDeleted }: { post: FeedPost; onDeleted?: () =
             Удалить
           </Button>
         </div>
+      </Sheet>
+      <Sheet open={mode === "photos"} onClose={closeIf("photos")} title="Фото публикации">
+        {mode === "photos" && <EditPhotosForm post={post} onDone={close} />}
       </Sheet>
       <Sheet open={mode === "edit"} onClose={closeIf("edit")} title={post.kind === "question" ? "Изменить вопрос" : "Изменить запись"}>
         {mode === "edit" && <EditPostForm post={post} onDone={close} />}

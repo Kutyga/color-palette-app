@@ -351,7 +351,7 @@ export function PhotosField({
   max,
   aspect = "aspect-[4/3]",
 }: {
-  photos: PickedPhoto[];
+  photos: { url: string }[];
   onAdd: (blob: Blob) => void;
   onRemove: (index: number) => void;
   max: number;
