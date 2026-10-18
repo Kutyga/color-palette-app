@@ -3,7 +3,7 @@
 /** Съёмка камерой устройства: полноэкранный видоискатель и поле «фото» для форм (где можно — и из файлов). */
 
 import { Camera, ImagePlus, RefreshCw, X, Zap, ZapOff } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
 /**
  * Кадр с видео — ровно та рамка, что видна в видоискателе (по центру, пропорции ratio = ширина/высота),
@@ -37,7 +37,7 @@ function cameraError(e: unknown): string {
  * Съёмка прямо на сайте. В коллекцию попадают только растения, сфотографированные у себя дома,
  * а не картинки из интернета — поэтому там выбора файла нет (см. CameraField allowFiles).
  */
-export function CameraCapture({
+function CameraCapture({
   open,
   onClose,
   onCapture,
@@ -244,6 +244,65 @@ async function fileToJpeg(file: File, maxSide = 1600, quality = 0.85): Promise<B
   );
 }
 
+const COARSE = "(pointer: coarse)";
+
+/** Телефон или планшет: главный ввод — палец. */
+function useTouchDevice(): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia?.(COARSE);
+      m?.addEventListener("change", cb);
+      return () => m?.removeEventListener("change", cb);
+    },
+    () => !!window.matchMedia?.(COARSE).matches,
+    () => false,
+  );
+}
+
+/**
+ * Съёмка: на телефоне — системная камера (HDR, ночной режим, автофокус: снимок заметно лучше кадра
+ * из видеопотока); поле с capture открывает именно камеру, без галереи, — правило «в коллекцию только
+ * с камеры» сохраняется. На компьютере — свой видоискатель.
+ */
+export function useCamera(onCapture: (photo: Blob) => void, ratio = 1) {
+  const phone = useTouchDevice();
+  const ref = useRef<HTMLInputElement>(null);
+  const [viewfinder, setViewfinder] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const open = () => {
+    setError(null);
+    if (phone && ref.current) ref.current.click();
+    else setViewfinder(true);
+  };
+  const ui: ReactNode = (
+    <>
+      {phone && (
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          aria-label="Снимок камерой телефона"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = ""; // тот же снимок можно сделать снова
+            if (!file) return;
+            fileToJpeg(file).then(onCapture, (err: unknown) => setError(err instanceof Error ? err.message : String(err)));
+          }}
+        />
+      )}
+      {error && (
+        <p className="text-alert mt-2 text-[14px]" role="alert">
+          {error}
+        </p>
+      )}
+      <CameraCapture open={viewfinder} onClose={() => setViewfinder(false)} onCapture={onCapture} ratio={ratio} />
+    </>
+  );
+  return { open, ui };
+}
+
 /**
  * Кнопка «Сфотографировать» с предпросмотром снимка. С allowFiles — ещё и «Выбрать из файлов»
  * (объявления, розыгрыши, лента, осмотр). В свою коллекцию фото только с камеры.
@@ -260,7 +319,7 @@ export function CameraField({
   aspect?: string;
   allowFiles?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const camera = useCamera(onCapture, aspect.includes("4/3") ? 4 / 3 : 1);
   const [fileError, setFileError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -278,7 +337,7 @@ export function CameraField({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={camera.open}
         className="relative block w-full overflow-hidden rounded-[28px]"
         aria-label={photoUrl ? "Переснять фото" : "Сфотографировать растение"}
       >
@@ -329,7 +388,7 @@ export function CameraField({
           )}
         </>
       )}
-      <CameraCapture open={open} onClose={() => setOpen(false)} onCapture={onCapture} ratio={aspect.includes("4/3") ? 4 / 3 : 1} />
+      {camera.ui}
     </>
   );
 }
@@ -357,7 +416,7 @@ export function PhotosField({
   max: number;
   aspect?: string;
 }) {
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const camera = useCamera(onAdd, aspect.includes("4/3") ? 4 / 3 : 1);
   const [fileError, setFileError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -395,7 +454,7 @@ export function PhotosField({
         ))}
         {photos.length < max && (
           <li className="bg-muted flex aspect-square flex-col overflow-hidden rounded-2xl text-[13px] font-semibold">
-            <button type="button" onClick={() => setCameraOpen(true)} className="flex flex-1 items-center justify-center gap-1.5">
+            <button type="button" onClick={camera.open} className="flex flex-1 items-center justify-center gap-1.5">
               <Camera className="size-4" aria-hidden /> Снять
             </button>
             <span className="bg-separator h-px" aria-hidden />
@@ -425,7 +484,7 @@ export function PhotosField({
           {fileError}
         </p>
       )}
-      <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={onAdd} ratio={aspect.includes("4/3") ? 4 / 3 : 1} />
+      {camera.ui}
     </>
   );
 }

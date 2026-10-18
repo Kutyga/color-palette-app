@@ -3,16 +3,24 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL, hasBackend } from "./config";
 import { resilientFetch } from "./net";
+import { forgetCopiedSession, rememberSessionPlace } from "./session-place";
 
 let client: SupabaseClient | null = null;
 
 /** Один клиент на вкладку; сессия хранится в localStorage и обновляется сама. */
 export function supabase(): SupabaseClient {
   if (!hasBackend) throw new Error("Supabase не настроен");
-  client ??= createClient(SUPABASE_URL, SUPABASE_KEY, {
+  if (client) return client;
+  // Ключ, под которым supabase-js хранит сессию (sb-<проект>-auth-token).
+  const storageKey = `sb-${new URL(SUPABASE_URL).hostname.split(".")[0]}-auth-token`;
+  forgetCopiedSession(storageKey);
+  client = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     // Если Supabase недоступен напрямую (блокировка у оператора) — запросы идут через свой домен.
     global: { fetch: resilientFetch },
+  });
+  client.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_IN") rememberSessionPlace();
   });
   return client;
 }
