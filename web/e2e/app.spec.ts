@@ -9,6 +9,22 @@ function trackErrors(page: Page) {
   return errors;
 }
 
+/**
+ * Снимок «камерой»: на телефоне кнопка открывает системную камеру (поле файла с capture) —
+ * отдаём ей файл; на компьютере — свой видоискатель и «Снять».
+ */
+async function snap(page: Page, isMobile: boolean, button = "Сфотографировать растение") {
+  const open = () => page.getByRole("button", { name: button }).click();
+  if (isMobile) {
+    const [chooser] = await Promise.all([page.waitForEvent("filechooser"), open()]);
+    await chooser.setFiles("e2e/fixtures/plant.jpg");
+  } else {
+    await open();
+    await expect(page.getByRole("dialog", { name: "Камера" })).toBeVisible();
+    await page.getByRole("button", { name: "Снять" }).click();
+  }
+}
+
 async function startDemo(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Тестовый режим" }).click();
@@ -92,7 +108,7 @@ test("демо: полив с экрана «Сегодня» закрывает
   expect(errors).toEqual([]);
 });
 
-test("демо: добавить растение из базы знаний, полить, данные переживают перезагрузку", async ({ page }) => {
+test("демо: добавить растение из базы знаний, полить, данные переживают перезагрузку", async ({ page, isMobile }) => {
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/plants/hoya-carnosa/");
@@ -107,19 +123,23 @@ test("демо: добавить растение из базы знаний, п
     document.addEventListener("submit", () => document.body.setAttribute("data-submits", "1"), true);
     document.addEventListener("invalid", () => document.body.setAttribute("data-submits", "1"), true);
   });
-  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
-  await page.getByRole("button", { name: "Включить вспышку" }).click();
-  await expect(page.getByRole("button", { name: "Выключить вспышку" })).toBeVisible();
-  await expect(page.locator("body")).not.toHaveAttribute("data-submits");
-  await page.getByRole("button", { name: "Закрыть камеру" }).click();
+  if (!isMobile) {
+    // Свой видоискатель — на компьютере; на телефоне снимает системная камера.
+    await page.getByRole("button", { name: "Сфотографировать растение" }).click();
+    await page.getByRole("button", { name: "Включить вспышку" }).click();
+    await expect(page.getByRole("button", { name: "Выключить вспышку" })).toBeVisible();
+    await expect(page.locator("body")).not.toHaveAttribute("data-submits");
+    await page.getByRole("button", { name: "Закрыть камеру" }).click();
+  }
   await page.getByLabel("Имя").fill("Хойя Звёздочка");
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
   // Без снимка добавить нельзя, а выбрать файл из галереи негде — только камера.
   await expect(page.getByRole("button", { name: "Добавить в коллекцию" })).toBeDisabled();
-  await expect(page.locator('input[type="file"]')).toHaveCount(0);
-  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
-  await expect(page.getByRole("dialog", { name: "Камера" })).toBeVisible();
-  await page.getByRole("button", { name: "Снять" }).click();
+  // На телефоне есть только поле системной камеры (capture), без выбора из галереи.
+  if (isMobile) await expect(page.locator('input[type="file"]:not([capture])')).toHaveCount(0);
+  else await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await snap(page, isMobile);
+  await expect(page.locator("body")).not.toHaveAttribute("data-submits");
   await expect(page.getByRole("img", { name: "Фото растения" })).toHaveAttribute("src", /^blob:/);
   await page.getByRole("button", { name: "Добавить в коллекцию" }).click();
 
@@ -147,7 +167,7 @@ test("демо: добавить растение из базы знаний, п
   expect(errors).toEqual([]);
 });
 
-test("демо: дневники — поддержка, комментарий, подписка, своя запись и достижение", async ({ page }) => {
+test("демо: дневники — поддержка, комментарий, подписка, своя запись и достижение", async ({ page, isMobile }) => {
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/feed/");
@@ -200,8 +220,7 @@ test("демо: дневники — поддержка, комментарий,
   await expect(page.getByRole("button", { name: "Добавить в дневник" })).toBeDisabled();
   await page.getByRole("button", { name: "Монстера Мося", exact: true }).click();
   await page.getByRole("button", { name: "🌸 Цветение" }).click();
-  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
-  await page.getByRole("button", { name: "Снять" }).click();
+  await snap(page, isMobile);
   // Второе фото — из файлов: например, бутон крупно и всё растение.
   await page.getByLabel("Ещё фото из файлов").setInputFiles("e2e/fixtures/plant.jpg");
   await expect(page.getByText("2 из 5 фото")).toBeVisible();
@@ -441,7 +460,7 @@ test("демо: место растения меняется, ошибочный
   expect(errors).toEqual([]);
 });
 
-test("демо: переименование растения, своя группа в коллекции и запись сразу о нескольких растениях", async ({ page }) => {
+test("демо: переименование растения, своя группа в коллекции и запись сразу о нескольких растениях", async ({ page, isMobile }) => {
   const errors = trackErrors(page);
   await startDemo(page);
   await page.goto("/garden/");
@@ -477,8 +496,7 @@ test("демо: переименование растения, своя груп
   await page.getByRole("button", { name: "📁 Неубиваемые" }).click();
   await page.getByRole("button", { name: "Монстера Мося", exact: true }).click();
   await page.getByRole("button", { name: "🚿 Уход" }).click();
-  await page.getByRole("button", { name: "Сфотографировать растение" }).click();
-  await page.getByRole("button", { name: "Снять" }).click();
+  await snap(page, isMobile);
   await page.getByLabel("Пара слов").fill("Душ всем 🚿");
   await page.getByRole("button", { name: "Добавить в дневник" }).click();
   await page.waitForURL("**/feed/?tab=diaries");

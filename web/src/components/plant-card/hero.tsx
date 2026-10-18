@@ -4,8 +4,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
-import { useState } from "react";
-import { CameraCapture } from "@/components/camera";
+import { useCamera } from "@/components/camera";
 import { useBackend } from "@/components/session";
 import { LARGE_PHOTO, PlantPhoto, useToast } from "@/components/ui";
 import type { Plant } from "@/lib/domain/plant";
@@ -15,7 +14,6 @@ export function PlantHero({ plant, species }: { plant: Plant; species: SpeciesSu
   const backend = useBackend();
   const qc = useQueryClient();
   const toast = useToast();
-  const [cameraOpen, setCameraOpen] = useState(false);
   const upload = useMutation({
     mutationFn: (blob: Blob) => backend.garden.setPlantPhoto(plant.id, blob),
     onSuccess: () => {
@@ -24,6 +22,7 @@ export function PlantHero({ plant, species }: { plant: Plant; species: SpeciesSu
     },
     onError: (e) => toast(`Не удалось загрузить фото: ${e.message}`),
   });
+  const camera = useCamera((blob) => upload.mutate(blob));
 
   return (
     <div className="relative">
@@ -41,14 +40,14 @@ export function PlantHero({ plant, species }: { plant: Plant; species: SpeciesSu
       )}
       <button
         type="button"
-        onClick={() => setCameraOpen(true)}
+        onClick={camera.open}
         className="glass absolute right-4 bottom-4 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold"
         disabled={upload.isPending}
       >
         <Camera className="size-4" aria-hidden /> {upload.isPending ? "Загружаем…" : plant.photoUrl ? "Переснять" : "Сфотографировать"}
       </button>
-      {/* Только съёмка камерой: фото из галереи и интернета в коллекцию не загружаются. */}
-      <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(blob) => upload.mutate(blob)} />
+      {/* Только съёмка камерой (на телефоне — системной): фото из галереи и интернета в коллекцию не загружаются. */}
+      {camera.ui}
     </div>
   );
 }

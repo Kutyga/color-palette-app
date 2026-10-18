@@ -5,12 +5,9 @@
  */
 import { BASE_PATH } from "./config";
 import type { NotificationsRepository } from "./data/repositories";
+import { isIos, isStandalone } from "./device";
 
 export type PushSupport = "supported" | "unsupported" | "ios-needs-install";
-
-const isIos = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const isStandalone = () =>
-  window.matchMedia?.("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
 /** Можно ли включить push: на iPhone — только после «На экран Домой». */
 export function pushSupport(): PushSupport {
